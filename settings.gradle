@@ -1,0 +1,3 @@
+include ':customview', ':app', ':customdialog'
+project(':customview').projectDir = new File(settingsDir, '../MyAndroidLibrary/customview')
+project(':customdialog').projectDir = new File(settingsDir, '../MyAndroidLibrary/customdialog')

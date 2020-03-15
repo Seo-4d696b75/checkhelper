@@ -1,0 +1,31 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="text_size_main">18sp</dimen>
+    <dimen name="text_size_sub">12sp</dimen>
+    <dimen name="notification_icon_width">50dp</dimen>
+    <dimen name="timer_icon_width">50dp</dimen>
+    <dimen name="timer_icon_offset_default">300dp</dimen>
+
+    <dimen name="station_name_text_padding">20dp</dimen>
+    <dimen name="float_button_width">52dp</dimen>
+    <dimen name="float_button_big_width">80dp</dimen>
+
+    <dimen name="float_button_line_select_x">-75dp</dimen>
+    <dimen name="float_button_line_select_y">0dp</dimen>
+    <dimen name="float_button_line_cancel_x">-179dp</dimen>
+    <dimen name="float_button_line_cancel_y">0dp</dimen>
+    <dimen name="float_button_line_predict_x">-127dp</dimen>
+    <dimen name="float_button_line_predict_y">0dp</dimen>
+    <dimen name="float_button_timer_x">-55dp</dimen>
+    <dimen name="float_button_timer_y">-55dp</dimen>
+    <dimen name="float_button_timer_fixed_x">-107dp</dimen>
+    <dimen name="float_button_timer_fixed_y">-55dp</dimen>
+    <dimen name="float_button_map_x">0dp</dimen>
+    <dimen name="float_button_map_y">-75dp</dimen>
+
+    <!-- radar radius definition -->
+    <integer name="radar_min">12</integer>
+    <integer name="radar_max">20</integer>
+</resources>

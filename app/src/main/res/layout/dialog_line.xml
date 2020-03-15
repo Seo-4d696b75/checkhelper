@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="250dp"
+    android:layout_height="280dp"
+    custom:title="路線の選択"
+    custom:button_negative="解除"
+    custom:button_positive="閉じる"
+    custom:message="現在乗車中の路線を選択できます"
+    custom:dialog_background="@drawable/dialog_background">
+
+    <ListView
+        android:id="@+id/listLines"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout>

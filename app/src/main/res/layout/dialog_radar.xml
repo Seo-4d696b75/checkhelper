@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="240dp"
+    custom:button_positive="OK"
+    custom:title_text_size="18sp"
+    custom:title="周辺駅の探索"
+    custom:dialog_background="@drawable/dialog_background">
+
+    <ListView
+        android:id="@+id/listRadarStations"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout>

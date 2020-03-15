@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    custom:title="駅データの更新"
+    custom:title_text_size="18sp"
+    custom:message_text_size="12sp"
+    android:layout_width="240dp"
+    android:layout_height="wrap_content"
+    custom:dialog_background="@drawable/dialog_background">
+    <LinearLayout
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/textDialogDataStatus"
+            android:padding="6dp"
+            android:textSize="14sp"
+            android:textColor="@color/textDefault"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <ProgressBar
+            android:id="@+id/progressBarDialogData"
+            android:max="100"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Horizontal"/>
+        <TextView
+            android:id="@+id/textDialogDataProgress"
+            android:padding="8dp"
+            android:gravity="end"
+            android:textColor="@color/textDefault"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout>

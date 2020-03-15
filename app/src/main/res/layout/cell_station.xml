@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:custom="http://schemas.android.com/apk/res-auto"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+    android:padding="3dp">
+
+    <TextView
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/textCellStationIndex"
+        android:textSize="14sp"
+        android:textColor="@color/colorDark"
+        android:gravity="center_horizontal"
+        android:text=""/>
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/textCellStationDistance"
+        android:textSize="12sp"
+        android:textColor="@color/textDefault"
+        android:gravity="center"
+        android:text=""/>
+
+    <jp.ac.u_tokyo.t.seo.customview.ExpandableTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textCellStationName"
+        android:textSize="14sp"
+        android:textColor="@color/textGray"
+        android:text=""
+        custom:maxWidth="150dp"/>
+
+    <jp.ac.u_tokyo.t.seo.customview.ExpandableTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/textDefault"
+        android:gravity="end"
+        android:paddingStart="2dp"
+        android:paddingEnd="4dp"
+        android:id="@+id/textCellStationLine"/>
+</LinearLayout>
