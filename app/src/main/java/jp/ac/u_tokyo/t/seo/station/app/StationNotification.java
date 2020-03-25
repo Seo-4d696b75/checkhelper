@@ -20,6 +20,8 @@ import android.widget.CompoundButton;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import java.util.Locale;
+
 import jp.ac.u_tokyo.t.seo.customdialog.CustomDialog;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -84,6 +86,9 @@ class StationNotification{
             mChannelID = current.getId();
             if ( vibrate || sound != null ){
                 // it seems to be needed that the user edit notification channel setting directly
+                current.enableVibration(false);
+                current.enableLights(false);
+                current.setSound(null, null);
                 return true;
             }
         }
@@ -173,7 +178,7 @@ class StationNotification{
     private StationService mService;
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mBuilder;
-    private String mChannelID;
+    private String mChannelID = "";
 
     private RemoteViews mRemoteView;
     private int mUpdateCnt;

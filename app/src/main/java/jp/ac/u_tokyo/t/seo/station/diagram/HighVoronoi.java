@@ -100,7 +100,7 @@ public class HighVoronoi<E extends Point> {
                 callback.onResolved(targetLevel - 1, polygon, System.currentTimeMillis() - loopTime);
             }
 
-            //System.out.println("solve > " + String.format(Locale.US, "index:%d, time:%dms", targetLevel, System.currentTimeMillis() - loopTime));
+            System.out.println("solve > " + String.format(Locale.US, "index:%d, time:%dms", targetLevel, System.currentTimeMillis() - loopTime));
         }
 
 
@@ -191,7 +191,7 @@ public class HighVoronoi<E extends Point> {
 
     private synchronized void onExtensionComplete(int cnt, long elapsedTime) {
         extensionRunning = false;
-        System.out.println(String.format("addBisector > size:%d time:%d", cnt, elapsedTime));
+        //System.out.println(String.format("addBisector > size:%d time:%d", cnt, elapsedTime));
         // 走査を既に終えたメインスレッドが待っている場合もあるので起こしてみる
         notifyAll();
     }

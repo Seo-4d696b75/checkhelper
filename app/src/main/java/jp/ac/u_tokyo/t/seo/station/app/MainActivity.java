@@ -43,12 +43,10 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
 
     private final String KEY_PERMISSION_CHECK = "permission_check";
     private final String KEY_FRAGMENT_ADD = "fragment_add";
-    private final String KEY_NOTIFICATION_SETTING = "notification_setting";
     private final String KEY_FRAGMENT_PANES = "fragment_panes";
 
     static final String KEY_PREDICTION_LINE = "select_line_for_prediction";
 
-    private boolean mHasNotificationSetting;
     private boolean mHasPermissionChecked;
     private boolean mHasFragmentAdded;
 
@@ -73,11 +71,9 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
             mHasPermissionChecked = savedInstanceState.getBoolean(KEY_PERMISSION_CHECK, false);
             mHasFragmentAdded = savedInstanceState.getBoolean(KEY_FRAGMENT_ADD, false);
             mHadTwoPanes = savedInstanceState.getBoolean(KEY_FRAGMENT_PANES, false);
-            mHasNotificationSetting = savedInstanceState.getBoolean(KEY_NOTIFICATION_SETTING, false);
         }else{
             mHasPermissionChecked = false;
             mHasFragmentAdded = false;
-            mHasNotificationSetting = false;
             mHadTwoPanes = mHasTwoPanes;
         }
 
@@ -98,7 +94,6 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
         outState.putBoolean(KEY_PERMISSION_CHECK, mHasPermissionChecked);
         outState.putBoolean(KEY_FRAGMENT_ADD, mHasFragmentAdded);
         outState.putBoolean(KEY_FRAGMENT_PANES, mHasTwoPanes);
-        outState.putBoolean(KEY_NOTIFICATION_SETTING, mHasNotificationSetting);
     }
 
     @Override
@@ -151,14 +146,11 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
     }
 
     private void checkService(){
-        if ( !mHasNotificationSetting ){
-            mHasNotificationSetting = true;
-            if ( mService.needNotificationSetting() ){
-                String channel = mService.getNotificationChannelID();
-                DialogFragment fragment = StationNotification.NotificationSettingDialog.getInstance(channel);
-                fragment.show(getCompatFragmentManager(), StationNotification.NotificationSettingDialog.DIALOG_TAG);
-                return;
-            }
+        if ( mService.needNotificationSetting() ){
+            String channel = mService.getNotificationChannelID();
+            DialogFragment fragment = StationNotification.NotificationSettingDialog.getInstance(channel);
+            fragment.show(getCompatFragmentManager(), StationNotification.NotificationSettingDialog.DIALOG_TAG);
+            return;
         }
         if ( !mService.hasVersionChecked() ){
             mService.checkDataVersion(new StationService.DataVersionResult(){
@@ -217,9 +209,9 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
             transaction.commit();
         }
 
-        
+
         Intent intent = getIntent();
-        if ( intent != null ) {
+        if ( intent != null ){
             if ( intent.getBooleanExtra(KEY_PREDICTION_LINE, false) ){
                 // only once
                 intent.putExtra(KEY_PREDICTION_LINE, false);
@@ -236,7 +228,7 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
             // API level >= 23 request permission
             if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ){
                 if ( !Settings.canDrawOverlays(this) ){
-                    Toast.makeText(this, "need OVERLAY_PERMISSION", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getText(R.string.permission_overlay_message), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
                     startActivityForResult(intent, PERMISSION_REQUEST_OVERLAY);
                     return;
@@ -312,7 +304,7 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
                     // a bug found that granted permission not up to date
 
                     // rebooting app seems to resolve.
-                    Toast.makeText(this, "please reboot app", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_reboot), Toast.LENGTH_SHORT).show();
                     onFinishApp();
                 }else if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this) ){
                     Toast.makeText(this, "OVERLAY_PERMISSION not granted", Toast.LENGTH_SHORT).show();
@@ -459,7 +451,10 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
                 Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
                 intent.putExtra(Settings.EXTRA_APP_PACKAGE, mService.getPackageName());
                 intent.putExtra(Settings.EXTRA_CHANNEL_ID, channel);
+                Toast.makeText(getApplicationContext(), getString(R.string.notification_setting_message), Toast.LENGTH_LONG).show();
                 startActivity(intent);
+            }else if ( which == DialogInterface.BUTTON_NEGATIVE ){
+                checkService();
             }
         }
     }

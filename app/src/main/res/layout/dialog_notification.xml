@@ -2,30 +2,58 @@
 <jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
-    custom:title="通知の設定"
+    custom:title="@string/notification_dialog_title"
     custom:title_text_size="18sp"
-    custom:message_text_size="14sp"
-    custom:message="@string/notification_channel_setting"
-    custom:button_positive="OK"
-    custom:button_negative="Ignore"
+    custom:button_positive="@string/notification_dialog_positive"
+    custom:button_negative="@string/notification_dialog_negative"
     android:layout_width="280dp"
     android:layout_height="wrap_content"
     custom:dialog_background="@drawable/dialog_background">
     <LinearLayout
-        android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-        <CheckBox
-            android:id="@+id/checkboxNotificationSettingNever"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:orientation="vertical"
+        android:padding="10dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:text="@string/notification_dialog_message"
+            android:textSize="14sp"
+            android:textColor="@color/textDefault"/>
+
+        <TextView
+            android:paddingTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:text="@string/notification_step"/>
+        <TextView
+            android:padding="4dp"
+            android:paddingEnd="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textColor="@color/textDefault"
-            android:text="今後表示しない"/>
+            android:textSize="12sp"
+            android:text="@string/notification_step_details"/>
+
+        <LinearLayout
+            android:padding="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <CheckBox
+                android:id="@+id/checkboxNotificationSettingNever"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/textDefault"
+                android:text="@string/notification_dialog_never"/>
+        </LinearLayout>
     </LinearLayout>
 </jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout>

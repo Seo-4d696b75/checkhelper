@@ -294,7 +294,7 @@ class OverlayNotification extends BroadcastReceiver implements View.OnClickListe
         mAnimOpen.cancel();
 
         if ( mTimerPosition >= 0 ){
-            SharedPreferences.Editor editor = mService.getSharedPreferences(StationService.PREFERENCE_NAME, MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = mService.getSharedPreferences(mService.getString(R.string.preference_name), MODE_PRIVATE).edit();
             editor.putInt(KEY_TIMER_ICON_POSITION, mTimerPosition);
             editor.apply();
         }
@@ -401,7 +401,7 @@ class OverlayNotification extends BroadcastReceiver implements View.OnClickListe
                 LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 mTimerScreen = inflater.inflate(R.layout.overlay_timer, null);
                 if ( mTimerPosition < 0 ){
-                    SharedPreferences preference = mService.getSharedPreferences(StationService.PREFERENCE_NAME, MODE_PRIVATE);
+                    SharedPreferences preference = mService.getSharedPreferences(mService.getString(R.string.preference_name), MODE_PRIVATE);
                     mTimerPosition = preference.getInt(KEY_TIMER_ICON_POSITION, -1);
                     if ( mTimerPosition < 0 ){
                         Display display = mWindowManager.getDefaultDisplay();

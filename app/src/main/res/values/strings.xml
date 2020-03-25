@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">最寄駅サガース</string>
+    <string name="preference_name_backup">setting_backup</string>
+    <string name="preference_name">setting</string>
     <string name="message_wait">探索を待機しています</string>
     <string name="message_stop">探索を停止しました</string>
     <string name="message_search_station">最寄駅を探しています</string>
@@ -71,4 +73,14 @@
     <string name="notification_channel_description">最寄駅の情報を表示したりアプリへのショートカットを提供します</string>
     <string name="notification_channel_setting">通知設定を変更しましょう\n通知更新のたびに音やバイブレーションが鳴り不快とならないように設定するよう推奨します\n音 > なし\nバイブレーション > OFF</string>
     <string name="guide_wait">探索中…</string>
+    <string name="permission_overlay_message">他のアプリの上に通知を表示するため、この権限が必要です.\n許可したら戻るボタンを押してください.</string>
+    <string name="permission_reboot">アプリを再起動してください.</string>
+    <string name="notification_dialog_positive">設定する</string>
+    <string name="notification_dialog_negative">無視</string>
+    <string name="notification_dialog_never">今後表示しない</string>
+    <string name="notification_dialog_title">通知設定の変更</string>
+    <string name="notification_dialog_message">現在地の変化による通知の更新のたびに、音やバイブレーションが鳴らないように設定するよう推奨します.</string>
+    <string name="notification_step">変更する項目</string>
+    <string name="notification_step_details">「音」> なし\n「バイブレーション」> off</string>
+    <string name="notification_setting_message">設定が完了したら戻るボタンを押してください.</string>
 </resources>

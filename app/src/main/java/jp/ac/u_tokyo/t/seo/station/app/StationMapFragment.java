@@ -585,7 +585,7 @@ public class StationMapFragment extends CompatFragment implements
     }
 
 
-    private final double BOUNDARY_MARGIN = 1.0;
+    private final double BOUNDARY_MARGIN = 2.0;
     
     private static class CameraUpdateTask extends AsyncTask<Void,Void,Boolean>{
 

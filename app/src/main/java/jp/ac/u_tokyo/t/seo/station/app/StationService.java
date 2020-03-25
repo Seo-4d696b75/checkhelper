@@ -136,7 +136,6 @@ public class StationService extends Service implements
         mStatusListener = listener;
     }
 
-    static final String PREFERENCE_NAME = "preference_setting";
     private final String KEY_INTERVAL = "interval";
     private final String KEY_RADAR = "radar";
     private final String KEY_DATA_VERSION = "dataVersion";
@@ -146,7 +145,7 @@ public class StationService extends Service implements
     private final String KEY_BRIGHTNESS = "brightness";
     private final String KEY_KEEP_NOTIFICATION = "notification_stationary";
     private final String KEY_NOTIFY_PREFECTURE = "notify_prefecture";
-    private final String KEY_NOTIFICATION_SETTING = "notification_setting";
+    private final String KEY_NOTIFICATION_SETTING = "notification_channel_setting";
     private final String KEY_VIBRATE_METER = "vibrate_meter";
     private final String KEY_VIBRATE_APPROACH = "vibrate_approach";
 
@@ -331,19 +330,24 @@ public class StationService extends Service implements
         mDataInitialized = checkData();
 
         //restore user setting
-        SharedPreferences preference = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
+        SharedPreferences preference = getSharedPreferences(getString(R.string.preference_name_backup), MODE_PRIVATE);
         mIsVibrate = preference.getBoolean(KEY_VIBRATE, false);
         mRadarNum = preference.getInt(KEY_RADAR, 12);
         mInterval = preference.getInt(KEY_INTERVAL, 5);
-        mDataVersion = mDataInitialized ? preference.getLong(KEY_DATA_VERSION, 0) : 0;
         mIsNotifyUpdate = preference.getBoolean(KEY_NOTIFY, true);
         mForceNotify = preference.getBoolean(KEY_FORCE_NOTIFY, false);
-        mBrightness = preference.getInt(KEY_BRIGHTNESS, 100);
         mKeepNotification = preference.getBoolean(KEY_KEEP_NOTIFICATION, false);
         mIsNotifyPrefecture = preference.getBoolean(KEY_NOTIFY_PREFECTURE, false);
-        mShowNotificationSetting = preference.getBoolean(KEY_NOTIFICATION_SETTING, true);
         mVibrateMeter = preference.getInt(KEY_VIBRATE_METER, 100);
         mVibrateApproach = preference.getBoolean(KEY_VIBRATE_APPROACH, false);
+        mBrightness = preference.getInt(KEY_BRIGHTNESS, 100);
+
+
+        preference = getSharedPreferences(getString(R.string.preference_name), MODE_PRIVATE);
+        mDataVersion = mDataInitialized ? preference.getLong(KEY_DATA_VERSION, 0) : 0;
+        mShowNotificationSetting = preference.getBoolean(KEY_NOTIFICATION_SETTING, true);
+
+
         mNightMood = false;
 
 
@@ -899,21 +903,26 @@ public class StationService extends Service implements
     }
 
     void saveSetting(){
-        SharedPreferences preferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(getString(R.string.preference_name_backup), MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean(KEY_VIBRATE, mIsVibrate);
         editor.putInt(KEY_RADAR, mRadarNum);
         editor.putInt(KEY_INTERVAL, mInterval);
-        editor.putLong(KEY_DATA_VERSION, mDataVersion);
         editor.putBoolean(KEY_NOTIFY, mIsNotifyUpdate);
         editor.putBoolean(KEY_FORCE_NOTIFY, mForceNotify);
         editor.putInt(KEY_BRIGHTNESS, mBrightness);
         editor.putBoolean(KEY_KEEP_NOTIFICATION, mKeepNotification);
         editor.putBoolean(KEY_NOTIFY_PREFECTURE, mIsNotifyPrefecture);
-        editor.putBoolean(KEY_NOTIFICATION_SETTING, mShowNotificationSetting);
         editor.putInt(KEY_VIBRATE_METER, mVibrateMeter);
         editor.putBoolean(KEY_VIBRATE_APPROACH, mVibrateApproach);
         editor.apply();
+
+        preferences = getSharedPreferences(getString(R.string.preference_name), MODE_PRIVATE);
+        editor = preferences.edit();
+        editor.putBoolean(KEY_NOTIFICATION_SETTING, mShowNotificationSetting);
+        editor.putLong(KEY_DATA_VERSION, mDataVersion);
+        editor.apply();
+
     }
 
     int getInterval(){
@@ -1537,7 +1546,7 @@ public class StationService extends Service implements
                         for ( int j = 0; j < array.length(); j++ ){
                             JSONObject item = array.getJSONObject(j);
                             StationPoint point = new StationPoint(item);
-                            mStationPointMap.put(point.id, point);
+                            mStationPointMap.put(point.code, point);
                         }
                         return getStationPoint(code);
                     }catch( Exception e ){

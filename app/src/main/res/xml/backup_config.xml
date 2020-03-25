@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="sharedpref" path="setting_backup.xml"/>
+    <exclude domain="sharedpref" path="setting.xml"/>
+    <exclude domain="external" path="."/>
+    <exclude domain="file" path="."/>
+</full-backup-content>
