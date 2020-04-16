@@ -26,11 +26,6 @@ class Line{
     static final int COLOR_DEFAULT = 0xCCCCCC;
     static final String COLOR_DEFAULT_STRING = "#CCCCCC";
 
-    interface StationAccessor{
-        @NonNull
-        Station[] getStations(int[] id);
-    }
-
     Line(JSONObject data) throws JSONException{
         mCode = data.getInt("code");
         mName = data.getString("name");
@@ -66,14 +61,14 @@ class Line{
     final int mColor;
     final String mColorString;
 
-    void setDetails(JSONObject data, StationAccessor accessor) throws JSONException{
+    void setDetails(JSONObject data, StationService service) throws JSONException{
         JSONArray array = data.getJSONArray("station_list");
-        int[] code = new int[array.length()];
+        mStationList = new Station[array.length()];
         for ( int i=0 ; i<array.length() ; i++ ){
             JSONObject item = array.getJSONObject(i);
-            code[i] = item.getInt("code");
+            int code = item.getInt("code");
+            mStationList[i] = service.getStation(code, item);
         }
-        mStationList = accessor.getStations(code);
         if ( data.has("polyline_list")){
             array = data.getJSONArray("polyline_list");
             final int size = array.length();

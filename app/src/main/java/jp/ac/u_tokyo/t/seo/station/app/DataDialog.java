@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -25,9 +26,13 @@ public class DataDialog extends CustomDialog{
 
     private static final String KEY_VERSION = "version";
     private static final String KEY_PATH = "path";
-    private static final String KEY_DATA_EMPTY = "empty";
-    private static final String KEY_GET = "get";
     private static final String KEY_SIZE = "size";
+
+    private static final String KEY_REQUEST = "data_request";
+    private static final String REQUEST_UPDATE = "update";
+    private static final String REQUEST_INITIALIZE = "initialize";
+    private static final String REQUEST_CHECK = "check";
+    private static final String REQUEST_MANUAL = "manual";
 
     interface DataUpdateResult {
         void onUpdateRequired(boolean required, long version, String path);
@@ -36,7 +41,7 @@ public class DataDialog extends CustomDialog{
 
     public static DataDialog getInstance(long version, String path){
         Bundle args = new Bundle();
-        args.putBoolean(KEY_GET, true);
+        args.putString(KEY_REQUEST, REQUEST_UPDATE);
         args.putLong(KEY_VERSION, version);
         args.putString(KEY_PATH, path);
         DataDialog dialog = new DataDialog();
@@ -44,41 +49,62 @@ public class DataDialog extends CustomDialog{
         return dialog;
     }
 
-    public static DataDialog getInstance(long version, String path, String size, boolean empty){
+    public static DataDialog getInstance(long version, String path, String size, boolean initial){
         Bundle args = new Bundle();
-        args.putBoolean(KEY_GET, false);
+        args.putString(KEY_REQUEST, initial ? REQUEST_INITIALIZE : REQUEST_CHECK);
         args.putLong(KEY_VERSION, version);
         args.putString(KEY_PATH, path);
-        args.putBoolean(KEY_DATA_EMPTY, empty);
         args.putString(KEY_SIZE, size);
         DataDialog dialog = new DataDialog();
         dialog.setArguments(args);
         return dialog;
     }
 
-    private boolean mGetData;
+    public static DataDialog getInstance(){
+        Bundle args = new Bundle();
+        args.putString(KEY_REQUEST, REQUEST_MANUAL);
+        DataDialog dialog = new DataDialog();
+        dialog.setArguments(args);
+        return dialog;
+    }
+
+    private String mRequest;
     private long mTargetVersion;
     private String mDataPath;
-    private boolean mDataEmpty;
     private String mDataSize;
 
     private StationService mService;
     private MainActivity mContext;
     private DataUpdateResult mCallback;
+    private EditText mURLText;
 
     @Override
     protected View onInflateView(LayoutInflater inflater, int id){
         Bundle args = getArguments();
-        mGetData = args.getBoolean(KEY_GET);
-        mTargetVersion = args.getLong(KEY_VERSION);
-        mDataPath = args.getString(KEY_PATH);
-        if ( mGetData ){
-            return inflater.inflate(R.layout.dialog_data, null, false);
-        }else{
-            mDataEmpty = args.getBoolean(KEY_DATA_EMPTY);
-            mDataSize = args.getString(KEY_SIZE);
-            return inflater.inflate(mDataEmpty ? R.layout.dialog_data_initial : R.layout.dialog_data_version, null, false);
+        mRequest = args.getString(KEY_REQUEST, "");
+        switch ( mRequest ){
+            case REQUEST_UPDATE:
+                mDataPath = args.getString(KEY_PATH);
+                return inflater.inflate(R.layout.dialog_data, null, false);
+            case REQUEST_CHECK:
+                mTargetVersion = args.getLong(KEY_VERSION);
+                mDataSize = args.getString(KEY_SIZE);
+                mDataPath = args.getString(KEY_PATH);
+                return inflater.inflate(R.layout.dialog_data_version, null, false);
+            case REQUEST_INITIALIZE:
+                mTargetVersion = args.getLong(KEY_VERSION);
+                mDataSize = args.getString(KEY_SIZE);
+                mDataPath = args.getString(KEY_PATH);
+                return inflater.inflate(R.layout.dialog_data_initial, null, false);
+            case REQUEST_MANUAL:
+                mTargetVersion = 0;
+                mDataSize = "";
+                mDataPath = "";
+                return inflater.inflate(R.layout.dialog_data_manual, null, false);
+                default:
+
         }
+        return null;
     }
 
     @Override
@@ -103,39 +129,57 @@ public class DataDialog extends CustomDialog{
             return;
         }
 
-        if ( mGetData ){
-            final TextView status = (TextView)view.findViewById(R.id.textDialogDataStatus);
-            final TextView progress = (TextView)view.findViewById(R.id.textDialogDataProgress);
-            final ProgressBar bar = (ProgressBar)view.findViewById(R.id.progressBarDialogData);
-            progress.setText("0%");
-            bar.setProgress(0);
-            mService.updateData(mTargetVersion, mDataPath, new StationService.DataUpdateListener(){
-                @Override
-                public void onProgress(int value, String mes){
-                    status.setText(mes);
-                    progress.setText(String.format(Locale.US, "%2d%%", value));
-                    bar.setProgress(value);
-                }
+        switch ( mRequest ){
+            case REQUEST_UPDATE:
+                final TextView status = (TextView)view.findViewById(R.id.textDialogDataStatus);
+                final TextView progress = (TextView)view.findViewById(R.id.textDialogDataProgress);
+                final ProgressBar bar = (ProgressBar)view.findViewById(R.id.progressBarDialogData);
+                progress.setText("0%");
+                bar.setProgress(0);
+                mService.updateData(mTargetVersion, mDataPath, new StationService.DataUpdateListener(){
+                    @Override
+                    public void onProgress(int value, String mes){
+                        status.setText(mes);
+                        progress.setText(String.format(Locale.US, "%2d%%", value));
+                        bar.setProgress(value);
+                    }
 
-                @Override
-                public void onComplete(boolean success){
-                    if ( mCallback != null ) mCallback.onDateUpdate(mTargetVersion, success);
-                    dismiss();
-                }
-            });
-        }else if ( !mDataEmpty ){
-            TextView v = (TextView)view.findViewById(R.id.textDialogDataVersion);
-            v.setText(String.format(Locale.US, getString(R.string.data_version_size_format), mTargetVersion, mDataSize));
+                    @Override
+                    public void onComplete(boolean success){
+                        if ( mCallback != null ) mCallback.onDateUpdate(mTargetVersion, success);
+                        dismiss();
+                    }
+                });
 
+                break;
+            case REQUEST_CHECK:
+            case REQUEST_INITIALIZE:
+                TextView version = (TextView)view.findViewById(R.id.textDialogDataVersion);
+                TextView size = (TextView)view.findViewById(R.id.textDialogDataSize);
+                version.setText(String.format(Locale.US, getString(R.string.data_update_version_format), mTargetVersion));
+                size.setText(String.format(Locale.US, getString(R.string.data_update_size_format), mDataSize));
+                break;
+            case REQUEST_MANUAL:
+                mURLText = (EditText)view.findViewById(R.id.textDataURL);
+                /*
+                mURLText.setEnabled(false);
+                mURLText.setEnabled(true);
+                mURLText.setFocusable(true);
+                mURLText.setFocusableInTouchMode(true);
+                mURLText.setTextIsSelectable(true);
+                mURLText.setSelectAllOnFocus(true);*/
+                break;
         }
     }
 
     @Override
     protected boolean onButtonClicked(int which){
-        if ( !mGetData && which == DialogInterface.BUTTON_POSITIVE ){
+        if ( mRequest.equals(REQUEST_UPDATE) ) return true;
+        if ( mRequest.equals(REQUEST_MANUAL) && mURLText != null ) mDataPath = mURLText.getText().toString();
+        if ( which == DialogInterface.BUTTON_POSITIVE ){
             if ( mCallback != null ) mCallback.onUpdateRequired(true, mTargetVersion, mDataPath);
         }
-        if ( !mGetData && which == DialogInterface.BUTTON_NEGATIVE ){
+        if ( which == DialogInterface.BUTTON_NEGATIVE ){
             if ( mCallback != null ) mCallback.onUpdateRequired(false, mTargetVersion, mDataPath);
         }
         return true;

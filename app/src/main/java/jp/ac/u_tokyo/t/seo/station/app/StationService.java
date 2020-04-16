@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -69,7 +70,7 @@ import java.util.Timer;
  */
 
 public class StationService extends Service implements
-        GPSService.GPSCallback, StationKdTree.StationUpdateCallback, Line.StationAccessor, Station.LineAccessor, PositionPredictor.StationPredictCallback{
+        GPSService.GPSCallback, StationKdTree.StationUpdateCallback, Station.LineAccessor, PositionPredictor.StationPredictCallback{
 
     //ServiceをActivityへバインドするための実装
 
@@ -550,12 +551,14 @@ public class StationService extends Service implements
                 publishProgress();
                 JSONObject data = new JSONObject(str);
                 long v = data.getLong("version");
-                if ( version != v ){
+                if ( version <= 0 ){
+                    service.log(String.format(Locale.US, "Version required:none found:%d", v));
+                    version = v;
+                } else if ( version > 0 && version != v ){
                     service.onError(String.format(Locale.US, "Version mismatch required:%d found:%d", version, v));
                     return false;
                 }
                 File file = service.getFilesDir();
-                //路線一覧データの展開
                 JSONArray lines = data.getJSONArray("lines");
                 File linesDir = new File(file, "lines");
                 //clean
@@ -578,26 +581,9 @@ public class StationService extends Service implements
                         return false;
                     }
                 }
-                status = "路線データを展開してます...";
-                for ( int i = 0; i < lines.length(); i++ ){
-                    //詳細データは個別ファイルへ
-                    //概略データを集めてひとつのファイルへ
-                    JSONObject item = lines.getJSONObject(i);
-                    int code = item.getInt("code");
-                    service.writeFile(new File(linesDir, String.format("%s.json", code)), item.toString());
-                    item.remove("station_list");
-                    if ( item.has("polyline_list") ){
-                        item.remove("polyline_list");
-                        item.remove("north");
-                        item.remove("south");
-                        item.remove("east");
-                        item.remove("west");
-                    }
-                    progress = 100 * i / lines.length();
-                    publishProgress();
-                }
-                service.writeFile(new File(file, "lines.json"), lines.toString());
-                service.log("lines > size : " + lines.length());
+
+
+
                 //駅一覧データの展開
                 //一覧データ(主に検索用)
                 status = "駅データを展開してます...";
@@ -612,6 +598,42 @@ public class StationService extends Service implements
                     if ( i % 10 == 0 ) publishProgress();
                 }
                 service.log("stations > size : " + stations.length());
+
+
+                //路線一覧データの展開
+                status = "路線データを展開してます...";
+                for ( int i = 0; i < lines.length(); i++ ){
+                    //詳細データは個別ファイルへ
+                    //概略データを集めてひとつのファイルへ
+                    JSONObject item = lines.getJSONObject(i);
+                    int code = item.getInt("code");
+                    JSONArray list = item.getJSONArray("station_list");
+                    for ( int k=0 ; k<list.length() ; k++ ){
+                        JSONObject s = list.getJSONObject(k);
+                        JSONObject detail = stationMap.get(s.getInt("code"));
+                        for ( Iterator<String> itr = detail.keys() ; itr.hasNext() ; ){
+                            String key = itr.next();
+                            s.put(key, detail.get(key));
+                        }
+
+                    }
+                    service.writeFile(new File(linesDir, String.format("%s.json", code)), item.toString());
+                    item.remove("station_list");
+                    if ( item.has("polyline_list") ){
+                        item.remove("polyline_list");
+                        item.remove("north");
+                        item.remove("south");
+                        item.remove("east");
+                        item.remove("west");
+                    }
+                    progress = 100 * i / lines.length();
+                    publishProgress();
+                }
+                service.writeFile(new File(file, "lines.json"), lines.toString());
+                service.log("lines > size : " + lines.length());
+
+
+
                 //範囲ブロックの展開
                 status = "駅境界データを展開してます...";
                 JSONArray segments = data.getJSONArray("tree_segments");
@@ -1470,40 +1492,17 @@ public class StationService extends Service implements
         }
     }
 
-    @Override
     @NonNull
-    public Station[] getStations(int[] code){
+    Station getStation(int code, JSONObject data) throws JSONException{
         synchronized( STATION_ACCESS_LOCK ){
-            Station[] result = new Station[code.length];
-            JSONArray array = null;
-            for ( int i = 0; i < code.length; i++ ){
-                int index = mStationMap.indexOfKey(code[i]);
-                if ( index < 0 ){
-                    try{
-                        if ( array == null ){
-                            File file = new File(getFilesDir(), "stations.json");
-                            array = new JSONArray(readFile(file));
-                        }
-                        for ( int j = 0; j < array.length(); j++ ){
-                            JSONObject item = array.getJSONObject(j);
-                            if ( item.getInt("code") == code[i] ){
-                                Station s = new Station(item, this);
-                                result[i] = s;
-                                mStationMap.put(code[i], s);
-                                break;
-                            }
-                        }
-                        if ( result[i] != null ) continue;
-                    }catch( Exception e ){
-                        throw new AppException("fail to read stations :" + Arrays.toString(code), e);
-                    }
-                    result[i] = new Station(code[i]);
-                }else{
-                    result[i] = mStationMap.valueAt(index);
-                }
+            int index = mStationMap.indexOfKey(code);
+            if ( index < 0 ){
+                Station s = new Station(data, this);
+                mStationMap.put(code, s);
+                return s;
+            } else {
+                return mStationMap.valueAt(index);
             }
-            return result;
-
         }
     }
 

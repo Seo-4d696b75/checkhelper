@@ -33,7 +33,8 @@
     <string name="data_version_check_fail">最新版の確認ができません</string>
     <string name="data_version_success">データの更新が完了しました\n version : </string>
     <string name="data_version_fail">駅データの初期化に失敗しました</string>
-    <string name="data_version_size_format" formatted="false">バージョン:%d\nデータサイズ:%s</string>
+    <string name="data_update_version_format" formatted="false">バージョン:%d</string>
+    <string name="data_update_size_format" formatted="false">データサイズ:%s</string>
     <string name="message_calc_voronoi">境界線を計算しています&#8230;</string>
     <string name="log_type_message">表示フィルタ</string>
     <string name="log_type_all">すべて</string>

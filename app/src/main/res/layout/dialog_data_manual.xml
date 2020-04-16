@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    custom:title="駅データの更新"
+    custom:title_text_size="18sp"
+    custom:message_text_size="14sp"
+    custom:message="データのURLを直接指定します"
+    custom:button_positive="更新"
+    custom:button_negative="中止"
+    android:layout_width="240dp"
+    android:layout_height="wrap_content"
+    custom:dialog_background="@drawable/dialog_background">
+
+    <EditText
+        android:id="@+id/textDataURL"
+        android:textColor="@color/textDefault"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textUri"
+        android:padding="10dp"
+        android:hint="URL"
+        android:textIsSelectable="true"/>
+</jp.ac.u_tokyo.t.seo.customdialog.DialogFrameLayout>

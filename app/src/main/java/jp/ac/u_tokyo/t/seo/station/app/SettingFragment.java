@@ -155,7 +155,8 @@ public class SettingFragment extends CompatFragment implements DataDialog.DataUp
         });
         mTextDataVersion = (TextView)view.findViewById(R.id.textDataVersion);
         showDataVersion();
-        view.findViewById(R.id.imageDataVersion).setOnClickListener(new View.OnClickListener(){
+        final View dataUpdate = view.findViewById(R.id.imageDataVersion);
+        dataUpdate.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 mService.checkDataVersion(new StationService.DataVersionResult(){
@@ -175,6 +176,14 @@ public class SettingFragment extends CompatFragment implements DataDialog.DataUp
                         Toast.makeText(mContext, getString(R.string.data_version_check_fail), Toast.LENGTH_LONG).show();
                     }
                 });
+            }
+        });
+        dataUpdate.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v){
+                DataDialog dialog = DataDialog.getInstance();
+                dialog.show(getCompatFragmentManager(), null);
+                return true;
             }
         });
 
