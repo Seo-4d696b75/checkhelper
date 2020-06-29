@@ -1,5 +1,6 @@
 package jp.ac.u_tokyo.t.seo.station.app;
 
+import android.app.Service;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,11 +23,14 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import jp.ac.u_tokyo.t.seo.station.app.Line.PolylineSegment;
+import jp.ac.u_tokyo.t.seo.station.diagram.BasePoint;
+import jp.ac.u_tokyo.t.seo.station.diagram.Edge;
 import jp.ac.u_tokyo.t.seo.station.diagram.Point;
 
 
@@ -60,9 +64,10 @@ class PositionPredictor{
 
         mCursors = new LinkedList<>();
         mPrediction = new LinkedList<>();
+        mEstimation = new KalmanFilter();
     }
 
-    static class PredictionResult {
+    static class PredictionResult{
 
         private PredictionResult(int size){
             mPredictions = new StationPrediction[size];
@@ -138,6 +143,7 @@ class PositionPredictor{
 
     private Location mLastLocation;
     private final float DISTANCE_THRESHOLD = 5f;
+    private KalmanFilter mEstimation;
 
     private long mUpdateTime;
 
@@ -152,32 +158,43 @@ class PositionPredictor{
         if ( mCurrentStation == null || !mCurrentStation.equals(station) ){
             mCurrentStation = station;
         }
+        // Update each cursors
+        List<PolylineCursor> list = new LinkedList<>();
+        for ( PolylineCursor p : mCursors ) p.update(location, list);
+
+        // Filter cursors
+        if ( mCursors.size() > 1 ) filterCursors(list, 2);
+
+        mCursors = list;
+        Log.d("update", String.format("cursor size: %d, speed: %.0fkm/h", list.size(), list.get(0).state.speed * 3.6));
+
+
         if ( mLastLocation.distanceTo(location) < DISTANCE_THRESHOLD ) return;
         mLastLocation = location;
 
-        mExplorer.updateLocation(location.getLongitude(), location.getLatitude());
-        double farthest = mService.mInternalRuler.measureDistance(mExplorer.getNearStation(mRadarSize-1), location.getLongitude(), location.getLatitude());
-
-        List<PolylineCursor> list = new LinkedList<>();
-        for ( PolylineCursor p : mCursors ) p.update(location, list, mUpdateTime);
-        if ( mCursors.size() > 1 ) reduceElement(list, 2);
-        mCursors = list;
-        Log.d("update", "complete > cursor size: " + list.size());
-
+        // prediction の集計
         List<StationPrediction> resolved = new LinkedList<>();
         List<StationPrediction> predictions = new LinkedList<>();
-        for ( PolylineCursor p : list ) p.predict(predictions);
-        for ( StationPrediction prediction : predictions ){
-            StationPrediction same = getSameStation(resolved, prediction.station);
-            if ( same == null ){
-                resolved.add(prediction);
-            }else{
-                same.compareDistance(prediction);
+        for ( PolylineCursor p : list ){
+            predictions.clear();
+            p.predict(predictions);
+            // 駅の重複がないように、重複するならより近い距離を採用
+            for ( StationPrediction prediction : predictions ){
+                StationPrediction same = getSameStation(resolved, prediction.station);
+                if ( same == null ){
+                    resolved.add(prediction);
+                }else{
+                    same.compareDistance(prediction);
+                }
             }
         }
+
+
+        // 距離に関して駅をソート
         Collections.sort(resolved);
         mPrediction = resolved;
         int size = Math.min(mMaxPrediction, mPrediction.size());
+        // 結果オブジェクトにまとめる
         PredictionResult result = new PredictionResult(size);
         String date = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date(mUpdateTime));
         Log.d("predict", date + " station size: " + mPrediction.size());
@@ -185,11 +202,6 @@ class PositionPredictor{
             StationPrediction s = mPrediction.get(i);
             result.mPredictions[i] = s;
             Log.d("predict", String.format(Locale.US, "[%d] %.0fm %s", i, s.distance, s.station.name));
-        }
-
-        if ( size > 0 && farthest < mPrediction.get(size-1).distance ){
-            mExplorer.setSearchProperty(++mRadarSize, 0);
-            mService.log("prediction > radar size incremented:" + mRadarSize);
         }
 
         mCallback.onApproachStations(result);
@@ -209,7 +221,7 @@ class PositionPredictor{
                 segment = fragment;
             }
         }
-        mCursors.add(new PolylineCursor(segment, nearest));
+        mCursors.add(new PolylineCursor(segment, nearest, location));
         mLastLocation = location;
     }
 
@@ -219,10 +231,6 @@ class PositionPredictor{
             if ( p.station.equals(station) ) return p;
         }
         return null;
-    }
-
-    private void onDirectionChanged(){
-
     }
 
     private class StationPrediction implements Comparable<StationPrediction>{
@@ -245,158 +253,263 @@ class PositionPredictor{
         }
     }
 
-    private double reduceElement(List<PolylineCursor> list, double threshold){
-        double min = Double.MAX_VALUE;
-        for ( PolylineCursor p : list ) min = Math.min(min, p.nearest.distance);
-        double sum = 0.0;
-        for ( ListIterator<PolylineCursor> iterator = list.listIterator(); iterator.hasNext(); ){
-            PolylineCursor p = iterator.next();
-            if ( p.nearest.distance > min * threshold ){
+    private double filterCursors(List<PolylineCursor> list, double threshold){
+
+        double minDistance = Double.MAX_VALUE;
+        for ( PolylineCursor cursor : list )
+            minDistance = Math.min(minDistance, cursor.nearest.distance);
+        for ( Iterator<PolylineCursor> iterator = list.iterator(); iterator.hasNext(); ){
+            if ( iterator.next().nearest.distance > minDistance * threshold ){
                 iterator.remove();
-            }else{
-                sum += p.nearest.distance;
             }
         }
-        return sum / list.size();
+        return minDistance;
     }
 
     private class PolylineCursor{
 
-        PolylineCursor(PolylineSegment segment, NearestPoint nearest){
+        /**
+         * 初期化
+         */
+        PolylineCursor(PolylineSegment segment, NearestPoint nearest, Location location){
             this.nearest = nearest;
+            // initialize node-node graph and start end node
             new EndNode(segment, this);
+            this.state = KalmanFilter.Sample.initialize(
+                    mUpdateTime,
+                    nearest.distanceFrom(),
+                    location.hasSpeed() ? location.getSpeed() : 0.0,
+                    Math.max(location.getAccuracy(), nearest.distance)
+            );
+            this.pathLengthSign = 1;
+            this.pathPosAtStart = 0;
+            this.pathPosAtNearest = nearest.distanceFrom();
         }
 
-        private PolylineCursor(PolylineCursor old, Location location, PolylineNode start, PolylineNode end, NearestPoint nearest){
+        /**
+         * 新しい最近傍点でカーソルを新規生成
+         *
+         * @param start
+         * @param end
+         * @param nearest      最近傍点 on edge start-end
+         * @param pathPosition 符号付経路上の距離@startノード
+         */
+        private PolylineCursor(PolylineNode start, PolylineNode end, NearestPoint nearest, double pathPosition, PolylineCursor old){
             this.nearest = nearest;
             this.start = start;
             this.end = end;
             if ( !start.point.equals(nearest.start) || !end.point.equals(nearest.end) ){
                 throw new IllegalArgumentException();
             }
-            //float rate = (float)Math.exp(-location.getAccuracy()/10.0);
-            //this.estimatedSpeed = old.estimatedSpeed * (1f-rate) + location.getSpeed() * rate;
-            //this.forward = start.point.equals(nearest.start);
-            //this.estimatedSpeed = location.getSpeed();
-            this.time = old.time;
+            this.pathPosAtStart = pathPosition;
+            this.pathLengthSign = old.pathLengthSign;
+            this.pathPosAtNearest = pathPosition + nearest.distanceFrom() * this.pathLengthSign;
+            this.state = old.state;
+            this.isSignDecided = old.isSignDecided;
         }
 
+        /**
+         * 以前のカーソルから新しい現在位置に対し探索を開始するカーソルを得る
+         *
+         * @param old      以前のカーソル
+         * @param forward  向き
+         * @param location 現在位置
+         */
         private PolylineCursor(PolylineCursor old, boolean forward, Location location){
-            this.start = forward ? old.start : old.end;
-            this.end = forward ? old.end : old.start;
+            if ( forward ){
+                this.start = old.start;
+                this.end = old.end;
+                this.pathLengthSign = old.pathLengthSign;
+                this.pathPosAtStart = old.pathPosAtStart;
+            }else{
+                this.start = old.end;
+                this.end = old.start;
+                this.pathLengthSign = -1 * old.pathLengthSign;
+                this.pathPosAtStart = old.pathPosAtStart + old.pathLengthSign * old.nearest.edgeDistance;
+            }
+            this.state = old.state;
+
             LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
             this.nearest = new NearestPoint(start.point, end.point, position);
-            //float rate = (float)Math.exp(-location.getAccuracy()/100.0);
-            //this.estimatedSpeed = old.estimatedSpeed * (1f-rate) + location.getSpeed() * rate;
-            //this.estimatedSpeed = location.getSpeed();
-            this.time = old.time;
+            this.isSignDecided = old.isSignDecided;
+            this.pathPosAtNearest = this.pathPosAtStart + this.nearest.distanceFrom() * this.pathLengthSign;
         }
 
         private NearestPoint nearest;
         private PolylineNode start, end;
-        //private float estimatedSpeed;
+        // start -> end 方向を正方向とし、startを原点とする1次元座標で測定する
+        private KalmanFilter.Sample state;
+        private int pathLengthSign;
+        private double pathPosAtStart, pathPosAtNearest;
+        private boolean isSignDecided = false;
 
         void initPosition(PolylineNode from, PolylineNode to){
             start = from;
             end = to;
         }
 
-        void update(Location location, Collection<PolylineCursor> callback, long time){
-            this.time = time;
-            // iterate depth-first strategy
-            // forward
-            List<PolylineCursor> forward = new LinkedList<>();
-            iteratePolyline(location, start, end, new PolylineCursor(this, true, location), forward);
-            // backward
-            List<PolylineCursor> backward = new LinkedList<>();
-            iteratePolyline(location, end, start, new PolylineCursor(this, false, location), backward);
-            // cut too long path
-            List<PolylineCursor> list = null;
-            if ( reduceElement(forward, 2) <= reduceElement(backward, 2) ){
-                list = forward;
-                Log.d("update", String.format(Locale.US, "forward %s size:%d", mCurrentStation.name, list.size()));
-            }else{
-                onDirectionChanged();
-                list = backward;
-                Log.d("update", String.format(Locale.US, "backward %s size:%d", mCurrentStation.name, list.size()));
+        void update(Location location, Collection<PolylineCursor> callback){
+
+            // 1. Search for the nearest point on this polyline to the given location in all the directions
+            List<PolylineCursor> list1 = new LinkedList<>();
+            List<PolylineCursor> list2 = new LinkedList<>();
+            double v1 = searchForNearest(location, start, end, new PolylineCursor(this, true, location), list1, this.pathPosAtStart + nearest.edgeDistance * pathLengthSign);
+            double v2 = searchForNearest(location, end, start, new PolylineCursor(this, false, location), list2, this.pathPosAtStart);
+            List<PolylineCursor> found = v1 <= v2 ? list1 : list2;
+
+            // 2. Estimate current position using Kalman filter
+            //    so that high-freq. noise should be removed
+            for ( PolylineCursor cursor : found ){
+                KalmanFilter.Sample next = mEstimation.update(
+                        cursor.pathPosAtNearest,
+                        Math.max(cursor.nearest.distance, location.getAccuracy()),
+                        mUpdateTime, cursor.state
+                );
+                // 3. Check estimated position
+                boolean reverse = next.speed * cursor.pathLengthSign < 0;
+                if ( cursor.isSignDecided && next.speed < 10 ){
+                    // 一度進み始めた方向はそう変化しないはず
+                    reverse = cursor.pathLengthSign * this.pathLengthSign < 0;
+                }
+                if ( !cursor.isSignDecided && next.speed > 10 ){
+                    cursor.isSignDecided = true;
+                }
+                if ( reverse ){
+                    // direction reversed
+                    PolylineNode tmp = cursor.start;
+                    cursor.start = cursor.end;
+                    cursor.end = tmp;
+                    cursor.pathLengthSign *= -1;
+                    cursor.nearest = new NearestPoint(cursor.start.point, cursor.end.point, location);
+                }
+                if ( cursor.pathLengthSign * this.pathLengthSign < 0 ){
+                    Log.d("predict", "direction changed");
+                }
+                cursor.state = next;
             }
-            callback.addAll(list);
+            callback.addAll(found);
         }
 
-
-        private void iteratePolyline(Location location, PolylineNode previous, PolylineNode next, PolylineCursor min, Collection<PolylineCursor> results){
-            NeighborIterator iterator = next.iterator(previous);
+        /**
+         * 指定された方向へ探索して最近傍点を探す　枝分かれがある場合は枝分かれの数だけ探す
+         */
+        private double searchForNearest(Location location, PolylineNode previous, PolylineNode current, PolylineCursor min, Collection<PolylineCursor> results, double pathPosition){
+            NeighborIterator iterator = current.iterator(previous);
+            double minDist = Double.MAX_VALUE;
             if ( iterator.hasNext() ){
                 for ( ; iterator.hasNext(); ){
-                    PolylineCursor m = min;
-                    PolylineNode neighbor = iterator.next();
-                    NearestPoint near = new NearestPoint(next.point, neighbor.point, new LatLng(location.getLatitude(), location.getLongitude()));
-                    if ( near.distance < m.nearest.distance ){
-                        m = new PolylineCursor(this, location, next, neighbor, near);
-                    }else if ( near.distance > m.nearest.distance * 2 && !results.contains(m)){
-                        results.add(m);
-                        break;
-                    }
-                    iteratePolyline(location, next, neighbor, m, results);
+                    PolylineNode next = iterator.next();
+                    NearestPoint near = new NearestPoint(current.point, next.point, new LatLng(location.getLatitude(), location.getLongitude()));
 
+                    if ( near.distance > min.nearest.distance * 2 ){
+                        // 探索終了
+                        if ( !results.contains(min) ) results.add(min);
+                        minDist = Math.min(minDist, min.nearest.distance);
+                    }else{
+                        if ( near.distance < min.nearest.distance ){
+                            min = new PolylineCursor(
+                                    current, next, near,
+                                    pathPosition,
+                                    min
+                            );
+                        }
+                        // 深さ優先探索
+                        double v = searchForNearest(location, current, next, min, results, pathPosition + iterator.distance() * min.pathLengthSign);
+                        minDist = Math.min(minDist, v);
+                    }
                 }
             }else{
-                results.add(min);
+                // 路線の終点 -> 探索終了
+                if ( !results.contains(min) ) results.add(min);
+                minDist = min.nearest.distance;
             }
+            return minDist;
         }
-
-        private long time;
 
         void predict(Collection<StationPrediction> result){
-            candidates = new LinkedList<>();
-            iteratePolyline(start, nearest.closedPoint, end, mCurrentStation, 0, nearest.distanceTo(), mMaxPrediction);
-            result.addAll(candidates);
-            candidates = null;
+            mExplorer.updateLocation(this.nearest.closedPoint.longitude, this.nearest.closedPoint.latitude);
+            if ( !mExplorer.hasInitialized() ) return;
+            Station current = mExplorer.getCurrentStation();
+            int cnt = mMaxPrediction;
+            if ( !current.equals(mCurrentStation) ){
+                result.add(new StationPrediction(current, 0f));
+                cnt--;
+            }
+            searchForStation(start, this.nearest.closedPoint, end, current, 0, cnt, result);
         }
 
-
-        private List<StationPrediction> candidates;
-
-        private void iteratePolyline(PolylineNode pre, LatLng start, PolylineNode end, Station current, float elapsed, float distance, int cnt){
-            final float threshold = 100;
-            int iteration = (int)Math.ceil(distance / threshold);
-            LatLng previous = start;
-            for ( int i = 1; i <= iteration; i++ ){
-                double index = (double)i / iteration;
-                double lng = end.point.longitude * index + start.longitude * (1.0 - index);
-                double lat = end.point.latitude * index + start.latitude * (1.0 - index);
-                LatLng next = new LatLng(lat, lng);
-                mExplorer.updateLocation(lng, lat);
-                if ( !mExplorer.hasInitialized() ) return;
-                Station station = mExplorer.getCurrentStation();
-                if ( !station.equals(current) ){
-                    if ( station.equals(mCurrentStation) ){
-                        Log.e("predict", "??");
-                    }
-                    LatLng b = detectBoundary(previous, next, station, 5);
-                    candidates.add(new StationPrediction(station, elapsed + measureDistance(start, b)));
-                    current = station;
-                    if ( --cnt == 0 ) return;
+        private void searchForStation(PolylineNode previous, LatLng start, PolylineNode end, Station current, float pathLength, int cnt, Collection<StationPrediction> result){
+            boolean loop = true;
+            while ( loop ){
+                // check start < end
+                if ( start.equals(end.point) ){
+                    break;
                 }
-                previous = next;
+                StationMapFragment.StationArea area = current.mAreaData;
+                LatLng a = area.points[area.hasEnclosed ? area.points.length - 1 : 0];
+                int i = area.hasEnclosed ? 0 : 1;
+                loop = false;
+                Edge e1 = new Edge(
+                        new BasePoint(start.longitude, start.latitude),
+                        new BasePoint(end.point.longitude, end.point.latitude)
+                );
+                for ( ; i < area.points.length; i++ ){
+                    LatLng b = area.points[i];
+                    // 1. Check whether edge start-end goes over boundary a-b
+                    Edge e2 = new Edge(
+                            new BasePoint(a.longitude, a.latitude),
+                            new BasePoint(b.longitude, b.latitude)
+                    );
+                    Point intersection = e1.getIntersection(e2);
+                    // 2. If so, detect the intersection and add to prediction list
+                    if ( intersection != null &&
+                            (intersection.getX() - start.longitude) * (end.point.longitude - start.longitude) +
+                                    (intersection.getY() - start.latitude) * (end.point.latitude - start.latitude) > 0 ){
+                        // Calc coordinate of another station
+                        double index = ((current.longitude - b.longitude) * (a.longitude - b.longitude) + (current.latitude - b.latitude) * (a.latitude - b.latitude))
+                                / (Math.pow(a.longitude - b.longitude, 2) + Math.pow(a.latitude - b.latitude, 2));
+                        double x = (1 - index) * b.longitude + index * a.longitude;
+                        double y = (1 - index) * b.latitude + index * a.latitude;
+                        double lng = 2 * x - current.longitude;
+                        double lat = 2 * y - current.latitude;
+                        Station next = null;
+                        // Search for which station was detected
+                        for ( int code : current.next ){
+                            Station neighbor = mService.getStation(code);
+                            if ( measureDistance(neighbor.latitude, neighbor.longitude, lat, lng) < 1 ){
+                                next = neighbor;
+                                break;
+                            }
+                        }
+                        if ( next == null ) throw new RuntimeException();
+                        // Update for next station
+                        float dist = measureDistance(start.latitude, start.longitude, intersection.getY(), intersection.getX());
+                        StationPrediction prediction = new StationPrediction(next, pathLength + dist);
+                        result.add(prediction);
+                        if ( next.equals(mCurrentStation) ){
+                            Log.d("predict", "same station");
+                        }
+                        if ( --cnt <= 0 ) return;
+                        pathLength += dist;
+                        index = 1.0 / measureDistance(intersection.getY(), intersection.getX(), start.latitude, start.longitude);
+                        start = new LatLng(
+                                (1 + index) * intersection.getY() - index * start.latitude,
+                                (1 + index) * intersection.getX() - index * start.longitude
+                        );
+                        current = next;
+                        loop = true;
+                        break;
+                    }
+                    a = b;
+                }
             }
-            for ( NeighborIterator iterator = end.iterator(pre); iterator.hasNext(); ){
+
+            for ( NeighborIterator iterator = end.iterator(previous); iterator.hasNext(); ){
                 PolylineNode next = iterator.next();
-                iteratePolyline(end, end.point, next, current, elapsed + distance, iterator.distance(), cnt);
+                searchForStation(end, end.point, next, current, pathLength + measureDistance(start, end.point), cnt, result);
             }
         }
 
-        private LatLng detectBoundary(LatLng from, LatLng to, Station detected, int level){
-            LatLng mid = new LatLng((from.latitude + to.latitude) / 2, (from.longitude + to.longitude) / 2);
-            if ( level <= 0 ) return mid;
-            mExplorer.updateLocation(mid.longitude, mid.latitude);
-            if ( !mExplorer.hasInitialized() ) return mid;
-            if ( mExplorer.getCurrentStation().equals(detected) ){
-                return detectBoundary(from, mid, detected, level - 1);
-            }else{
-                return detectBoundary(mid, to, detected, level - 1);
-            }
-        }
 
         void release(){
             start.release();
@@ -405,6 +518,15 @@ class PositionPredictor{
             end = null;
         }
 
+        @Override
+        public boolean equals(Object obj){
+            if ( obj instanceof PolylineCursor ){
+                PolylineCursor other = (PolylineCursor)obj;
+                return (this.start.equals(other.start) && this.end.equals(other.end)) ||
+                        (this.start.equals(other.end) && this.end.equals(other.start));
+            }
+            return false;
+        }
     }
 
 
@@ -687,6 +809,10 @@ class PositionPredictor{
 
 
     static class NearestPoint{
+
+        NearestPoint(LatLng start, LatLng end, Location point){
+            this(start, end, new LatLng(point.getLatitude(), point.getLongitude()));
+        }
 
         NearestPoint(LatLng start, LatLng end, LatLng point){
             this.start = start;
