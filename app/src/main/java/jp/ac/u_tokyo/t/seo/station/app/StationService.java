@@ -554,7 +554,7 @@ public class StationService extends Service implements
                 if ( version <= 0 ){
                     service.log(String.format(Locale.US, "Version required:none found:%d", v));
                     version = v;
-                } else if ( version > 0 && version != v ){
+                } else if ( version != v ){
                     service.onError(String.format(Locale.US, "Version mismatch required:%d found:%d", version, v));
                     return false;
                 }

@@ -367,11 +367,11 @@ class PositionPredictor{
                 );
                 // 3. Check estimated position
                 boolean reverse = next.speed * cursor.pathLengthSign < 0;
-                if ( cursor.isSignDecided && next.speed < 10 ){
+                if ( cursor.isSignDecided && Math.abs(next.speed) < 5 ){
                     // 一度進み始めた方向はそう変化しないはず
                     reverse = cursor.pathLengthSign * this.pathLengthSign < 0;
                 }
-                if ( !cursor.isSignDecided && next.speed > 10 ){
+                if ( !cursor.isSignDecided && Math.abs(next.speed) > 5 ){
                     cursor.isSignDecided = true;
                 }
                 if ( reverse ){

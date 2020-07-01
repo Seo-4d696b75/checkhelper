@@ -55,6 +55,7 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
     final int PERMISSION_REQUEST_OVERLAY = 39;
     final int PERMISSION_REQUEST_SETTING = 38;
     final int PERMISSION_REQUEST_LOCATION = 37;
+    final int PERMISSION_REQUEST_STORAGE = 36;
 
     private boolean mHasTwoPanes = false;
     private boolean mHadTwoPanes = false;
@@ -225,7 +226,7 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
     private void checkPermission(){
         if ( !mHasPermissionChecked ){
 
-            // API level >= 23 request permission
+            // API level >= 23 request permission at runtime
             if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ){
                 if ( !Settings.canDrawOverlays(this) ){
                     Toast.makeText(getApplicationContext(), getText(R.string.permission_overlay_message), Toast.LENGTH_SHORT).show();
@@ -236,6 +237,12 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
                     ActivityCompat.requestPermissions(
                             this,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION
+                    );
+                    return;
+                } else if ( ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ){
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_STORAGE
                     );
                     return;
                 }
@@ -321,6 +328,11 @@ public class MainActivity extends FragmentCompatActivity implements ServiceConne
         if ( requestCode == PERMISSION_REQUEST_LOCATION ){
             if ( grantResult[0] != PackageManager.PERMISSION_GRANTED ){
                 Toast.makeText(this, "LOCATION_PERMISSION not granted", Toast.LENGTH_SHORT).show();
+                onFinishApp();
+            }
+        } else if ( requestCode == PERMISSION_REQUEST_STORAGE ){
+            if ( grantResult[0] != PackageManager.PERMISSION_GRANTED ){
+                Toast.makeText(this, "storage permission not granted", Toast.LENGTH_SHORT).show();
                 onFinishApp();
             }
         }

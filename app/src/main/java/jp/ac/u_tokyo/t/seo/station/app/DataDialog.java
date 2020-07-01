@@ -85,6 +85,7 @@ public class DataDialog extends CustomDialog{
         switch ( mRequest ){
             case REQUEST_UPDATE:
                 mDataPath = args.getString(KEY_PATH);
+                mTargetVersion = args.getLong(KEY_VERSION);
                 return inflater.inflate(R.layout.dialog_data, null, false);
             case REQUEST_CHECK:
                 mTargetVersion = args.getLong(KEY_VERSION);
@@ -161,13 +162,6 @@ public class DataDialog extends CustomDialog{
                 break;
             case REQUEST_MANUAL:
                 mURLText = (EditText)view.findViewById(R.id.textDataURL);
-                /*
-                mURLText.setEnabled(false);
-                mURLText.setEnabled(true);
-                mURLText.setFocusable(true);
-                mURLText.setFocusableInTouchMode(true);
-                mURLText.setTextIsSelectable(true);
-                mURLText.setSelectAllOnFocus(true);*/
                 break;
         }
     }
