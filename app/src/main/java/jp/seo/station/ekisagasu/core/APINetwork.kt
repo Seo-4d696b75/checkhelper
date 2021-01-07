@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.core
 
-import com.google.android.gms.maps.model.LatLng
+import android.os.Handler
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -9,12 +9,17 @@ import jp.seo.station.ekisagasu.LineConverter
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.StationConverter
 import jp.seo.station.ekisagasu.search.TreeSegment
-import jp.seo.station.ekisagasu.utils.PositionJsonConverter
+import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
+import okio.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Url
+import kotlin.math.floor
+
 
 /**
  * @author Seo-4d696b75
@@ -73,5 +78,75 @@ data class StationData(
     @Expose
     val trees: List<TreeSegment>
 )
+
+class ProgressResponseBody(
+    private val adapt: ResponseBody,
+    private val listener: UpdateProgressListener,
+    private val main: Handler
+) : ResponseBody() {
+
+    private var buf: BufferedSource? = null
+
+    override fun contentType(): MediaType? = adapt.contentType()
+
+    override fun contentLength(): Long = adapt.contentLength()
+
+    override fun source(): BufferedSource {
+        return buf ?: kotlin.run {
+            val s = object : ForwardingSource(adapt.source()) {
+                private var totalBytes: Long = 0L
+                private var lastPercent: Int = -1
+                override fun read(sink: Buffer, byteCount: Long): Long {
+                    val readBytes = super.read(sink, byteCount)
+                    if (readBytes == -1L) {
+                        main.post{
+                            listener.onProgress(100)
+                            listener.onStateChanged(UpdateProgressListener.STATE_PARSE)
+                        }
+                    } else {
+                        totalBytes += readBytes
+                        val percent = floor(totalBytes.toFloat() / contentLength() * 100.0f).toInt()
+
+                        if (percent > lastPercent) {
+                            lastPercent = percent
+                            main.post { listener.onProgress(percent) }
+                        }
+                    }
+                    return readBytes
+                }
+            }
+            val b = Okio.buffer(s)
+            buf = b
+            b
+        }
+    }
+
+}
+
+fun getDownloadClient(listener: UpdateProgressListener, main: Handler): APIClient {
+
+    val client = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            val res = chain.proceed(chain.request())
+            val body = res.body()
+            body?.let {
+                res.newBuilder()
+                    .body(ProgressResponseBody(it, listener, main))
+                    .build()
+            } ?: res
+        }.build()
+    val gson = GsonBuilder()
+        .registerTypeAdapter(Station::class.java, StationConverter())
+        .registerTypeAdapter(Line::class.java, LineConverter())
+        .serializeNulls()
+        .create()
+    val converter = GsonConverterFactory.create(gson)
+    val retrofit = Retrofit.Builder()
+        .baseUrl("http://hoge.com")
+        .client(client)
+        .addConverterFactory(converter)
+        .build()
+    return retrofit.create(APIClient::class.java)
+}
 
 
