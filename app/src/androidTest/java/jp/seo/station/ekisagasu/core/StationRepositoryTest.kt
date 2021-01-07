@@ -1,6 +1,8 @@
 package jp.seo.station.ekisagasu.core
 
 import android.content.Context
+import android.os.Looper
+import androidx.core.os.HandlerCompat
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,7 +34,8 @@ class StationRepositoryTest {
         val tree = KdTree(db.dao)
         val api =
             getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/extra/")
-        repository = StationRepository(db.dao, api, tree)
+        val main = HandlerCompat.createAsync(Looper.getMainLooper())
+        repository = StationRepository(db.dao, api, tree, main)
     }
 
     @Test
@@ -50,8 +53,21 @@ class StationRepositoryTest {
             assertThat(repository.lastCheckedVersion?.version).isEqualTo(info.version)
 
             // update data
-            val result = repository.updateData(info.version, info.url)
-            assertThat(result).isTrue()
+            repository.updateData(info.version, info.url, object : StationRepository.UpdateProgressListener{
+                override fun onStateChanged(state: String) {
+                    assertThat(state).isNotEmpty()
+                }
+
+                override fun onProgress(progress: Int) {
+                    assertThat(progress).isGreaterThan(-1)
+                    assertThat(progress).isLessThan(101)
+                }
+
+                override fun onComplete(success: Boolean) {
+                    assertThat(success).isTrue()
+                }
+
+            })
             val current = repository.getDataVersion()
             assertThat(current).isNotNull()
             assertThat(current?.version).isEqualTo(info.version)

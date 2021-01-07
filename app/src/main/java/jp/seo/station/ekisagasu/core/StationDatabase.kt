@@ -1,11 +1,13 @@
 package jp.seo.station.ekisagasu.core
 
 import android.content.Context
+import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.TreeSegment
+import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
 import jp.seo.station.ekisagasu.utils.*
 import java.util.*
 
@@ -53,7 +55,7 @@ abstract class StationDao {
     abstract fun getLine(id: String): LiveData<Line>
 
     @Query("SELECT * FROM line WHERE code In (:codes) ORDER BY code")
-    abstract fun getLines(codes: Array<Int>): LiveData<List<Line>>
+    abstract suspend fun getLines(codes: Array<Int>): List<Line>
 
     @Query("DELETE FROM line")
     abstract suspend fun clearLines()
@@ -80,16 +82,29 @@ abstract class StationDao {
     abstract suspend fun setCurrentDataVersion(version: DataVersion)
 
     @Transaction
-    open suspend fun updateData(data: StationData){
+    open suspend fun updateData(data: StationData, listener: UpdateProgressListener, main: Handler){
         // abort and rollback if any error while this transaction, or data integrity lost!
         // delete old data
+        main.post{
+            listener.onStateChanged(UpdateProgressListener.STATE_CLEAN)
+            listener.onProgress(0)
+        }
         clearStations()
+        main.post{ listener.onProgress(16) }
         clearLines()
+        main.post{ listener.onProgress(33) }
         clearTreeSegments()
+        main.post{
+            listener.onStateChanged(UpdateProgressListener.STATE_ADD)
+            listener.onProgress(50)
+        }
         // add new data
         addStations(data.stations)
+        main.post{ listener.onProgress(66) }
         addLines(data.lines)
+        main.post{ listener.onProgress(83) }
         addTreeSegments(data.trees)
+        main.post{ listener.onProgress(100) }
         // update version
         setCurrentDataVersion(DataVersion(data.version))
     }

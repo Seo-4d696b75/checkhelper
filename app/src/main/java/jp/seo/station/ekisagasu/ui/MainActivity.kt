@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
             .replace(R.id.layout_root, fragment)
             .commit()
         viewModel.hasInitializedUI = true
+        s.start()
     }
 
     override fun onResume() {

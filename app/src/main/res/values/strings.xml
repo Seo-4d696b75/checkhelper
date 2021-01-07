@@ -8,4 +8,12 @@
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
     <string name="message_success_data_update">データの更新が完了しました</string>
+    <string name="update_state_download">データをダウンロード&#8230;</string>
+    <string name="update_state_parse">データを展開してます&#8230;</string>
+    <string name="update_state_clean">古いデータを消去してます&#8230;</string>
+    <string name="update_state_add">新しいデータを保存しています&#8230;</string>
+    <string name="notification_title_wait">検索の開始を待っています</string>
+    <string name="notification_message_wait">タップして検索を開始します</string>
+    <string name="notification_title_start">検索を開始しています</string>
+    <string name="notification_message_start">付近の駅を探しています&#8230;</string>
 </resources>

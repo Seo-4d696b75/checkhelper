@@ -75,6 +75,7 @@ class MainViewModel : ViewModel() {
                             val dialog = DataCheckDialog.getInstance(latest, true)
                             dialog.show(activity.supportFragmentManager, DataDialog.DIALOG_INIT)
                         } else {
+                            it.message(String.format("data found. version:%d", info.version))
                             if (info.version < latest.version) {
                                 val dialog = DataCheckDialog.getInstance(latest, false)
                                 dialog.show(

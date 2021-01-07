@@ -5,13 +5,18 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.gson.Gson
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
+import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.core.StationService
+import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.DataCheckViewModel
+import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
 import org.w3c.dom.Text
 import java.lang.IllegalArgumentException
 
@@ -36,6 +41,7 @@ abstract class DataDialog : DialogFragment() {
     }
 
     var _listener: OnClickListener? = null
+    var _service: ServiceGetter? = null
 
     val viewModel: DataCheckViewModel by lazy {
         getViewModelFactory {
@@ -51,6 +57,10 @@ abstract class DataDialog : DialogFragment() {
             _listener = fragment
         } else if (activity is OnClickListener) {
             _listener = activity
+        }
+
+        if (activity is MainActivity) {
+            _service = activity.service
         }
 
         val builder = AlertDialog.Builder(context)
@@ -136,13 +146,59 @@ class DataUpdateDialog : DataDialog() {
     }
 
     override fun onCreateDialog(builder: AlertDialog.Builder) {
-        builder.setTitle(R.string.dialog_title_update_data)
-        builder.setMessage("TODO")
+        context?.let { ctx ->
 
-        builder.setNegativeButton("Cancel") { dialog, id ->
-            _listener?.onDialogButtonClicked(tag, viewModel.info, DialogInterface.BUTTON_NEGATIVE)
-            dismiss()
+            builder.setTitle(R.string.dialog_title_update_data)
+
+            val inflater = LayoutInflater.from(ctx)
+            val view = inflater.inflate(R.layout.dialog_data_update, null, false)
+            builder.setView(view)
+
+            builder.setNegativeButton("Cancel") { dialog, id ->
+                _listener?.onDialogButtonClicked(
+                    tag,
+                    viewModel.info,
+                    DialogInterface.BUTTON_NEGATIVE
+                )
+                dismiss()
+            }
+
+            val progress = view.findViewById<ProgressBar>(R.id.progress_update)
+            val state = view.findViewById<TextView>(R.id.text_update_state)
+            val percent = view.findViewById<TextView>(R.id.text_update_progress)
+
+            viewModel.updateState.observe(this){
+                state.text = parseUpdateState(it)
+            }
+            viewModel.updateProgress.observe(this){
+                percent.text = String.format("%d%%", it)
+                progress.progress = it
+            }
+
+            _service?.get { service ->
+                viewModel.updateStationData(service.stationRepository) { result ->
+                    _listener?.onDialogButtonClicked(
+                        tag,
+                        viewModel.info,
+                        if (result) DialogInterface.BUTTON_POSITIVE else DialogInterface.BUTTON_NEGATIVE
+                    )
+                    dismiss()
+                }
+            }
+
         }
+    }
+
+    private  fun parseUpdateState(state: String): String{
+        return context?.let{
+            when(state){
+                UpdateProgressListener.STATE_DOWNLOAD -> return@let it.getString(R.string.update_state_download)
+                UpdateProgressListener.STATE_CLEAN -> return@let it.getString(R.string.update_state_clean)
+                UpdateProgressListener.STATE_PARSE -> return@let it.getString(R.string.update_state_parse)
+                UpdateProgressListener.STATE_ADD -> return@let it.getString(R.string.update_state_add)
+                else -> return@let ""
+            }
+        } ?: ""
     }
 
 }

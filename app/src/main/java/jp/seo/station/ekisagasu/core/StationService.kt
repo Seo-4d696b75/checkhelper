@@ -4,19 +4,28 @@ import android.app.Activity
 import android.content.Intent
 import android.location.Location
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.MainThread
-import androidx.lifecycle.*
+import androidx.core.os.HandlerCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
 import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
+import jp.seo.station.ekisagasu.utils.NearestStationInfo
 import jp.seo.station.ekisagasu.utils.combine
 import kotlinx.coroutines.*
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -37,7 +46,7 @@ class StationService : LifecycleService(), CoroutineScope {
         }
     }
 
-    override fun onBind(intent: Intent): IBinder? {
+    override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
         message("onBind: client requests to bind service")
         return StationServiceBinder()
@@ -58,6 +67,10 @@ class StationService : LifecycleService(), CoroutineScope {
         super.onStartCommand(intent, flags, startId)
 
         message("service received start-command")
+        notificationHolder.update(
+            getString(R.string.notification_title_wait),
+            getString(R.string.notification_message_wait)
+        )
 
         intent?.let {
             if (it.getBooleanExtra(KEY_CLOSE_NOTIFICATION_PANEL, false)) {
@@ -112,13 +125,31 @@ class StationService : LifecycleService(), CoroutineScope {
             .observe(this) { pos ->
                 pos.location?.let { loc ->
                     launch {
-                        stationRepository.updateNearestStations(loc.latitude, loc.longitude, pos.k)
+                        stationRepository.updateNearestStations(loc, pos.k)
                             ?.let {
                                 userRepository.logStation(String.format("%s(%d)", it.name, it.code))
+
                             }
                     }
                 }
             }
+
+        // update notification when nearest station changed
+        stationRepository.nearestStation.switchMap { near ->
+            liveData {
+                near?.let {
+                    val lines = stationRepository.getLines(it.station.lines)
+                    val info = NearestStationInfo(it, lines)
+                    emit(info)
+                }
+            }
+        }.observe(this) {
+            notificationHolder.update(
+                String.format("%s  %s", it.station.name, it.time),
+                String.format("%s   %s", it.distance, it.linesName)
+            )
+        }
+
     }
 
 
@@ -126,6 +157,8 @@ class StationService : LifecycleService(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + serviceJob
+
+    private val mainHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
 
     val userRepository: UserRepository by lazy {
         val dao = getUserDatabase(this).userDao
@@ -136,7 +169,7 @@ class StationService : LifecycleService(), CoroutineScope {
         val db = getStationDatabase(this)
         val api = getAPIClient(getString(R.string.api_url_base))
         val tree = KdTree(db.dao)
-        StationRepository(db.dao, api, tree)
+        StationRepository(db.dao, api, tree, mainHandler)
     }
 
     val notificationHolder: NotificationViewHolder by lazy {
@@ -211,7 +244,10 @@ class StationService : LifecycleService(), CoroutineScope {
             gpsClient.requestGPSUpdate(5, "main-service")
             running = true
             _running.value = true
-            notificationHolder.update("start", "searching for nearest stations")
+            notificationHolder.update(
+                getString(R.string.notification_title_start),
+                getString(R.string.notification_message_start)
+            )
         } catch (e: ResolvableApiException) {
             userRepository.onApiException(e)
         }
@@ -228,6 +264,11 @@ class StationService : LifecycleService(), CoroutineScope {
             running = false
             _running.value = false
             message("GPS search stopped")
+            notificationHolder.update(
+                getString(R.string.notification_title_wait),
+                getString(R.string.notification_message_wait)
+            )
+
         }
     }
 
