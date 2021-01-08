@@ -15,12 +15,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationService
 import jp.seo.station.ekisagasu.core.UserRepository
@@ -41,7 +44,7 @@ class MainViewModel : ViewModel() {
     private var hasPermissionChecked = false
     private var hasRequestService = false
     private var hasServiceChecked = false
-    var hasInitializedUI = false
+    private var hasVersionChecked = false
 
     fun startService(activity: AppCompatActivity, connection: ServiceConnection) {
         if (!hasPermissionChecked) {
@@ -54,6 +57,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    /**
+     * check whether connected service is ready for use.
+     * (1) check data version
+     * (2) check data initialized
+     * @param service connected service
+     * @param activity app bind the service
+     * @param initializer run only once after checking
+     */
     fun checkService(
         service: StationService?,
         activity: AppCompatActivity,
@@ -61,35 +72,41 @@ class MainViewModel : ViewModel() {
     ) {
         if (hasServiceChecked) return
         service?.let {
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
+            userRepository.value = it.userRepository
 
-                    // TODO check notification channel
-                    val info = it.stationRepository.getDataVersion()
-                    val latest = it.stationRepository.getLatestDataVersion()
+            // TODO check notification channel
 
-                    withContext(Dispatchers.Main) {
-                        userRepository.value = it.userRepository
+            // check data version
+            if (!hasVersionChecked) {
+                hasVersionChecked = true
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
 
-                        if (info == null) {
-                            val dialog = DataCheckDialog.getInstance(latest, true)
-                            dialog.show(activity.supportFragmentManager, DataDialog.DIALOG_INIT)
-                        } else {
-                            it.message(String.format("data found. version:%d", info.version))
-                            if (info.version < latest.version) {
-                                val dialog = DataCheckDialog.getInstance(latest, false)
-                                dialog.show(
-                                    activity.supportFragmentManager,
-                                    DataDialog.DIALOG_LATEST
-                                )
-                            }
-                            if (!hasServiceChecked) {
-                                hasServiceChecked = true
-                                initializer(it)
+                        val info: DataLatestInfo? = null//it.stationRepository.getDataVersion()
+                        val latest = it.stationRepository.getLatestDataVersion(false)
+
+                        withContext(Dispatchers.Main) {
+
+                            if (info == null) {
+                                val dialog = DataCheckDialog.getInstance(latest, true)
+                                dialog.show(activity.supportFragmentManager, DataDialog.DIALOG_INIT)
+                            } else {
+                                it.message(String.format("data found. version:%d", info.version))
+                                if (info.version < latest.version) {
+                                    val dialog = DataCheckDialog.getInstance(latest, false)
+                                    dialog.show(
+                                        activity.supportFragmentManager,
+                                        DataDialog.DIALOG_LATEST
+                                    )
+                                }
                             }
                         }
                     }
                 }
+            }
+            if (!hasServiceChecked && it.stationRepository.dataInitialized) {
+                hasServiceChecked = true
+                initializer(it)
             }
         }
     }

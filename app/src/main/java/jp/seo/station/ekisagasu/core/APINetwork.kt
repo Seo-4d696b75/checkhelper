@@ -1,6 +1,5 @@
 package jp.seo.station.ekisagasu.core
 
-import android.os.Handler
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -9,16 +8,18 @@ import jp.seo.station.ekisagasu.LineConverter
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.StationConverter
 import jp.seo.station.ekisagasu.search.TreeSegment
-import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
-import okio.*
+import okio.Buffer
+import okio.BufferedSource
+import okio.ForwardingSource
+import okio.Okio
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Url
-import kotlin.math.floor
+import java.text.StringCharacterIterator
 
 
 /**
@@ -58,11 +59,23 @@ data class DataLatestInfo(
     val version: Long,
     @SerializedName("size")
     @Expose
-    val fileSize: String,
+    val length: Long,
     @SerializedName("url")
     @Expose
     val url: String
-)
+) {
+    fun fileSize(): String {
+        var bytes = length
+        if (bytes < 0) return "0 B"
+        if (bytes < 1000) return "$bytes B"
+        val ci = StringCharacterIterator("KMGTPE")
+        while (bytes >= 999_950) {
+            bytes /= 1000
+            ci.next()
+        }
+        return String.format("%.1f %cB", bytes.toFloat() / 1000.0f, ci.current())
+    }
+}
 
 data class StationData(
     @SerializedName("version")
@@ -79,10 +92,10 @@ data class StationData(
     val trees: List<TreeSegment>
 )
 
+// https://stackoverflow.com/questions/42118924/android-retrofit-download-progress
 class ProgressResponseBody(
     private val adapt: ResponseBody,
-    private val listener: UpdateProgressListener,
-    private val main: Handler
+    private val listener: (Long) -> Unit,
 ) : ResponseBody() {
 
     private var buf: BufferedSource? = null
@@ -95,23 +108,10 @@ class ProgressResponseBody(
         return buf ?: kotlin.run {
             val s = object : ForwardingSource(adapt.source()) {
                 private var totalBytes: Long = 0L
-                private var lastPercent: Int = -1
                 override fun read(sink: Buffer, byteCount: Long): Long {
                     val readBytes = super.read(sink, byteCount)
-                    if (readBytes == -1L) {
-                        main.post{
-                            listener.onProgress(100)
-                            listener.onStateChanged(UpdateProgressListener.STATE_PARSE)
-                        }
-                    } else {
-                        totalBytes += readBytes
-                        val percent = floor(totalBytes.toFloat() / contentLength() * 100.0f).toInt()
-
-                        if (percent > lastPercent) {
-                            lastPercent = percent
-                            main.post { listener.onProgress(percent) }
-                        }
-                    }
+                    if (readBytes > 0L) totalBytes += readBytes
+                    listener(totalBytes)
                     return readBytes
                 }
             }
@@ -123,7 +123,7 @@ class ProgressResponseBody(
 
 }
 
-fun getDownloadClient(listener: UpdateProgressListener, main: Handler): APIClient {
+fun getDownloadClient(listener: (Long) -> Unit): APIClient {
 
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
@@ -131,7 +131,7 @@ fun getDownloadClient(listener: UpdateProgressListener, main: Handler): APIClien
             val body = res.body()
             body?.let {
                 res.newBuilder()
-                    .body(ProgressResponseBody(it, listener, main))
+                    .body(ProgressResponseBody(it, listener))
                     .build()
             } ?: res
         }.build()

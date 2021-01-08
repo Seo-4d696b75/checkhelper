@@ -8,12 +8,12 @@ import androidx.lifecycle.MutableLiveData
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.KdTree
-import jp.seo.station.ekisagasu.utils.measureDistance
+import jp.seo.station.ekisagasu.search.measureDistance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.IllegalStateException
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.floor
 
 /**
  * @author Seo-4d696b75
@@ -109,7 +109,9 @@ class StationRepository(
         return version
     }
 
-    suspend fun getLatestDataVersion(): DataLatestInfo {
+    suspend fun getLatestDataVersion(forceRefresh: Boolean = true): DataLatestInfo {
+        val last = _lastCheckedVersion
+        if (last != null && !forceRefresh) return last
         val info = api.getLatestInfo()
         _lastCheckedVersion = info
         return info
@@ -130,15 +132,26 @@ class StationRepository(
         fun onComplete(success: Boolean)
     }
 
-    suspend fun updateData(version: Long?, url: String, listener: UpdateProgressListener) {
-        main.post { listener.onStateChanged(UpdateProgressListener.STATE_DOWNLOAD) }
-        val download = getDownloadClient(listener, main)
-        val data = download.getData(url)
+    suspend fun updateData(info: DataLatestInfo, listener: UpdateProgressListener) {
+        main.post {
+            listener.onStateChanged(UpdateProgressListener.STATE_DOWNLOAD)
+            listener.onProgress(0)
+        }
+        var percent = 0
+        val download = getDownloadClient { length: Long ->
+            val p = floor(length.toFloat() / info.length * 100.0f).toInt()
+            if (p in 1..100 && p > percent) {
+                main.post { listener.onProgress(p) }
+                percent = p
+                if (percent == 100) main.post { listener.onStateChanged(UpdateProgressListener.STATE_PARSE) }
+            }
+        }
+        val data = download.getData(info.url)
         var result = false
-        if (version == null || data.version == version) {
+        if (data.version == info.version) {
             dao.updateData(data, listener, main)
             val current = getDataVersion()
-            if (version == null || version == current?.version) {
+            if (info.version == current?.version) {
                 _dataInitialized = true
                 result = true
             }
@@ -150,6 +163,12 @@ class StationRepository(
 
 data class NearStation(
     val station: Station,
+    /**
+     * distance from the current position to this station
+     */
     val distance: Double,
+    /**
+     * Time when this near station detected
+     */
     val time: Date
 )

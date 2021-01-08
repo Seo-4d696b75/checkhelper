@@ -11,14 +11,10 @@ import androidx.fragment.app.DialogFragment
 import com.google.gson.Gson
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
-import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.core.StationService
+import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
 import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.DataCheckViewModel
-import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
-import org.w3c.dom.Text
-import java.lang.IllegalArgumentException
 
 /**
  * @author Seo-4d696b75
@@ -103,7 +99,7 @@ class DataCheckDialog : DataDialog() {
             view.findViewById<TextView>(R.id.text_version).text =
                 String.format("version: %d", viewModel.info.version)
             view.findViewById<TextView>(R.id.text_size).text =
-                String.format("size: %s", viewModel.info.fileSize)
+                String.format("size: %s", viewModel.info.fileSize())
             view.findViewById<TextView>(R.id.text_dialog_message).text =
                 ctx.getString(if (init) R.string.dialog_message_init_data else R.string.dialog_message_latest_data)
             builder.setView(view)

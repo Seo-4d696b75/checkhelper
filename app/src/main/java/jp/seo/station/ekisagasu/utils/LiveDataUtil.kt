@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.distinctUntilChanged
 import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.NearStation
+import jp.seo.station.ekisagasu.search.formatDistance
 import java.text.SimpleDateFormat
 import java.util.*
 

@@ -1,6 +1,9 @@
 package jp.seo.station.ekisagasu.ui
 
-import android.content.*
+import android.content.ComponentName
+import android.content.Intent
+import android.content.IntentSender
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,16 +13,12 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.viewModelScope
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationService
 import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * @author Seo-4d696b75
@@ -52,13 +51,11 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
             return
         }
 
-        if (viewModel.hasInitializedUI) return
         // TODO init ui
         val fragment = LogFragment()
         supportFragmentManager.beginTransaction()
             .replace(R.id.layout_root, fragment)
             .commit()
-        viewModel.hasInitializedUI = true
         s.start()
     }
 
@@ -162,6 +159,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
 
     override fun onDialogButtonClicked(tag: String?, info: DataLatestInfo, which: Int) {
         tag?.let { viewModel.handleDialogButton(it, info, which, this) }
+        viewModel.checkService(service.value, this, this::onInitialized)
     }
 
 }

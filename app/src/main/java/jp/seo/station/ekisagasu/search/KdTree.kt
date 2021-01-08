@@ -4,7 +4,12 @@ import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.StationDao
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.sin
 
 /**
  * @author Seo-4d696b75
@@ -18,73 +23,77 @@ class KdTree(
     private val database: StationDao,
 ) {
 
-    private var _root: Node? = null
+    private var _root: NodeAdapter? = null
 
     // mutex lock obj when checking and loading tree-segment data, in order to avoid duplicated operations
     private val lock = Mutex()
 
-    private suspend fun getRoot(): Node = lock.withLock{
-        _root?: run{
+    private suspend fun getRoot(): NodeAdapter = lock.withLock {
+        _root ?: run {
             val data = database.getTreeSegment("root")
             val map: MutableMap<Int, StationNode> = HashMap()
             for (s in data.nodes) {
                 map[s.code] = s
             }
-            val node = Node(map.getValue(data.root), map, 0)
+            val node = NodeAdapter(0, data.root, map)
             _root = node
             node
         }
     }
 
-    companion object {
+    private data class Node(
+        val depth: Int,
+        val lat: Double,
+        val lng: Double,
+        val code: Int,
+        val left: NodeAdapter?,
+        val right: NodeAdapter?
+    )
 
-        const val SPHERE_RADIUS = 6371009.0
-    }
-
-    private inner class Node(
-        data: StationNode,
-        nodes: Map<Int, StationNode>,
-        val depth: Int
+    private inner class NodeAdapter(
+        val depth: Int,
+        val code: Int,
+        nodes: Map<Int, StationNode>
     ) {
 
-        val stationCode = data.code
-        val lat = data.lat
-        val lng = data.lng
-
-
+        private var _node: Node? = null
         private var segmentName: String? = null
-        var left: Node? = null
-        var right: Node? = null
 
         init {
-            build(data, nodes)
+            build(nodes)
         }
 
-        private fun build(data: StationNode, nodes: Map<Int, StationNode>) {
+        private fun build(nodes: Map<Int, StationNode>) {
+            val data = nodes.getValue(code)
             if (data.segment != null) {
                 segmentName = data.segment
             } else {
-                data.left?.let {
-                    val leftData = nodes.getValue(it)
-                    this.left = Node(leftData, nodes, depth + 1)
+                val left = data.left?.let {
+                    NodeAdapter(depth + 1, it, nodes)
                 }
-                data.right?.let {
-                    val rightData = nodes.getValue(it)
-                    this.right = Node(rightData, nodes, depth + 1)
+                val right = data.right?.let {
+                    NodeAdapter(depth + 1, it, nodes)
                 }
+                val lat = data.lat ?: throw RuntimeException("lat not found")
+                val lng = data.lng ?: throw RuntimeException("lng not found")
+                this._node = Node(depth, lat, lng, code, left, right)
             }
         }
 
-        suspend fun traverse() = lock.withLock {
-            segmentName?.let {
-                val segment = database.getTreeSegment(it)
-                if (segment.root != this.stationCode) throw RuntimeException("root mismatch name:$it")
+        suspend fun node(): Node = lock.withLock {
+            _node ?: kotlin.run {
+                val segment = database.getTreeSegment(
+                    segmentName ?: throw RuntimeException("segment-name not found")
+                )
+                if (segment.root != this.code) throw RuntimeException("root mismatch name:$segmentName")
                 val map: MutableMap<Int, StationNode> = HashMap<Int, StationNode>()
                 for (s in segment.nodes) {
                     map[s.code] = s
                 }
-                build(map.getValue(this.stationCode), map)
+                build(map)
+                val node = _node ?: throw RuntimeException("node not initialized")
                 segmentName = null
+                node
             }
         }
     }
@@ -129,11 +138,10 @@ class KdTree(
         return SearchResult(lat, lng, k, r, stations)
     }
 
-    private suspend fun search(node: Node?, prop: SearchProperties) {
-        if (node == null) return
-        // be sure to call traverse()
-        node.traverse()
-        val d = measure(prop.lng, prop.lat, node.lng, node.lat, prop.sphere)
+    private suspend fun search(adapter: NodeAdapter?, prop: SearchProperties) {
+        if (adapter == null) return
+        val node = adapter.node()
+        val d = measure(prop.lat, prop.lng, node.lat, node.lng, prop.sphere)
         var index = -1
         val size = prop.list.size
         if (size > 0 && d < prop.list[size - 1].dist) {
@@ -146,7 +154,7 @@ class KdTree(
             index = 0
         }
         if (index >= 0) {
-            prop.list.add(index, NeighborNode(node.stationCode, d))
+            prop.list.add(index, NeighborNode(node.code, d))
 
             /*
             prop.list に距離昇順に格納された結果に関して、
@@ -173,9 +181,9 @@ class KdTree(
                  経線までの距離は緯線にはならない（緯度依存あり）
                  球面三角法で計算
                  */
-                val x = PI * abs(prop.lng - node.lng) / 180.0
-                val y = PI * prop.lat / 180.0
-                SPHERE_RADIUS * asin(sin(x) * cos(y))
+                val lng = PI * abs(prop.lng - node.lng) / 180.0
+                val lat = PI * prop.lat / 180.0
+                SPHERE_RADIUS * asin(sin(lng) * cos(lat))
             } else {
                 /*
                  緯線は極を中心とする円だから座標(prop.lat, prop.lng)と極を結ぶ直線上での目標緯度までの距離
@@ -196,32 +204,6 @@ class KdTree(
         }
     }
 
-
-    private inline fun measure(
-        x0: Double,
-        y0: Double,
-        x1: Double,
-        y1: Double,
-        sphere: Boolean,
-    ): Double {
-        return if (sphere) {
-            val lng1 = PI * x0 / 180.0
-            val lat1 = PI * y0 / 180.0
-            val lng2 = PI * x1 / 180.0
-            val lat2 = PI * y1 / 180.0
-            val lng = (lng1 - lng2) / 2
-            val lat = (lat1 - lat2) / 2
-            return SPHERE_RADIUS * 2 * asin(
-                sqrt(
-                    sin(lat).pow(2) + cos(lat1) * cos(lat2) * sin(lng).pow(
-                        2
-                    )
-                )
-            )
-        } else {
-            sqrt((x0 - x1).pow(2) + (y0 - y1).pow(2))
-        }
-    }
 
 }
 

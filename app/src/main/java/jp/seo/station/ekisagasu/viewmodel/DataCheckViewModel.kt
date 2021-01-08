@@ -43,7 +43,7 @@ class DataCheckViewModel(
     fun updateStationData(repository: StationRepository, callback: (Boolean)->Unit){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                repository.updateData(info.version, info.url, object : StationRepository.UpdateProgressListener{
+                repository.updateData(info, object : StationRepository.UpdateProgressListener {
                     override fun onStateChanged(state: String) {
                         _updateState.value = state
                     }

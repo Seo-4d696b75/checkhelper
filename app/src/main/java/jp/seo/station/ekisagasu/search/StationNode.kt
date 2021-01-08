@@ -13,9 +13,9 @@ data class StationNode(
     @SerializedName("code")
     val code: Int,
     @SerializedName("lat")
-    val lat: Double,
+    val lat: Double?,
     @SerializedName("lng")
-    val lng: Double,
+    val lng: Double?,
     @SerializedName("left")
     val left: Int?,
     @SerializedName("right")

@@ -106,7 +106,11 @@ dependencies {
     // Optional -- UI testing with UI Automator
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
-
+    // live data test
+    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
+    androidTestImplementation 'android.arch.lifecycle:extensions:1.1.1'
+    androidTestImplementation 'com.nhaarman:mockito-kotlin:1.5.0'
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2"
 
 
 }
