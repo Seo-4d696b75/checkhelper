@@ -21,7 +21,7 @@ import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
 import jp.seo.station.ekisagasu.utils.NearestStationInfo
-import jp.seo.station.ekisagasu.utils.combine
+import jp.seo.station.ekisagasu.utils.combineLiveData
 import kotlinx.coroutines.*
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -110,6 +110,7 @@ class StationService : LifecycleService(), CoroutineScope {
         // init repository
         launch {
             userRepository.onAppReboot()
+            prefectures.setData(this@StationService)
         }
 
         // start this service as foreground one
@@ -117,7 +118,7 @@ class StationService : LifecycleService(), CoroutineScope {
         notificationHolder.update("init", "initializing app")
 
         // when current location & user setting changed
-        combine<CurrentLocation, Location?, Int>(
+        combineLiveData<CurrentLocation, Location?, Int>(
             CurrentLocation(null, 1),
             gpsClient.currentLocation,
             userRepository.searchK
@@ -193,6 +194,10 @@ class StationService : LifecycleService(), CoroutineScope {
             }
 
         })
+    }
+
+    val prefectures: PrefectureRepository by lazy {
+        PrefectureRepository()
     }
 
     fun message(mes: String) {

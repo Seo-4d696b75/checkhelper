@@ -1,9 +1,12 @@
 package jp.seo.station.ekisagasu.viewmodel
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.core.UserRepository
-import jp.seo.station.ekisagasu.utils.combine
+import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 
 /**
@@ -27,12 +30,12 @@ class LogViewModel(
         _filter.value = value
     }
 
-    val logs: LiveData<List<AppLog>> = combine(
+    val logs: LiveData<List<AppLog>> = combineLiveData(
         ArrayList(),
         _filter,
         repository.logs
     ) { filter, logs ->
-        logs.filter{ (it.type and filter) > 0 }
+        logs.filter { (it.type and filter) > 0 }
     }
 
 }

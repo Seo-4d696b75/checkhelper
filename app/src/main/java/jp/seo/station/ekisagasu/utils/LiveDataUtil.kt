@@ -35,6 +35,42 @@ inline fun <T : Any?, LIVE1 : Any?, LIVE2 : Any?> combine(
     }.distinctUntilChanged()
 }
 
+/**
+ * 与えられた[value]が型パラメータ[E]に合致する場合にのみブロックを実行する
+ *
+ * 型パラメータ[E]に関して、
+ * - NotNull: `value != null`の場合に実行
+ * - Nullable: 必ず実行
+ */
+inline fun <reified E : Any?> getValueOrNull(value: E?, block: (E) -> Unit) {
+    if (value != null) {
+        block(value)
+    } else if (null is E) {
+        val nullValue = null as E
+        block(nullValue)
+    }
+}
+
+inline fun <T : Any?, reified LIVE1 : Any?, reified LIVE2 : Any?> combineLiveData(
+    initialValue: T,
+    liveData1: LiveData<LIVE1>,
+    liveData2: LiveData<LIVE2>,
+    crossinline block: (LIVE1, LIVE2) -> T
+): LiveData<T> {
+    return MediatorLiveData<T>().apply {
+        value = initialValue
+        listOf(liveData1, liveData2).forEach { liveData ->
+            addSource(liveData) {
+                getValueOrNull<LIVE1>(liveData1.value) { value1 ->
+                    getValueOrNull<LIVE2>(liveData2.value) { value2 ->
+                        value = block(value1, value2)
+                    }
+                }
+            }
+        }
+    }.distinctUntilChanged()
+}
+
 data class CurrentLocation(
     val location: Location?,
     val k: Int
@@ -43,7 +79,7 @@ data class CurrentLocation(
 class NearestStationInfo(
     near: NearStation,
     val lines: List<Line>
-){
+) {
 
     val station = near.station
     val distance: String = formatDistance(near.distance)

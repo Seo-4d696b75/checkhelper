@@ -67,6 +67,7 @@
                     </LinearLayout>
 
                     <GridLayout
+                        android:id="@+id/container_station"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:columnCount="2">
@@ -112,7 +113,7 @@
                             android:src="@drawable/station" />
 
                         <jp.seo.android.widget.HorizontalListView
-                            android:id="@+id/listStationLines"
+                            android:id="@+id/list_line_names"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="4dp"
