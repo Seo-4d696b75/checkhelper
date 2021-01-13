@@ -7,20 +7,22 @@
                       android:endColor="@color/buttonShadowDark"/>
         </shape>
     </item>
-    <item android:bottom="1dp"
-          android:right="1dp"
-          android:left="1dp"
-          android:top="1dp">
-        <shape
-            android:shape="oval">
-            <solid android:color="@color/colorPrimary"/>
+    <item
+        android:bottom="1dp"
+        android:right="1dp"
+        android:left="1dp"
+        android:top="1dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/colorPrimary" />
         </shape>
     </item>
-    <item android:bottom="8dp"
-          android:left="8dp"
-          android:right="8dp"
-          android:top="8dp">
-        <bitmap android:src="@drawable/ic_menu_more"
-                android:gravity="fill_horizontal|fill_vertical"/>
+    <item
+        android:bottom="8dp"
+        android:left="8dp"
+        android:right="8dp"
+        android:top="8dp">
+        <bitmap
+            android:src="@drawable/ic_more"
+            android:gravity="fill_horizontal|fill_vertical" />
     </item>
 </layer-list>

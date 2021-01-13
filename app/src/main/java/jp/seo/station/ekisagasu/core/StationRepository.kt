@@ -103,19 +103,23 @@ class StationRepository(
     val lastCheckedVersion: DataLatestInfo?
         get() = _lastCheckedVersion
 
-    suspend fun getDataVersion(): DataVersion? {
+    suspend fun getDataVersion(): DataVersion? = withContext(Dispatchers.IO) {
         val version = dao.getCurrentDataVersion()
         _dataInitialized = version != null
-        return version
+        version
     }
 
-    suspend fun getLatestDataVersion(forceRefresh: Boolean = true): DataLatestInfo {
-        val last = _lastCheckedVersion
-        if (last != null && !forceRefresh) return last
-        val info = api.getLatestInfo()
-        _lastCheckedVersion = info
-        return info
-    }
+    suspend fun getLatestDataVersion(forceRefresh: Boolean = true): DataLatestInfo =
+        withContext(Dispatchers.IO) {
+            val last = _lastCheckedVersion
+            if (last != null && !forceRefresh) {
+                last
+            } else {
+                val info = api.getLatestInfo()
+                _lastCheckedVersion = info
+                info
+            }
+        }
 
     suspend fun getDataVersionHistory() = dao.getDataVersionHistory()
 

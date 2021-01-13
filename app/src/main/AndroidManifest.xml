@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
 
     <application
+        android:name=".core.WithServiceApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

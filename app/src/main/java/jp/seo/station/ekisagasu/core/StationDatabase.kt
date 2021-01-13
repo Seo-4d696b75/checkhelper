@@ -3,20 +3,43 @@ package jp.seo.station.ekisagasu.core
 import android.content.Context
 import android.os.Handler
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.Transaction
+import androidx.room.TypeConverters
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.search.TreeSegment
 import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
-import jp.seo.station.ekisagasu.utils.*
+import jp.seo.station.ekisagasu.search.TreeSegment
+import jp.seo.station.ekisagasu.utils.ArrayIntConverter
+import jp.seo.station.ekisagasu.utils.NodeListConverter
+import jp.seo.station.ekisagasu.utils.RegistrationListConverter
+import jp.seo.station.ekisagasu.utils.SingletonHolder
 import java.util.*
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
-@Database(entities = [Station::class, Line::class, TreeSegment::class, DataVersion::class], version = 4, exportSchema = false)
-@TypeConverters(RegistrationListConverter::class, ArrayIntConverter::class, NodeListConverter::class, TimestampConverter::class)
+@Database(
+    entities = [Station::class, Line::class, TreeSegment::class, DataVersion::class],
+    version = 5,
+    exportSchema = false
+)
+@TypeConverters(
+    RegistrationListConverter::class,
+    ArrayIntConverter::class,
+    NodeListConverter::class,
+    TimestampConverter::class
+)
 abstract class StationDatabase : RoomDatabase(){
     abstract val dao: StationDao
 }

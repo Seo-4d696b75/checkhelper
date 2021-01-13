@@ -16,4 +16,7 @@
     <string name="notification_message_wait">タップして検索を開始します</string>
     <string name="notification_title_start">検索を開始しています</string>
     <string name="notification_message_start">付近の駅を探しています&#8230;</string>
+    <string name="main_message_wait_search">検索を待機しています</string>
+    <string name="main_message_starting_search">周辺の駅を探してます</string>
+    <string name="line_none">なし</string>
 </resources>

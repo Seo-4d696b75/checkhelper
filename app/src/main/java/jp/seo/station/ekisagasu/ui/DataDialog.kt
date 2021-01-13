@@ -15,6 +15,7 @@ import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
 import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.DataCheckViewModel
+import org.koin.android.ext.android.inject
 
 /**
  * @author Seo-4d696b75
@@ -37,7 +38,7 @@ abstract class DataDialog : DialogFragment() {
     }
 
     var _listener: OnClickListener? = null
-    var _service: ServiceGetter? = null
+    val _service by inject<ServiceGetter>()
 
     val viewModel: DataCheckViewModel by lazy {
         getViewModelFactory {
@@ -55,9 +56,6 @@ abstract class DataDialog : DialogFragment() {
             _listener = activity
         }
 
-        if (activity is MainActivity) {
-            _service = activity.service
-        }
 
         val builder = AlertDialog.Builder(context)
 
@@ -171,7 +169,7 @@ class DataUpdateDialog : DataDialog() {
                 progress.progress = it
             }
 
-            _service?.get { service ->
+            _service.get { service ->
                 viewModel.updateStationData(service.stationRepository) { result ->
                     _listener?.onDialogButtonClicked(
                         tag,

@@ -158,7 +158,7 @@ class StationService : LifecycleService(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + serviceJob
 
-    private val mainHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
+    val mainHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
 
     val userRepository: UserRepository by lazy {
         val dao = getUserDatabase(this).userDao

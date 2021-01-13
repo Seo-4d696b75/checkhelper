@@ -5,25 +5,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import jp.seo.station.ekisagasu.core.StationService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/22.
  */
-class ServiceGetter() : LifecycleObserver, CoroutineScope {
+class ServiceGetter() : LifecycleObserver {
 
-    private val job = Job()
     private var service: StationService? = null
     private var active = false
     private val listeners = ArrayList<(StationService) -> Unit>()
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
 
     val value: StationService?
         get() = service
@@ -42,14 +33,12 @@ class ServiceGetter() : LifecycleObserver, CoroutineScope {
     @Synchronized
     fun set(s: StationService?) {
         service = s
-        service?.let { s ->
+        service?.let { _service ->
             if (active) {
-                launch {
-                    listeners.forEach {
-                        it(s)
-                    }
-                    listeners.clear()
+                _service.mainHandler.post {
+                    listeners.forEach { it(_service) }
                 }
+                listeners.clear()
             }
         }
     }
@@ -67,7 +56,6 @@ class ServiceGetter() : LifecycleObserver, CoroutineScope {
     @Synchronized
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
-        job.cancel()
         active = false
     }
 }

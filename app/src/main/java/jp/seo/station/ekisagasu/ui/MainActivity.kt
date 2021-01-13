@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import jp.seo.station.ekisagasu.R
@@ -18,7 +17,8 @@ import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationService
 import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
-import jp.seo.station.ekisagasu.viewmodel.MainViewModel
+import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
+import org.koin.android.ext.android.inject
 
 /**
  * @author Seo-4d696b75
@@ -32,9 +32,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
 
         lifecycle.addObserver(service)
 
-        findViewById<Button>(R.id.button_stop).setOnClickListener {
-            finish()
-        }
         viewModel.apiException.observe(this) {
             try{
                 it?.startResolutionForResult(this, RESOLVE_API_EXCEPTION)
@@ -52,11 +49,10 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
         }
 
         // TODO init ui
-        val fragment = LogFragment()
+        val fragment = MainFragment()
         supportFragmentManager.beginTransaction()
             .replace(R.id.layout_root, fragment)
             .commit()
-        s.start()
     }
 
     override fun onResume() {
@@ -84,16 +80,16 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
         super.finish()
     }
 
-    private val viewModel: MainViewModel by lazy {
-        getViewModelFactory(::MainViewModel).create(MainViewModel::class.java)
+    private val viewModel: ActivityViewModel by lazy {
+        getViewModelFactory(::ActivityViewModel).create(ActivityViewModel::class.java)
     }
 
-    val service = ServiceGetter()
+    private val service by inject<ServiceGetter>()
 
     override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
         binder?.let {
             if (it is StationService.StationServiceBinder) {
-                service.set( it.bind(this))
+                service.set(it.bind(this))
                 service.value?.message("service connected with Activity")
                 viewModel.checkService(service.value, this, this::onInitialized)
             }

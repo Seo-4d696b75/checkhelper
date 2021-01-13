@@ -17,4 +17,7 @@
 
     <color name="buttonShadow">#30000000</color>
     <color name="buttonShadowDark">#50000000</color>
+
+
+    <color name="menuBack">#44000000</color>
 </resources>
