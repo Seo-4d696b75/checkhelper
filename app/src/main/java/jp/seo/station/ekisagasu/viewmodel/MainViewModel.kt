@@ -4,9 +4,6 @@ package jp.seo.station.ekisagasu.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
-import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.core.StationService
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
@@ -58,16 +55,7 @@ class MainViewModel(
 
     val nearestStation = service.stationRepository.nearestStation
     val radarList = service.stationRepository.nearestStations
+    var radarNum = service.userRepository.searchK
     val selectedLine = service.stationRepository.selectedLine
-
-    val lines: LiveData<List<Line>?> = nearestStation.switchMap { n ->
-        liveData {
-            emit(
-                n?.let {
-                    service.stationRepository.getLines(it.station.lines)
-                }
-            )
-        }
-    }
 
 }

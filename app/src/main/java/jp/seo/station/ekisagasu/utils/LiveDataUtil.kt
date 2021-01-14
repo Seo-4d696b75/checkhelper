@@ -4,11 +4,6 @@ import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.distinctUntilChanged
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.core.NearStation
-import jp.seo.station.ekisagasu.search.formatDistance
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * @author Seo-4d696b75
@@ -75,15 +70,3 @@ data class CurrentLocation(
     val location: Location?,
     val k: Int
 )
-
-class NearestStationInfo(
-    near: NearStation,
-    val lines: List<Line>
-) {
-
-    val station = near.station
-    val distance: String = formatDistance(near.distance)
-    val time: String = SimpleDateFormat("HH:mm", Locale.US).format(near.time)
-    val linesName = lines.joinToString(separator = " ", transform = {line -> line.name})
-
-}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="3dp">
+
+    <TextView
+        android:layout_width="16dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_station_cell_index"
+        android:textSize="14sp"
+        android:textColor="@color/colorPrimaryDark"
+        android:gravity="center_horizontal"
+        android:text="" />
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_cell_station_distance"
+        android:textSize="12sp"
+        android:textColor="@color/colorTextDark"
+        android:gravity="center"
+        android:text="" />
+
+    <jp.seo.android.widget.ExpandableTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_cell_station_name"
+        android:textSize="14sp"
+        android:textColor="@color/colorText"
+        android:text=""
+        custom:maxWidth="150dp" />
+
+    <jp.seo.android.widget.ExpandableTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/colorTextGray"
+        android:gravity="end"
+        android:layout_marginStart="5dp"
+        android:paddingStart="2dp"
+        android:paddingEnd="4dp"
+        android:id="@+id/text_cell_station_lines" />
+</LinearLayout>

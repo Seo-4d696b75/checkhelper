@@ -11,6 +11,7 @@ import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.search.measureDistance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.floor
@@ -30,7 +31,9 @@ class StationRepository(
 
     fun getLine(code: Int) = dao.getLine(code)
 
-    suspend fun getLines(codes: Array<Int>) = dao.getLines(codes)
+    suspend fun getLines(codes: Array<Int>) = withContext(Dispatchers.IO) {
+        dao.getLines(codes)
+    }
 
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
@@ -44,36 +47,35 @@ class StationRepository(
         lng: Double,
         k: Int,
         r: Double
-    ): KdTree.SearchResult {
+    ): KdTree.SearchResult = withContext(Dispatchers.IO) {
         if (!_dataInitialized) {
             throw IllegalStateException("data not initialized yet")
         }
-        return tree.search(lat, lng, k, r, false)
+        tree.search(lat, lng, k, r, false)
     }
 
-    suspend fun updateNearestStations(location: Location, k: Int): Station? {
-        if (k < 1) return null
-        val last = _lastCheckedLocation
-        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return null
-        var detected: Station? = null
-        withContext(Dispatchers.IO) {
+    suspend fun updateNearestStations(location: Location, k: Int): Station? =
+        withContext(Dispatchers.Main) {
+            if (k < 1) return@withContext null
+            val last = _lastCheckedLocation
+            if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return@withContext null
+            var detected: Station? = null
             val result = searchNearestStations(location.latitude, location.longitude, k, 0.0)
-            withContext(Dispatchers.Main) {
-                val nearest = result.stations[0]
-                val current = _nearestStation.value
-                val time = Date(location.time)
-                _nearestStations.value = result.stations.map { s ->
-                    NearStation(s, measureDistance(s, location), time)
-                }
-                if (current == null || current.station != nearest) {
-                    _nearestStation.value =
-                        NearStation(nearest, measureDistance(nearest, location), time)
-                    detected = nearest
-                }
+            if (result.stations.isEmpty()) return@withContext null
+            val nearest = result.stations[0]
+            val current = _nearestStation.value
+            val time = Date(location.time)
+            val list = result.stations.map { s ->
+                val lines = getLines(s.lines)
+                NearStation(s, measureDistance(s, location), time, lines)
+            }
+            _nearestStations.value = list
+            if (current == null || current.station != nearest) {
+                _nearestStation.value = list[0]
+                detected = nearest
             }
             _lastCheckedLocation = location
-        }
-        return detected
+            detected
     }
 
     @MainThread
@@ -174,5 +176,16 @@ data class NearStation(
     /**
      * Time when this near station detected
      */
-    val time: Date
-)
+    val time: Date,
+
+    val lines: List<Line>
+) {
+
+    fun getDetectedTime(): String {
+        return SimpleDateFormat("HH:mm", Locale.US).format(time)
+    }
+
+    fun getLinesName(): String {
+        return lines.joinToString(separator = " ", transform = { line -> line.name })
+    }
+}

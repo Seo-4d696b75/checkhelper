@@ -73,23 +73,27 @@ class MainFragment : AppFragment() {
                 val stationName = view.findViewById<StationNameView>(R.id.station_name_main)
                 val prefecture = view.findViewById<TextView>(R.id.text_station_prefecture)
                 val distance = view.findViewById<TextView>(R.id.text_distance)
+                val lineNames = view.findViewById<HorizontalListView>(R.id.list_line_names)
+                val adapter = LineNamesAdapter(ctx)
+                lineNames.adapter = adapter
                 viewModel.nearestStation.observe(viewLifecycleOwner) {
                     it?.let { s ->
                         stationName.setStation(s.station)
                         prefecture.text = service.prefectures.getName(s.station.prefecture)
                         distance.text = formatDistance(s.distance)
+                        adapter.data = s.lines
                     }
                 }
                 val selectedLine = view.findViewById<TextView>(R.id.text_selected_line)
                 viewModel.selectedLine.observe(viewLifecycleOwner) {
                     selectedLine.text = it?.name ?: getString(R.string.no_selected_line)
                 }
-                val lineNames = view.findViewById<HorizontalListView>(R.id.list_line_names)
-                val adapter = LineNamesAdapter(ctx)
-                lineNames.adapter = adapter
-                viewModel.lines.observe(viewLifecycleOwner) {
-                    adapter.data = it ?: listOf()
-                }
+
+                // radar fragment
+                val fragment = RadarFragment.getInstance()
+                val transaction = childFragmentManager.beginTransaction()
+                transaction.replace(R.id.container_sub_fragment, fragment, "radar")
+                transaction.commit()
             }
         }
     }

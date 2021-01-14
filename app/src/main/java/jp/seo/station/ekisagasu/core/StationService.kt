@@ -13,14 +13,11 @@ import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
 import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
-import jp.seo.station.ekisagasu.utils.NearestStationInfo
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import kotlinx.coroutines.*
 import java.io.PrintWriter
@@ -136,19 +133,14 @@ class StationService : LifecycleService(), CoroutineScope {
             }
 
         // update notification when nearest station changed
-        stationRepository.nearestStation.switchMap { near ->
-            liveData {
-                near?.let {
-                    val lines = stationRepository.getLines(it.station.lines)
-                    val info = NearestStationInfo(it, lines)
-                    emit(info)
-                }
+        stationRepository.nearestStation.observe(this) {
+            it?.let { s ->
+                notificationHolder.update(
+                    String.format("%s  %s", s.station.name, s.getDetectedTime()),
+                    String.format("%s   %s", s.distance, s.getLinesName())
+                )
+
             }
-        }.observe(this) {
-            notificationHolder.update(
-                String.format("%s  %s", it.station.name, it.time),
-                String.format("%s   %s", it.distance, it.linesName)
-            )
         }
 
     }
