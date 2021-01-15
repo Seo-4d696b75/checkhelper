@@ -161,11 +161,14 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/container_sub_fragment"
+        <fragment
+            android:id="@+id/sub_nav_host"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            app:navGraph="@navigation/sub_navigation"
+            app:defaultNavHost="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="50dp" />
+            android:layout_marginBottom="40dp" />
 
     </LinearLayout>
 

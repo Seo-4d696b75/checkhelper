@@ -158,4 +158,12 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
         viewModel.checkService(service.value, this, this::onInitialized)
     }
 
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            super.onBackPressed()
+        } else {
+            supportFragmentManager.popBackStack()
+        }
+    }
+
 }

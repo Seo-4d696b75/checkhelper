@@ -13,9 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.utils.AppFragment
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel.SearchState
 
@@ -23,7 +21,7 @@ import jp.seo.station.ekisagasu.viewmodel.MainViewModel.SearchState
  * @author Seo-4d696b75
  * @version 2021/01/11.
  */
-class MainFragment : AppFragment(), RadarFragment.RadarListCallback {
+class MainFragment : AppFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +36,7 @@ class MainFragment : AppFragment(), RadarFragment.RadarListCallback {
 
             getService { service ->
                 service.message("main-fragment connected")
-                val viewModel = MainViewModel.getFactory(service).create(MainViewModel::class.java)
+                val viewModel = MainViewModel.getInstance(this, service)
                 view.findViewById<View>(R.id.fab_exit).setOnClickListener {
                     activity?.finish()
                 }
@@ -93,11 +91,6 @@ class MainFragment : AppFragment(), RadarFragment.RadarListCallback {
                     selectedLine.text = it?.name ?: getString(R.string.no_selected_line)
                 }
 
-                // radar fragment
-                val fragment = RadarFragment.getInstance()
-                val transaction = childFragmentManager.beginTransaction()
-                transaction.replace(R.id.container_sub_fragment, fragment, "radar")
-                transaction.commit()
             }
         }
     }
@@ -122,12 +115,5 @@ class MainFragment : AppFragment(), RadarFragment.RadarListCallback {
             symbol.background = background
         }
 
-    }
-
-    /**
-     * 近傍の駅一覧から駅を選択したときのコールバック
-     */
-    override fun onStationSelected(station: Station) {
-        Log.d("station", "selected:$station")
     }
 }

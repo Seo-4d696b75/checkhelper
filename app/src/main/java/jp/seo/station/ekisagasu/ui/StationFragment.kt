@@ -3,35 +3,22 @@ package jp.seo.station.ekisagasu.ui
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
+import androidx.navigation.fragment.findNavController
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.utils.AppFragment
-import jp.seo.station.ekisagasu.viewmodel.StationViewModel
+import jp.seo.station.ekisagasu.viewmodel.MainViewModel
 
 /**
  * @author Seo-4d696b75
  * @version 2021/01/14.
  */
 class StationFragment : AppFragment() {
-
-    companion object {
-        const val KEY_STATION_CODE = "station_code"
-
-        fun getInstance(code: Int): StationFragment {
-            val fragment = StationFragment()
-            fragment.arguments = Bundle().apply {
-                putInt(KEY_STATION_CODE, code)
-            }
-            return fragment
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,39 +31,33 @@ class StationFragment : AppFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
             getService { service ->
-                arguments?.getInt(KEY_STATION_CODE)?.let { code ->
-                    val viewModel =
-                        StationViewModel.getFactory(service).create(StationViewModel::class.java)
-                    viewModel.targetStationCode.value = code
+                val viewModel = MainViewModel.getInstance(this, service)
+                val name = view.findViewById<StationNameView>(R.id.station_name_detail)
+                val location = view.findViewById<TextView>(R.id.text_station_detail_location)
+                val prefecture =
+                    view.findViewById<TextView>(R.id.text_station_detail_prefecture)
+                val lines = view.findViewById<ListView>(R.id.list_station_detail_lines)
 
-                    val name = view.findViewById<StationNameView>(R.id.station_name_detail)
-                    val location = view.findViewById<TextView>(R.id.text_station_detail_location)
-                    val prefecture =
-                        view.findViewById<TextView>(R.id.text_station_detail_prefecture)
-                    val lines = view.findViewById<ListView>(R.id.list_station_detail_lines)
-
-                    viewModel.station.observe(viewLifecycleOwner) {
-                        it?.let { station ->
-                            name.setStation(station)
-                            location.text = String.format("E%.6f N%.6f", station.lng, station.lat)
-                            prefecture.text = service.prefectures.getName(station.prefecture)
-                        }
+                viewModel.stationInDetail.observe(viewLifecycleOwner) {
+                    it?.let { station ->
+                        name.setStation(station)
+                        location.text = String.format("E%.6f N%.6f", station.lng, station.lat)
+                        prefecture.text = service.prefectures.getName(station.prefecture)
                     }
-                    viewModel.lines.observe(viewLifecycleOwner) {
-                        lines.adapter = LineAdapter(ctx, it)
-                    }
+                }
+                viewModel.linesInDetail.observe(viewLifecycleOwner) {
+                    lines.adapter = LineAdapter(ctx, it)
+                }
 
-                    view.findViewById<View>(R.id.button_station_detail_delete).setOnClickListener {
-
+                view.findViewById<View>(R.id.button_station_detail_delete).setOnClickListener {
+                    findNavController().navigate(R.id.action_global_to_radarFragment)
+                }
+                view.findViewById<View>(R.id.button_station_detail_show_map)
+                    .setOnClickListener {
+                        //TODO
                     }
-                    view.findViewById<View>(R.id.button_station_detail_show_map)
-                        .setOnClickListener {
-
-                        }
-                    lines.setOnItemClickListener { parent, view, position, id ->
-                        val line = viewModel.lines.value?.get(position)
-                        Log.d("Line", "selected: $line")
-                    }
+                lines.setOnItemClickListener { parent, view, position, id ->
+                    //TODO
                 }
             }
         }

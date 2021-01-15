@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sub_navigation"
+    app:startDestination="@id/radarFragment">
+
+    <fragment
+        android:id="@+id/radarFragment"
+        android:name="jp.seo.station.ekisagasu.ui.RadarFragment"
+        android:label="RadarFragment">
+        <action
+            android:id="@+id/action_radarFragment_to_stationFragment"
+            app:destination="@id/stationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/stationFragment"
+        android:name="jp.seo.station.ekisagasu.ui.StationFragment"
+        android:label="StationFragment"></fragment>
+    <action
+        android:id="@+id/action_global_to_radarFragment"
+        app:destination="@id/radarFragment"
+        app:popUpTo="@id/sub_navigation"
+        app:popUpToInclusive="true" />
+</navigation>
