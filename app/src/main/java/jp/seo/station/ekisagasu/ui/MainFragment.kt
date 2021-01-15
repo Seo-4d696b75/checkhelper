@@ -13,6 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.AppFragment
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel
@@ -22,7 +23,7 @@ import jp.seo.station.ekisagasu.viewmodel.MainViewModel.SearchState
  * @author Seo-4d696b75
  * @version 2021/01/11.
  */
-class MainFragment : AppFragment() {
+class MainFragment : AppFragment(), RadarFragment.RadarListCallback {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,6 +85,9 @@ class MainFragment : AppFragment() {
                         adapter.data = s.lines
                     }
                 }
+                adapter.setOnItemSelectedListener { view, data, position ->
+                    Log.d("Line", "selected: $data")
+                }
                 val selectedLine = view.findViewById<TextView>(R.id.text_selected_line)
                 viewModel.selectedLine.observe(viewLifecycleOwner) {
                     selectedLine.text = it?.name ?: getString(R.string.no_selected_line)
@@ -118,5 +122,12 @@ class MainFragment : AppFragment() {
             symbol.background = background
         }
 
+    }
+
+    /**
+     * 近傍の駅一覧から駅を選択したときのコールバック
+     */
+    override fun onStationSelected(station: Station) {
+        Log.d("station", "selected:$station")
     }
 }

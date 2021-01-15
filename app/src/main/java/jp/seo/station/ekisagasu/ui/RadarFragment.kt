@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.NearStation
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.AppFragment
@@ -26,6 +27,25 @@ class RadarFragment : AppFragment() {
         fun getInstance(): RadarFragment {
             return RadarFragment()
         }
+    }
+
+    interface RadarListCallback {
+        fun onStationSelected(station: Station)
+    }
+
+    private var listener: RadarListCallback? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val parent = parentFragment
+        if (parent is RadarListCallback) {
+            listener = parent
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
     }
 
     override fun onCreateView(
@@ -54,6 +74,9 @@ class RadarFragment : AppFragment() {
                 list.adapter = adapter
                 viewModel.radarList.observe(viewLifecycleOwner) {
                     adapter.data = it
+                }
+                adapter.setOnItemSelectedListener { view, data, pos ->
+                    listener?.onStationSelected(data.station)
                 }
                 val radarNum = view.findViewById<TextView>(R.id.text_radar_num)
                 viewModel.radarNum.observe(viewLifecycleOwner) {

@@ -70,13 +70,13 @@
                         android:id="@+id/container_station"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:columnCount="2">
+                        android:columnCount="3">
 
                         <jp.seo.station.ekisagasu.ui.StationNameView
                             android:id="@+id/station_name_main"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_columnSpan="2"
+                            android:layout_columnSpan="3"
                             android:layout_marginStart="8dp"
                             android:layout_marginBottom="7dp"
                             custom:kanaTextColor="@color/colorText"
@@ -88,21 +88,22 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:layout_rowSpan="2"
                             android:layout_marginEnd="4dp"
                             android:src="@drawable/ic_location" />
-
-                        <TextView
-                            android:id="@+id/text_station_prefecture"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            android:textColor="@color/colorText" />
 
                         <TextView
                             android:id="@+id/text_distance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text=""
+                            android:textColor="@color/colorText" />
+
+                        <TextView
+                            android:id="@+id/text_station_prefecture"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
                             android:text=""
                             android:textColor="@color/colorText" />
 
@@ -117,7 +118,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="4dp"
-                            android:paddingEnd="0dp" />
+                            android:paddingEnd="0dp"
+                            android:layout_columnSpan="2" />
 
                     </GridLayout>
                 </FrameLayout>

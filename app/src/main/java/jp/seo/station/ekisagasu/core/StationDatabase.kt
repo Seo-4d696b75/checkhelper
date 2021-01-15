@@ -57,10 +57,10 @@ fun getStationDatabase(ctx: Context) : StationDatabase = holder.get(ctx)
 abstract class StationDao {
 
     @Query("SELECT * FROM station WHERE code == :code")
-    abstract fun getStation(code: Int): LiveData<Station>
+    abstract fun getStation(code: Int): LiveData<Station?>
 
     @Query("SELECT * FROM station WHERE id == :id")
-    abstract fun getStation(id: String): LiveData<Station>
+    abstract fun getStation(id: String): LiveData<Station?>
 
     @Query("SELECT * FROM station WHERE code IN (:codes) ORDER BY code")
     abstract suspend fun getStations(codes: List<Int>): List<Station>
