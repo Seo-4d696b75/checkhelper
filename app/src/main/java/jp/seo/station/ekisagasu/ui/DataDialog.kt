@@ -9,19 +9,21 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
 import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.DataCheckViewModel
-import org.koin.android.ext.android.inject
+import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
  * @version 2021/01/07.
  */
-abstract class DataDialog : DialogFragment() {
+@AndroidEntryPoint
+open class DataDialog : DialogFragment() {
 
 
     companion object {
@@ -37,8 +39,10 @@ abstract class DataDialog : DialogFragment() {
         fun onDialogButtonClicked(tag: String?, info: DataLatestInfo, which: Int)
     }
 
-    var _listener: OnClickListener? = null
-    val _service by inject<ServiceGetter>()
+    var listener: OnClickListener? = null
+
+    @Inject
+    lateinit var service: ServiceGetter
 
     val viewModel: DataCheckViewModel by lazy {
         getViewModelFactory {
@@ -51,9 +55,9 @@ abstract class DataDialog : DialogFragment() {
         val fragment = targetFragment
         val activity = this.activity
         if (fragment is OnClickListener) {
-            _listener = fragment
+            listener = fragment
         } else if (activity is OnClickListener) {
-            _listener = activity
+            listener = activity
         }
 
 
@@ -64,10 +68,11 @@ abstract class DataDialog : DialogFragment() {
         return builder.create()
     }
 
-    abstract fun onCreateDialog(builder: AlertDialog.Builder)
+    open fun onCreateDialog(builder: AlertDialog.Builder) {}
 
 }
 
+@AndroidEntryPoint
 class DataCheckDialog : DataDialog() {
 
     companion object {
@@ -103,7 +108,7 @@ class DataCheckDialog : DataDialog() {
             builder.setView(view)
 
             builder.setPositiveButton("OK") { dialog, id ->
-                _listener?.onDialogButtonClicked(
+                listener?.onDialogButtonClicked(
                     tag,
                     viewModel.info,
                     DialogInterface.BUTTON_POSITIVE
@@ -112,7 +117,7 @@ class DataCheckDialog : DataDialog() {
             }
 
             builder.setNegativeButton("Cancel") { dialog, id ->
-                _listener?.onDialogButtonClicked(
+                listener?.onDialogButtonClicked(
                     tag,
                     viewModel.info,
                     DialogInterface.BUTTON_NEGATIVE
@@ -124,6 +129,7 @@ class DataCheckDialog : DataDialog() {
 
 }
 
+@AndroidEntryPoint
 class DataUpdateDialog : DataDialog() {
 
     companion object {
@@ -149,7 +155,7 @@ class DataUpdateDialog : DataDialog() {
             builder.setView(view)
 
             builder.setNegativeButton("Cancel") { dialog, id ->
-                _listener?.onDialogButtonClicked(
+                listener?.onDialogButtonClicked(
                     tag,
                     viewModel.info,
                     DialogInterface.BUTTON_NEGATIVE
@@ -169,9 +175,9 @@ class DataUpdateDialog : DataDialog() {
                 progress.progress = it
             }
 
-            _service.get { service ->
+            service.get { service ->
                 viewModel.updateStationData(service.stationRepository) { result ->
-                    _listener?.onDialogButtonClicked(
+                    listener?.onDialogButtonClicked(
                         tag,
                         viewModel.info,
                         if (result) DialogInterface.BUTTON_POSITIVE else DialogInterface.BUTTON_NEGATIVE

@@ -12,19 +12,24 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationService
 import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
-import org.koin.android.ext.android.inject
+import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickListener {
+
+    @Inject
+    lateinit var service: ServiceGetter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,9 +38,9 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
         lifecycle.addObserver(service)
 
         viewModel.apiException.observe(this) {
-            try{
+            try {
                 it?.startResolutionForResult(this, RESOLVE_API_EXCEPTION)
-            } catch (e: IntentSender.SendIntentException){
+            } catch (e: IntentSender.SendIntentException) {
                 service.value?.error("Resolve APIException", e)
             }
         }
@@ -83,8 +88,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
     private val viewModel: ActivityViewModel by lazy {
         getViewModelFactory(::ActivityViewModel).create(ActivityViewModel::class.java)
     }
-
-    private val service by inject<ServiceGetter>()
 
     override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
         binder?.let {

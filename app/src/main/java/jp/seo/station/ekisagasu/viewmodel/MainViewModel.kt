@@ -24,13 +24,15 @@ class MainViewModel(
 ) : ViewModel() {
 
     companion object {
-        fun getFactory(service: StationService): ViewModelProvider.Factory =
-            getViewModelFactory {
-                MainViewModel(service)
-            }
 
-        fun getInstance(owner: ViewModelStoreOwner, service: StationService): MainViewModel =
-            ViewModelProvider(owner, getFactory(service)).get(MainViewModel::class.java)
+        /**
+         * ViewModelインスタンスを取得する
+         * @param owner 共通のインスタンスを取得する必要がある場合はDIなど利用して同一のstoreを渡す
+         */
+        fun getInstance(owner: ViewModelStoreOwner, service: StationService): MainViewModel {
+            val factory = getViewModelFactory { MainViewModel(service) }
+            return ViewModelProvider(owner, factory).get(MainViewModel::class.java)
+        }
     }
 
     enum class SearchState {
