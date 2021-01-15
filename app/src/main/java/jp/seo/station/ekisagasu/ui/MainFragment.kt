@@ -36,7 +36,7 @@ class MainFragment : AppFragment() {
 
             getService { service ->
                 service.message("main-fragment connected")
-                val viewModel = MainViewModel.getInstance(this, service)
+                val viewModel = MainViewModel.getInstance(requireActivity(), service)
                 view.findViewById<View>(R.id.fab_exit).setOnClickListener {
                     activity?.finish()
                 }
@@ -100,7 +100,7 @@ class MainFragment : AppFragment() {
         private val inflater = LayoutInflater.from(context)
 
         override fun getView(group: ViewGroup): View {
-            return inflater.inflate(R.layout.cell_line_small, null, false)
+            return inflater.inflate(R.layout.cell_line_small, group, false)
         }
 
         override fun onBindView(view: View, data: Line, position: Int) {

@@ -33,7 +33,7 @@ class RadarFragment : AppFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
             getService { service ->
-                val viewModel = MainViewModel.getInstance(this, service)
+                val viewModel = MainViewModel.getInstance(requireActivity(), service)
                 val list = view.findViewById<RecyclerView>(R.id.list_radar)
                 list.addItemDecoration(
                     DividerItemDecoration(

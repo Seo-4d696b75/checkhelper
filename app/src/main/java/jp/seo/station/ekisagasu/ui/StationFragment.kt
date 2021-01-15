@@ -31,7 +31,7 @@ class StationFragment : AppFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
             getService { service ->
-                val viewModel = MainViewModel.getInstance(this, service)
+                val viewModel = MainViewModel.getInstance(requireActivity(), service)
                 val name = view.findViewById<StationNameView>(R.id.station_name_detail)
                 val location = view.findViewById<TextView>(R.id.text_station_detail_location)
                 val prefecture =
