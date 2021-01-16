@@ -1,10 +1,13 @@
 package jp.seo.station.ekisagasu.ui
 
-import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.AndroidEntryPoint
+import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.StationService
-import jp.seo.station.ekisagasu.utils.ServiceGetter
+import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
+import jp.seo.station.ekisagasu.viewmodel.MainViewModel
 import javax.inject.Inject
 
 /**
@@ -18,12 +21,24 @@ import javax.inject.Inject
 open class AppFragment : Fragment() {
 
     @Inject
-    lateinit var service: ServiceGetter
+    lateinit var singletonStore: ViewModelStore
 
+    @Inject
+    lateinit var stationRepository: StationRepository
 
-    @MainThread
-    fun getService(block: (StationService) -> Unit) {
-        service.get(block)
+    @Inject
+    lateinit var userRepository: UserRepository
+
+    private val appViewModel: ApplicationViewModel by lazy {
+        ApplicationViewModel.getInstance { singletonStore }
     }
 
+    val mainViewModel: MainViewModel by lazy {
+        MainViewModel.getInstance(
+            requireActivity(),
+            appViewModel,
+            stationRepository,
+            userRepository
+        )
+    }
 }

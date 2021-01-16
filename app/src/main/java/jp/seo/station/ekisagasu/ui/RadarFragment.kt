@@ -10,16 +10,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.NearStation
 import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.viewmodel.MainViewModel
 
 /**
  * @author Seo-4d696b75
  * @version 2021/01/14.
  */
+@AndroidEntryPoint
 class RadarFragment : AppFragment() {
 
     override fun onCreateView(
@@ -32,31 +33,28 @@ class RadarFragment : AppFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
-            getService { service ->
-                val viewModel = MainViewModel.getInstance(requireActivity(), service)
-                val list = view.findViewById<RecyclerView>(R.id.list_radar)
-                list.addItemDecoration(
-                    DividerItemDecoration(
-                        ctx,
-                        LinearLayoutManager.VERTICAL
-                    )
+            val list = view.findViewById<RecyclerView>(R.id.list_radar)
+            list.addItemDecoration(
+                DividerItemDecoration(
+                    ctx,
+                    LinearLayoutManager.VERTICAL
                 )
-                list.layoutManager = LinearLayoutManager(ctx).apply {
-                    orientation = LinearLayoutManager.VERTICAL
-                }
-                val adapter = StationAdapter(ctx)
-                list.adapter = adapter
-                viewModel.radarList.observe(viewLifecycleOwner) {
-                    adapter.data = it
-                }
-                adapter.setOnItemSelectedListener { view, data, pos ->
-                    viewModel.showStationInDetail(data.station)
-                    findNavController().navigate(R.id.action_radarFragment_to_stationFragment)
-                }
-                val radarNum = view.findViewById<TextView>(R.id.text_radar_num)
-                viewModel.radarNum.observe(viewLifecycleOwner) {
-                    radarNum.text = String.format("x%d", it)
-                }
+            )
+            list.layoutManager = LinearLayoutManager(ctx).apply {
+                orientation = LinearLayoutManager.VERTICAL
+            }
+            val adapter = StationAdapter(ctx)
+            list.adapter = adapter
+            mainViewModel.radarList.observe(viewLifecycleOwner) {
+                adapter.data = it
+            }
+            adapter.setOnItemSelectedListener { view, data, pos ->
+                mainViewModel.showStationInDetail(data.station)
+                findNavController().navigate(R.id.action_radarFragment_to_stationFragment)
+            }
+            val radarNum = view.findViewById<TextView>(R.id.text_radar_num)
+            mainViewModel.radarNum.observe(viewLifecycleOwner) {
+                radarNum.text = String.format("x%d", it)
             }
         }
     }

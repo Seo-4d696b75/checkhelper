@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.utils.combineLiveData
@@ -14,19 +15,20 @@ import jp.seo.station.ekisagasu.utils.getViewModelFactory
  * @version 2020/12/21.
  */
 class LogViewModel(
-    private val repository: UserRepository
+    repository: UserRepository
 ) : ViewModel() {
 
     companion object {
-        fun getFactory(repository: UserRepository): ViewModelProvider.Factory =
-            getViewModelFactory {
-                LogViewModel(repository)
-            }
+        fun getInstance(owner: ViewModelStoreOwner, repository: UserRepository): LogViewModel {
+            return ViewModelProvider(owner, getViewModelFactory { LogViewModel(repository) }).get(
+                LogViewModel::class.java
+            )
+        }
     }
 
     private var _filter: MutableLiveData<Int> = MutableLiveData(AppLog.FILTER_ALL)
 
-    fun setFilter(value: Int){
+    fun setFilter(value: Int) {
         _filter.value = value
     }
 

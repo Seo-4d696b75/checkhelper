@@ -12,8 +12,8 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
+import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
-import jp.seo.station.ekisagasu.utils.ServiceGetter
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.DataCheckViewModel
 import javax.inject.Inject
@@ -40,9 +40,6 @@ open class DataDialog : DialogFragment() {
     }
 
     var listener: OnClickListener? = null
-
-    @Inject
-    lateinit var service: ServiceGetter
 
     val viewModel: DataCheckViewModel by lazy {
         getViewModelFactory {
@@ -145,6 +142,9 @@ class DataUpdateDialog : DataDialog() {
 
     }
 
+    @Inject
+    lateinit var stationRepository: StationRepository
+
     override fun onCreateDialog(builder: AlertDialog.Builder) {
         context?.let { ctx ->
 
@@ -167,31 +167,29 @@ class DataUpdateDialog : DataDialog() {
             val state = view.findViewById<TextView>(R.id.text_update_state)
             val percent = view.findViewById<TextView>(R.id.text_update_progress)
 
-            viewModel.updateState.observe(this){
+            viewModel.updateState.observe(this) {
                 state.text = parseUpdateState(it)
             }
-            viewModel.updateProgress.observe(this){
+            viewModel.updateProgress.observe(this) {
                 percent.text = String.format("%d%%", it)
                 progress.progress = it
             }
 
-            service.get { service ->
-                viewModel.updateStationData(service.stationRepository) { result ->
-                    listener?.onDialogButtonClicked(
-                        tag,
-                        viewModel.info,
-                        if (result) DialogInterface.BUTTON_POSITIVE else DialogInterface.BUTTON_NEGATIVE
-                    )
-                    dismiss()
-                }
+            viewModel.updateStationData(stationRepository) { result ->
+                listener?.onDialogButtonClicked(
+                    tag,
+                    viewModel.info,
+                    if (result) DialogInterface.BUTTON_POSITIVE else DialogInterface.BUTTON_NEGATIVE
+                )
+                dismiss()
             }
 
         }
     }
 
-    private  fun parseUpdateState(state: String): String{
-        return context?.let{
-            when(state){
+    private fun parseUpdateState(state: String): String {
+        return context?.let {
+            when (state) {
                 UpdateProgressListener.STATE_DOWNLOAD -> return@let it.getString(R.string.update_state_download)
                 UpdateProgressListener.STATE_CLEAN -> return@let it.getString(R.string.update_state_clean)
                 UpdateProgressListener.STATE_PARSE -> return@let it.getString(R.string.update_state_parse)

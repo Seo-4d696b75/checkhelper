@@ -10,7 +10,8 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.StationService
+import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import java.util.*
@@ -20,7 +21,9 @@ import java.util.*
  * @version 2020/12/16.
  */
 class MainViewModel(
-    private val service: StationService
+    private val appViewModel: ApplicationViewModel,
+    private val stationRepository: StationRepository,
+    userRepository: UserRepository
 ) : ViewModel() {
 
     companion object {
@@ -29,8 +32,19 @@ class MainViewModel(
          * ViewModelインスタンスを取得する
          * @param owner 共通のインスタンスを取得する必要がある場合はDIなど利用して同一のstoreを渡す
          */
-        fun getInstance(owner: ViewModelStoreOwner, service: StationService): MainViewModel {
-            val factory = getViewModelFactory { MainViewModel(service) }
+        fun getInstance(
+            owner: ViewModelStoreOwner,
+            appViewModel: ApplicationViewModel,
+            stationRepository: StationRepository,
+            userRepository: UserRepository
+        ): MainViewModel {
+            val factory = getViewModelFactory {
+                MainViewModel(
+                    appViewModel,
+                    stationRepository,
+                    userRepository
+                )
+            }
             return ViewModelProvider(owner, factory).get(MainViewModel::class.java)
         }
     }
@@ -43,8 +57,8 @@ class MainViewModel(
 
     val state: LiveData<SearchState> = combineLiveData(
         SearchState.STOPPED,
-        service.isRunning,
-        service.stationRepository.nearestStation
+        appViewModel.isRunning,
+        stationRepository.nearestStation
     ) { run, station ->
         if (run) {
             if (station == null) SearchState.STARTING else SearchState.RUNNING
@@ -53,39 +67,35 @@ class MainViewModel(
         }
     }
 
-    val running = service.isRunning
+    val running = appViewModel.isRunning
 
     fun toggleStart() {
         running.value?.let { state ->
-            if (state) {
-                service.stop()
-            } else {
-                service.start()
-            }
+            appViewModel.requestSearchRunning(!state)
         }
     }
 
     /**
      * 現在位置から最近傍の駅の情報
      */
-    val nearestStation = service.stationRepository.nearestStation
+    val nearestStation = stationRepository.nearestStation
 
     /**
      * 現在位置から近い順に[radarNum]個の駅
      *
      * `list[0]`は[nearestStation]と同じ
      */
-    val radarList = service.stationRepository.nearestStations
+    val radarList = stationRepository.nearestStations
 
     /**
      * 現在地から探索する駅の個数
      */
-    var radarNum = service.userRepository.searchK
+    var radarNum = userRepository.searchK
 
     /**
      * 現在選択している路線
      */
-    val selectedLine = service.stationRepository.selectedLine
+    val selectedLine = stationRepository.selectedLine
 
     private val _stationInDetail = MutableLiveData<Station?>(null)
     val stationInDetail: LiveData<Station?> = _stationInDetail
@@ -97,7 +107,7 @@ class MainViewModel(
         liveData {
             emit(
                 s?.let { station ->
-                    service.stationRepository.getLines(station.lines)
+                    stationRepository.getLines(station.lines)
                 } ?: Collections.emptyList<Line>()
             )
         }

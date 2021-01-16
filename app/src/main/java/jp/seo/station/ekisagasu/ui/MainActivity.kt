@@ -12,13 +12,13 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationService
-import jp.seo.station.ekisagasu.utils.ServiceGetter
-import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
+import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import javax.inject.Inject
 
 /**
@@ -28,26 +28,29 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickListener {
 
-    @Inject
-    lateinit var service: ServiceGetter
+    private var service: StationService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        lifecycle.addObserver(service)
-
-        viewModel.apiException.observe(this) {
+        appViewModel.apiException.observe(this) {
             try {
                 it?.startResolutionForResult(this, RESOLVE_API_EXCEPTION)
             } catch (e: IntentSender.SendIntentException) {
-                service.value?.error("Resolve APIException", e)
+                service?.error("Resolve APIException", e)
+            }
+        }
+        appViewModel.requestFinish.observeForever {
+            if (it) {
+                appViewModel.requestFinish.value = false
+                finish()
             }
         }
     }
 
     private fun onInitialized(s: StationService) {
-        if ( !s.stationRepository.dataInitialized) {
+        if (!s.stationRepository.dataInitialized) {
             Toast.makeText(applicationContext, "Fail to init data", Toast.LENGTH_SHORT).show()
             finish()
             return
@@ -63,38 +66,46 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
     override fun onResume() {
         super.onResume()
         viewModel.startService(this, this)
-        viewModel.checkService(service.value, this, this::onInitialized)
+        viewModel.checkService(service, this, this::onInitialized)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        service.value?.let {
-            it.stop()
-            service.set(null)
+        service?.let {
+            service = null
             unbindService(this)
         }
     }
 
     override fun finish() {
-        service.value?.let {
-            it.stop()
-            service.set(null)
+        service?.let {
+            appViewModel.requestSearchRunning(false)
+            service = null
             unbindService(this)
         }
         stopService(Intent(this, StationService::class.java))
         super.finish()
     }
 
+    @Inject
+    lateinit var singletonStore: ViewModelStore
+
     private val viewModel: ActivityViewModel by lazy {
-        getViewModelFactory(::ActivityViewModel).create(ActivityViewModel::class.java)
+        // ActivityScoped
+        ActivityViewModel.getInstance(this)
+    }
+
+    private val appViewModel: ApplicationViewModel by lazy {
+        // SingletonScoped
+        ApplicationViewModel.getInstance { singletonStore }
     }
 
     override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
         binder?.let {
             if (it is StationService.StationServiceBinder) {
-                service.set(it.bind(this))
-                service.value?.message("service connected with Activity")
-                viewModel.checkService(service.value, this, this::onInitialized)
+                service = it.bind()
+                service?.message("service connected with Activity")
+                viewModel.checkService(service, this, this::onInitialized)
             }
         }
     }
@@ -124,8 +135,9 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
                 ).show()
                 finish()
             }
-        } else if ( requestCode == RESOLVE_API_EXCEPTION ){
+        } else if (requestCode == RESOLVE_API_EXCEPTION) {
             Log.d("ActivityResult", "resolve_api_exception")
+            appViewModel.onResolvedAPIException()
         }
     }
 
@@ -158,7 +170,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
 
     override fun onDialogButtonClicked(tag: String?, info: DataLatestInfo, which: Int) {
         tag?.let { viewModel.handleDialogButton(it, info, which, this) }
-        viewModel.checkService(service.value, this, this::onInitialized)
+        viewModel.checkService(service, this, this::onInitialized)
     }
 
     override fun onBackPressed() {

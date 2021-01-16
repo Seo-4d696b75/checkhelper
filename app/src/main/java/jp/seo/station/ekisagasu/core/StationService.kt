@@ -1,28 +1,26 @@
 package jp.seo.station.ekisagasu.core
 
-import android.app.Activity
 import android.content.Intent
 import android.location.Location
 import android.os.Binder
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.MainThread
-import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import com.google.android.gms.common.api.ResolvableApiException
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
 import jp.seo.station.ekisagasu.utils.combineLiveData
+import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import kotlinx.coroutines.*
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.*
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -32,13 +30,22 @@ import kotlin.coroutines.CoroutineContext
  * Main service providing core function in background.
  * This service has to sense GPS location, so must be run as foreground service.
  */
+@AndroidEntryPoint
 class StationService : LifecycleService(), CoroutineScope {
 
-    private var activity: Activity? = null
+    @Inject
+    lateinit var singletonStore: ViewModelStore
+
+    private val viewModel: ApplicationViewModel by lazy {
+        val owner = ViewModelStoreOwner { singletonStore }
+        ApplicationViewModel.getInstance(owner)
+    }
+
+    private var bindActivity = false
 
     inner class StationServiceBinder : Binder() {
-        fun bind(a: Activity): StationService {
-            activity = a
+        fun bind(): StationService {
+            bindActivity = true
             return this@StationService
         }
     }
@@ -51,7 +58,7 @@ class StationService : LifecycleService(), CoroutineScope {
 
 
     override fun onUnbind(intent: Intent?): Boolean {
-        activity = null
+        bindActivity = false
         message("onUnbind: client unbinds service")
         return true
     }
@@ -77,7 +84,11 @@ class StationService : LifecycleService(), CoroutineScope {
                 when (it.getStringExtra(KEY_REQUEST)) {
                     REQUEST_EXIT_SERVICE -> {
                         stop()
-                        activity?.also { a -> a.finish() } ?: run { stopSelf() }
+                        if (bindActivity) {
+                            viewModel.requestFinish.postValue(true)
+                        } else {
+                            stopSelf()
+                        }
                     }
                     REQUEST_START_TIMER -> {
 
@@ -107,7 +118,7 @@ class StationService : LifecycleService(), CoroutineScope {
         // init repository
         launch {
             userRepository.onAppReboot()
-            prefectures.setData(this@StationService)
+            prefectureRepository.setData(this@StationService)
         }
 
         // start this service as foreground one
@@ -143,6 +154,14 @@ class StationService : LifecycleService(), CoroutineScope {
             }
         }
 
+        viewModel.isRequestRunning.observe(this) {
+            if (it) {
+                start()
+            } else {
+                stop()
+            }
+        }
+
     }
 
 
@@ -151,19 +170,14 @@ class StationService : LifecycleService(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + serviceJob
 
-    val mainHandler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
+    @Inject
+    lateinit var stationRepository: StationRepository
 
-    val userRepository: UserRepository by lazy {
-        val dao = getUserDatabase(this).userDao
-        UserRepository(dao)
-    }
+    @Inject
+    lateinit var userRepository: UserRepository
 
-    val stationRepository: StationRepository by lazy {
-        val db = getStationDatabase(this)
-        val api = getAPIClient(getString(R.string.api_url_base))
-        val tree = KdTree(db.dao)
-        StationRepository(db.dao, api, tree, mainHandler)
-    }
+    @Inject
+    lateinit var prefectureRepository: PrefectureRepository
 
     val notificationHolder: NotificationViewHolder by lazy {
         NotificationViewHolder(this)
@@ -186,10 +200,6 @@ class StationService : LifecycleService(), CoroutineScope {
             }
 
         })
-    }
-
-    val prefectures: PrefectureRepository by lazy {
-        PrefectureRepository()
     }
 
     fun message(mes: String) {
@@ -222,51 +232,46 @@ class StationService : LifecycleService(), CoroutineScope {
     }
 
     private var running = false
-    private val _running = MutableLiveData<Boolean>(false)
-
-    val isRunning: LiveData<Boolean>
-        get() = _running
 
     /**
      * start GPS tracking and request updating the nearest station etc.
      */
     @MainThread
-    fun start() {
-        if (running || !stationRepository.dataInitialized) return
+    private fun start() {
+        if (running || !stationRepository.dataInitialized) {
+            return
+        }
         // TODO init pop-up notification
         // TODO update notification
         message("start: try to getting GPS ready")
         // TODO store user setting values in userRepository
         try {
             gpsClient.requestGPSUpdate(5, "main-service")
-            running = true
-            _running.value = true
             notificationHolder.update(
                 getString(R.string.notification_title_start),
                 getString(R.string.notification_message_start)
             )
+            viewModel.setSearchState(true)
         } catch (e: ResolvableApiException) {
-            userRepository.onApiException(e)
+            viewModel.onApiException(e)
+            viewModel.setSearchState(false)
         }
     }
 
     @MainThread
-    fun stop() {
-        if (running) {
-            stationRepository.onStopSearch()
-            // TODO update (pop-up) notification
-            gpsClient.stopGPSUpdate("main-service")
-            // TODO stop prediction
-            Toast.makeText(this, "Stop Search", Toast.LENGTH_SHORT).show()
-            running = false
-            _running.value = false
-            message("GPS search stopped")
-            notificationHolder.update(
-                getString(R.string.notification_title_wait),
-                getString(R.string.notification_message_wait)
-            )
-
-        }
+    private fun stop() {
+        if (!running) return
+        stationRepository.onStopSearch()
+        // TODO update (pop-up) notification
+        gpsClient.stopGPSUpdate("main-service")
+        // TODO stop prediction
+        Toast.makeText(this, "Stop Search", Toast.LENGTH_SHORT).show()
+        message("GPS search stopped")
+        notificationHolder.update(
+            getString(R.string.notification_title_wait),
+            getString(R.string.notification_message_wait)
+        )
+        viewModel.setSearchState(false)
     }
 
     companion object {

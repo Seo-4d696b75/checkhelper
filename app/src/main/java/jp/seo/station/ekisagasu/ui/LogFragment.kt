@@ -11,6 +11,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.viewmodel.LogViewModel
@@ -22,6 +23,7 @@ import kotlin.collections.ArrayList
  * @author Seo-4d696b75
  * @version 2020/12/21.
  */
+@AndroidEntryPoint
 class LogFragment : AppFragment() {
 
     private val filters: Array<LogFilter> = arrayOf(
@@ -39,36 +41,41 @@ class LogFragment : AppFragment() {
         return inflater.inflate(R.layout.fragment_log, container, false)
     }
 
+    private val viewModel: LogViewModel by lazy {
+        LogViewModel.getInstance(this, userRepository)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        getService { s ->
-            context?.let { ctx ->
-                val model = LogViewModel.getFactory(s.userRepository)
-                    .create(LogViewModel::class.java)
-                val list: RecyclerView = view.findViewById(R.id.list_log)
-                val spinner: Spinner = view.findViewById(R.id.spinner_filter_log)
-                spinner.adapter = LogTypeAdapter(ctx, filters)
-                spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-                    override fun onItemSelected(parent: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                        parent?.getItemAtPosition(position)?.let {
-                            if ( it is LogFilter ){
-                                model.setFilter(it.filter)
-                            }
+        context?.let { ctx ->
+            val list: RecyclerView = view.findViewById(R.id.list_log)
+            val spinner: Spinner = view.findViewById(R.id.spinner_filter_log)
+            spinner.adapter = LogTypeAdapter(ctx, filters)
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    p1: View?,
+                    position: Int,
+                    p3: Long
+                ) {
+                    parent?.getItemAtPosition(position)?.let {
+                        if (it is LogFilter) {
+                            viewModel.setFilter(it.filter)
                         }
                     }
-
-                    override fun onNothingSelected(p0: AdapterView<*>?) {
-                    }
-
                 }
-                val adapter = LogAdapter(ctx, ArrayList())
-                list.layoutManager =
-                    LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
-                list.adapter = adapter
-                model.logs.observe(viewLifecycleOwner, { list ->
-                    adapter.logs = list
-                    adapter.notifyDataSetChanged()
-                })
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                }
+
             }
+            val adapter = LogAdapter(ctx, ArrayList())
+            list.layoutManager =
+                LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
+            list.adapter = adapter
+            viewModel.logs.observe(viewLifecycleOwner, { logs ->
+                adapter.logs = logs
+                adapter.notifyDataSetChanged()
+            })
         }
     }
 }
@@ -97,7 +104,7 @@ class LogTypeAdapter(
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val value = getItem(position)
-        val view = convertView ?: inflater.inflate(R.layout.cell_spinner_filter_log, null, false)
+        val view = convertView ?: inflater.inflate(R.layout.cell_spinner_filter_log, parent, false)
         if (value != null && view is TextView) {
             view.text = value.name
         }
@@ -118,7 +125,7 @@ class LogAdapter(context: Context, var logs: List<AppLog>) :
     private val inflater = LayoutInflater.from(context)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
-        val view = inflater.inflate(R.layout.cell_list_log, null, false)
+        val view = inflater.inflate(R.layout.cell_list_log, parent, false)
         return LogViewHolder(view)
     }
 

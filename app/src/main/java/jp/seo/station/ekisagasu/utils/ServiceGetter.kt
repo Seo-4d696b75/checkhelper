@@ -10,7 +10,7 @@ import jp.seo.station.ekisagasu.core.StationService
  * @author Seo-4d696b75
  * @version 2020/12/22.
  */
-class ServiceGetter() : LifecycleObserver {
+class ServiceGetter : LifecycleObserver {
 
     private var service: StationService? = null
     private var active = false
@@ -35,9 +35,7 @@ class ServiceGetter() : LifecycleObserver {
         service = s
         service?.let { _service ->
             if (active) {
-                _service.mainHandler.post {
-                    listeners.forEach { it(_service) }
-                }
+                //TODO
                 listeners.clear()
             }
         }

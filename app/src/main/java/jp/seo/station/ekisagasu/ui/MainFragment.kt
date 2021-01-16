@@ -10,18 +10,24 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.viewmodel.MainViewModel
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel.SearchState
+import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
  * @version 2021/01/11.
  */
+@AndroidEntryPoint
 class MainFragment : AppFragment() {
+
+    @Inject
+    lateinit var prefectureRepository: PrefectureRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,64 +40,60 @@ class MainFragment : AppFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
 
-            getService { service ->
-                service.message("main-fragment connected")
-                val viewModel = MainViewModel.getInstance(requireActivity(), service)
-                view.findViewById<View>(R.id.fab_exit).setOnClickListener {
-                    activity?.finish()
-                }
-                val fabStart = view.findViewById<FloatingActionButton>(R.id.fab_start)
-                val imgStart = ContextCompat.getDrawable(ctx, R.drawable.ic_play)
-                val imgStop = ContextCompat.getDrawable(ctx, R.drawable.ic_pause)
-                val runAnimation = view.findViewById<AnimationView>(R.id.animation_view)
-                viewModel.running.observe(viewLifecycleOwner) {
-                    fabStart.setImageDrawable(
-                        if (it) imgStop else imgStart
-                    )
-                    runAnimation.runAnimation(it)
-                    Log.d("MainFragment", "running: $it")
-                }
-                fabStart.setOnClickListener {
-                    viewModel.toggleStart()
-                }
-
-                val mainContainer = view.findViewById<ViewGroup>(R.id.container_station)
-                val waitMessage = view.findViewById<View>(R.id.text_wait_message)
-                val startingMessage =
-                    view.findViewById<View>(R.id.container_starting_search_message)
-                viewModel.state.observe(viewLifecycleOwner) {
-                    Log.d("MainFragment", "state: $it")
-                    mainContainer.visibility =
-                        if (it == SearchState.RUNNING) View.VISIBLE else View.INVISIBLE
-                    waitMessage.visibility =
-                        if (it == SearchState.STOPPED) View.VISIBLE else View.GONE
-                    startingMessage.visibility =
-                        if (it == SearchState.STARTING) View.VISIBLE else View.GONE
-                }
-
-                val stationName = view.findViewById<StationNameView>(R.id.station_name_main)
-                val prefecture = view.findViewById<TextView>(R.id.text_station_prefecture)
-                val distance = view.findViewById<TextView>(R.id.text_distance)
-                val lineNames = view.findViewById<HorizontalListView>(R.id.list_line_names)
-                val adapter = LineNamesAdapter(ctx)
-                lineNames.adapter = adapter
-                viewModel.nearestStation.observe(viewLifecycleOwner) {
-                    it?.let { s ->
-                        stationName.setStation(s.station)
-                        prefecture.text = service.prefectures.getName(s.station.prefecture)
-                        distance.text = formatDistance(s.distance)
-                        adapter.data = s.lines
-                    }
-                }
-                adapter.setOnItemSelectedListener { view, data, position ->
-                    Log.d("Line", "selected: $data")
-                }
-                val selectedLine = view.findViewById<TextView>(R.id.text_selected_line)
-                viewModel.selectedLine.observe(viewLifecycleOwner) {
-                    selectedLine.text = it?.name ?: getString(R.string.no_selected_line)
-                }
-
+            view.findViewById<View>(R.id.fab_exit).setOnClickListener {
+                activity?.finish()
             }
+            val fabStart = view.findViewById<FloatingActionButton>(R.id.fab_start)
+            val imgStart = ContextCompat.getDrawable(ctx, R.drawable.ic_play)
+            val imgStop = ContextCompat.getDrawable(ctx, R.drawable.ic_pause)
+            val runAnimation = view.findViewById<AnimationView>(R.id.animation_view)
+            mainViewModel.running.observe(viewLifecycleOwner) {
+                fabStart.setImageDrawable(
+                    if (it) imgStop else imgStart
+                )
+                runAnimation.runAnimation(it)
+                Log.d("MainFragment", "running: $it")
+            }
+            fabStart.setOnClickListener {
+                mainViewModel.toggleStart()
+            }
+
+            val mainContainer = view.findViewById<ViewGroup>(R.id.container_station)
+            val waitMessage = view.findViewById<View>(R.id.text_wait_message)
+            val startingMessage =
+                view.findViewById<View>(R.id.container_starting_search_message)
+            mainViewModel.state.observe(viewLifecycleOwner) {
+                Log.d("MainFragment", "state: $it")
+                mainContainer.visibility =
+                    if (it == SearchState.RUNNING) View.VISIBLE else View.INVISIBLE
+                waitMessage.visibility =
+                    if (it == SearchState.STOPPED) View.VISIBLE else View.GONE
+                startingMessage.visibility =
+                    if (it == SearchState.STARTING) View.VISIBLE else View.GONE
+            }
+
+            val stationName = view.findViewById<StationNameView>(R.id.station_name_main)
+            val prefecture = view.findViewById<TextView>(R.id.text_station_prefecture)
+            val distance = view.findViewById<TextView>(R.id.text_distance)
+            val lineNames = view.findViewById<HorizontalListView>(R.id.list_line_names)
+            val adapter = LineNamesAdapter(ctx)
+            lineNames.adapter = adapter
+            mainViewModel.nearestStation.observe(viewLifecycleOwner) {
+                it?.let { s ->
+                    stationName.setStation(s.station)
+                    prefecture.text = prefectureRepository.getName(s.station.prefecture)
+                    distance.text = formatDistance(s.distance)
+                    adapter.data = s.lines
+                }
+            }
+            adapter.setOnItemSelectedListener { view, data, position ->
+                Log.d("Line", "selected: $data")
+            }
+            val selectedLine = view.findViewById<TextView>(R.id.text_selected_line)
+            mainViewModel.selectedLine.observe(viewLifecycleOwner) {
+                selectedLine.text = it?.name ?: getString(R.string.no_selected_line)
+            }
+
         }
     }
 

@@ -1,9 +1,18 @@
 package jp.seo.station.ekisagasu.core
 
-import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.room.*
-import jp.seo.station.ekisagasu.utils.SingletonHolder
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RoomDatabase
+import androidx.room.Transaction
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -16,14 +25,6 @@ import java.util.*
 abstract class UserDatabase : RoomDatabase() {
     abstract val userDao: UserDao
 }
-
-private val holder = SingletonHolder<UserDatabase, Context> {
-    Room.databaseBuilder(it, UserDatabase::class.java, "user_db")
-        .fallbackToDestructiveMigration()
-        .build()
-}
-
-fun getUserDatabase(ctx: Context) : UserDatabase = holder.get(ctx)
 
 class TimestampConverter {
 

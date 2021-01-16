@@ -1,6 +1,5 @@
 package jp.seo.station.ekisagasu.core
 
-import android.content.Context
 import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
@@ -11,7 +10,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.TypeConverters
@@ -22,7 +20,6 @@ import jp.seo.station.ekisagasu.search.TreeSegment
 import jp.seo.station.ekisagasu.utils.ArrayIntConverter
 import jp.seo.station.ekisagasu.utils.NodeListConverter
 import jp.seo.station.ekisagasu.utils.RegistrationListConverter
-import jp.seo.station.ekisagasu.utils.SingletonHolder
 import java.util.*
 
 /**
@@ -43,15 +40,6 @@ import java.util.*
 abstract class StationDatabase : RoomDatabase(){
     abstract val dao: StationDao
 }
-
-
-private val holder = SingletonHolder<StationDatabase, Context> {
-    Room.databaseBuilder(it, StationDatabase::class.java, "station_db")
-        .fallbackToDestructiveMigration()
-        .build()
-}
-
-fun getStationDatabase(ctx: Context) : StationDatabase = holder.get(ctx)
 
 @Dao
 abstract class StationDao {

@@ -14,22 +14,20 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationService
-import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.ui.DataCheckDialog
 import jp.seo.station.ekisagasu.ui.DataDialog
 import jp.seo.station.ekisagasu.ui.DataUpdateDialog
 import jp.seo.station.ekisagasu.ui.MainActivity
+import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.launch
 
 /**
@@ -37,6 +35,13 @@ import kotlinx.coroutines.launch
  * @version 2021/01/13.
  */
 class ActivityViewModel : ViewModel() {
+
+    companion object {
+        fun getInstance(owner: ViewModelStoreOwner): ActivityViewModel {
+            val factory = getViewModelFactory(::ActivityViewModel)
+            return ViewModelProvider(owner, factory).get(ActivityViewModel::class.java)
+        }
+    }
 
     private var hasPermissionChecked = false
     private var hasRequestService = false
@@ -75,8 +80,6 @@ class ActivityViewModel : ViewModel() {
             // check data version
             if (!hasVersionChecked) {
                 hasVersionChecked = true
-
-                this.userRepository.value = it.userRepository
 
                 viewModelScope.launch {
 
@@ -160,11 +163,6 @@ class ActivityViewModel : ViewModel() {
 
         hasPermissionChecked = true
     }
-
-    private val userRepository = MutableLiveData<UserRepository?>(null)
-
-    val apiException: LiveData<ResolvableApiException?> =
-        userRepository.switchMap { it?.apiException ?: MutableLiveData(null) }
 
     fun handleDialogButton(
         tag: String,

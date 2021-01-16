@@ -10,15 +10,21 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.viewmodel.MainViewModel
+import jp.seo.station.ekisagasu.core.PrefectureRepository
+import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
  * @version 2021/01/14.
  */
+@AndroidEntryPoint
 class StationFragment : AppFragment() {
+
+    @Inject
+    lateinit var prefectureRepository: PrefectureRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,35 +36,32 @@ class StationFragment : AppFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
-            getService { service ->
-                val viewModel = MainViewModel.getInstance(requireActivity(), service)
-                val name = view.findViewById<StationNameView>(R.id.station_name_detail)
-                val location = view.findViewById<TextView>(R.id.text_station_detail_location)
-                val prefecture =
-                    view.findViewById<TextView>(R.id.text_station_detail_prefecture)
-                val lines = view.findViewById<ListView>(R.id.list_station_detail_lines)
+            val name = view.findViewById<StationNameView>(R.id.station_name_detail)
+            val location = view.findViewById<TextView>(R.id.text_station_detail_location)
+            val prefecture =
+                view.findViewById<TextView>(R.id.text_station_detail_prefecture)
+            val lines = view.findViewById<ListView>(R.id.list_station_detail_lines)
 
-                viewModel.stationInDetail.observe(viewLifecycleOwner) {
-                    it?.let { station ->
-                        name.setStation(station)
-                        location.text = String.format("E%.6f N%.6f", station.lng, station.lat)
-                        prefecture.text = service.prefectures.getName(station.prefecture)
-                    }
+            mainViewModel.stationInDetail.observe(viewLifecycleOwner) {
+                it?.let { station ->
+                    name.setStation(station)
+                    location.text = String.format("E%.6f N%.6f", station.lng, station.lat)
+                    prefecture.text = prefectureRepository.getName(station.prefecture)
                 }
-                viewModel.linesInDetail.observe(viewLifecycleOwner) {
-                    lines.adapter = LineAdapter(ctx, it)
-                }
+            }
+            mainViewModel.linesInDetail.observe(viewLifecycleOwner) {
+                lines.adapter = LineAdapter(ctx, it)
+            }
 
-                view.findViewById<View>(R.id.button_station_detail_delete).setOnClickListener {
-                    findNavController().navigate(R.id.action_global_to_radarFragment)
-                }
-                view.findViewById<View>(R.id.button_station_detail_show_map)
-                    .setOnClickListener {
-                        //TODO
-                    }
-                lines.setOnItemClickListener { parent, view, position, id ->
+            view.findViewById<View>(R.id.button_station_detail_delete).setOnClickListener {
+                findNavController().navigate(R.id.action_global_to_radarFragment)
+            }
+            view.findViewById<View>(R.id.button_station_detail_show_map)
+                .setOnClickListener {
                     //TODO
                 }
+            lines.setOnItemClickListener { parent, view, position, id ->
+                //TODO
             }
         }
     }

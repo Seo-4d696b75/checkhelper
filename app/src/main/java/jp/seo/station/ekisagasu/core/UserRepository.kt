@@ -1,15 +1,10 @@
 package jp.seo.station.ekisagasu.core
 
 import android.util.Log
-import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import com.google.android.gms.common.api.ResolvableApiException
-import jp.seo.station.ekisagasu.utils.combine
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
@@ -92,18 +87,4 @@ class UserRepository(
         File(dir, fileName).writeText(builder.toString(), Charsets.UTF_8)
     }
 
-    private val _apiException = MutableLiveData<ResolvableApiException?>(null)
-
-    val apiException: LiveData<ResolvableApiException?>
-        get() = _apiException
-
-    @MainThread
-    fun onApiException(e: ResolvableApiException){
-        _apiException.value = e
-    }
-
-    @MainThread
-    fun onResolvedAPIException(){
-        _apiException.value = null
-    }
 }
