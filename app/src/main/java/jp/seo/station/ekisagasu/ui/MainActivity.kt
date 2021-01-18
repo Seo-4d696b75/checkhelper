@@ -1,13 +1,10 @@
 package jp.seo.station.ekisagasu.ui
 
-import android.content.ComponentName
 import android.content.Intent
 import android.content.IntentSender
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -15,8 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.DataLatestInfo
-import jp.seo.station.ekisagasu.core.StationService
+import jp.seo.station.ekisagasu.core.GPSClient
+import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import javax.inject.Inject
@@ -26,33 +24,52 @@ import javax.inject.Inject
  * @version 2020/12/16.
  */
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickListener {
-
-    private var service: StationService? = null
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        appViewModel.isActivityAlive = true
+
+        // try to resolve API exception if any
         appViewModel.apiException.observe(this) {
             try {
                 it?.startResolutionForResult(this, RESOLVE_API_EXCEPTION)
             } catch (e: IntentSender.SendIntentException) {
-                service?.error("Resolve APIException", e)
+                Log.e(e.javaClass.name, e.message ?: "fail to resolve")
             }
         }
-        appViewModel.requestFinish.observeForever {
+
+        // finish activity if requested
+        viewModel.requestFinish.observe(this) {
+            if (it) appViewModel.finish()
+        }
+        appViewModel.requestFinishActivity.observe(this) {
             if (it) {
-                appViewModel.requestFinish.value = false
+                appViewModel.requestFinishActivity.value = false
                 finish()
+            }
+        }
+
+        viewModel.requestedDialog.observe(this) {
+            it?.let { type ->
+                ActivityViewModel.getDialog(type)?.show(supportFragmentManager, type)
+                viewModel.clearRequestDialog()
+            }
+        }
+        viewModel.requestedToastTest.observe(this) {
+            it?.let { text ->
+                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+                viewModel.clearToastText()
             }
         }
     }
 
-    private fun onInitialized(s: StationService) {
-        if (!s.stationRepository.dataInitialized) {
+    private fun onInitialized() {
+        if (!stationRepository.dataInitialized) {
             Toast.makeText(applicationContext, "Fail to init data", Toast.LENGTH_SHORT).show()
-            finish()
+            appViewModel.finish()
             return
         }
 
@@ -65,53 +82,42 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
 
     override fun onResume() {
         super.onResume()
-        viewModel.startService(this, this)
-        viewModel.checkService(service, this, this::onInitialized)
+        viewModel.initialize(this) {
+            appViewModel.startService(this)
+            onInitialized()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        service?.let {
-            service = null
-            unbindService(this)
-        }
-    }
-
-    override fun finish() {
-        service?.let {
-            appViewModel.requestSearchRunning(false)
-            service = null
-            unbindService(this)
-        }
-        stopService(Intent(this, StationService::class.java))
-        super.finish()
+        appViewModel.isActivityAlive = false
     }
 
     @Inject
     lateinit var singletonStore: ViewModelStore
 
+    @Inject
+    lateinit var stationRepository: StationRepository
+
+    @Inject
+    lateinit var userRepository: UserRepository
+
+    @Inject
+    lateinit var gpsClient: GPSClient
+
     private val viewModel: ActivityViewModel by lazy {
         // ActivityScoped
-        ActivityViewModel.getInstance(this)
+        ActivityViewModel.getInstance(this, this, stationRepository, userRepository)
     }
 
     private val appViewModel: ApplicationViewModel by lazy {
         // SingletonScoped
-        ApplicationViewModel.getInstance { singletonStore }
-    }
-
-    override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-        binder?.let {
-            if (it is StationService.StationServiceBinder) {
-                service = it.bind()
-                service?.message("service connected with Activity")
-                viewModel.checkService(service, this, this::onInitialized)
-            }
-        }
-    }
-
-    override fun onServiceDisconnected(p0: ComponentName?) {
-        Log.d("Activity", "service disconnected")
+        ApplicationViewModel.getInstance(
+            { singletonStore },
+            stationRepository,
+            userRepository,
+            gpsClient
+        )
     }
 
     companion object {
@@ -166,11 +172,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, DataDialog.OnClickL
             }
 
         }
-    }
-
-    override fun onDialogButtonClicked(tag: String?, info: DataLatestInfo, which: Int) {
-        tag?.let { viewModel.handleDialogButton(it, info, which, this) }
-        viewModel.checkService(service, this, this::onInitialized)
     }
 
     override fun onBackPressed() {

@@ -56,12 +56,10 @@ class UserRepository(
         val log = AppLog(AppLog.TYPE_SYSTEM, mes)
         dao.insertRebootLog(log)
         val id = dao.getCurrentReboot()
-        withContext(Dispatchers.Main) {
-            _oldestID.value = id
-        }
+        _oldestID.postValue(id)
     }
 
-    private suspend fun log(type: Int, message: String) {
+    private suspend fun log(type: Int, message: String) = withContext(Dispatchers.IO) {
         val log = AppLog(type, message)
         Log.d("AppLog", log.toString())
         dao.insertLog(log)

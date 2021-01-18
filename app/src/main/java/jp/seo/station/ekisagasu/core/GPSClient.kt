@@ -5,18 +5,25 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationAvailability
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsStatusCodes
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/23.
  */
-class GPSClient(ctx: Context, private var callback: GPSCallback?) : LocationCallback() {
+class GPSClient(ctx: Context) : LocationCallback() {
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(ctx)
     private val settingClient = LocationServices.getSettingsClient(ctx)
@@ -29,16 +36,23 @@ class GPSClient(ctx: Context, private var callback: GPSCallback?) : LocationCall
     private val _location: MutableLiveData<Location?> = MutableLiveData(null)
     private val _running: MutableLiveData<Boolean> = MutableLiveData(false)
     private var running = false
+    private val _apiException = MutableLiveData<ResolvableApiException?>(null)
+    val messageLog = MutableLiveData<String?>(null)
+    val messageError = MutableLiveData<String?>(null)
 
-    val currentLocation: LiveData<Location?>
-        get() = _location
+    val currentLocation: LiveData<Location?> = _location
 
-    val isRunning: LiveData<Boolean>
-        get() = _running
+    val isRunning: LiveData<Boolean> = _running
+
+    val apiException: LiveData<ResolvableApiException?> = _apiException
+
+    @MainThread
+    fun onResolvedAPIException() {
+        _apiException.value = null
+    }
 
     override fun onLocationResult(result: LocationResult?) {
         result?.lastLocation?.let {
-            callback?.onLocationUpdated(it)
             _location.value = it
         }
     }
@@ -47,53 +61,41 @@ class GPSClient(ctx: Context, private var callback: GPSCallback?) : LocationCall
         Log.d("GPS", "isLocationAvailable: " + (p?.isLocationAvailable ?: false))
     }
 
-    fun release() {
-        if (running) {
-            locationClient.removeLocationUpdates(this)
-                .addOnCompleteListener {
-                    callback?.onGPSStop("GPS client released")
-                    _running.value = false
-                    _location.value = null
-                    running = false
-                    release()
-                }
-            return
-        }
-        callback = null
-        context = null
-    }
-
     /**
      * @param interval  in seconds
      * @throws ResolvableApiException
      */
     fun requestGPSUpdate(interval: Int, tag: String) {
         if (interval < 1) return
-        if (running) {
-            if (interval != minInterval) {
-                callback?.onGPSLog(
-                    String.format(
-                        "GPS > min interval %d>%d sec",
-                        minInterval,
-                        interval
+        try {
+            if (running) {
+                if (interval != minInterval) {
+                    log(
+                        String.format(
+                            "GPS > min interval %d>%d sec",
+                            minInterval,
+                            interval
+                        )
                     )
-                )
+                    minInterval = interval
+                    locationClient.removeLocationUpdates(this)
+                        .addOnCompleteListener {
+                            running = false
+                            requestGPSUpdate(tag)
+                        }
+                }
+            } else {
                 minInterval = interval
-                locationClient.removeLocationUpdates(this)
-                    .addOnCompleteListener {
-                        running = false
-                        requestGPSUpdate(tag)
-                    }
+                requestGPSUpdate(tag)
             }
-        } else {
-            minInterval = interval
-            requestGPSUpdate(tag)
+        } catch (e: ResolvableApiException) {
+            _apiException.postValue(e)
         }
     }
 
 
     private fun requestGPSUpdate(tag: String) {
-        callback?.onGPSLog(
+        log(
             String.format(
                 "GPS > %s requests update. min interval: %d sec",
                 tag,
@@ -133,33 +135,33 @@ class GPSClient(ctx: Context, private var callback: GPSCallback?) : LocationCall
             }
     }
 
-    fun stopGPSUpdate(tag: String) {
-        tags.remove(tag)
-        if (tags.isEmpty()) {
-            locationClient.removeLocationUpdates(this)
-                .addOnCompleteListener {
-                    running = false
-                    _running.value = false
-                    _location.value = null
-                }
+    fun stopGPSUpdate(tag: String): Boolean {
+        if (tags.remove(tag)) {
+            if (tags.isEmpty()) {
+                locationClient.removeLocationUpdates(this)
+                    .addOnCompleteListener {
+                        running = false
+                    }
+
+                _running.value = false
+                _location.value = null
+                log("GPS has stopped")
+            }
+            return true
         }
+        return false
     }
 
     private fun log(log: String) {
-        callback?.onGPSLog(log)
+        messageLog.postValue(log)
     }
 
     private fun error(log: String, mes: String) {
         log(log)
         running = false
         _running.value = false
-        callback?.onGPSStop(mes)
+        messageError.postValue(mes)
     }
 
 }
 
-interface GPSCallback {
-    fun onLocationUpdated(location: Location)
-    fun onGPSStop(mes: String)
-    fun onGPSLog(log: String)
-}

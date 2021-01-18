@@ -16,7 +16,7 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.viewmodel.MainViewModel.SearchState
+import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel.SearchState
 import javax.inject.Inject
 
 /**
@@ -47,7 +47,7 @@ class MainFragment : AppFragment() {
             val imgStart = ContextCompat.getDrawable(ctx, R.drawable.ic_play)
             val imgStop = ContextCompat.getDrawable(ctx, R.drawable.ic_pause)
             val runAnimation = view.findViewById<AnimationView>(R.id.animation_view)
-            mainViewModel.running.observe(viewLifecycleOwner) {
+            appViewModel.isRunning.observe(viewLifecycleOwner) {
                 fabStart.setImageDrawable(
                     if (it) imgStop else imgStart
                 )
@@ -55,14 +55,16 @@ class MainFragment : AppFragment() {
                 Log.d("MainFragment", "running: $it")
             }
             fabStart.setOnClickListener {
-                mainViewModel.toggleStart()
+                appViewModel.isRunning.value?.let { running ->
+                    appViewModel.setSearchState(!running)
+                }
             }
 
             val mainContainer = view.findViewById<ViewGroup>(R.id.container_station)
             val waitMessage = view.findViewById<View>(R.id.text_wait_message)
             val startingMessage =
                 view.findViewById<View>(R.id.container_starting_search_message)
-            mainViewModel.state.observe(viewLifecycleOwner) {
+            appViewModel.state.observe(viewLifecycleOwner) {
                 Log.d("MainFragment", "state: $it")
                 mainContainer.visibility =
                     if (it == SearchState.RUNNING) View.VISIBLE else View.INVISIBLE

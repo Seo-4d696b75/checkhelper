@@ -5,23 +5,19 @@ import android.location.Location
 import android.os.Binder
 import android.os.IBinder
 import android.widget.Toast
-import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import com.google.android.gms.common.api.ResolvableApiException
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
 import jp.seo.station.ekisagasu.utils.combineLiveData
+import jp.seo.station.ekisagasu.utils.onChanged
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import kotlinx.coroutines.*
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.util.*
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @author Seo-4d696b75
@@ -31,46 +27,35 @@ import kotlin.coroutines.CoroutineContext
  * This service has to sense GPS location, so must be run as foreground service.
  */
 @AndroidEntryPoint
-class StationService : LifecycleService(), CoroutineScope {
-
-    @Inject
-    lateinit var singletonStore: ViewModelStore
-
-    private val viewModel: ApplicationViewModel by lazy {
-        val owner = ViewModelStoreOwner { singletonStore }
-        ApplicationViewModel.getInstance(owner)
-    }
-
-    private var bindActivity = false
+class StationService : LifecycleService() {
 
     inner class StationServiceBinder : Binder() {
         fun bind(): StationService {
-            bindActivity = true
             return this@StationService
         }
     }
 
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
-        message("onBind: client requests to bind service")
+        viewModel.message("onBind: client requests to bind service")
         return StationServiceBinder()
     }
 
 
     override fun onUnbind(intent: Intent?): Boolean {
-        bindActivity = false
-        message("onUnbind: client unbinds service")
+        viewModel.message("onUnbind: client unbinds service")
         return true
     }
 
     override fun onRebind(intent: Intent?) {
-        message("onRebind: client binds service again")
+        viewModel.message("onRebind: client binds service again")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        message("service received start-command")
+        //TODO only for the first time
+        viewModel.message("service received start-command")
         notificationHolder.update(
             getString(R.string.notification_title_wait),
             getString(R.string.notification_message_wait)
@@ -83,12 +68,8 @@ class StationService : LifecycleService(), CoroutineScope {
             if (it.hasExtra(KEY_REQUEST)) {
                 when (it.getStringExtra(KEY_REQUEST)) {
                     REQUEST_EXIT_SERVICE -> {
-                        stop()
-                        if (bindActivity) {
-                            viewModel.requestFinish.postValue(true)
-                        } else {
-                            stopSelf()
-                        }
+                        viewModel.setSearchState(false)
+                        viewModel.finish()
                     }
                     REQUEST_START_TIMER -> {
 
@@ -106,9 +87,6 @@ class StationService : LifecycleService(), CoroutineScope {
                 }
             }
         }
-
-
-
         return START_STICKY
     }
 
@@ -116,14 +94,34 @@ class StationService : LifecycleService(), CoroutineScope {
     override fun onCreate() {
         super.onCreate()
         // init repository
-        launch {
-            userRepository.onAppReboot()
-            prefectureRepository.setData(this@StationService)
-        }
+        viewModel.onServiceInit(this, prefectureRepository)
+
+        viewModel.isServiceAlive = true
 
         // start this service as foreground one
         startForeground(NotificationViewHolder.NOTIFICATION_TAG, notificationHolder.notification)
         notificationHolder.update("init", "initializing app")
+
+        // when current location changed
+        gpsClient.currentLocation.observe(this) {
+            it?.let { location ->
+                viewModel.location(location)
+            }
+        }
+
+        // when message from gps
+        gpsClient.messageLog.observe(this) {
+            it?.let { log ->
+                viewModel.message(log)
+                gpsClient.messageLog.value = null
+            }
+        }
+        gpsClient.messageError.observe(this) {
+            it?.let { mes ->
+                viewModel.error(mes)
+                gpsClient.messageError.value = null
+            }
+        }
 
         // when current location & user setting changed
         combineLiveData<CurrentLocation, Location?, Int>(
@@ -133,13 +131,7 @@ class StationService : LifecycleService(), CoroutineScope {
         ) { location, k -> CurrentLocation(location, k) }
             .observe(this) { pos ->
                 pos.location?.let { loc ->
-                    launch {
-                        stationRepository.updateNearestStations(loc, pos.k)
-                            ?.let {
-                                userRepository.logStation(String.format("%s(%d)", it.name, it.code))
-
-                            }
-                    }
+                    viewModel.updateStation(loc, pos.k)
                 }
             }
 
@@ -154,21 +146,38 @@ class StationService : LifecycleService(), CoroutineScope {
             }
         }
 
-        viewModel.isRequestRunning.observe(this) {
+        viewModel.isRunning.onChanged(this) {
             if (it) {
-                start()
+
+                // TODO init pop-up notification
+                viewModel.message("start: try to getting GPS ready")
+                // TODO store user setting values in userRepository
+
+                notificationHolder.update(
+                    getString(R.string.notification_title_start),
+                    getString(R.string.notification_message_start)
+                )
             } else {
-                stop()
+                // TODO update (pop-up) notification
+                // TODO stop prediction
+                Toast.makeText(this, "Stop Search", Toast.LENGTH_SHORT).show()
+                viewModel.message("GPS search stopped")
+                notificationHolder.update(
+                    getString(R.string.notification_title_wait),
+                    getString(R.string.notification_message_wait)
+                )
+            }
+        }
+
+        // when finish requested
+        viewModel.requestFinishService.observe(this) {
+            if (it) {
+                viewModel.requestFinishService.value = false
+                stopSelf()
             }
         }
 
     }
-
-
-    private val serviceJob = Job()
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + serviceJob
 
     @Inject
     lateinit var stationRepository: StationRepository
@@ -179,99 +188,30 @@ class StationService : LifecycleService(), CoroutineScope {
     @Inject
     lateinit var prefectureRepository: PrefectureRepository
 
-    val notificationHolder: NotificationViewHolder by lazy {
+    @Inject
+    lateinit var gpsClient: GPSClient
+
+    @Inject
+    lateinit var singletonStore: ViewModelStore
+
+    private val viewModel: ApplicationViewModel by lazy {
+        val owner = ViewModelStoreOwner { singletonStore }
+        ApplicationViewModel.getInstance(owner, stationRepository, userRepository, gpsClient)
+    }
+
+    private val notificationHolder: NotificationViewHolder by lazy {
         NotificationViewHolder(this)
-    }
-
-    val gpsClient: GPSClient by lazy {
-        GPSClient(this, object : GPSCallback {
-            override fun onLocationUpdated(location: Location) {
-                launch {
-                    userRepository.logLocation(location.latitude, location.longitude)
-                }
-            }
-
-            override fun onGPSStop(mes: String) {
-                error(mes)
-            }
-
-            override fun onGPSLog(log: String) {
-                message(log)
-            }
-
-        })
-    }
-
-    fun message(mes: String) {
-        launch { userRepository.logMessage(mes) }
-    }
-
-    fun error(mes: String, cause: Throwable) {
-        val sw = StringWriter()
-        val pw = PrintWriter(sw)
-        cause.printStackTrace(pw)
-        error(String.format("%s caused by;\n%s", mes, sw.toString()))
-    }
-
-    fun error(mes: String) {
-        launch {
-            userRepository.logError(mes)
-            withContext(Dispatchers.Main) { stop() }
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        serviceJob.cancel()
-        message("service terminated")
+        viewModel.message("service terminated")
+        viewModel.setSearchState(false)
+        viewModel.isServiceAlive = false
 
         if (userRepository.hasError) {
             userRepository.writeErrorLog(getString(R.string.app_name), getExternalFilesDir(null))
         }
-        gpsClient.release()
-    }
-
-    private var running = false
-
-    /**
-     * start GPS tracking and request updating the nearest station etc.
-     */
-    @MainThread
-    private fun start() {
-        if (running || !stationRepository.dataInitialized) {
-            return
-        }
-        // TODO init pop-up notification
-        // TODO update notification
-        message("start: try to getting GPS ready")
-        // TODO store user setting values in userRepository
-        try {
-            gpsClient.requestGPSUpdate(5, "main-service")
-            notificationHolder.update(
-                getString(R.string.notification_title_start),
-                getString(R.string.notification_message_start)
-            )
-            viewModel.setSearchState(true)
-        } catch (e: ResolvableApiException) {
-            viewModel.onApiException(e)
-            viewModel.setSearchState(false)
-        }
-    }
-
-    @MainThread
-    private fun stop() {
-        if (!running) return
-        stationRepository.onStopSearch()
-        // TODO update (pop-up) notification
-        gpsClient.stopGPSUpdate("main-service")
-        // TODO stop prediction
-        Toast.makeText(this, "Stop Search", Toast.LENGTH_SHORT).show()
-        message("GPS search stopped")
-        notificationHolder.update(
-            getString(R.string.notification_title_wait),
-            getString(R.string.notification_message_wait)
-        )
-        viewModel.setSearchState(false)
     }
 
     companion object {

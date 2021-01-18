@@ -88,6 +88,7 @@ class StationRepository(
         _selectedLine.value = null
         _nearestStation.value = null
         _nearestStations.value = ArrayList()
+        _lastCheckedLocation = null
     }
 
     val nearestStation: LiveData<NearStation?>

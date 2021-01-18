@@ -12,7 +12,6 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
-import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import java.util.*
 
@@ -21,9 +20,8 @@ import java.util.*
  * @version 2020/12/16.
  */
 class MainViewModel(
-    private val appViewModel: ApplicationViewModel,
     private val stationRepository: StationRepository,
-    userRepository: UserRepository
+    userRepository: UserRepository,
 ) : ViewModel() {
 
     companion object {
@@ -34,44 +32,16 @@ class MainViewModel(
          */
         fun getInstance(
             owner: ViewModelStoreOwner,
-            appViewModel: ApplicationViewModel,
             stationRepository: StationRepository,
             userRepository: UserRepository
         ): MainViewModel {
             val factory = getViewModelFactory {
                 MainViewModel(
-                    appViewModel,
                     stationRepository,
                     userRepository
                 )
             }
             return ViewModelProvider(owner, factory).get(MainViewModel::class.java)
-        }
-    }
-
-    enum class SearchState {
-        STOPPED,
-        STARTING,
-        RUNNING
-    }
-
-    val state: LiveData<SearchState> = combineLiveData(
-        SearchState.STOPPED,
-        appViewModel.isRunning,
-        stationRepository.nearestStation
-    ) { run, station ->
-        if (run) {
-            if (station == null) SearchState.STARTING else SearchState.RUNNING
-        } else {
-            SearchState.STOPPED
-        }
-    }
-
-    val running = appViewModel.isRunning
-
-    fun toggleStart() {
-        running.value?.let { state ->
-            appViewModel.requestSearchRunning(!state)
         }
     }
 
