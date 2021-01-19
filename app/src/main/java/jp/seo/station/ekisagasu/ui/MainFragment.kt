@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
@@ -16,6 +17,8 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
+import jp.seo.station.ekisagasu.utils.onChanged
+import jp.seo.station.ekisagasu.utils.parseColorCode
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel.SearchState
 import javax.inject.Inject
 
@@ -41,7 +44,7 @@ class MainFragment : AppFragment() {
         context?.let { ctx ->
 
             view.findViewById<View>(R.id.fab_exit).setOnClickListener {
-                activity?.finish()
+                appViewModel.finish()
             }
             val fabStart = view.findViewById<FloatingActionButton>(R.id.fab_start)
             val imgStart = ContextCompat.getDrawable(ctx, R.drawable.ic_play)
@@ -88,8 +91,22 @@ class MainFragment : AppFragment() {
                     adapter.data = s.lines
                 }
             }
+            val navigationHost = view.findViewById<View>(R.id.sub_nav_host)
+            appViewModel.isRunning.onChanged(viewLifecycleOwner) {
+                if (!it) navigationHost.findNavController()
+                    .navigate(R.id.action_global_to_radarFragment)
+            }
+            stationName.setOnClickListener {
+                mainViewModel.nearestStation.value?.let { n ->
+                    mainViewModel.showStationInDetail(n.station)
+
+                    navigationHost.findNavController().navigate(R.id.action_global_stationFragment)
+                }
+            }
             adapter.setOnItemSelectedListener { view, data, position ->
                 Log.d("Line", "selected: $data")
+                mainViewModel.showLineInDetail(data)
+                navigationHost.findNavController().navigate(R.id.action_global_lineFragment)
             }
             val selectedLine = view.findViewById<TextView>(R.id.text_selected_line)
             mainViewModel.selectedLine.observe(viewLifecycleOwner) {
@@ -114,8 +131,7 @@ class MainFragment : AppFragment() {
             val background = GradientDrawable()
             background.shape = GradientDrawable.RECTANGLE
             background.cornerRadius = 4f
-            val color = data.color?.substring(1)?.toInt(16) ?: 0xcccccc
-            background.setColor(color.or(0xff000000.toInt()))
+            background.setColor(parseColorCode(data.color))
             symbol.background = background
         }
 

@@ -14,6 +14,7 @@ import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import java.util.*
+import kotlin.NoSuchElementException
 
 /**
  * @author Seo-4d696b75
@@ -73,6 +74,12 @@ class MainViewModel(
         _stationInDetail.value = station
     }
 
+    fun showStationInDetail(index: Int) {
+        stationRegisterList.value?.let { list ->
+            _stationInDetail.value = list[index].station
+        }
+    }
+
     val linesInDetail: LiveData<List<Line>> = stationInDetail.switchMap { s ->
         liveData {
             emit(
@@ -90,5 +97,28 @@ class MainViewModel(
         }
     }
 
+    fun showLineInDetail(line: Line) {
+        _lineInDetail.value = line
+    }
+
     val lineInDetail: LiveData<Line?> = _lineInDetail
+    val stationRegisterList: LiveData<List<StationRegister>> = _lineInDetail.switchMap {
+        liveData {
+            emit(it?.let { line ->
+                val indices = line.stationList.map { r -> r.code }
+                val stations = stationRepository.getStations(indices)
+                line.stationList.map { r ->
+                    val station =
+                        stations.find { it.code == r.code } ?: throw NoSuchElementException()
+                    StationRegister(r.code, station, r.getNumberingString())
+                }
+            } ?: Collections.emptyList<StationRegister>())
+        }
+    }
+
+    data class StationRegister(
+        val code: Int,
+        val station: Station,
+        val numbering: String
+    )
 }

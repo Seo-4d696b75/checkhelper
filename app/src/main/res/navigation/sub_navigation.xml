@@ -15,10 +15,28 @@
     <fragment
         android:id="@+id/stationFragment"
         android:name="jp.seo.station.ekisagasu.ui.StationFragment"
-        android:label="StationFragment"></fragment>
+        android:label="StationFragment">
+        <action
+            android:id="@+id/action_stationFragment_to_lineFragment"
+            app:destination="@id/lineFragment" />
+    </fragment>
     <action
         android:id="@+id/action_global_to_radarFragment"
         app:destination="@id/radarFragment"
         app:popUpTo="@id/sub_navigation"
         app:popUpToInclusive="true" />
+    <fragment
+        android:id="@+id/lineFragment"
+        android:name="jp.seo.station.ekisagasu.ui.LineFragment"
+        android:label="LineFragment">
+        <action
+            android:id="@+id/action_lineFragment_to_stationFragment"
+            app:destination="@id/stationFragment" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_lineFragment"
+        app:destination="@id/lineFragment" />
+    <action
+        android:id="@+id/action_global_stationFragment"
+        app:destination="@id/stationFragment" />
 </navigation>

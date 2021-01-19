@@ -35,6 +35,10 @@ class StationRepository(
         dao.getLines(codes)
     }
 
+    suspend fun getStations(codes: List<Int>) = withContext(Dispatchers.IO) {
+        dao.getStations(codes)
+    }
+
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
     private var _lastCheckedLocation: Location? = null

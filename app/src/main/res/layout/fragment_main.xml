@@ -161,7 +161,7 @@
 
         </RelativeLayout>
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/sub_nav_host"
             android:name="androidx.navigation.fragment.NavHostFragment"
             app:navGraph="@navigation/sub_navigation"

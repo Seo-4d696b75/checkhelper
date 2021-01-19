@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.utils.parseColorCode
 import javax.inject.Inject
 
 /**
@@ -61,7 +62,8 @@ class StationFragment : AppFragment() {
                     //TODO
                 }
             lines.setOnItemClickListener { parent, view, position, id ->
-                //TODO
+                mainViewModel.showLineInDetail(position)
+                findNavController().navigate(R.id.action_global_lineFragment)
             }
         }
     }
@@ -85,8 +87,7 @@ class StationFragment : AppFragment() {
                 symbol.background = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
                     cornerRadius = 6f
-                    val color = line.color?.substring(1)?.toInt(16) ?: 0xcccccc
-                    setColor(color.or(0xff000000.toInt()))
+                    setColor(parseColorCode(line.color))
                 }
             }
             return view

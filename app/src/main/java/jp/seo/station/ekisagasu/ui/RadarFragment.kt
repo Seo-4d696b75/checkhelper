@@ -50,7 +50,7 @@ class RadarFragment : AppFragment() {
             }
             adapter.setOnItemSelectedListener { view, data, pos ->
                 mainViewModel.showStationInDetail(data.station)
-                findNavController().navigate(R.id.action_radarFragment_to_stationFragment)
+                findNavController().navigate(R.id.action_global_stationFragment)
             }
             val radarNum = view.findViewById<TextView>(R.id.text_radar_num)
             mainViewModel.radarNum.observe(viewLifecycleOwner) {

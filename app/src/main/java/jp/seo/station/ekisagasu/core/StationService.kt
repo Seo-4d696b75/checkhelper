@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
 import jp.seo.station.ekisagasu.utils.combineLiveData
@@ -140,7 +141,7 @@ class StationService : LifecycleService() {
             it?.let { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
-                    String.format("%s   %s", s.distance, s.getLinesName())
+                    String.format("%s   %s", formatDistance(s.distance), s.getLinesName())
                 )
 
             }

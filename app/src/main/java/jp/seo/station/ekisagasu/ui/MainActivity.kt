@@ -73,11 +73,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // TODO init ui
-        val fragment = MainFragment()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.layout_root, fragment)
-            .commit()
     }
 
     override fun onResume() {
@@ -171,14 +166,6 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
 
-        }
-    }
-
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount == 0) {
-            super.onBackPressed()
-        } else {
-            supportFragmentManager.popBackStack()
         }
     }
 

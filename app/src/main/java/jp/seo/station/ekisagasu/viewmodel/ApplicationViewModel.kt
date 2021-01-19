@@ -58,6 +58,7 @@ class ApplicationViewModel(
 
     @MainThread
     fun finish() {
+        setSearchState(false)
         if (isActivityAlive) requestFinishActivity.value = true
         if (isServiceAlive) requestFinishService.value = true
     }
