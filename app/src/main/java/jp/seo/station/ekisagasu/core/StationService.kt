@@ -1,6 +1,9 @@
 package jp.seo.station.ekisagasu.core
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.os.Binder
 import android.os.Handler
@@ -57,12 +60,7 @@ class StationService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        //TODO only for the first time
         viewModel.message("service received start-command")
-        notificationHolder.update(
-            getString(R.string.notification_title_wait),
-            getString(R.string.notification_message_wait)
-        )
 
         intent?.let {
             if (it.getBooleanExtra(KEY_CLOSE_NOTIFICATION_PANEL, false)) {
@@ -203,6 +201,40 @@ class StationService : LifecycleService() {
             overlayView.displayPrefecture = it
         }
 
+        // init notification
+        notificationHolder.update(
+            getString(R.string.notification_title_wait),
+            getString(R.string.notification_message_wait)
+        )
+
+        // register broadcast receiver
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+        registerReceiver(receiver, filter)
+    }
+
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.action?.let {
+                when (it) {
+                    Intent.ACTION_SCREEN_OFF -> {
+                        overlayView.screen = false
+                        viewModel.message("screen off")
+                    }
+                    Intent.ACTION_SCREEN_ON -> {
+                        viewModel.message("screen on")
+                    }
+                    Intent.ACTION_USER_PRESENT -> {
+                        viewModel.message("user present")
+                        overlayView.screen = true
+                    }
+                }
+            }
+        }
+
     }
 
     @Inject
@@ -245,6 +277,7 @@ class StationService : LifecycleService() {
         if (userRepository.hasError) {
             userRepository.writeErrorLog(getString(R.string.app_name), getExternalFilesDir(null))
         }
+        unregisterReceiver(receiver)
     }
 
     companion object {

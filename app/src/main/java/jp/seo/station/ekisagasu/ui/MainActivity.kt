@@ -7,9 +7,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelStore
+import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.GPSClient
@@ -167,6 +169,21 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_setting -> {
+                findNavController(R.id.main_nav_host).navigate(R.id.action_mainFragment_to_settingFragment)
+            }
+            R.id.menu_log -> {
+                findNavController(R.id.main_nav_host).navigate(R.id.action_mainFragment_to_logFragment)
+            }
+            else -> {
+                Log.e("Menu", "unknown id:${item.itemId}")
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 }

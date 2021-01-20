@@ -111,12 +111,14 @@ class ActivityViewModel(
                 val latest = stationRepository.getLatestDataVersion(false)
 
                 if (info == null) {
+                    targetInfo = latest
                     requestDialog(DataDialog.DIALOG_INIT)
                 } else {
                     withContext(Dispatchers.IO) {
                         userRepository.logMessage(String.format("data found version:${info.version}"))
                     }
                     if (info.version < latest.version) {
+                        targetInfo = latest
                         requestDialog(DataDialog.DIALOG_LATEST)
                     }
                     if (!hasInitialized) {
@@ -270,6 +272,17 @@ class ActivityViewModel(
                         }
 
                     })
+            }
+        }
+    }
+
+    fun checkLatestData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val latest = stationRepository.getLatestDataVersion(true)
+            val current = stationRepository.getDataVersion()
+            if (current == null || latest.version > current.version) {
+                targetInfo = latest
+                requestDialog(DataDialog.DIALOG_LATEST)
             }
         }
     }

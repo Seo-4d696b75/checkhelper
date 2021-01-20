@@ -19,11 +19,18 @@ class UserRepository(
 ) {
 
     //TODO user setting
+    val gpsUpdateInterval = MutableLiveData(5)
     val searchK = MutableLiveData<Int>(12)
+    val isNotify = MutableLiveData(false)
     val isNotifyForce = MutableLiveData(false)
     val isKeepNotification = MutableLiveData(false)
-    val brightness = MutableLiveData<Int>(128)
     val isNotifyPrefecture = MutableLiveData(false)
+    val isVibrate = MutableLiveData(false)
+    val isVibrateApproach = MutableLiveData(false)
+    val vibrateDistance = MutableLiveData(100)
+    val nightMode = MutableLiveData(false)
+    val brightness = MutableLiveData<Int>(128)
+
 
     private var _oldestID = MutableLiveData<Long>(0L)
     private var _hasError = false

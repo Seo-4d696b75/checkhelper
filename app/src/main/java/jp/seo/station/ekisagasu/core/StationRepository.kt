@@ -42,6 +42,7 @@ class StationRepository(
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
     private var _lastCheckedLocation: Location? = null
+    private var _lastSearchK: Int? = null
     private val _currentStation = MutableLiveData<NearStation?>(null)
     private val _nearestStation = MutableLiveData<NearStation?>(null)
     private val _selectedLine = MutableLiveData<Line?>(null)
@@ -59,11 +60,22 @@ class StationRepository(
         tree.search(lat, lng, k, r, false)
     }
 
+    private fun checkNeedUpdate(location: Location, k: Int): Boolean {
+        val lastK = _lastSearchK
+        _lastSearchK = k
+        if (lastK != null && k != lastK) {
+            return true
+        }
+        val last = _lastCheckedLocation
+        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return false
+        _lastCheckedLocation = location
+        return true
+    }
+
     @MainThread
     suspend fun updateNearestStations(location: Location, k: Int) {
         if (k < 1) return
-        val last = _lastCheckedLocation
-        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return
+        if (!checkNeedUpdate(location, k)) return
         val result = searchNearestStations(location.latitude, location.longitude, k, 0.0)
         if (result.stations.isEmpty()) return
         val nearest = result.stations[0]
@@ -93,6 +105,7 @@ class StationRepository(
         _nearestStation.value = null
         _nearestStations.value = ArrayList()
         _lastCheckedLocation = null
+        _lastSearchK = null
     }
 
     val nearestStation: LiveData<NearStation?> = _nearestStation

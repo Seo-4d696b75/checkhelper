@@ -7,9 +7,23 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="jp.seo.station.ekisagasu.ui.MainFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment">
+        <action
+            android:id="@+id/action_mainFragment_to_logFragment"
+            app:destination="@id/logFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_settingFragment"
+            app:destination="@id/settingFragment" />
+    </fragment>
     <fragment
         android:id="@+id/logFragment"
         android:name="jp.seo.station.ekisagasu.ui.LogFragment"
         android:label="LogFragment" />
+    <action
+        android:id="@+id/action_global_mainFragment"
+        app:destination="@id/mainFragment" />
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="jp.seo.station.ekisagasu.ui.SettingFragment"
+        android:label="SettingFragment" />
 </navigation>
