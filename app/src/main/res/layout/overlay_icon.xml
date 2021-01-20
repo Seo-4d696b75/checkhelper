@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="56dp"
+    android:layout_height="65dp"
+    android:background="@drawable/notification_back">
+
+    <ImageView
+        android:id="@+id/imageAppIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/launch_icon_old" />
+
+</RelativeLayout>

@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.core
 import android.content.Intent
 import android.location.Location
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
 import android.widget.Toast
 import androidx.lifecycle.LifecycleService
@@ -12,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
+import jp.seo.station.ekisagasu.ui.OverlayViewHolder
 import jp.seo.station.ekisagasu.utils.CurrentLocation
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.onChanged
@@ -137,16 +139,25 @@ class StationService : LifecycleService() {
             }
 
         // update notification when nearest station changed
+        stationRepository.detectedStation.observe(this) {
+            it?.let { n ->
+                viewModel.logStation(n.station)
+                overlayView.onStationChanged(n)
+            }
+        }
+
+        // update notification when nearest station or distance changed
         stationRepository.nearestStation.observe(this) {
             it?.let { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
                     String.format("%s   %s", formatDistance(s.distance), s.getLinesName())
                 )
-
+                overlayView.onLocationChanged(s)
             }
         }
 
+        // update running state
         viewModel.isRunning.onChanged(this) {
             if (it) {
 
@@ -178,6 +189,20 @@ class StationService : LifecycleService() {
             }
         }
 
+        // update user setting
+        userRepository.isKeepNotification.observe(this) {
+            overlayView.keepNotification = it
+        }
+        userRepository.brightness.observe(this) {
+            overlayView.brightness = it
+        }
+        userRepository.isNotifyForce.observe(this) {
+            overlayView.forceNotify = it
+        }
+        userRepository.isNotifyPrefecture.observe(this) {
+            overlayView.displayPrefecture = it
+        }
+
     }
 
     @Inject
@@ -195,6 +220,9 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var singletonStore: ViewModelStore
 
+    @Inject
+    lateinit var mainHandler: Handler
+
     private val viewModel: ApplicationViewModel by lazy {
         val owner = ViewModelStoreOwner { singletonStore }
         ApplicationViewModel.getInstance(owner, stationRepository, userRepository, gpsClient)
@@ -204,12 +232,16 @@ class StationService : LifecycleService() {
         NotificationViewHolder(this)
     }
 
+    private val overlayView: OverlayViewHolder by lazy {
+        OverlayViewHolder(this, prefectureRepository, mainHandler)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         viewModel.message("service terminated")
         viewModel.setSearchState(false)
         viewModel.isServiceAlive = false
-
+        overlayView.release()
         if (userRepository.hasError) {
             userRepository.writeErrorLog(getString(R.string.app_name), getExternalFilesDir(null))
         }

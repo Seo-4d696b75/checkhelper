@@ -42,6 +42,7 @@ class StationRepository(
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
     private var _lastCheckedLocation: Location? = null
+    private val _currentStation = MutableLiveData<NearStation?>(null)
     private val _nearestStation = MutableLiveData<NearStation?>(null)
     private val _selectedLine = MutableLiveData<Line?>(null)
     private val _nearestStations = MutableLiveData<List<NearStation>>(ArrayList())
@@ -58,28 +59,26 @@ class StationRepository(
         tree.search(lat, lng, k, r, false)
     }
 
-    suspend fun updateNearestStations(location: Location, k: Int): Station? =
-        withContext(Dispatchers.Main) {
-            if (k < 1) return@withContext null
-            val last = _lastCheckedLocation
-            if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return@withContext null
-            var detected: Station? = null
-            val result = searchNearestStations(location.latitude, location.longitude, k, 0.0)
-            if (result.stations.isEmpty()) return@withContext null
-            val nearest = result.stations[0]
-            val current = _nearestStation.value
-            val time = Date(location.time)
-            val list = result.stations.map { s ->
-                val lines = getLines(s.lines)
-                NearStation(s, measureDistance(s, location), time, lines)
-            }
-            _nearestStations.value = list
-            if (current == null || current.station != nearest) {
-                _nearestStation.value = list[0]
-                detected = nearest
-            }
-            _lastCheckedLocation = location
-            detected
+    @MainThread
+    suspend fun updateNearestStations(location: Location, k: Int) {
+        if (k < 1) return
+        val last = _lastCheckedLocation
+        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return
+        val result = searchNearestStations(location.latitude, location.longitude, k, 0.0)
+        if (result.stations.isEmpty()) return
+        val nearest = result.stations[0]
+        val current = _currentStation.value
+        val time = Date(location.time)
+        val list = result.stations.map { s ->
+            val lines = getLines(s.lines)
+            NearStation(s, measureDistance(s, location), time, lines)
+        }
+        _nearestStations.value = list
+        _nearestStation.value = list[0]
+        if (current == null || current.station != nearest) {
+            _currentStation.value = list[0]
+        }
+        _lastCheckedLocation = location
     }
 
     @MainThread
@@ -89,26 +88,27 @@ class StationRepository(
 
     @MainThread
     fun onStopSearch() {
+        _currentStation.value = null
         _selectedLine.value = null
         _nearestStation.value = null
         _nearestStations.value = ArrayList()
         _lastCheckedLocation = null
     }
 
-    val nearestStation: LiveData<NearStation?>
-        get() = _nearestStation
+    val nearestStation: LiveData<NearStation?> = _nearestStation
 
-    val selectedLine: LiveData<Line?>
-        get() = _selectedLine
+    val selectedLine: LiveData<Line?> = _selectedLine
 
-    val nearestStations: LiveData<List<NearStation>>
-        get() = _nearestStations
+    val nearestStations: LiveData<List<NearStation>> = _nearestStations
+
+    val detectedStation: LiveData<NearStation?> = _currentStation
 
     val dataInitialized: Boolean
         get() = _dataInitialized
 
     val lastCheckedVersion: DataLatestInfo?
         get() = _lastCheckedVersion
+
 
     suspend fun getDataVersion(): DataVersion? = withContext(Dispatchers.IO) {
         val version = dao.getCurrentDataVersion()

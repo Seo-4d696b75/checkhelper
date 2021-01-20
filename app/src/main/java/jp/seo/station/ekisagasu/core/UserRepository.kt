@@ -20,6 +20,10 @@ class UserRepository(
 
     //TODO user setting
     val searchK = MutableLiveData<Int>(12)
+    val isNotifyForce = MutableLiveData(false)
+    val isKeepNotification = MutableLiveData(false)
+    val brightness = MutableLiveData<Int>(128)
+    val isNotifyPrefecture = MutableLiveData(false)
 
     private var _oldestID = MutableLiveData<Long>(0L)
     private var _hasError = false

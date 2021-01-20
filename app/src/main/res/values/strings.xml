@@ -20,4 +20,7 @@
     <string name="main_message_starting_search">周辺の駅を探してます</string>
     <string name="line_none">なし</string>
     <string name="no_selected_line">選択なし</string>
+    <string name="notification_time_now">数秒前</string>
+    <string name="notification_time_sec">数十秒前</string>
+    <string name="notification_time_min">分前</string>
 </resources>

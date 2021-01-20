@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ResolvableApiException
+import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.GPSClient
 import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.core.StationRepository
@@ -152,14 +153,13 @@ class ApplicationViewModel(
     }
 
     fun updateStation(location: Location, k: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-
+        viewModelScope.launch {
             stationRepository.updateNearestStations(location, k)
-                ?.let {
-                    userRepository.logStation(String.format("%s(%d)", it.name, it.code))
-
-                }
         }
+    }
+
+    fun logStation(station: Station) = viewModelScope.launch {
+        userRepository.logStation(String.format("%s(%d)", station.name, station.code))
     }
 
 }
