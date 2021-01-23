@@ -6,19 +6,11 @@ import android.location.Location
 import android.os.Build
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.android.gms.common.api.ResolvableApiException
+import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.GPSClient
-import jp.seo.station.ekisagasu.core.PrefectureRepository
-import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.core.StationService
-import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -105,7 +97,9 @@ class ApplicationViewModel(
     fun setSearchState(value: Boolean) {
         if (value) {
             if (stationRepository.dataInitialized) {
-                gps.requestGPSUpdate(5, "main-service")
+                userRepository.gpsUpdateInterval.value?.let {
+                    gps.requestGPSUpdate(it, "main-service")
+                }
             }
 
         } else {
@@ -123,7 +117,7 @@ class ApplicationViewModel(
 
     fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) {
         viewModelScope.launch(Dispatchers.IO) {
-            userRepository.onAppReboot()
+            userRepository.onAppReboot(context)
             prefectureRepository.setData(context)
         }
     }
@@ -160,6 +154,17 @@ class ApplicationViewModel(
 
     fun logStation(station: Station) = viewModelScope.launch {
         userRepository.logStation(String.format("%s(%d)", station.name, station.code))
+    }
+
+
+    fun onServiceFinish(context: Context) = viewModelScope.launch {
+        userRepository.saveSetting(context)
+        if (userRepository.hasError) {
+            userRepository.writeErrorLog(
+                context.getString(R.string.app_name),
+                context.getExternalFilesDir(null)
+            )
+        }
     }
 
 }

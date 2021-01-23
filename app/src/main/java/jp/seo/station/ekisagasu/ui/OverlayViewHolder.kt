@@ -151,6 +151,14 @@ class OverlayViewHolder(
             }
         }
 
+    var notify: Boolean = true
+        set(value) {
+            field = value
+            if (!value) {
+                onNotificationRemoved(null)
+            }
+        }
+
     var keepNotification: Boolean = false
         set(value) {
             if (value != field) {
@@ -230,6 +238,7 @@ class OverlayViewHolder(
         }
 
     fun onStationChanged(station: NearStation) = synchronized(this) {
+        if (!notify) return@synchronized
         detectedTime = SystemClock.elapsedRealtime()
         nearestStation = station
         if (screen) {

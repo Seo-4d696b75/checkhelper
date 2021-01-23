@@ -141,6 +141,7 @@ class StationService : LifecycleService() {
             it?.let { n ->
                 viewModel.logStation(n.station)
                 overlayView.onStationChanged(n)
+                vibrate()
             }
         }
 
@@ -214,6 +215,34 @@ class StationService : LifecycleService() {
             addAction(Intent.ACTION_USER_PRESENT)
         }
         registerReceiver(receiver, filter)
+
+        // when user setting changed
+        userRepository.isNotify.observe(this) {
+            overlayView.notify = it
+        }
+        userRepository.isKeepNotification.observe(this) {
+            overlayView.keepNotification = it
+        }
+        userRepository.isNotifyForce.observe(this) {
+            overlayView.forceNotify = it
+        }
+        userRepository.gpsUpdateInterval.observe(this) { interval ->
+            gpsClient.isRunning.value?.let {
+                if (it) gpsClient.requestGPSUpdate(interval, "main-service")
+            }
+        }
+        userRepository.isNotifyPrefecture.observe(this) {
+            overlayView.displayPrefecture = it
+        }
+        userRepository.nightMode.observe(this) {
+            overlayView.nightMode = it
+        }
+        userRepository.brightness.observe(this) {
+            overlayView.brightness = it
+        }
+        userRepository.isVibrate.observe(this) {
+            isVibrate = it
+        }
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -273,10 +302,8 @@ class StationService : LifecycleService() {
         viewModel.message("service terminated")
         viewModel.setSearchState(false)
         viewModel.isServiceAlive = false
+        viewModel.onServiceFinish(this)
         overlayView.release()
-        if (userRepository.hasError) {
-            userRepository.writeErrorLog(getString(R.string.app_name), getExternalFilesDir(null))
-        }
         unregisterReceiver(receiver)
     }
 
@@ -286,6 +313,13 @@ class StationService : LifecycleService() {
         const val REQUEST_EXIT_SERVICE = "exit_service"
         const val REQUEST_START_TIMER = "start_timer"
         const val REQUEST_FINISH_TIMER = "finish_timer"
+    }
+
+    private var isVibrate: Boolean = false
+
+    private fun vibrate() {
+        if (!isVibrate) return
+        // TODO
     }
 
 }

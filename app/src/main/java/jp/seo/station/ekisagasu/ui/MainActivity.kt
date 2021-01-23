@@ -1,5 +1,6 @@
 package jp.seo.station.ekisagasu.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -121,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         const val PERMISSION_REQUEST_OVERLAY = 3900
         const val PERMISSION_REQUEST = 3901
         const val RESOLVE_API_EXCEPTION = 3902
+        const val WRITE_EXTERNAL_FILE = 3903
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -141,6 +143,10 @@ class MainActivity : AppCompatActivity() {
         } else if (requestCode == RESOLVE_API_EXCEPTION) {
             Log.d("ActivityResult", "resolve_api_exception")
             appViewModel.onResolvedAPIException()
+        } else if (requestCode == WRITE_EXTERNAL_FILE) {
+            if (resultCode == Activity.RESULT_OK) {
+                data?.data?.let { viewModel.writeFile(it, contentResolver) }
+            }
         }
     }
 

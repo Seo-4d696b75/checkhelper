@@ -1,6 +1,8 @@
 package jp.seo.station.ekisagasu.viewmodel
 
 import android.Manifest
+import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,15 +14,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
@@ -28,10 +26,17 @@ import jp.seo.station.ekisagasu.ui.DataCheckDialog
 import jp.seo.station.ekisagasu.ui.DataDialog
 import jp.seo.station.ekisagasu.ui.DataUpdateDialog
 import jp.seo.station.ekisagasu.ui.MainActivity
+import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.BufferedWriter
+import java.io.IOException
+import java.io.OutputStreamWriter
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Activityスコープで共有するViewModel
@@ -284,6 +289,64 @@ class ActivityViewModel(
                 targetInfo = latest
                 requestDialog(DataDialog.DIALOG_LATEST)
             }
+        }
+    }
+
+
+    private var _filter: MutableLiveData<Int> = MutableLiveData(AppLog.FILTER_ALL)
+
+    fun setFilter(value: Int) {
+        _filter.value = value
+    }
+
+    val logs: LiveData<List<AppLog>> = combineLiveData(
+        ArrayList(),
+        _filter,
+        userRepository.logs
+    ) { filter, logs ->
+        logs.filter { (it.type and filter) > 0 }
+    }
+
+
+    fun writeLog(title: String, activity: Activity) {
+        val builder = StringBuilder()
+        val time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US).format(Date())
+        _filter.value?.let { type ->
+            logs.value?.let { list ->
+                val fileName = String.format(Locale.US, "%sLog_%s.txt", type, time)
+                builder.append(title)
+                builder.append("\nlog type : ")
+                builder.append(type)
+                builder.append("\ntime : ")
+                builder.append(time)
+                for (log in list) {
+                    builder.append("\n")
+                }
+                targetFileContent = builder.toString()
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    this.type = "text/plain"
+                    putExtra(Intent.EXTRA_TITLE, fileName)
+                }
+                activity.startActivityForResult(intent, MainActivity.WRITE_EXTERNAL_FILE)
+            }
+        }
+    }
+
+    private var targetFileContent: String? = null
+
+    fun writeFile(uri: Uri, resolver: ContentResolver) = viewModelScope.launch(Dispatchers.IO) {
+        targetFileContent?.let { content ->
+            try {
+                resolver.openOutputStream(uri).use {
+                    val writer = BufferedWriter(OutputStreamWriter(it, Charsets.UTF_8))
+                    writer.write(content)
+                    writer.close()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            targetFileContent = null
         }
     }
 

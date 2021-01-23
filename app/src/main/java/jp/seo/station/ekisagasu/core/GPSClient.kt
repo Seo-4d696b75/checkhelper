@@ -11,13 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationAvailability
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.LocationSettingsStatusCodes
+import com.google.android.gms.location.*
 
 /**
  * @author Seo-4d696b75
@@ -30,7 +24,7 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
     private var context: Context? = ctx
 
-    private val tags: MutableSet<String> = HashSet()
+    private val requests: MutableMap<String, GPSRequest> = HashMap()
     private var minInterval = 0
 
     private val _location: MutableLiveData<Location?> = MutableLiveData(null)
@@ -68,8 +62,9 @@ class GPSClient(ctx: Context) : LocationCallback() {
     fun requestGPSUpdate(interval: Int, tag: String) {
         if (interval < 1) return
         try {
+            requests[tag] = GPSRequest(tag, interval)
             if (running) {
-                if (interval != minInterval) {
+                if (interval < minInterval) {
                     log(
                         String.format(
                             "GPS > min interval %d>%d sec",
@@ -81,12 +76,27 @@ class GPSClient(ctx: Context) : LocationCallback() {
                     locationClient.removeLocationUpdates(this)
                         .addOnCompleteListener {
                             running = false
-                            requestGPSUpdate(tag)
+                            requestGPSUpdate()
                         }
+                } else {
+                    log(
+                        String.format(
+                            "GPS > min interval request:%d remained:%d sec",
+                            interval,
+                            minInterval
+                        )
+                    )
                 }
             } else {
                 minInterval = interval
-                requestGPSUpdate(tag)
+                requestGPSUpdate()
+
+                log(
+                    String.format(
+                        "GPS > min interval: %d sec",
+                        minInterval
+                    )
+                )
             }
         } catch (e: ResolvableApiException) {
             _apiException.postValue(e)
@@ -94,15 +104,7 @@ class GPSClient(ctx: Context) : LocationCallback() {
     }
 
 
-    private fun requestGPSUpdate(tag: String) {
-        log(
-            String.format(
-                "GPS > %s requests update. min interval: %d sec",
-                tag,
-                minInterval
-            )
-        )
-        tags.add(tag)
+    private fun requestGPSUpdate() {
         val request = LocationRequest()
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
             .setInterval(minInterval * 1000L)
@@ -136,8 +138,8 @@ class GPSClient(ctx: Context) : LocationCallback() {
     }
 
     fun stopGPSUpdate(tag: String): Boolean {
-        if (tags.remove(tag)) {
-            if (tags.isEmpty()) {
+        if (requests.remove(tag) != null) {
+            if (requests.isEmpty()) {
                 locationClient.removeLocationUpdates(this)
                     .addOnCompleteListener {
                         running = false
@@ -146,6 +148,23 @@ class GPSClient(ctx: Context) : LocationCallback() {
                 _running.value = false
                 _location.value = null
                 log("GPS has stopped")
+            } else {
+                val min = requests.values.minOf { it.minInterval }
+                if (min > minInterval) {
+                    log(
+                        String.format(
+                            "GPS > min interval %d>%d sec",
+                            minInterval,
+                            min
+                        )
+                    )
+                    minInterval = min
+                    locationClient.removeLocationUpdates(this)
+                        .addOnCompleteListener {
+                            running = false
+                            requestGPSUpdate()
+                        }
+                }
             }
             return true
         }
@@ -162,6 +181,11 @@ class GPSClient(ctx: Context) : LocationCallback() {
         _running.value = false
         messageError.postValue(mes)
     }
+
+    private data class GPSRequest(
+        val tag: String,
+        val minInterval: Int
+    )
 
 }
 

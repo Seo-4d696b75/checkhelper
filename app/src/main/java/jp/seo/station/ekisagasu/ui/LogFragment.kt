@@ -11,10 +11,11 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.AppLog
-import jp.seo.station.ekisagasu.viewmodel.LogViewModel
+import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -41,8 +42,13 @@ class LogFragment : AppFragment() {
         return inflater.inflate(R.layout.fragment_log, container, false)
     }
 
-    private val viewModel: LogViewModel by lazy {
-        LogViewModel.getInstance(this, userRepository)
+    private val viewModel: ActivityViewModel by lazy {
+        ActivityViewModel.getInstance(
+            requireActivity(),
+            requireContext(),
+            stationRepository,
+            userRepository
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -76,6 +82,9 @@ class LogFragment : AppFragment() {
                 adapter.logs = logs
                 adapter.notifyDataSetChanged()
             })
+            view.findViewById<FloatingActionButton>(R.id.button_write_log).setOnClickListener {
+                viewModel.writeLog(getString(R.string.app_name), requireActivity())
+            }
         }
     }
 }
