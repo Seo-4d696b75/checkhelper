@@ -68,7 +68,7 @@ class StationFragment : AppFragment() {
         }
     }
 
-    private class LineAdapter(
+    class LineAdapter(
         context: Context,
         lines: List<Line>
     ) : ArrayAdapter<Line>(context, 0, lines) {

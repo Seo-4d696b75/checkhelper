@@ -168,7 +168,10 @@
             app:defaultNavHost="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="40dp" />
+            android:layout_marginBottom="40dp">
+
+
+        </androidx.fragment.app.FragmentContainerView>
 
     </LinearLayout>
 
@@ -180,7 +183,7 @@
         android:visibility="gone" />
 
     <RelativeLayout
-        android:id="@+id/floatButtonContainer"
+        android:id="@+id/fab_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
@@ -189,13 +192,14 @@
         android:padding="8dp">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_timer"
+            android:id="@+id/fab_map"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="15dp"
-            android:src="@drawable/ic_timer"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/ic_maps"
             android:visibility="invisible"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini" />
@@ -207,31 +211,22 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="15dp"
+            android:layout_marginBottom="15dp"
             android:src="@drawable/ic_fixed"
             android:visibility="invisible"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_select_line"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="15dp"
-            android:src="@drawable/ic_line_selects"
-            android:visibility="invisible"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_cancel_select_line"
+            android:id="@+id/fab_timer"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="15dp"
-            android:src="@drawable/ic_line_cancel"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/ic_timer"
             android:visibility="invisible"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini" />
@@ -249,12 +244,25 @@
             app:fabSize="mini" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_select_line"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/ic_line_selects"
+            android:visibility="invisible"
+            app:backgroundTint="@color/colorPrimary"
+            app:fabSize="mini" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_more"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="65dp"
+            android:layout_marginBottom="0dp"
             android:src="@drawable/ic_expand"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini" />
@@ -265,7 +273,8 @@
             android:layout_height="100dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="115dp"
+            android:layout_marginEnd="110dp"
+            android:layout_marginBottom="0dp"
             android:src="@drawable/ic_deletes"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini" />
@@ -279,6 +288,7 @@
             android:src="@drawable/ic_play"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="normal" />
+
 
     </RelativeLayout>
 

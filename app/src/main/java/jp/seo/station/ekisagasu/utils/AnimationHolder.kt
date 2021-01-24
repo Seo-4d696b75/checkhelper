@@ -10,9 +10,12 @@ import android.view.View
  */
 class AnimationHolder<E : View>(
     val view: E,
-    private val x: Float,
-    private val y: Float
+    pixelX: Int,
+    pixelY: Int
 ) {
+
+    private val x: Float = pixelX.toFloat()
+    private val y: Float = pixelY.toFloat()
 
     fun invalidate(expand: Boolean) {
         view.translationX = if (expand) x else 0f
@@ -24,7 +27,7 @@ class AnimationHolder<E : View>(
 
     fun animate(expand: Boolean): ObjectAnimator = animate(expand, this.x, this.y)
 
-    fun animate(expand: Boolean, x: Float, y: Float): ObjectAnimator {
+    private fun animate(expand: Boolean, x: Float, y: Float): ObjectAnimator {
 
         val scaleFrom = if (expand) 0.1f else 1f
         val scaleTo = if (expand) 1f else 0.1f
@@ -45,7 +48,7 @@ class AnimationHolder<E : View>(
     }
 
 
-    fun animate(expand: Boolean, x: Float, effect: Boolean): ObjectAnimator {
+    fun animate(expand: Boolean, effect: Boolean): ObjectAnimator {
         return if (effect) {
             val scaleFrom = if (expand) 0.1f else 1f
             val scaleTo = if (expand) 1f else 0.1f

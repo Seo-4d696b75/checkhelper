@@ -94,7 +94,7 @@ class StationRepository(
     }
 
     @MainThread
-    fun selectLine(line: Line) {
+    fun selectLine(line: Line?) {
         _selectedLine.value = line
     }
 

@@ -22,10 +22,7 @@ import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
-import jp.seo.station.ekisagasu.ui.DataCheckDialog
-import jp.seo.station.ekisagasu.ui.DataDialog
-import jp.seo.station.ekisagasu.ui.DataUpdateDialog
-import jp.seo.station.ekisagasu.ui.MainActivity
+import jp.seo.station.ekisagasu.ui.*
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +70,8 @@ class ActivityViewModel(
                 DataDialog.DIALOG_UPDATE -> DataUpdateDialog()
                 DataDialog.DIALOG_INIT -> DataCheckDialog()
                 DataDialog.DIALOG_LATEST -> DataCheckDialog()
+                LineDialog.DIALOG_SELECT_PREDICTION -> LineDialog()
+                LineDialog.DIALOG_SELECT_CURRENT -> LineDialog()
                 else -> null
             }
         }

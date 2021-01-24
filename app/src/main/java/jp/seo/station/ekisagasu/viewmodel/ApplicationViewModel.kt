@@ -8,6 +8,7 @@ import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import com.google.android.gms.common.api.ResolvableApiException
+import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.*
@@ -107,6 +108,24 @@ class ApplicationViewModel(
             if (gps.stopGPSUpdate("main-service")) {
                 stationRepository.onStopSearch()
             }
+        }
+    }
+
+    //TODO implementation needed
+    val isRunningPrediction: Boolean = false
+
+    fun setPredictionLine(line: Line?) {
+        if (isRunning.value == true) {
+            // TODO
+        }
+    }
+
+    val selectedLine = stationRepository.selectedLine
+
+    fun selectLine(line: Line?) {
+        if (isRunning.value == true) {
+            stationRepository.selectLine(line)
+            message(String.format("select line: %s", line?.name ?: "null"))
         }
     }
 
