@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.CustomNumberPicker
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * @author Seo-4d696b75
@@ -106,10 +109,6 @@ class SettingFragment : AppFragment() {
             userRepository.vibrateDistance.value = newVal
         }
 
-        view.findViewById<Button>(R.id.button_update_data).setOnClickListener {
-            activityViewModel.checkLatestData()
-        }
-
         val night = view.findViewById<SwitchCompat>(R.id.switch_night)
         userRepository.nightMode.value?.let { night.isChecked = it }
         night.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -138,6 +137,27 @@ class SettingFragment : AppFragment() {
             }
 
         })
+
+        val version = view.findViewById<TextView>(R.id.text_data_version)
+        val timestamp = view.findViewById<TextView>(R.id.text_data_timestamp)
+        val checkVersion = view.findViewById<Button>(R.id.button_update_data)
+        stationRepository.dataVersion.observe(viewLifecycleOwner) {
+            it?.let { data ->
+                version.text = String.format(
+                    "%s: %d",
+                    getString(R.string.setting_mes_data_version),
+                    data.version
+                )
+                timestamp.text = String.format(
+                    "%s: %s",
+                    getString(R.string.setting_mes_data_timestamp),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(data.timestamp)
+                )
+            }
+        }
+        checkVersion.setOnClickListener {
+            activityViewModel.checkLatestData(requireContext())
+        }
 
     }
 }

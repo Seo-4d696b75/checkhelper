@@ -280,13 +280,21 @@ class ActivityViewModel(
         }
     }
 
-    fun checkLatestData() {
+    fun checkLatestData(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val latest = stationRepository.getLatestDataVersion(true)
             val current = stationRepository.getDataVersion()
             if (current == null || latest.version > current.version) {
                 targetInfo = latest
                 requestDialog(DataDialog.DIALOG_LATEST)
+            } else {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.data_already_latest),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

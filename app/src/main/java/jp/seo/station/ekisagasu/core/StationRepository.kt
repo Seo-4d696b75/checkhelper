@@ -39,6 +39,7 @@ class StationRepository(
         dao.getStations(codes)
     }
 
+    private val _currentVersion = MutableLiveData<DataVersion?>(null)
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
     private var _lastCheckedLocation: Location? = null
@@ -119,6 +120,8 @@ class StationRepository(
     val dataInitialized: Boolean
         get() = _dataInitialized
 
+    val dataVersion: LiveData<DataVersion?> = _currentVersion
+
     val lastCheckedVersion: DataLatestInfo?
         get() = _lastCheckedVersion
 
@@ -126,6 +129,7 @@ class StationRepository(
     suspend fun getDataVersion(): DataVersion? = withContext(Dispatchers.IO) {
         val version = dao.getCurrentDataVersion()
         _dataInitialized = version != null
+        _currentVersion.postValue(version)
         version
     }
 
@@ -177,6 +181,7 @@ class StationRepository(
             val current = getDataVersion()
             if (info.version == current?.version) {
                 _dataInitialized = true
+                _currentVersion.postValue(current)
                 result = true
             }
         }

@@ -36,7 +36,8 @@
     <string name="setting_title_accuracy">距離計算の精度</string>
     <string name="setting_mes_accuracy">高精度では球面を考慮して計算します\n駅メモ！仕様の低精度では平面を仮定して三平方の定理で計算します この場合表示される距離と内部で処理される値に不整合が生じることがあります</string>
     <string name="setting_title_data">駅データ</string>
-    <string name="setting_mes_data">データバージョン</string>
+    <string name="setting_mes_data_version">バージョン</string>
+    <string name="setting_mes_data_timestamp">更新日時</string>
     <string name="setting_title_notify_stationary">常駐モード</string>
     <string name="setting_mes_notify_stationary">通知を常時表示させます</string>
     <string name="setting_title_notify_prefecture">都道府県の表示</string>
@@ -53,4 +54,5 @@
     <string name="dialog_title_select_line">路線選択</string>
     <string name="dialog_message_select_line">現在乗車中の路線を選択します</string>
     <string name="dialog_message_select_prediction">案内する路線を選択します</string>
+    <string name="data_already_latest">データは最新です</string>
 </resources>
