@@ -92,7 +92,7 @@ class ActivityViewModel(
      * @param block once executed after initialized
      */
     fun initialize(activity: AppCompatActivity, block: () -> Unit) {
-        // TODO check notification channel
+
         if (checkPermission(activity)) {
             checkData(block)
         }

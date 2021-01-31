@@ -5,15 +5,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
-import android.os.Binder
-import android.os.Handler
-import android.os.IBinder
+import android.os.*
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import dagger.hilt.android.AndroidEntryPoint
+import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
@@ -103,6 +104,9 @@ class StationService : LifecycleService() {
         startForeground(NotificationViewHolder.NOTIFICATION_TAG, notificationHolder.notification)
         notificationHolder.update("init", "initializing app")
 
+        // init vibrator
+        vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+
         // when current location changed
         gpsClient.currentLocation.observe(this) {
             it?.let { location ->
@@ -141,8 +145,11 @@ class StationService : LifecycleService() {
             it?.let { n ->
                 viewModel.logStation(n.station)
                 overlayView.onStationChanged(n)
-                vibrate()
+                vibrate(n.station)
             }
+        }
+        viewModel.selectedLine.observe(this) {
+            currentLine = it
         }
 
         // update notification when nearest station or distance changed
@@ -160,16 +167,13 @@ class StationService : LifecycleService() {
         viewModel.isRunning.onChanged(this) {
             if (it) {
 
-                // TODO init pop-up notification
                 viewModel.message("start: try to getting GPS ready")
-                // TODO store user setting values in userRepository
 
                 notificationHolder.update(
                     getString(R.string.notification_title_start),
                     getString(R.string.notification_message_start)
                 )
             } else {
-                // TODO update (pop-up) notification
                 // TODO stop prediction
                 Toast.makeText(this, "Stop Search", Toast.LENGTH_SHORT).show()
                 viewModel.message("GPS search stopped")
@@ -243,6 +247,11 @@ class StationService : LifecycleService() {
         userRepository.isVibrate.observe(this) {
             isVibrate = it
         }
+
+        // check notification channel setting
+        if (notificationHolder.needNotificationSetting) {
+            Log.d("Notification", "needs setting")
+        }
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -315,11 +324,27 @@ class StationService : LifecycleService() {
         const val REQUEST_FINISH_TIMER = "finish_timer"
     }
 
+    private lateinit var vibrator: Vibrator
     private var isVibrate: Boolean = false
 
-    private fun vibrate() {
-        if (!isVibrate) return
-        // TODO
+    private val VIBRATE_PATTERN_NORMAL = longArrayOf(0, 500, 100, 100)
+    private val VIBRATE_PATTERN_ALERT = longArrayOf(0, 500, 100, 100, 100, 100, 100, 100)
+    private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
+
+    private var currentLine: Line? = null
+
+    private fun vibrate(s: Station) {
+        val line = currentLine
+        if (line != null && s.isLine(line)) {
+            vibrate(VIBRATE_PATTERN_ALERT)
+        } else {
+            vibrate(VIBRATE_PATTERN_NORMAL)
+        }
+    }
+
+    private fun vibrate(pattern: LongArray) {
+        if (!isVibrate || !vibrator.hasVibrator()) return
+        vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
     }
 
 }

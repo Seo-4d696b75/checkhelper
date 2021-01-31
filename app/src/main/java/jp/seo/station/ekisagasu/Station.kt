@@ -67,6 +67,10 @@ data class Station constructor(
         return result
     }
 
+    fun isLine(line: Line): Boolean {
+        return lines.contains(line.code)
+    }
+
 }
 
 class StationConverter : JsonDeserializer<Station> {
