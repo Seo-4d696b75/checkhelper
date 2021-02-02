@@ -34,7 +34,7 @@ class StationRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(ctx, StationDatabase::class.java).build()
         val tree = KdTree(db.dao)
         val api =
-            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/update/")
+            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/master/")
         val main = HandlerCompat.createAsync(Looper.getMainLooper())
         repository = StationRepository(db.dao, api, tree, main)
     }
@@ -96,10 +96,12 @@ class StationRepositoryTest {
                 val loc = Location("test-repository")
                 loc.latitude = sample.lat
                 loc.longitude = sample.lng
-                val s = repository.updateNearestStations(loc, 10)
+                repository.updateNearestStations(loc, 10)
+                val s = repository.detectedStation.value
                 assertThat(s).isNotNull()
-                assertThat(s?.name).isEqualTo(sample.stationName)
-                assertThat(repository.nearestStation.value?.station?.name).isEqualTo(sample.stationName)
+                assertThat(s?.station?.name).isEqualTo(sample.stationName)
+                val n = repository.nearestStation.value
+                assertThat(n).isEqualTo(s)
             }
             repository.onStopSearch()
             assertThat(repository.nearestStation.value).isNull()

@@ -1,12 +1,12 @@
 package jp.seo.station.ekisagasu.core
 
+import com.google.common.truth.Truth.assertThat
 import jp.seo.station.ekisagasu.utils.PolylineSegment
 import jp.seo.station.ekisagasu.utils.convertGeoJsonFeature
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.random.Random
-import com.google.common.truth.Truth.assertThat
 
 
 /**
@@ -19,7 +19,7 @@ class APINetworkKtTest {
     fun testAPIClient() = runBlocking(Dispatchers.IO) {
         // select a url of appropriate branch
         val client =
-            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/extra/")
+            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/master/")
         val info = client.getLatestInfo()
         assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
         val latest = client.getLatestData()
