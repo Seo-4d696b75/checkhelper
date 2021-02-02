@@ -1,12 +1,7 @@
 package jp.seo.station.ekisagasu.ui
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.SystemClock
@@ -22,11 +17,9 @@ import kotlin.math.ceil
  */
 class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
 
-    constructor(context: Context) : this(context, null) {
-    }
+    constructor(context: Context) : this(context, null)
 
-    constructor(context: Context, set: AttributeSet?) : this(context, set, 0) {
-    }
+    constructor(context: Context, set: AttributeSet?) : this(context, set, 0)
 
     constructor(context: Context, set: AttributeSet?, defaultAttr: Int) : super(
         context,
@@ -71,19 +64,20 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
             (_width * 0.8).toInt(),
             (_height * 0.83f).toInt()
         )
-        runAnimation(requestRun)
+        if (requestRun) runAnimation(true)
     }
 
     fun runAnimation(run: Boolean) {
-        if (_width == 0 || _height == 0) {
-            requestRun = true
-            return
-        }
         if (running != run) {
             if (running) {
                 requestStop = true
             } else {
+                if (_width == 0 || _height == 0) {
+                    requestRun = true
+                    return
+                }
                 running = true
+                requestRun = false
                 invalidate()
             }
         }
@@ -93,9 +87,10 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         val dst = this.dst
         val src = this.src
         if (canvas == null || dst == null || src == null) return
-        var time = SystemClock.uptimeMillis()
-        if (running && time > 0) {
+        val time = SystemClock.uptimeMillis()
+        if (running && _time > 0) {
             var degree = _degree + (time - _time) * 0.01f
+            _time = time
             if (requestStop) {
                 val step = 360f / 16f
                 val th = ceil(_degree / step) * step
@@ -103,13 +98,17 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
                     running = false
                     requestStop = false
                     _degree = 0f
-                    time = 0L
+                    _time = 0L
                 }
             }
             if (degree > 360f) {
                 degree -= 360f
             }
             _degree = degree
+        } else {
+            _time = time
+            invalidate()
+            return
         }
         _matrix.reset()
         _matrix.postRotate(_degree, background.width / 2f, background.height / 2f)
@@ -120,7 +119,6 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         canvas.drawBitmap(background, _matrix, paint)
         canvas.drawBitmap(foreground, src, dst, paint)
 
-        _time = time
         if (running) invalidate()
     }
 
@@ -141,7 +139,7 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
     private class SavedState : BaseSavedState {
         var mRunning = false
 
-        constructor(state: Parcelable?) : super(state) {}
+        constructor(state: Parcelable?) : super(state)
         constructor(source: Parcel) : super(source) {
             val array = BooleanArray(1)
             source.readBooleanArray(array)
