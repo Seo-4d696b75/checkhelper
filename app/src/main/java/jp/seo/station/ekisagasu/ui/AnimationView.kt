@@ -107,8 +107,6 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
             _degree = degree
         } else {
             _time = time
-            invalidate()
-            return
         }
         _matrix.reset()
         _matrix.postRotate(_degree, background.width / 2f, background.height / 2f)

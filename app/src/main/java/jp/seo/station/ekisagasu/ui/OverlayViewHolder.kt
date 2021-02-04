@@ -1,20 +1,21 @@
 package jp.seo.station.ekisagasu.ui
 
+import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.PowerManager
 import android.os.SystemClock
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
+import androidx.core.animation.addListener
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.NearStation
@@ -208,9 +209,6 @@ class OverlayViewHolder(
             field = value
             if (value) {
 
-                //initialize view
-
-                //initialize view
                 val layerType =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
                 val night = View(context)
@@ -245,7 +243,7 @@ class OverlayViewHolder(
             onNotifyStation(station, !keepNotification)
         } else if (forceNotify) {
             val wakeLock = powerManager.newWakeLock(
-                PowerManager.SCREEN_BRIGHT_WAKE_LOCK.or(PowerManager.ACQUIRE_CAUSES_WAKEUP),
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
                 "station-found:"
             )
             wakeLock.acquire(10)
@@ -379,6 +377,146 @@ class OverlayViewHolder(
         }
     }
 
+    private var timerLayoutParam: WindowManager.LayoutParams? = null
+    private var timerView: View? = null
+    private var timerContainer: View? = null
+    private var timerButton: View? = null
+
+    var timerListener: (() -> Unit)? = null
+
+    private var isTimerButtonClicked = false
+
+    var timerPosition = -1
+    private var touchY = -1f
+
+    fun fixTimer(fix: Boolean) {
+        if (fix) {
+            setFixedTimer(true, false)
+        } else {
+            setFixedTimer(false, false)
+        }
+    }
+
+    fun setTimerState(running: Boolean) {
+        toggleTimerIcon(!running, null)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setFixedTimer(enable: Boolean, immediate: Boolean) {
+        if (enable) {
+            if (timerView == null) {
+                val layerType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else
+                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                val view = View.inflate(context, R.layout.overlay_timer, null)
+                timerView = view
+                var pos = timerPosition
+                if (pos < 0) {
+                    pos = Point().apply {
+                        context.display?.getRealSize(this)
+                    }.y / 2
+                    timerPosition = pos
+                }
+                val param = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    0, pos, layerType,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    PixelFormat.TRANSLUCENT
+                )
+                param.gravity = Gravity.END or Gravity.TOP
+                timerContainer = view.findViewById(R.id.container_timer)
+                timerButton = view.findViewById(R.id.fab_timer_fixed)
+                timerButton?.setOnTouchListener { v, event ->
+                    timerButton?.let { button ->
+                        when (event.actionMasked) {
+                            MotionEvent.ACTION_DOWN -> {
+                                isTimerButtonClicked = false
+                                touchY = event.rawY
+                            }
+                            MotionEvent.ACTION_MOVE -> {
+                                val y = event.rawY
+                                if (isTimerButtonClicked) {
+                                    timerLayoutParam?.let { param ->
+                                        param.y = (timerPosition + (y - touchY)).toInt()
+                                        timerView?.let {
+                                            windowManager.updateViewLayout(
+                                                it, param
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    touchY = y
+                                }
+                            }
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_HOVER_EXIT -> {
+                                timerLayoutParam?.let { timerPosition = it.y }
+                            }
+                            else -> {
+                            }
+                        }
+                    }
+                    v.onTouchEvent(event)
+                }
+                timerButton?.setOnClickListener {
+                    if (!isTimerButtonClicked) {
+                        timerListener?.let { it() }
+                    }
+                }
+                timerButton?.setOnLongClickListener {
+                    timerButton?.let {
+                        isTimerButtonClicked = true
+                        timerLayoutParam?.let { timerPosition = it.y }
+                    }
+                    false
+                }
+                windowManager.addView(view, param)
+                timerLayoutParam = param
+                toggleTimerIcon(true, null)
+            }
+        } else {
+            timerView?.let { view ->
+                if (immediate || view.visibility != View.VISIBLE) {
+                    windowManager.removeView(view)
+                    timerButton?.setOnClickListener(null)
+                    timerButton?.setOnLongClickListener(null)
+                    timerButton?.setOnTouchListener(null)
+                    timerButton = null
+                    timerView = null
+                    timerContainer = null
+
+                } else {
+                    toggleTimerIcon(false) {
+                        setFixedTimer(false, true)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun toggleTimerIcon(show: Boolean, callback: (() -> Unit)?) {
+        timerContainer?.let { container ->
+            if (show == (container.visibility == View.VISIBLE)) return@let
+            val width = container.width
+            if (show) container.visibility = View.VISIBLE
+            ObjectAnimator.ofInt(
+                container,
+                "translationX",
+                if (show) width else 0,
+                if (show) 0 else width
+            ).apply {
+                duration = 300
+                addListener(onEnd = {
+                    if (!show) container.visibility = View.GONE
+                    it.removeAllListeners()
+                    callback?.let { it() }
+                })
+                start()
+            }
+        }
+    }
+
     fun release() {
         windowManager.removeView(icon)
         windowManager.removeView(backScreen)
@@ -395,6 +533,11 @@ class OverlayViewHolder(
             main.removeCallbacks(it)
             durationCallback = null
         }
+        timerView?.let {
+            windowManager.removeView(it)
+            timerView = null
+        }
+        timerListener = null
     }
 
 }

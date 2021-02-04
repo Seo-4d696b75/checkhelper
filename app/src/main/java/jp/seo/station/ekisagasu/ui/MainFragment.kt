@@ -3,7 +3,9 @@ package jp.seo.station.ekisagasu.ui
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -238,6 +240,21 @@ class MainFragment : AppFragment() {
             }
             fabPredict.view.setOnClickListener {
                 activityViewModel.requestDialog(LineDialog.DIALOG_SELECT_PREDICTION)
+                animateFab(false)
+            }
+            fabMap.view.setOnClickListener {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(getString(R.string.map_url))
+                )
+                startActivity(intent)
+            }
+            fabTimer.view.setOnClickListener {
+                appViewModel.startTimer.value = true
+                animateFab(false)
+            }
+            fabFixTimer.view.setOnClickListener {
+                appViewModel.fixTimer.value = true
                 animateFab(false)
             }
 

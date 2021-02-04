@@ -111,6 +111,9 @@ class ApplicationViewModel(
         }
     }
 
+    val startTimer = MutableLiveData(false)
+    val fixTimer = MutableLiveData(false)
+
     //TODO implementation needed
     val isRunningPrediction: Boolean = false
 

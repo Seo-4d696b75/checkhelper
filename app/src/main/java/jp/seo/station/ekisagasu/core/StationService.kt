@@ -1,11 +1,14 @@
 package jp.seo.station.ekisagasu.core
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
 import android.os.*
+import android.provider.AlarmClock
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LifecycleService
@@ -74,10 +77,11 @@ class StationService : LifecycleService() {
                         viewModel.finish()
                     }
                     REQUEST_START_TIMER -> {
-
+                        setTimer()
                     }
                     REQUEST_FINISH_TIMER -> {
-
+                        timerRunning = false
+                        overlayView.setTimerState(false)
                     }
                     else -> {
                         error(
@@ -252,6 +256,19 @@ class StationService : LifecycleService() {
         if (notificationHolder.needNotificationSetting) {
             Log.d("Notification", "needs setting")
         }
+
+        // set timer
+        overlayView.timerListener = { setTimer() }
+        overlayView.timerPosition = userRepository.timerPosition
+        viewModel.startTimer.observe(this) {
+            if (it) {
+                setTimer()
+                viewModel.startTimer.value = false
+            }
+        }
+        viewModel.fixTimer.observe(this) {
+            overlayView.fixTimer(it)
+        }
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -311,6 +328,7 @@ class StationService : LifecycleService() {
         viewModel.message("service terminated")
         viewModel.setSearchState(false)
         viewModel.isServiceAlive = false
+        userRepository.timerPosition = overlayView.timerPosition
         viewModel.onServiceFinish(this)
         overlayView.release()
         unregisterReceiver(receiver)
@@ -345,6 +363,41 @@ class StationService : LifecycleService() {
     private fun vibrate(pattern: LongArray) {
         if (!isVibrate || !vibrator.hasVibrator()) return
         vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+    }
+
+    private var timerRunning = false
+
+    private fun setTimer() {
+        if (timerRunning) {
+            overlayView.setTimerState(true)
+            Toast.makeText(this, getString(R.string.timer_wait_message), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val intent = Intent(AlarmClock.ACTION_SET_TIMER)
+            .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
+            .putExtra(AlarmClock.EXTRA_LENGTH, 300)
+            .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+        val manager = getSystemService(ALARM_SERVICE)
+        if (manager is AlarmManager && intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+            overlayView.setTimerState(true)
+            val calendar = Calendar.getInstance().apply {
+                add(Calendar.MINUTE, 5)
+            }
+            val pending = PendingIntent.getService(
+                applicationContext, 5,
+                Intent(applicationContext, StationService::class.java).putExtra(
+                    KEY_REQUEST,
+                    REQUEST_FINISH_TIMER
+                ),
+                PendingIntent.FLAG_CANCEL_CURRENT
+            )
+            manager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pending)
+            timerRunning = true
+            Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()
+        } else {
+            viewModel.error("fail to start timer")
+        }
     }
 
 }

@@ -34,10 +34,10 @@ class UserRepository(
         private const val KEY_VIBRATE_METER = "vibrate_meter"
         private const val KEY_VIBRATE_APPROACH = "vibrate_approach"
         private const val KEY_NIGHT = "night_mode"
+        private const val KEY_TIMER_POSITION = "timer_position_y"
     }
 
 
-    //TODO user setting
     val gpsUpdateInterval = MutableLiveData(5)
     val searchK = MutableLiveData<Int>(12)
     val isNotify = MutableLiveData(false)
@@ -49,6 +49,7 @@ class UserRepository(
     val vibrateDistance = MutableLiveData(100)
     val nightMode = MutableLiveData(false)
     val brightness = MutableLiveData<Int>(128)
+    var timerPosition = 0
 
     private suspend fun loadSetting(context: Context) = withContext(Dispatchers.IO) {
         val reference = context.getSharedPreferences(
@@ -66,6 +67,7 @@ class UserRepository(
         vibrateDistance.postValue(reference.getInt(KEY_VIBRATE_METER, 300))
         nightMode.postValue(reference.getBoolean(KEY_NIGHT, false))
         brightness.postValue(reference.getInt(KEY_BRIGHTNESS, 200))
+        timerPosition = reference.getInt(KEY_TIMER_POSITION, -1)
     }
 
 
@@ -86,6 +88,7 @@ class UserRepository(
         vibrateDistance.value?.let { editor.putInt(KEY_VIBRATE_METER, it) }
         nightMode.value?.let { editor.putBoolean(KEY_NIGHT, it) }
         brightness.value?.let { editor.putInt(KEY_BRIGHTNESS, it) }
+        editor.putInt(KEY_TIMER_POSITION, timerPosition)
         editor.apply()
     }
 
@@ -114,7 +117,6 @@ class UserRepository(
     }
 
     suspend fun logStation(station: String) {
-        //TODO station object
         log(AppLog.TYPE_STATION, station)
     }
 
