@@ -5,20 +5,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.AppLog
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
+import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * @author Seo-4d696b75
@@ -54,6 +52,25 @@ class LogFragment : AppFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         context?.let { ctx ->
             val list: RecyclerView = view.findViewById(R.id.list_log)
+            list.addItemDecoration(
+                DividerItemDecoration(
+                    ctx,
+                    LinearLayoutManager.VERTICAL
+                )
+            )
+            val target = view.findViewById<TextView>(R.id.text_log_filter_since)
+            viewModel.logTarget.observe(viewLifecycleOwner) {
+                it?.target?.let { log ->
+                    target.text = String.format(
+                        "%s～%s",
+                        formatTime(TIME_PATTERN_DATETIME, log.start),
+                        formatTime(TIME_PATTERN_DATETIME, log.finish)
+                    )
+                }
+            }
+            view.findViewById<Button>(R.id.button_select_history).setOnClickListener {
+                viewModel.requestDialog(AppHistoryDialog.DIALOG_SELECT_HISTORY)
+            }
             val spinner: Spinner = view.findViewById(R.id.spinner_filter_log)
             spinner.adapter = LogTypeAdapter(ctx, filters)
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -76,7 +93,9 @@ class LogFragment : AppFragment() {
             }
             val adapter = LogAdapter(ctx, ArrayList())
             list.layoutManager =
-                LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
+                LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false).apply {
+                    stackFromEnd = true
+                }
             list.adapter = adapter
             viewModel.logs.observe(viewLifecycleOwner, { logs ->
                 adapter.logs = logs
@@ -140,7 +159,7 @@ class LogAdapter(context: Context, var logs: List<AppLog>) :
 
     override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
         val log = logs[position]
-        holder.time.text = SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(log.timestamp)
+        holder.time.text = formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp)
         holder.message.text = log.message
     }
 

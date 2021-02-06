@@ -18,12 +18,11 @@ import androidx.lifecycle.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.AppLog
-import jp.seo.station.ekisagasu.core.DataLatestInfo
-import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.ui.*
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.combineLiveData
+import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +30,6 @@ import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -72,6 +70,7 @@ class ActivityViewModel(
                 DataDialog.DIALOG_LATEST -> DataCheckDialog()
                 LineDialog.DIALOG_SELECT_PREDICTION -> LineDialog()
                 LineDialog.DIALOG_SELECT_CURRENT -> LineDialog()
+                AppHistoryDialog.DIALOG_SELECT_HISTORY -> AppHistoryDialog()
                 else -> null
             }
         }
@@ -306,6 +305,13 @@ class ActivityViewModel(
         _filter.value = value
     }
 
+    fun setLogTarget(target: AppRebootLog) = viewModelScope.launch {
+        userRepository.selectLogsSince(target)
+    }
+
+    val histories = userRepository.history
+    val logTarget = userRepository.currentLogTarget
+
     val logs: LiveData<List<AppLog>> = combineLiveData(
         ArrayList(),
         _filter,
@@ -317,7 +323,7 @@ class ActivityViewModel(
 
     fun writeLog(title: String, activity: Activity) {
         val builder = StringBuilder()
-        val time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US).format(Date())
+        val time = formatTime(TIME_PATTERN_DATETIME, Date())
         _filter.value?.let { type ->
             logs.value?.let { list ->
                 val fileName = String.format(Locale.US, "%sLog_%s.txt", type, time)

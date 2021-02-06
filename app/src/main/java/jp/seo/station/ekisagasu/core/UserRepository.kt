@@ -2,15 +2,18 @@ package jp.seo.station.ekisagasu.core
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_ISO8601_EXTEND
+import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -71,7 +74,7 @@ class UserRepository(
     }
 
 
-    fun saveSetting(context: Context) {
+    private fun saveSetting(context: Context) {
         val reference = context.getSharedPreferences(
             context.getString(R.string.preference_setting_backup),
             Context.MODE_PRIVATE
@@ -92,14 +95,21 @@ class UserRepository(
         editor.apply()
     }
 
-    private var _oldestID = MutableLiveData<Long>(0L)
+    private val _logFilter = MutableLiveData(LogTarget(null, Long.MAX_VALUE))
     private var _hasError = false
 
-    val hasError: Boolean
-        get() = _hasError
+    val history = dao.getRebootHistory()
 
-    val logs: LiveData<List<AppLog>> by lazy {
-        _oldestID.switchMap { dao.getLogs(it) }
+    val currentLogTarget: LiveData<LogTarget?>
+        get() = _logFilter
+
+    suspend fun selectLogsSince(since: AppRebootLog) = withContext(Dispatchers.IO) {
+        val until = dao.getNextReboot(since.id)
+        _logFilter.postValue(LogTarget(since, since.id, until ?: Long.MAX_VALUE))
+    }
+
+    val logs: LiveData<List<AppLog>> = _logFilter.switchMap {
+        dao.getLogs(it.since, it.until)
     }
 
     suspend fun logMessage(message: String) {
@@ -122,11 +132,11 @@ class UserRepository(
 
     suspend fun onAppReboot(context: Context) {
         val mes =
-            "app started at " + SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).format(Date())
+            "app started at " + formatTime(TIME_PATTERN_ISO8601_EXTEND, Date())
         val log = AppLog(AppLog.TYPE_SYSTEM, mes)
         dao.insertRebootLog(log)
-        val id = dao.getCurrentReboot()
-        _oldestID.postValue(id)
+        val current = dao.getCurrentReboot()
+        _logFilter.postValue(LogTarget(current, current.id))
         loadSetting(context)
     }
 
@@ -136,14 +146,30 @@ class UserRepository(
         dao.insertLog(log)
     }
 
-    suspend fun writeErrorLog(title: String, dir: File?) {
+    @MainThread
+    suspend fun onAppFinish(context: Context) {
+        saveSetting(context)
+        withContext(Dispatchers.IO) {
+            if (_hasError) {
+                writeErrorLog(
+                    context.getString(R.string.app_name),
+                    context.getExternalFilesDir(null)
+                )
+            }
+            val log = AppLog(AppLog.TYPE_SYSTEM, "finish app")
+            dao.insertLog(log)
+            dao.writeFinish(log.timestamp, _hasError)
+        }
+    }
+
+    private suspend fun writeErrorLog(title: String, dir: File?) {
         val logs = this.logs.value
         withContext(Dispatchers.IO) {
             try {
                 val builder = StringBuilder()
                 builder.append(title)
                 builder.append("\n")
-                val time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US).format(Date())
+                val time = formatTime(TIME_PATTERN_DATETIME, Date())
                 builder.append(
                     String.format(
                         "crash time: %s\n",
@@ -163,3 +189,9 @@ class UserRepository(
     }
 
 }
+
+data class LogTarget(
+    val target: AppRebootLog?,
+    val since: Long,
+    val until: Long = Long.MAX_VALUE
+)

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/text_history_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorText"
+        android:lines="1"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_history_duration"
+        android:layout_marginStart="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorTextGray"
+        android:lines="1"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_history_error"
+        android:layout_marginStart="5dp"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
+        android:text="Error"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_history_now"
+        android:layout_marginStart="5dp"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="Running"
+        android:textSize="13sp" />
+</LinearLayout>
