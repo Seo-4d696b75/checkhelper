@@ -9,9 +9,10 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.search.measureDistance
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_SIMPLE
+import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.floor
@@ -217,7 +218,7 @@ data class NearStation(
 ) {
 
     fun getDetectedTime(): String {
-        return SimpleDateFormat("HH:mm", Locale.US).format(time)
+        return formatTime(TIME_PATTERN_SIMPLE, time)
     }
 
     fun getLinesName(): String {

@@ -12,9 +12,9 @@ import androidx.appcompat.widget.SwitchCompat
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.CustomNumberPicker
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
+import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * @author Seo-4d696b75
@@ -151,7 +151,7 @@ class SettingFragment : AppFragment() {
                 timestamp.text = String.format(
                     "%s: %s",
                     getString(R.string.setting_mes_data_timestamp),
-                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(data.timestamp)
+                    formatTime(TIME_PATTERN_DATETIME, data.timestamp)
                 )
             }
         }

@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.utils.combineLiveData
@@ -180,13 +179,7 @@ class ApplicationViewModel(
 
 
     fun onServiceFinish(context: Context) = viewModelScope.launch {
-        userRepository.saveSetting(context)
-        if (userRepository.hasError) {
-            userRepository.writeErrorLog(
-                context.getString(R.string.app_name),
-                context.getExternalFilesDir(null)
-            )
-        }
+        userRepository.onAppFinish(context)
     }
 
 }
