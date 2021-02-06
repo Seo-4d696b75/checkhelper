@@ -20,10 +20,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.ui.*
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
-import jp.seo.station.ekisagasu.utils.combineLiveData
-import jp.seo.station.ekisagasu.utils.formatTime
-import jp.seo.station.ekisagasu.utils.getViewModelFactory
+import jp.seo.station.ekisagasu.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,7 +76,7 @@ class ActivityViewModel(
     private val messageAbortInit = context.getString(R.string.message_abort_init_data)
     private val messageSuccessUpdate = context.getString(R.string.message_success_data_update)
 
-    val requestFinish = MutableLiveData<Boolean>(false)
+    val requestFinish = UnitLiveEvent(true)
 
     private var hasPermissionChecked = false
     private var hasInitialized = false
@@ -188,15 +185,7 @@ class ActivityViewModel(
         return true
     }
 
-    private val toastText = MutableLiveData<String?>(null)
-    val requestedToastTest: LiveData<String?> = toastText
-    private fun requestToast(text: String) {
-        toastText.value = text
-    }
-
-    fun clearToastText() {
-        toastText.value = null
-    }
+    val requestToast = LiveEvent<String>()
 
     fun handleDialogResult(
         type: String,
@@ -208,8 +197,8 @@ class ActivityViewModel(
                 if (result) {
                     requestDialog(DataDialog.DIALOG_UPDATE)
                 } else {
-                    requestToast(messageAbortInit)
-                    requestFinish.value = true
+                    requestToast.call(messageAbortInit)
+                    requestFinish.call()
                 }
             }
             DataDialog.DIALOG_LATEST -> {
@@ -224,7 +213,7 @@ class ActivityViewModel(
                         messageSuccessUpdate,
                         info.version
                     )
-                    requestToast(mes)
+                    requestToast.call(mes)
                 }
             }
             else -> {
@@ -233,17 +222,13 @@ class ActivityViewModel(
         }
     }
 
-    private val _requestDialog = MutableLiveData<String?>(null)
-    val requestedDialog: LiveData<String?> = _requestDialog
     fun requestDialog(type: String) {
-        _requestDialog.value = type
+        requestDialog.call(type)
         dialogType = type
     }
 
-    fun clearRequestDialog() {
-        _requestDialog.value = null
-    }
 
+    val requestDialog = LiveEvent<String>()
     var dialogType: String = "none"
     var targetInfo: DataLatestInfo? = null
 

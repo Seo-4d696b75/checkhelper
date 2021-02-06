@@ -7,10 +7,10 @@ import android.os.Build
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
-import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.*
+import jp.seo.station.ekisagasu.utils.UnitLiveEvent
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -46,14 +46,15 @@ class ApplicationViewModel(
 
     var isActivityAlive = false
     var isServiceAlive = false
-    val requestFinishActivity = MutableLiveData<Boolean>(false)
-    val requestFinishService = MutableLiveData<Boolean>(false)
+
+    val requestFinishActivity = UnitLiveEvent(true)
+    val requestFinishService = UnitLiveEvent(true)
 
     @MainThread
     fun finish() {
         setSearchState(false)
-        if (isActivityAlive) requestFinishActivity.value = true
-        if (isServiceAlive) requestFinishService.value = true
+        requestFinishActivity.call()
+        requestFinishService.call()
     }
 
     fun startService(activity: AppCompatActivity) {
@@ -110,7 +111,7 @@ class ApplicationViewModel(
         }
     }
 
-    val startTimer = MutableLiveData(false)
+    val startTimer = UnitLiveEvent(false)
     val fixTimer = MutableLiveData(false)
 
     //TODO implementation needed
@@ -131,10 +132,7 @@ class ApplicationViewModel(
         }
     }
 
-    @MainThread
-    fun onResolvedAPIException() = gps.onResolvedAPIException()
-
-    val apiException: LiveData<ResolvableApiException?> = gps.apiException
+    val apiException = gps.apiException
 
     fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) {
         viewModelScope.launch(Dispatchers.IO) {

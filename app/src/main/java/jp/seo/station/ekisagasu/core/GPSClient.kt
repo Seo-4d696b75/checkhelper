@@ -5,13 +5,13 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
-import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import jp.seo.station.ekisagasu.utils.LiveEvent
 
 /**
  * @author Seo-4d696b75
@@ -30,7 +30,6 @@ class GPSClient(ctx: Context) : LocationCallback() {
     private val _location: MutableLiveData<Location?> = MutableLiveData(null)
     private val _running: MutableLiveData<Boolean> = MutableLiveData(false)
     private var running = false
-    private val _apiException = MutableLiveData<ResolvableApiException?>(null)
     val messageLog = MutableLiveData<String?>(null)
     val messageError = MutableLiveData<String?>(null)
 
@@ -38,12 +37,7 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
     val isRunning: LiveData<Boolean> = _running
 
-    val apiException: LiveData<ResolvableApiException?> = _apiException
-
-    @MainThread
-    fun onResolvedAPIException() {
-        _apiException.value = null
-    }
+    val apiException = LiveEvent<ResolvableApiException>(true)
 
     override fun onLocationResult(result: LocationResult?) {
         result?.lastLocation?.let {
@@ -99,7 +93,7 @@ class GPSClient(ctx: Context) : LocationCallback() {
                 )
             }
         } catch (e: ResolvableApiException) {
-            _apiException.postValue(e)
+            apiException.postCall(e)
         }
     }
 

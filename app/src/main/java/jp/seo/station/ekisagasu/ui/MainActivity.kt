@@ -46,26 +46,17 @@ class MainActivity : AppCompatActivity() {
 
         // finish activity if requested
         viewModel.requestFinish.observe(this) {
-            if (it) appViewModel.finish()
+            appViewModel.finish()
         }
         appViewModel.requestFinishActivity.observe(this) {
-            if (it) {
-                appViewModel.requestFinishActivity.value = false
-                finish()
-            }
+            finish()
         }
 
-        viewModel.requestedDialog.observe(this) {
-            it?.let { type ->
-                ActivityViewModel.getDialog(type)?.show(supportFragmentManager, type)
-                viewModel.clearRequestDialog()
-            }
+        viewModel.requestDialog.observe(this) { type ->
+            ActivityViewModel.getDialog(type)?.show(supportFragmentManager, type)
         }
-        viewModel.requestedToastTest.observe(this) {
-            it?.let { text ->
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-                viewModel.clearToastText()
-            }
+        viewModel.requestToast.observe(this) {
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -142,7 +133,6 @@ class MainActivity : AppCompatActivity() {
             }
         } else if (requestCode == RESOLVE_API_EXCEPTION) {
             Log.d("ActivityResult", "resolve_api_exception")
-            appViewModel.onResolvedAPIException()
         } else if (requestCode == WRITE_EXTERNAL_FILE) {
             if (resultCode == Activity.RESULT_OK) {
                 data?.data?.let { viewModel.writeFile(it, contentResolver) }

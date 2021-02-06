@@ -1,11 +1,8 @@
 package jp.seo.station.ekisagasu.utils
 
 import android.location.Location
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.distinctUntilChanged
+import androidx.annotation.MainThread
+import androidx.lifecycle.*
 
 /**
  * @author Seo-4d696b75
@@ -76,6 +73,7 @@ inline fun <T : Any> reduceLiveData(
 /**
  * [LiveData.observe]と同様だが最初の現在値でコールバックしない
  */
+@MainThread
 inline fun <reified T : Any?> LiveData<T>.onChanged(owner: LifecycleOwner, observer: Observer<T>) {
     getValueOrNull(this.value) { current ->
         var changed = false
@@ -86,5 +84,78 @@ inline fun <reified T : Any?> LiveData<T>.onChanged(owner: LifecycleOwner, obser
             }
         }
     }
+}
+
+/**
+ * 指定したタグで識別されるObserverごと一回のみコールする
+ */
+open class LiveEvent<E>(
+    /**
+     * `observe, observeForever`でオブザーバを登録したタイミングでLiveDataにキャッシュされている
+     * 最新のイベントを通知しない場合は`true`を指定する
+     */
+    private val skipCachedEvent: Boolean = false
+) {
+
+    private val liveData = MutableLiveData<EventWrapper<E>>()
+
+    private var _version = 0L
+
+    private fun lastVersion(): Long = synchronized(this) {
+        return if (skipCachedEvent) _version else _version - 1
+    }
+
+    private fun incrementVersion(): Long = synchronized(this) {
+        _version++
+        return _version
+    }
+
+    fun observe(owner: LifecycleOwner, observer: Observer<E>) {
+        liveData.observe(owner, ObserverWrapper(observer, lastVersion()))
+    }
+
+    fun observeForever(observer: Observer<E>) {
+        liveData.observeForever(ObserverWrapper(observer, lastVersion()))
+    }
+
+    @MainThread
+    fun call(event: E) {
+        liveData.value = EventWrapper(event, incrementVersion())
+    }
+
+    fun postCall(event: E) {
+        liveData.postValue(EventWrapper(event, incrementVersion()))
+    }
+
+    private data class EventWrapper<E>(
+        val value: E,
+        val version: Long
+    )
+
+    private class ObserverWrapper<E>(
+        val original: Observer<E>,
+        private var lastVersion: Long
+    ) : Observer<EventWrapper<E>> {
+        override fun onChanged(t: EventWrapper<E>) {
+            if (t.version > lastVersion) {
+                lastVersion = t.version
+                original.onChanged(t.value)
+            }
+        }
+
+    }
+
+}
+
+class UnitLiveEvent(skipCachedEvent: Boolean = false) : LiveEvent<Unit>(skipCachedEvent) {
+
+    fun call() {
+        call(Unit)
+    }
+
+    fun postCall() {
+        postCall(Unit)
+    }
+
 }
 

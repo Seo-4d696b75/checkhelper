@@ -190,10 +190,7 @@ class StationService : LifecycleService() {
 
         // when finish requested
         viewModel.requestFinishService.observe(this) {
-            if (it) {
-                viewModel.requestFinishService.value = false
-                stopSelf()
-            }
+            stopSelf()
         }
 
         // update user setting
@@ -261,10 +258,7 @@ class StationService : LifecycleService() {
         overlayView.timerListener = { setTimer() }
         overlayView.timerPosition = userRepository.timerPosition
         viewModel.startTimer.observe(this) {
-            if (it) {
-                setTimer()
-                viewModel.startTimer.value = false
-            }
+            setTimer()
         }
         viewModel.fixTimer.observe(this) {
             overlayView.fixTimer(it)

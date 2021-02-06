@@ -250,7 +250,7 @@ class MainFragment : AppFragment() {
                 startActivity(intent)
             }
             fabTimer.view.setOnClickListener {
-                appViewModel.startTimer.value = true
+                appViewModel.startTimer.call()
                 animateFab(false)
             }
             fabFixTimer.view.setOnClickListener {
