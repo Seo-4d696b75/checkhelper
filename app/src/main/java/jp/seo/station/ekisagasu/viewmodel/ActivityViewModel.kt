@@ -71,6 +71,13 @@ class ActivityViewModel(
                 else -> null
             }
         }
+
+        val LOG_FILTERS = arrayOf(
+            LogFilter(AppLog.FILTER_ALL, "ALL"),
+            LogFilter(AppLog.TYPE_SYSTEM, "System"),
+            LogFilter(AppLog.FILTER_GEO, "Geo"),
+            LogFilter(AppLog.TYPE_STATION, "Station")
+        )
     }
 
     private val messageAbortInit = context.getString(R.string.message_abort_init_data)
@@ -283,10 +290,15 @@ class ActivityViewModel(
         }
     }
 
+    data class LogFilter(
+        val filter: Int,
+        val name: String,
+    )
 
-    private var _filter: MutableLiveData<Int> = MutableLiveData(AppLog.FILTER_ALL)
 
-    fun setFilter(value: Int) {
+    private var _filter = MutableLiveData(LOG_FILTERS[0])
+
+    fun setFilter(value: LogFilter) {
         _filter.value = value
     }
 
@@ -302,7 +314,7 @@ class ActivityViewModel(
         _filter,
         userRepository.logs
     ) { filter, logs ->
-        logs.filter { (it.type and filter) > 0 }
+        logs.filter { (it.type and filter.filter) > 0 }
     }
 
 
@@ -311,14 +323,17 @@ class ActivityViewModel(
         val time = formatTime(TIME_PATTERN_DATETIME, Date())
         _filter.value?.let { type ->
             logs.value?.let { list ->
-                val fileName = String.format(Locale.US, "%sLog_%s.txt", type, time)
+                val fileName = String.format(Locale.US, "%s_%sLog_%s.txt", title, type.name, time)
                 builder.append(title)
                 builder.append("\nlog type : ")
-                builder.append(type)
-                builder.append("\ntime : ")
+                builder.append(type.name)
+                builder.append("\nwritten time : ")
                 builder.append(time)
                 for (log in list) {
                     builder.append("\n")
+                    builder.append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))
+                    builder.append(" ")
+                    builder.append(log.message)
                 }
                 targetFileContent = builder.toString()
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {

@@ -25,13 +25,6 @@ import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 @AndroidEntryPoint
 class LogFragment : AppFragment() {
 
-    private val filters: Array<LogFilter> = arrayOf(
-        LogFilter(AppLog.FILTER_ALL, "ALL"),
-        LogFilter(AppLog.TYPE_SYSTEM, "System"),
-        LogFilter(AppLog.FILTER_GEO, "Geo"),
-        LogFilter(AppLog.TYPE_STATION, "Station")
-    )
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -72,7 +65,7 @@ class LogFragment : AppFragment() {
                 viewModel.requestDialog(AppHistoryDialog.DIALOG_SELECT_HISTORY)
             }
             val spinner: Spinner = view.findViewById(R.id.spinner_filter_log)
-            spinner.adapter = LogTypeAdapter(ctx, filters)
+            spinner.adapter = LogTypeAdapter(ctx, ActivityViewModel.LOG_FILTERS)
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
@@ -81,8 +74,8 @@ class LogFragment : AppFragment() {
                     p3: Long
                 ) {
                     parent?.getItemAtPosition(position)?.let {
-                        if (it is LogFilter) {
-                            viewModel.setFilter(it.filter)
+                        if (it is ActivityViewModel.LogFilter) {
+                            viewModel.setFilter(it)
                         }
                     }
                 }
@@ -108,15 +101,10 @@ class LogFragment : AppFragment() {
     }
 }
 
-data class LogFilter(
-    val filter: Int,
-    val name: String,
-)
-
 class LogTypeAdapter(
     context: Context,
-    values: Array<LogFilter>
-) : ArrayAdapter<LogFilter>(context, 0, values) {
+    values: Array<ActivityViewModel.LogFilter>
+) : ArrayAdapter<ActivityViewModel.LogFilter>(context, 0, values) {
 
     private val inflater = LayoutInflater.from(context)
 
