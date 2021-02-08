@@ -60,21 +60,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onInitialized() {
-        if (!stationRepository.dataInitialized) {
-            Toast.makeText(applicationContext, "Fail to init data", Toast.LENGTH_SHORT).show()
-            appViewModel.finish()
-            return
-        }
-
-    }
-
     override fun onResume() {
         super.onResume()
-        viewModel.initialize(this) {
-            appViewModel.startService(this)
-            onInitialized()
-        }
+        appViewModel.startService(this)
+        viewModel.checkData()
+        viewModel.checkPermission(this)
     }
 
     override fun onDestroy() {

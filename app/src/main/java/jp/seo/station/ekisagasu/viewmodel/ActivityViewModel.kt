@@ -86,30 +86,17 @@ class ActivityViewModel(
     val requestFinish = UnitLiveEvent(true)
 
     private var hasPermissionChecked = false
-    private var hasInitialized = false
     private var hasVersionChecked = false
-
-    /**
-     * initialize permission and data
-     *
-     * @param block once executed after initialized
-     */
-    fun initialize(activity: AppCompatActivity, block: () -> Unit) {
-
-        if (checkPermission(activity)) {
-            checkData(block)
-        }
-    }
 
     /**
      * check whether connected service is ready for use.
      * (1) check data version
      * (2) check data initialized
      */
-    private fun checkData(block: () -> Unit) {
+    fun checkData() {
 
         // check data version
-        if (!hasVersionChecked) {
+        if (!hasVersionChecked || !stationRepository.dataInitialized) {
             hasVersionChecked = true
 
             viewModelScope.launch {
@@ -121,28 +108,18 @@ class ActivityViewModel(
                     targetInfo = latest
                     requestDialog(DataDialog.DIALOG_INIT)
                 } else {
-                    withContext(Dispatchers.IO) {
-                        userRepository.logMessage(String.format("data found version:${info.version}"))
-                    }
+                    userRepository.logMessage(String.format("data found version:${info.version}"))
                     if (info.version < latest.version) {
                         targetInfo = latest
                         requestDialog(DataDialog.DIALOG_LATEST)
-                    }
-                    if (!hasInitialized) {
-                        hasInitialized = true
-                        block()
                     }
                 }
 
             }
         }
-        if (stationRepository.dataInitialized && !hasInitialized) {
-            hasInitialized = true
-            block()
-        }
     }
 
-    private fun checkPermission(activity: AppCompatActivity): Boolean {
+    fun checkPermission(activity: AppCompatActivity): Boolean {
         if (hasPermissionChecked) return true
 
         // Runtime Permission required API level >= 23
@@ -185,7 +162,7 @@ class ActivityViewModel(
         }
 
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             userRepository.logMessage("all permission checked")
         }
         hasPermissionChecked = true
@@ -320,15 +297,19 @@ class ActivityViewModel(
 
     fun writeLog(title: String, activity: Activity) {
         val builder = StringBuilder()
-        val time = formatTime(TIME_PATTERN_DATETIME, Date())
+        val time = Date()
         _filter.value?.let { type ->
             logs.value?.let { list ->
-                val fileName = String.format(Locale.US, "%s_%sLog_%s.txt", title, type.name, time)
+                val fileName = String.format(
+                    Locale.US, "%s_%sLog_%s.txt", title, type.name, formatTime(
+                        TIME_PATTERN_DATETIME_FILE, time
+                    )
+                )
                 builder.append(title)
                 builder.append("\nlog type : ")
                 builder.append(type.name)
                 builder.append("\nwritten time : ")
-                builder.append(time)
+                builder.append(formatTime(TIME_PATTERN_DATETIME, time))
                 for (log in list) {
                     builder.append("\n")
                     builder.append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))

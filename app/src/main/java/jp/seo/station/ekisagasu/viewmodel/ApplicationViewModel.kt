@@ -66,6 +66,9 @@ class ApplicationViewModel(
             } else {
                 activity.startService(intent)
             }
+            viewModelScope.launch(Dispatchers.IO) {
+                userRepository.onAppReboot(activity)
+            }
             isServiceAlive = true
         }
     }
@@ -136,7 +139,7 @@ class ApplicationViewModel(
 
     fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) {
         viewModelScope.launch(Dispatchers.IO) {
-            userRepository.onAppReboot(context)
+            //userRepository.onAppReboot(context)
             prefectureRepository.setData(context)
         }
     }

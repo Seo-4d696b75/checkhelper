@@ -12,6 +12,7 @@ const val TIME_PATTERN_SIMPLE = "HH:mm"
 const val TIME_PATTERN_MILLI_SEC = "HH:mm:ss.SSS"
 const val TIME_PATTERN_ISO8601_EXTEND = "yyyy-MM-dd'T'HH:mm:ssZ"
 const val TIME_PATTERN_DATETIME = "yyyy-MM-dd HH:mm"
+const val TIME_PATTERN_DATETIME_FILE = "yyyyMMdd_HHmm"
 
 fun formatTime(pattern: String, time: Date?): String {
     return time?.let {

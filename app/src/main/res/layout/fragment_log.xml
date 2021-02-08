@@ -52,7 +52,7 @@
         android:fastScrollEnabled="true"
         android:scrollbarStyle="insideInset"
         android:scrollbars="vertical"
-        android:padding="10dp" />
+        android:padding="3dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_write_log"
