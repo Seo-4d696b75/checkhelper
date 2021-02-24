@@ -30,8 +30,8 @@ class GPSClient(ctx: Context) : LocationCallback() {
     private val _location: MutableLiveData<Location?> = MutableLiveData(null)
     private val _running: MutableLiveData<Boolean> = MutableLiveData(false)
     private var running = false
-    val messageLog = MutableLiveData<String?>(null)
-    val messageError = MutableLiveData<String?>(null)
+    val messageLog = LiveEvent<String>()
+    val messageError = LiveEvent<String>(true)
 
     val currentLocation: LiveData<Location?> = _location
 
@@ -40,8 +40,9 @@ class GPSClient(ctx: Context) : LocationCallback() {
     val apiException = LiveEvent<ResolvableApiException>(true)
 
     override fun onLocationResult(result: LocationResult?) {
-        result?.lastLocation?.let {
-            _location.value = it
+        result?.lastLocation?.let { loc ->
+            //Log.d("GPS", String.format("%.6f/%.6f", it.latitude, it.longitude))
+            _location.value = loc
         }
     }
 
@@ -166,14 +167,14 @@ class GPSClient(ctx: Context) : LocationCallback() {
     }
 
     private fun log(log: String) {
-        messageLog.postValue(log)
+        messageLog.postCall(log)
     }
 
     private fun error(log: String, mes: String) {
         log(log)
         running = false
         _running.value = false
-        messageError.postValue(mes)
+        messageError.postCall(mes)
     }
 
     private data class GPSRequest(

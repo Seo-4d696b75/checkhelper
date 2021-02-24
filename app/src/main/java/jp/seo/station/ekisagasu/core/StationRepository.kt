@@ -12,6 +12,8 @@ import jp.seo.station.ekisagasu.search.measureDistance
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_SIMPLE
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.collections.ArrayList
@@ -62,24 +64,33 @@ class StationRepository(
         tree.search(lat, lng, k, r, false)
     }
 
-    private fun checkNeedUpdate(location: Location, k: Int): Boolean {
-        val lastK = _lastSearchK
-        _lastSearchK = k
-        if (lastK != null && k != lastK) {
-            return true
-        }
+    private fun checkNeedUpdate(location: Location): Boolean {
         val last = _lastCheckedLocation
         if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return false
         _lastCheckedLocation = location
         return true
     }
 
+    private val updateMutex = Mutex()
+
+    private var searchK: Int = 12
+    suspend fun setSearchK(value: Int) {
+        if (value != searchK) {
+            searchK = value
+            _lastCheckedLocation?.let {
+                updateNearestStations(it)
+            }
+
+        }
+    }
+
     @MainThread
-    suspend fun updateNearestStations(location: Location, k: Int) {
-        if (k < 1) return
-        if (!checkNeedUpdate(location, k)) return
-        val result = searchNearestStations(location.latitude, location.longitude, k, 0.0)
+    suspend fun updateNearestStations(location: Location) = updateMutex.withLock {
+        if (searchK < 1) return
+        if (!checkNeedUpdate(location)) return
+        val result = searchNearestStations(location.latitude, location.longitude, searchK, 0.0)
         if (result.stations.isEmpty()) return
+
         val nearest = result.stations[0]
         val current = _currentStation.value
         val time = Date(location.time)

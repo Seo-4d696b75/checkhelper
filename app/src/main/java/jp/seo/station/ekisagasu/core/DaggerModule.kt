@@ -105,13 +105,5 @@ object AppModule {
     ): UserRepository {
         return UserRepository(db.userDao)
     }
-
-    @Singleton
-    @Provides
-    fun provideGPSClient(
-        @ApplicationContext context: Context
-    ): GPSClient {
-        return GPSClient(context)
-    }
 }
 

@@ -1,11 +1,14 @@
 package jp.seo.station.ekisagasu.ui
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
 import android.content.IntentSender
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
@@ -15,8 +18,8 @@ import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.GPSClient
 import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.core.StationService
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
@@ -27,7 +30,7 @@ import javax.inject.Inject
  * @version 2020/12/16.
  */
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ServiceConnection {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +51,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.requestFinish.observe(this) {
             appViewModel.finish()
         }
-        appViewModel.requestFinishActivity.observe(this) {
+        appViewModel.requestFinishActivity.observeForever {
+            unbindService(this)
+            stopService(Intent(this, StationService::class.java))
             finish()
         }
 
@@ -62,9 +67,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        appViewModel.startService(this)
-        viewModel.checkData()
         viewModel.checkPermission(this)
+        viewModel.checkData()
+        appViewModel.startService(this)
+        viewModel.bindService(this, this)
     }
 
     override fun onDestroy() {
@@ -81,9 +87,6 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var userRepository: UserRepository
 
-    @Inject
-    lateinit var gpsClient: GPSClient
-
     private val viewModel: ActivityViewModel by lazy {
         // ActivityScoped
         ActivityViewModel.getInstance(this, this, stationRepository, userRepository)
@@ -95,7 +98,6 @@ class MainActivity : AppCompatActivity() {
             { singletonStore },
             stationRepository,
             userRepository,
-            gpsClient
         )
     }
 
@@ -170,6 +172,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        Log.d("Activity", "service connected")
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        Log.d("Activity", "service disconnected")
     }
 
 }
