@@ -100,10 +100,11 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
 
     private fun requestGPSUpdate() {
-        val request = LocationRequest()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(minInterval * 1000L)
-            .setFastestInterval(minInterval * 1000L)
+        val request = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = minInterval * 1000L
+            fastestInterval = minInterval * 1000L
+        }
         val settingRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(request)
             .build()
