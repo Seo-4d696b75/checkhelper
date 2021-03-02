@@ -1,6 +1,5 @@
 package jp.seo.station.ekisagasu.utils
 
-import android.location.Location
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 
@@ -46,12 +45,6 @@ inline fun <T : Any?, reified LIVE1 : Any?, reified LIVE2 : Any?> combineLiveDat
     }.distinctUntilChanged()
 }
 
-data class CurrentLocation(
-    val location: Location?,
-    val k: Int
-)
-
-
 inline fun <T : Any> reduceLiveData(
     initialValue: T,
     vararg liveData: LiveData<in T>,
@@ -75,19 +68,19 @@ inline fun <T : Any> reduceLiveData(
  */
 @MainThread
 inline fun <reified T : Any?> LiveData<T>.onChanged(owner: LifecycleOwner, observer: Observer<T>) {
-    getValueOrNull(this.value) { current ->
-        var changed = false
-        this.observe(owner) { value ->
-            if (changed || current != value) {
-                changed = true
-                observer.onChanged(value)
+    getValueOrNull(this.value) { init ->
+        var current: T = init
+        this.observe(owner, Observer<T> {
+            if (it != current) {
+                current = it
+                observer.onChanged(it)
             }
-        }
+        })
     }
 }
 
 /**
- * 指定したタグで識別されるObserverごと一回のみコールする
+ * Observerごと一回のみコールする
  */
 open class LiveEvent<E>(
     /**

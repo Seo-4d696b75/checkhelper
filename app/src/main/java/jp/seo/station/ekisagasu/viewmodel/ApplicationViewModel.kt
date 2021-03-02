@@ -102,13 +102,13 @@ class ApplicationViewModel(
         if (value) {
             if (stationRepository.dataInitialized) {
                 userRepository.gpsUpdateInterval.value?.let {
-                    gps.requestGPSUpdate(it, "main-service")
+                    gps.requestGPSUpdate(it)
                 }
             }
 
         } else {
 
-            if (gps.stopGPSUpdate("main-service")) {
+            if (gps.stopGPSUpdate()) {
                 stationRepository.onStopSearch()
             }
         }
@@ -162,15 +162,18 @@ class ApplicationViewModel(
         }
     }
 
-    fun location(location: Location) {
-        viewModelScope.launch {
-            userRepository.logLocation(location.latitude, location.longitude)
-        }
+    fun updateLocation(location: Location) = viewModelScope.launch {
+        userRepository.logLocation(location.latitude, location.longitude)
+        stationRepository.updateNearestStations(location)
     }
 
-    fun updateStation(location: Location, k: Int) {
-        viewModelScope.launch {
-            stationRepository.updateNearestStations(location, k)
+    fun setSearchK(k: Int) = viewModelScope.launch {
+        stationRepository.setSearchK(k)
+    }
+
+    fun setSearchInterval(sec: Int) {
+        if (isRunning.value == true) {
+            gps.requestGPSUpdate(sec)
         }
     }
 

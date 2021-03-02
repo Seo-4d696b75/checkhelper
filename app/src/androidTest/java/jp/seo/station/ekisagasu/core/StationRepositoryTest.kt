@@ -92,11 +92,12 @@ class StationRepositoryTest {
 
 
         runBlocking(Dispatchers.Main) {
+            repository.setSearchK(10)
             for (sample in samples) {
                 val loc = Location("test-repository")
                 loc.latitude = sample.lat
                 loc.longitude = sample.lng
-                repository.updateNearestStations(loc, 10)
+                repository.updateNearestStations(loc)
                 val s = repository.detectedStation.value
                 assertThat(s).isNotNull()
                 assertThat(s?.station?.name).isEqualTo(sample.stationName)
