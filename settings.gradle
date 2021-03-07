@@ -1,3 +1,4 @@
-include ':app', ':customview'
+include ':app', ':customview', ':diagram'
 rootProject.name = "Ekisagasu"
 project(':customview').projectDir = new File(settingsDir, '../MyLibrary/library/widget')
+project(':diagram').projectDir = new File(settingsDir, '../MyLibrary/library/diagram')

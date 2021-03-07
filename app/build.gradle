@@ -52,8 +52,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.2'
+
+    implementation "androidx.navigation:navigation-runtime-ktx:2.3.3"
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.3'
+    
     testImplementation 'junit:junit:4.12'
 
     implementation "androidx.room:room-ktx:2.2.6"
@@ -83,8 +86,11 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.31-alpha"
     kapt "com.google.dagger:hilt-android-compiler:2.31-alpha"
 
-    //custom view
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+
+    //include other module
     implementation project(':customview')
+    implementation project(':diagram')
 
     // local test
 

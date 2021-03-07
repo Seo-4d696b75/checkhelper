@@ -281,6 +281,9 @@ class StationService : LifecycleService() {
     lateinit var gpsClient: GPSClient
 
     @Inject
+    lateinit var navigator: NavigationRepository
+
+    @Inject
     lateinit var singletonStore: ViewModelStore
 
     @Inject
@@ -288,7 +291,13 @@ class StationService : LifecycleService() {
 
     private val viewModel: ApplicationViewModel by lazy {
         val owner = ViewModelStoreOwner { singletonStore }
-        ApplicationViewModel.getInstance(owner, stationRepository, userRepository, gpsClient)
+        ApplicationViewModel.getInstance(
+            owner,
+            stationRepository,
+            userRepository,
+            gpsClient,
+            navigator
+        )
     }
 
     private val notificationHolder: NotificationViewHolder by lazy {

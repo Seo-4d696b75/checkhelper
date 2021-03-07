@@ -16,6 +16,7 @@ import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.GPSClient
+import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
@@ -84,6 +85,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var gpsClient: GPSClient
 
+    @Inject
+    lateinit var navigator: NavigationRepository
+
     private val viewModel: ActivityViewModel by lazy {
         // ActivityScoped
         ActivityViewModel.getInstance(this, this, stationRepository, userRepository)
@@ -95,7 +99,8 @@ class MainActivity : AppCompatActivity() {
             { singletonStore },
             stationRepository,
             userRepository,
-            gpsClient
+            gpsClient,
+            navigator
         )
     }
 

@@ -27,6 +27,7 @@ class ApplicationViewModel(
     private val stationRepository: StationRepository,
     private val userRepository: UserRepository,
     private val gps: GPSClient,
+    private val navigator: NavigationRepository,
 ) : ViewModel() {
 
     companion object {
@@ -34,10 +35,11 @@ class ApplicationViewModel(
             owner: ViewModelStoreOwner,
             stationRepository: StationRepository,
             userRepository: UserRepository,
-            gps: GPSClient
+            gps: GPSClient,
+            navigator: NavigationRepository
         ): ApplicationViewModel {
             return ViewModelProvider(owner, getViewModelFactory {
-                ApplicationViewModel(stationRepository, userRepository, gps)
+                ApplicationViewModel(stationRepository, userRepository, gps, navigator)
             }).get(
                 ApplicationViewModel::class.java
             )
@@ -108,21 +110,22 @@ class ApplicationViewModel(
 
         } else {
 
-            if (gps.stopGPSUpdate()) {
-                stationRepository.onStopSearch()
-            }
+            gps.stopGPSUpdate()
+            stationRepository.onStopSearch()
+            navigator.stop()
         }
     }
 
     val startTimer = UnitLiveEvent(false)
     val fixTimer = MutableLiveData(false)
 
-    //TODO implementation needed
-    val isRunningPrediction: Boolean = false
+    val isRunningPrediction = navigator.running
 
     fun setPredictionLine(line: Line?) {
-        if (isRunning.value == true) {
-            // TODO
+        if (line == null) {
+            navigator.stop()
+        } else {
+            navigator.start(line)
         }
     }
 
@@ -165,6 +168,9 @@ class ApplicationViewModel(
     fun updateLocation(location: Location) = viewModelScope.launch {
         userRepository.logLocation(location.latitude, location.longitude)
         stationRepository.updateNearestStations(location)
+        stationRepository.nearestStation.value?.let {
+            navigator.updateLocation(location, it.station)
+        }
     }
 
     fun setSearchK(k: Int) = viewModelScope.launch {

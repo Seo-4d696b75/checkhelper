@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.GPSClient
+import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
@@ -46,6 +47,9 @@ class LineDialog : DialogFragment() {
     lateinit var gpsClient: GPSClient
 
     @Inject
+    lateinit var navigator: NavigationRepository
+
+    @Inject
     lateinit var singletonStore: ViewModelStore
 
     private val viewModel: ActivityViewModel by lazy {
@@ -62,7 +66,8 @@ class LineDialog : DialogFragment() {
             { singletonStore },
             stationRepository,
             userRepository,
-            gpsClient
+            gpsClient,
+            navigator
         )
     }
 
@@ -91,7 +96,7 @@ class LineDialog : DialogFragment() {
             }
             DIALOG_SELECT_PREDICTION -> {
                 message.text = ctx.getString(R.string.dialog_message_select_prediction)
-                if (appViewModel.isRunningPrediction) {
+                if (appViewModel.isRunningPrediction.value == true) {
                     builder.setPositiveButton("解除") { dialog, which ->
                         appViewModel.setPredictionLine(null)
                     }
