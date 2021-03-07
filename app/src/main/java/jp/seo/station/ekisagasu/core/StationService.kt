@@ -123,11 +123,6 @@ class StationService : LifecycleService() {
             viewModel.error(it)
         }
 
-        // when user setting changed
-        userRepository.searchK.observe(this) {
-            viewModel.setSearchK(it)
-        }
-
         // update notification when nearest station changed
         stationRepository.detectedStation.observe(this) {
             it?.let { n ->
@@ -172,23 +167,28 @@ class StationService : LifecycleService() {
             }
         }
 
+        // when navigation changed
+        navigator.running.observe(this) {
+            if (it) {
+                navigator.line?.let { line ->
+                    stationRepository.nearestStation.value?.let { n ->
+                        overlayView.navigation.startNavigation(line, n.station)
+                    }
+                }
+            } else {
+                overlayView.navigation.stopNavigation()
+            }
+        }
+        navigator.predictions.observe(this) {
+            it?.let { result -> overlayView.navigation.onUpdate(result) }
+        }
+        overlayView.navigation.stopNavigation.observe(this) {
+            viewModel.setNavigationLine(null)
+        }
+
         // when finish requested
         viewModel.requestFinishService.observe(this) {
             stopSelf()
-        }
-
-        // update user setting
-        userRepository.isKeepNotification.observe(this) {
-            overlayView.keepNotification = it
-        }
-        userRepository.brightness.observe(this) {
-            overlayView.brightness = it
-        }
-        userRepository.isNotifyForce.observe(this) {
-            overlayView.forceNotify = it
-        }
-        userRepository.isNotifyPrefecture.observe(this) {
-            overlayView.displayPrefecture = it
         }
 
         // init notification
@@ -206,6 +206,9 @@ class StationService : LifecycleService() {
         registerReceiver(receiver, filter)
 
         // when user setting changed
+        userRepository.searchK.observe(this) {
+            viewModel.setSearchK(it)
+        }
         userRepository.isNotify.observe(this) {
             overlayView.notify = it
         }

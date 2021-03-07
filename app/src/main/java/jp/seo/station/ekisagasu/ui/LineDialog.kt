@@ -34,7 +34,7 @@ class LineDialog : DialogFragment() {
         }
 
         const val DIALOG_SELECT_CURRENT = "select_line"
-        const val DIALOG_SELECT_PREDICTION = "select_prediction"
+        const val DIALOG_SELECT_NAVIGATION = "select_navigation_line"
     }
 
     @Inject
@@ -94,11 +94,11 @@ class LineDialog : DialogFragment() {
                     }
                 }
             }
-            DIALOG_SELECT_PREDICTION -> {
+            DIALOG_SELECT_NAVIGATION -> {
                 message.text = ctx.getString(R.string.dialog_message_select_prediction)
-                if (appViewModel.isRunningPrediction.value == true) {
+                if (appViewModel.isNavigationRunning.value == true) {
                     builder.setPositiveButton("解除") { dialog, which ->
-                        appViewModel.setPredictionLine(null)
+                        appViewModel.setNavigationLine(null)
                     }
                 }
             }
@@ -134,8 +134,8 @@ class LineDialog : DialogFragment() {
                 appViewModel.selectLine(line)
                 dismiss()
             }
-            DIALOG_SELECT_PREDICTION -> {
-                appViewModel.setPredictionLine(line)
+            DIALOG_SELECT_NAVIGATION -> {
+                appViewModel.setNavigationLine(line)
                 dismiss()
             }
             else -> {

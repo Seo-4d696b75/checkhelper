@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.utils
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.view.View
+import android.view.animation.Animation
 
 /**
  * @author Seo-4d696b75
@@ -79,4 +80,25 @@ class AnimationHolder<E : View>(
             view.visibility = if (value) View.VISIBLE else View.INVISIBLE
         }
 
+}
+
+inline fun Animation.setAnimationListener(
+    oneShot: Boolean = true,
+    crossinline onStart: (animation: Animation?) -> Unit = {},
+    crossinline onEnd: (animation: Animation?) -> Unit = {},
+    crossinline onRepeat: (animation: Animation?) -> Unit = {},
+): Animation.AnimationListener {
+    val listener = object : Animation.AnimationListener {
+        override fun onAnimationStart(animation: Animation?) = onStart(animation)
+
+        override fun onAnimationEnd(animation: Animation?) {
+            onEnd(animation)
+            if (oneShot) setAnimationListener(null)
+        }
+
+        override fun onAnimationRepeat(animation: Animation?) = onRepeat(animation)
+    }
+
+    setAnimationListener(listener)
+    return listener
 }

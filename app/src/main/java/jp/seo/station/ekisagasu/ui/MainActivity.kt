@@ -66,6 +66,13 @@ class MainActivity : AppCompatActivity() {
         appViewModel.startService(this)
         viewModel.checkData()
         viewModel.checkPermission(this)
+
+        intent?.let {
+            if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
+                it.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
+                viewModel.requestDialog(LineDialog.DIALOG_SELECT_NAVIGATION)
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -109,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         const val PERMISSION_REQUEST = 3901
         const val RESOLVE_API_EXCEPTION = 3902
         const val WRITE_EXTERNAL_FILE = 3903
+        const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -65,7 +65,7 @@ class ActivityViewModel(
                 DataDialog.DIALOG_UPDATE -> DataUpdateDialog()
                 DataDialog.DIALOG_INIT -> DataCheckDialog()
                 DataDialog.DIALOG_LATEST -> DataCheckDialog()
-                LineDialog.DIALOG_SELECT_PREDICTION -> LineDialog()
+                LineDialog.DIALOG_SELECT_NAVIGATION -> LineDialog()
                 LineDialog.DIALOG_SELECT_CURRENT -> LineDialog()
                 AppHistoryDialog.DIALOG_SELECT_HISTORY -> AppHistoryDialog()
                 else -> null
@@ -157,7 +157,7 @@ class ActivityViewModel(
 
         val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity)
         if (code != ConnectionResult.SUCCESS) {
-            GoogleApiAvailability.getInstance().getErrorDialog(activity, code, 0).show()
+            GoogleApiAvailability.getInstance().getErrorDialog(activity, code, 0)?.show()
             return false
         }
 

@@ -61,4 +61,5 @@
     <string name="timer_wait_message">まだ５分経過してません</string>
     <string name="timer_set_message">５分タイマーをセット</string>
     <string name="dialog_title_history">アプリ使用履歴</string>
+    <string name="navigation_wait">探索中…</string>
 </resources>

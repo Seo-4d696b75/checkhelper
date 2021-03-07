@@ -119,9 +119,9 @@ class ApplicationViewModel(
     val startTimer = UnitLiveEvent(false)
     val fixTimer = MutableLiveData(false)
 
-    val isRunningPrediction = navigator.running
+    val isNavigationRunning = navigator.running
 
-    fun setPredictionLine(line: Line?) {
+    fun setNavigationLine(line: Line?) {
         if (line == null) {
             navigator.stop()
         } else {

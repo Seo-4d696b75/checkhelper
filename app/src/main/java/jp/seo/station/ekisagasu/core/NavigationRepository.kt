@@ -27,17 +27,20 @@ class NavigationRepository(
     val predictions = _navigator.switchMap { n ->
         n?.results ?: MutableLiveData<PredictionResult?>(null)
     }
+    val line = navigator?.line
 
     fun start(line: Line) {
         navigator?.release()
         navigator = PositionNavigator(tree, dao, line)
         _navigator.value = navigator
+        _running.value = true
     }
 
     fun stop() {
         navigator?.release()
         navigator = null
         _navigator.value = null
+        _running.value = false
     }
 
     suspend fun updateLocation(location: Location, station: Station) {

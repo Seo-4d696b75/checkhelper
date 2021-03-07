@@ -17,4 +17,4 @@ import dagger.hilt.android.HiltAndroidApp
  * @version 2021/01/13.
  */
 @HiltAndroidApp
-class WithServiceApplication : Application()
+class HiltApplication : Application()

@@ -44,7 +44,10 @@ class StationPrediction(
     }
 }
 
-class PredictionResult(val size: Int) {
+class PredictionResult(
+    val size: Int,
+    val current: Station,
+) {
     val predictions: Array<StationPrediction?> = arrayOfNulls(size)
     fun getStation(index: Int): Station {
         return predictions[index]?.station ?: throw IllegalStateException("not init yet")
@@ -59,7 +62,7 @@ class PredictionResult(val size: Int) {
 class PositionNavigator(
     private val explorer: KdTree,
     private val dao: StationDao,
-    line: Line
+    val line: Line
 ) {
 
 
@@ -166,7 +169,7 @@ class PositionNavigator(
             prediction = resolved
             val size = maxPrediction.coerceAtMost(prediction.size)
             // 結果オブジェクトにまとめる
-            val result = PredictionResult(size)
+            val result = PredictionResult(size, station)
             val date: String = formatTime(TIME_PATTERN_MILLI_SEC, Date(updateTime))
             Log.d("predict", date + " station size: " + prediction.size)
             for (i in 0 until size) {
