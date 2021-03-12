@@ -130,6 +130,7 @@ class GPSClient(ctx: Context) : LocationCallback() {
                 }
 
             _running.value = false
+            _location.value = null
             log("GPS has stopped")
             return true
         }
