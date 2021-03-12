@@ -17,6 +17,8 @@ import jp.seo.station.ekisagasu.utils.StationArea
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.NoSuchElementException
@@ -122,71 +124,77 @@ class PositionNavigator(
         }
     }
 
+    private val lock = Mutex()
+
     suspend fun onLocationUpdate(location: Location, station: Station) =
         withContext(Dispatchers.IO) {
-            updateTime = System.currentTimeMillis()
-            if (cursors.isEmpty()) {
-                initialize(location)
-                return@withContext
-            }
-            if (currentStation?.station != station) {
-                currentStation = StationArea.parseArea(station)
-            }
-            // Update each cursors
-            val list = mutableListOf<PolylineCursor>()
-            for (p in cursors) p.update(location, list)
-
-            // Filter cursors
-            if (cursors.size > 1) filterCursors(list, 2.0)
-            cursors = list
-            Log.d(
-                "update",
-                String.format(
-                    "cursor size: %d, speed: %.0fkm/h",
-                    list.size,
-                    list[0].state.speed * 3.6
-                )
-            )
-            if (lastLocation?.distanceTo(location) ?: 100000f < DISTANCE_THRESHOLD) return@withContext
-            lastLocation = location
-
-            // prediction の集計
-            val resolved: MutableList<StationPrediction> = mutableListOf()
-            val predictions: MutableList<StationPrediction> = mutableListOf()
-            for (p in list) {
-                predictions.clear()
-                p.predict(predictions)
-                // 駅の重複がないように、重複するならより近い距離を採用
-                for (prediction in predictions) {
-                    val same = getSameStation(resolved, prediction.station)
-                    same?.compareDistance(prediction) ?: resolved.add(prediction)
+            lock.withLock {
+                updateTime = location.elapsedRealtimeNanos / 1000000L
+                if (cursors.isEmpty()) {
+                    initialize(location)
+                    val result = PredictionResult(0, station)
+                    _results.postValue(result)
+                    return@withContext
                 }
-            }
+                if (currentStation?.station != station) {
+                    currentStation = StationArea.parseArea(station)
+                }
+                // Update each cursors
+                val list = mutableListOf<PolylineCursor>()
+                for (p in cursors) p.update(location, list)
 
-
-            // 距離に関して駅をソート
-            resolved.sort()
-            prediction = resolved
-            val size = maxPrediction.coerceAtMost(prediction.size)
-            // 結果オブジェクトにまとめる
-            val result = PredictionResult(size, station)
-            val date: String = formatTime(TIME_PATTERN_MILLI_SEC, Date(updateTime))
-            Log.d("predict", date + " station size: " + prediction.size)
-            for (i in 0 until size) {
-                val s = prediction[i]
-                result.predictions[i] = s
+                // Filter cursors
+                if (cursors.size > 1) filterCursors(list, 2.0)
+                cursors = list
                 Log.d(
-                    "predict",
-                    java.lang.String.format(
-                        Locale.US,
-                        "[%d] %.0fm %s",
-                        i,
-                        s.distance,
-                        s.station.name
+                    "update",
+                    String.format(
+                        "cursor size: %d, speed: %.0fkm/h",
+                        list.size,
+                        list[0].state.speed * 3.6
                     )
                 )
+                if (lastLocation?.distanceTo(location) ?: 100000f < DISTANCE_THRESHOLD) return@withContext
+                lastLocation = location
+
+                // prediction の集計
+                val resolved: MutableList<StationPrediction> = mutableListOf()
+                val predictions: MutableList<StationPrediction> = mutableListOf()
+                for (p in list) {
+                    predictions.clear()
+                    p.predict(predictions)
+                    // 駅の重複がないように、重複するならより近い距離を採用
+                    for (prediction in predictions) {
+                        val same = getSameStation(resolved, prediction.station)
+                        same?.compareDistance(prediction) ?: resolved.add(prediction)
+                    }
+                }
+
+
+                // 距離に関して駅をソート
+                resolved.sort()
+                prediction = resolved
+                val size = maxPrediction.coerceAtMost(prediction.size)
+                // 結果オブジェクトにまとめる
+                val result = PredictionResult(size, station)
+                val date: String = formatTime(TIME_PATTERN_MILLI_SEC, Date(updateTime))
+                Log.d("predict", date + " station size: " + prediction.size)
+                for (i in 0 until size) {
+                    val s = prediction[i]
+                    result.predictions[i] = s
+                    Log.d(
+                        "predict",
+                        java.lang.String.format(
+                            Locale.US,
+                            "[%d] %.0fm %s",
+                            i,
+                            s.distance,
+                            s.station.name
+                        )
+                    )
+                }
+                _results.postValue(result)
             }
-            _results.postValue(result)
         }
 
     private fun initialize(location: Location) {
@@ -195,7 +203,7 @@ class PositionNavigator(
                 f,
                 f.findNearestPoint(location.latitude, location.longitude)
             )
-        }.maxByOrNull { p -> p.second.distance }?.let {
+        }.minByOrNull { p -> p.second.distance }?.let {
             cursors.add(PolylineCursor(it.first, it.second, location))
         }
         lastLocation = location
@@ -436,8 +444,8 @@ class PositionNavigator(
 
         suspend fun predict(result: MutableCollection<StationPrediction>) {
             val list = explorer.search(
-                nearest.closedPoint.longitude,
                 nearest.closedPoint.latitude,
+                nearest.closedPoint.longitude,
                 1,
                 0.0
             )

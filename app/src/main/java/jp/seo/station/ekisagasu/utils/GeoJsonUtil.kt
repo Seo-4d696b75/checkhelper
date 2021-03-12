@@ -152,7 +152,7 @@ data class PolylineSegment(
         }
         return (minStart until minEnd)
             .map { idx -> NearestPoint(points[idx], points[idx + 1], p) }
-            .maxByOrNull { n -> n.distance } ?: throw NoSuchElementException()
+            .minByOrNull { n -> n.distance } ?: throw NoSuchElementException()
     }
 
 }

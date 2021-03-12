@@ -27,7 +27,9 @@ class NavigationRepository(
     val predictions = _navigator.switchMap { n ->
         n?.results ?: MutableLiveData<PredictionResult?>(null)
     }
-    val line = navigator?.line
+
+    val line: Line?
+        get() = navigator?.line
 
     fun start(line: Line) {
         navigator?.release()
