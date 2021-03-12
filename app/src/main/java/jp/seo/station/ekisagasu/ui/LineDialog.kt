@@ -95,7 +95,7 @@ class LineDialog : DialogFragment() {
                 }
             }
             DIALOG_SELECT_NAVIGATION -> {
-                message.text = ctx.getString(R.string.dialog_message_select_prediction)
+                message.text = ctx.getString(R.string.dialog_message_select_navigation)
                 if (appViewModel.isNavigationRunning.value == true) {
                     builder.setPositiveButton("解除") { dialog, which ->
                         appViewModel.setNavigationLine(null)
@@ -135,7 +135,11 @@ class LineDialog : DialogFragment() {
                 dismiss()
             }
             DIALOG_SELECT_NAVIGATION -> {
-                appViewModel.setNavigationLine(line)
+                if (line.polyline == null) {
+                    viewModel.requestToast.call(getString(R.string.navigation_unsupported))
+                } else {
+                    appViewModel.setNavigationLine(line)
+                }
                 dismiss()
             }
             else -> {

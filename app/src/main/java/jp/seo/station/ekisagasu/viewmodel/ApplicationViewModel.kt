@@ -126,6 +126,7 @@ class ApplicationViewModel(
     val isNavigationRunning = navigator.running
 
     fun setNavigationLine(line: Line?) {
+        selectLine(line)
         if (line == null) {
             navigator.stop()
         } else {

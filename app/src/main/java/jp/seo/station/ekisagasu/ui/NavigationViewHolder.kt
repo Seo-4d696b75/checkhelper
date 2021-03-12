@@ -163,7 +163,11 @@ class NavigationViewHolder(
         stations[0].text = current.name
 
         waitContainer.visibility = View.VISIBLE
-        stationContainer.visibility = View.INVISIBLE
+        stationContainer.visibility = View.VISIBLE
+        stations.forEach { it.text = "" }
+        distances.forEach { it.text = "" }
+        stations[0].text = current.name
+
         view.visibility = View.VISIBLE
 
         animAppear.setAnimationListener(onEnd = {
@@ -178,6 +182,7 @@ class NavigationViewHolder(
         if (runningAnimation || !_show) return
         animDisappear.setAnimationListener(onEnd = {
             runningAnimation = false
+            view.visibility = View.GONE
         })
         contentContainer.startAnimation(animDisappear)
         _show = false
@@ -189,18 +194,16 @@ class NavigationViewHolder(
         if (!_show) return
         if (waitContainer.visibility == View.VISIBLE && result.size > 0) {
             waitContainer.visibility = View.GONE
-            stationContainer.visibility = View.VISIBLE
         } else if (waitContainer.visibility != View.VISIBLE && result.size == 0) {
             waitContainer.visibility = View.VISIBLE
-            stationContainer.visibility = View.INVISIBLE
         }
-        if (currentStation == null || currentStation == result.current) {
+        if (currentStation == null || currentStation == result.current || result.size == 0) {
             // no animation
             invalidate(result)
         } else {
-            currentStation = result.current
             animate(result)
         }
+        currentStation = result.current
 
     }
 
