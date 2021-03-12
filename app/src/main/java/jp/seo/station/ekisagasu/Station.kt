@@ -2,7 +2,6 @@ package jp.seo.station.ekisagasu
 
 import androidx.room.*
 import com.google.gson.*
-import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.lang.reflect.Type
 
@@ -13,40 +12,35 @@ import java.lang.reflect.Type
 @Entity(tableName = "station", indices = [Index(value = ["id", "code"], unique = true)])
 data class Station constructor(
     @ColumnInfo(name = "id")
-    @Expose
     val id: String,
     @PrimaryKey
     @ColumnInfo(name = "code")
-    @Expose
     val code: Int,
     @ColumnInfo(name = "lat")
-    @Expose
     val lat: Double,
     @ColumnInfo(name = "lng")
-    @Expose
     val lng: Double,
     @ColumnInfo(name = "name")
-    @Expose
     val name: String,
     @ColumnInfo(name = "original_name")
+    @SerializedName("original_name")
     val originalName: String,
     @ColumnInfo(name = "name_kana")
-    @SerializedName("name_kana") @Expose
+    @SerializedName("name_kana")
     val nameKana: String,
     @ColumnInfo(name = "prefecture")
-    @Expose
     val prefecture: Int,
     @ColumnInfo(name = "lines")
-    @Expose
     val lines: Array<Int>,
+    @ColumnInfo(name = "closed")
+    val closed: Boolean,
     @ColumnInfo(name = "next")
-    @Expose
     val next: Array<Int>,
     @ColumnInfo(name = "voronoi")
-    @Expose(deserialize = false)
     val voronoi: String,
-
-    ) {
+    @ColumnInfo(name = "attr")
+    val attr: String?
+) {
 
 
     override fun equals(other: Any?): Boolean {
@@ -93,10 +87,26 @@ class StationConverter : JsonDeserializer<Station> {
                 obj["name_kana"]?.asString ?: "hoge",
                 obj["prefecture"].asInt,
                 gson.fromJson(obj["lines"], Array<Int>::class.java),
+                obj["closed"]?.asBoolean ?: false,
                 gson.fromJson(obj["next"], Array<Int>::class.java),
-                obj["voronoi"].toString()
+                obj["voronoi"].toString(),
+                obj["attr"]?.asString
             )
-        } ?: Station("000000", 0, 0.0, 0.0, "none", "none", "none", 0, arrayOf(), arrayOf(), "")
+        } ?: Station(
+            "000000",
+            0,
+            0.0,
+            0.0,
+            "none",
+            "none",
+            "none",
+            0,
+            arrayOf(),
+            true,
+            arrayOf(),
+            "",
+            null
+        )
     }
 
 }

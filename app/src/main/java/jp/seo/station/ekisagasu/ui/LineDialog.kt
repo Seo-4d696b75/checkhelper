@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.GPSClient
+import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
@@ -33,7 +34,7 @@ class LineDialog : DialogFragment() {
         }
 
         const val DIALOG_SELECT_CURRENT = "select_line"
-        const val DIALOG_SELECT_PREDICTION = "select_prediction"
+        const val DIALOG_SELECT_NAVIGATION = "select_navigation_line"
     }
 
     @Inject
@@ -44,6 +45,9 @@ class LineDialog : DialogFragment() {
 
     @Inject
     lateinit var gpsClient: GPSClient
+
+    @Inject
+    lateinit var navigator: NavigationRepository
 
     @Inject
     lateinit var singletonStore: ViewModelStore
@@ -62,7 +66,8 @@ class LineDialog : DialogFragment() {
             { singletonStore },
             stationRepository,
             userRepository,
-            gpsClient
+            gpsClient,
+            navigator
         )
     }
 
@@ -89,11 +94,11 @@ class LineDialog : DialogFragment() {
                     }
                 }
             }
-            DIALOG_SELECT_PREDICTION -> {
-                message.text = ctx.getString(R.string.dialog_message_select_prediction)
-                if (appViewModel.isRunningPrediction) {
+            DIALOG_SELECT_NAVIGATION -> {
+                message.text = ctx.getString(R.string.dialog_message_select_navigation)
+                if (appViewModel.isNavigationRunning.value == true) {
                     builder.setPositiveButton("解除") { dialog, which ->
-                        appViewModel.setPredictionLine(null)
+                        appViewModel.setNavigationLine(null)
                     }
                 }
             }
@@ -129,8 +134,12 @@ class LineDialog : DialogFragment() {
                 appViewModel.selectLine(line)
                 dismiss()
             }
-            DIALOG_SELECT_PREDICTION -> {
-                appViewModel.setPredictionLine(line)
+            DIALOG_SELECT_NAVIGATION -> {
+                if (line.polyline == null) {
+                    viewModel.requestToast.call(getString(R.string.navigation_unsupported))
+                } else {
+                    appViewModel.setNavigationLine(line)
+                }
                 dismiss()
             }
             else -> {

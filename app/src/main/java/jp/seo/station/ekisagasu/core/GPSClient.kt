@@ -24,14 +24,13 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
     private var context: Context? = ctx
 
-    private val requests: MutableMap<String, GPSRequest> = HashMap()
     private var minInterval = 0
 
     private val _location: MutableLiveData<Location?> = MutableLiveData(null)
     private val _running: MutableLiveData<Boolean> = MutableLiveData(false)
     private var running = false
-    val messageLog = MutableLiveData<String?>(null)
-    val messageError = MutableLiveData<String?>(null)
+    val messageLog = LiveEvent<String>()
+    val messageError = LiveEvent<String>()
 
     val currentLocation: LiveData<Location?> = _location
 
@@ -53,12 +52,11 @@ class GPSClient(ctx: Context) : LocationCallback() {
      * @param interval  in seconds
      * @throws ResolvableApiException
      */
-    fun requestGPSUpdate(interval: Int, tag: String) {
+    fun requestGPSUpdate(interval: Int) {
         if (interval < 1) return
         try {
-            requests[tag] = GPSRequest(tag, interval)
             if (running) {
-                if (interval < minInterval) {
+                if (interval != minInterval) {
                     log(
                         String.format(
                             "GPS > min interval %d>%d sec",
@@ -72,14 +70,6 @@ class GPSClient(ctx: Context) : LocationCallback() {
                             running = false
                             requestGPSUpdate()
                         }
-                } else {
-                    log(
-                        String.format(
-                            "GPS > min interval request:%d remained:%d sec",
-                            interval,
-                            minInterval
-                        )
-                    )
                 }
             } else {
                 minInterval = interval
@@ -99,10 +89,11 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
 
     private fun requestGPSUpdate() {
-        val request = LocationRequest()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(minInterval * 1000L)
-            .setFastestInterval(minInterval * 1000L)
+        val request = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = minInterval * 1000L
+            fastestInterval = minInterval * 1000L
+        }
         val settingRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(request)
             .build()
@@ -131,55 +122,31 @@ class GPSClient(ctx: Context) : LocationCallback() {
             }
     }
 
-    fun stopGPSUpdate(tag: String): Boolean {
-        if (requests.remove(tag) != null) {
-            if (requests.isEmpty()) {
-                locationClient.removeLocationUpdates(this)
-                    .addOnCompleteListener {
-                        running = false
-                    }
-
-                _running.value = false
-                _location.value = null
-                log("GPS has stopped")
-            } else {
-                val min = requests.values.minOf { it.minInterval }
-                if (min > minInterval) {
-                    log(
-                        String.format(
-                            "GPS > min interval %d>%d sec",
-                            minInterval,
-                            min
-                        )
-                    )
-                    minInterval = min
-                    locationClient.removeLocationUpdates(this)
-                        .addOnCompleteListener {
-                            running = false
-                            requestGPSUpdate()
-                        }
+    fun stopGPSUpdate(): Boolean {
+        if (running) {
+            locationClient.removeLocationUpdates(this)
+                .addOnCompleteListener {
+                    running = false
                 }
-            }
+
+            _running.value = false
+            _location.value = null
+            log("GPS has stopped")
             return true
         }
         return false
     }
 
     private fun log(log: String) {
-        messageLog.postValue(log)
+        messageLog.postCall(log)
     }
 
     private fun error(log: String, mes: String) {
         log(log)
         running = false
         _running.value = false
-        messageError.postValue(mes)
+        messageError.postCall(mes)
     }
-
-    private data class GPSRequest(
-        val tag: String,
-        val minInterval: Int
-    )
 
 }
 

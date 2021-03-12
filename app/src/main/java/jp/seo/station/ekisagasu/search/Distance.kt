@@ -2,11 +2,7 @@ package jp.seo.station.ekisagasu.search
 
 import android.location.Location
 import jp.seo.station.ekisagasu.Station
-import kotlin.math.asin
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 /**
  * @author Seo-4d696b75
@@ -42,8 +38,12 @@ fun measureDistance(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Dou
 fun formatDistance(dist: Double): String {
     return if (dist < 1000.0) {
         String.format("%.0fm", dist)
-    } else {
+    } else if (dist < 10000.0) {
         String.format("%.2fkm", dist / 1000.0)
+    } else if (dist < 100000.0) {
+        String.format("%.1fkm", dist / 1000.0)
+    } else {
+        String.format("%.0fkm", dist / 1000.0)
     }
 }
 

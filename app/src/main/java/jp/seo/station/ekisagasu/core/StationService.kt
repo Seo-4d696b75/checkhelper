@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.location.Location
 import android.os.*
 import android.provider.AlarmClock
 import android.util.Log
@@ -21,8 +20,6 @@ import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
-import jp.seo.station.ekisagasu.utils.CurrentLocation
-import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.onChanged
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import kotlinx.coroutines.*
@@ -114,35 +111,17 @@ class StationService : LifecycleService() {
         // when current location changed
         gpsClient.currentLocation.observe(this) {
             it?.let { location ->
-                viewModel.location(location)
+                viewModel.updateLocation(location)
             }
         }
 
         // when message from gps
         gpsClient.messageLog.observe(this) {
-            it?.let { log ->
-                viewModel.message(log)
-                gpsClient.messageLog.value = null
-            }
+            viewModel.message(it)
         }
         gpsClient.messageError.observe(this) {
-            it?.let { mes ->
-                viewModel.error(mes)
-                gpsClient.messageError.value = null
-            }
+            viewModel.error(it)
         }
-
-        // when current location & user setting changed
-        combineLiveData<CurrentLocation, Location?, Int>(
-            CurrentLocation(null, 1),
-            gpsClient.currentLocation,
-            userRepository.searchK
-        ) { location, k -> CurrentLocation(location, k) }
-            .observe(this) { pos ->
-                pos.location?.let { loc ->
-                    viewModel.updateStation(loc, pos.k)
-                }
-            }
 
         // update notification when nearest station changed
         stationRepository.detectedStation.observe(this) {
@@ -188,23 +167,28 @@ class StationService : LifecycleService() {
             }
         }
 
+        // when navigation changed
+        navigator.running.observe(this) {
+            if (it) {
+                navigator.line?.let { line ->
+                    stationRepository.nearestStation.value?.let { n ->
+                        overlayView.navigation.startNavigation(line, n.station)
+                    }
+                }
+            } else {
+                overlayView.navigation.stopNavigation()
+            }
+        }
+        navigator.predictions.observe(this) {
+            it?.let { result -> overlayView.navigation.onUpdate(result) }
+        }
+        overlayView.navigation.stopNavigation.observe(this) {
+            viewModel.setNavigationLine(null)
+        }
+
         // when finish requested
         viewModel.requestFinishService.observe(this) {
             stopSelf()
-        }
-
-        // update user setting
-        userRepository.isKeepNotification.observe(this) {
-            overlayView.keepNotification = it
-        }
-        userRepository.brightness.observe(this) {
-            overlayView.brightness = it
-        }
-        userRepository.isNotifyForce.observe(this) {
-            overlayView.forceNotify = it
-        }
-        userRepository.isNotifyPrefecture.observe(this) {
-            overlayView.displayPrefecture = it
         }
 
         // init notification
@@ -222,6 +206,9 @@ class StationService : LifecycleService() {
         registerReceiver(receiver, filter)
 
         // when user setting changed
+        userRepository.searchK.observe(this) {
+            viewModel.setSearchK(it)
+        }
         userRepository.isNotify.observe(this) {
             overlayView.notify = it
         }
@@ -232,9 +219,7 @@ class StationService : LifecycleService() {
             overlayView.forceNotify = it
         }
         userRepository.gpsUpdateInterval.observe(this) { interval ->
-            gpsClient.isRunning.value?.let {
-                if (it) gpsClient.requestGPSUpdate(interval, "main-service")
-            }
+            viewModel.setSearchInterval(interval)
         }
         userRepository.isNotifyPrefecture.observe(this) {
             overlayView.displayPrefecture = it
@@ -299,6 +284,9 @@ class StationService : LifecycleService() {
     lateinit var gpsClient: GPSClient
 
     @Inject
+    lateinit var navigator: NavigationRepository
+
+    @Inject
     lateinit var singletonStore: ViewModelStore
 
     @Inject
@@ -306,7 +294,13 @@ class StationService : LifecycleService() {
 
     private val viewModel: ApplicationViewModel by lazy {
         val owner = ViewModelStoreOwner { singletonStore }
-        ApplicationViewModel.getInstance(owner, stationRepository, userRepository, gpsClient)
+        ApplicationViewModel.getInstance(
+            owner,
+            stationRepository,
+            userRepository,
+            gpsClient,
+            navigator
+        )
     }
 
     private val notificationHolder: NotificationViewHolder by lazy {
@@ -371,6 +365,7 @@ class StationService : LifecycleService() {
             .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
             .putExtra(AlarmClock.EXTRA_LENGTH, 300)
             .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val manager = getSystemService(ALARM_SERVICE)
         if (manager is AlarmManager && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)

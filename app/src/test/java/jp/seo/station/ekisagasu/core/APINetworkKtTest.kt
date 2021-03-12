@@ -33,6 +33,7 @@ class APINetworkKtTest {
         // validation stations and lines
         val idPattern = Regex("[0-9a-f]{6}").toPattern()
         val colorPattern = Regex("#[0-9a-fA-F]{6}").toPattern()
+        val attrs = listOf("cool", "heat", "eco")
         for (s in stations) {
             assertThat(s.id).matches(idPattern)
             assertThat(s.code).isGreaterThan(0)
@@ -48,6 +49,11 @@ class APINetworkKtTest {
             assertThat(s.prefecture).isLessThan(48)
             assertThat(s.lines).isNotEmpty()
             assertThat(s.next).isNotEmpty()
+            if (s.closed) {
+                assertThat(s.attr).isEqualTo("unknown")
+            } else {
+                assertThat(s.attr).isIn(attrs)
+            }
         }
 
         for (line in lines) {
@@ -60,6 +66,7 @@ class APINetworkKtTest {
             assertThat(line.stationList.size).isEqualTo(line.stationSize)
             line.color?.let { assertThat(it).matches(colorPattern) }
             line.symbol?.let { assertThat(it).isNotEmpty() }
+            if (!line.closed) assertThat(line.polyline).isNotNull()
         }
 
         // geojson format cannot be validated as type: JsonObject

@@ -7,12 +7,8 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
-import android.os.Handler
-import android.os.PowerManager
-import android.os.SystemClock
+import android.os.*
 import android.view.*
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.core.animation.addListener
@@ -21,6 +17,7 @@ import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.NearStation
 import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
+import jp.seo.station.ekisagasu.utils.setAnimationListener
 import java.util.*
 
 /**
@@ -56,6 +53,8 @@ class OverlayViewHolder(
     private val distance: TextView
     private val lines: TextView
     private val time: TextView
+
+    val navigation: NavigationViewHolder
 
     init {
         val inflater = LayoutInflater.from(context)
@@ -132,6 +131,8 @@ class OverlayViewHolder(
         time = notification.findViewById(R.id.text_notification_time)
         notificationContainer = notification.findViewById(R.id.container_notification)
         notificationContent = notification.findViewById(R.id.container_notification_detail)
+
+        navigation = NavigationViewHolder(context, layerType, windowManager, icon)
 
     }
 
@@ -237,6 +238,7 @@ class OverlayViewHolder(
 
     fun onStationChanged(station: NearStation) = synchronized(this) {
         if (!notify) return@synchronized
+        if (navigation.show) return@synchronized
         detectedTime = SystemClock.elapsedRealtime()
         nearestStation = station
         if (screen) {
@@ -309,17 +311,8 @@ class OverlayViewHolder(
         if (station != null && current.station != station) return
         if (notification.visibility != View.VISIBLE && icon.visibility != View.VISIBLE) return
         if (notification.visibility == View.VISIBLE) {
-            animDisappear.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
-                }
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    notification.visibility = View.GONE
-                    animation?.setAnimationListener(null)
-                }
-
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
+            animDisappear.setAnimationListener(onEnd = {
+                notification.visibility = View.GONE
             })
             notificationContainer.startAnimation(animDisappear)
         } else {
@@ -342,36 +335,15 @@ class OverlayViewHolder(
 
     private fun toggleNotification() {
         if (notification.visibility == View.VISIBLE) {
-            animClose.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
-                    icon.visibility = View.VISIBLE
-                }
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    notification.visibility = View.GONE
-                    animation?.setAnimationListener(null)
-                }
-
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
-
+            animClose.setAnimationListener(onEnd = {
+                notification.visibility = View.GONE
             })
             notificationContent.startAnimation(animClose)
         } else {
             notification.visibility = View.VISIBLE
             notificationContent.visibility = View.VISIBLE
-            animOpen.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
-                    icon.visibility = View.GONE
-                }
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    animation?.setAnimationListener(null)
-                }
-
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
-
+            animOpen.setAnimationListener(onStart = {
+                icon.visibility = View.GONE
             })
             notificationContent.startAnimation(animOpen)
         }
@@ -390,11 +362,7 @@ class OverlayViewHolder(
     private var touchY = -1f
 
     fun fixTimer(fix: Boolean) {
-        if (fix) {
-            setFixedTimer(true, false)
-        } else {
-            setFixedTimer(false, false)
-        }
+        setFixedTimer(fix, false)
     }
 
     fun setTimerState(running: Boolean) {
@@ -413,7 +381,11 @@ class OverlayViewHolder(
                 var pos = timerPosition
                 if (pos < 0) {
                     pos = Point().apply {
-                        context.display?.getRealSize(this)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            context.display?.getRealSize(this)
+                        } else {
+                            windowManager.defaultDisplay.getRealSize(this)
+                        }
                     }.y / 2
                     timerPosition = pos
                 }
@@ -538,6 +510,8 @@ class OverlayViewHolder(
             timerView = null
         }
         timerListener = null
+
+        navigation.release()
     }
 
 }

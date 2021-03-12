@@ -27,6 +27,7 @@ class ApplicationViewModel(
     private val stationRepository: StationRepository,
     private val userRepository: UserRepository,
     private val gps: GPSClient,
+    private val navigator: NavigationRepository,
 ) : ViewModel() {
 
     companion object {
@@ -34,10 +35,11 @@ class ApplicationViewModel(
             owner: ViewModelStoreOwner,
             stationRepository: StationRepository,
             userRepository: UserRepository,
-            gps: GPSClient
+            gps: GPSClient,
+            navigator: NavigationRepository
         ): ApplicationViewModel {
             return ViewModelProvider(owner, getViewModelFactory {
-                ApplicationViewModel(stationRepository, userRepository, gps)
+                ApplicationViewModel(stationRepository, userRepository, gps, navigator)
             }).get(
                 ApplicationViewModel::class.java
             )
@@ -55,6 +57,10 @@ class ApplicationViewModel(
         setSearchState(false)
         requestFinishActivity.call()
         requestFinishService.call()
+
+        // this view model is in application-scoped
+        // clear variable which is needed to be initialized when activity rebooted
+        fixTimer.value = false
     }
 
     fun startService(activity: AppCompatActivity) {
@@ -102,27 +108,29 @@ class ApplicationViewModel(
         if (value) {
             if (stationRepository.dataInitialized) {
                 userRepository.gpsUpdateInterval.value?.let {
-                    gps.requestGPSUpdate(it, "main-service")
+                    gps.requestGPSUpdate(it)
                 }
             }
 
         } else {
 
-            if (gps.stopGPSUpdate("main-service")) {
-                stationRepository.onStopSearch()
-            }
+            gps.stopGPSUpdate()
+            stationRepository.onStopSearch()
+            navigator.stop()
         }
     }
 
     val startTimer = UnitLiveEvent(false)
     val fixTimer = MutableLiveData(false)
 
-    //TODO implementation needed
-    val isRunningPrediction: Boolean = false
+    val isNavigationRunning = navigator.running
 
-    fun setPredictionLine(line: Line?) {
-        if (isRunning.value == true) {
-            // TODO
+    fun setNavigationLine(line: Line?) {
+        selectLine(line)
+        if (line == null) {
+            navigator.stop()
+        } else {
+            navigator.start(line)
         }
     }
 
@@ -162,15 +170,21 @@ class ApplicationViewModel(
         }
     }
 
-    fun location(location: Location) {
-        viewModelScope.launch {
-            userRepository.logLocation(location.latitude, location.longitude)
+    fun updateLocation(location: Location) = viewModelScope.launch {
+        userRepository.logLocation(location.latitude, location.longitude)
+        stationRepository.updateNearestStations(location)
+        stationRepository.nearestStation.value?.let {
+            navigator.updateLocation(location, it.station)
         }
     }
 
-    fun updateStation(location: Location, k: Int) {
-        viewModelScope.launch {
-            stationRepository.updateNearestStations(location, k)
+    fun setSearchK(k: Int) = viewModelScope.launch {
+        stationRepository.setSearchK(k)
+    }
+
+    fun setSearchInterval(sec: Int) {
+        if (isRunning.value == true) {
+            gps.requestGPSUpdate(sec)
         }
     }
 

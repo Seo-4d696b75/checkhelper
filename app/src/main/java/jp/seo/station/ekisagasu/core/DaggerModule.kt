@@ -113,5 +113,14 @@ object AppModule {
     ): GPSClient {
         return GPSClient(context)
     }
+
+    @Singleton
+    @Provides
+    fun provideNavigator(
+        tree: KdTree,
+        db: StationDatabase
+    ): NavigationRepository {
+        return NavigationRepository(tree, db.dao)
+    }
 }
 

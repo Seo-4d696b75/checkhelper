@@ -2,17 +2,7 @@ package jp.seo.station.ekisagasu.core
 
 import android.os.Handler
 import androidx.lifecycle.LiveData
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RoomDatabase
-import androidx.room.Transaction
-import androidx.room.TypeConverters
+import androidx.room.*
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.StationRepository.UpdateProgressListener
@@ -28,7 +18,7 @@ import java.util.*
  */
 @Database(
     entities = [Station::class, Line::class, TreeSegment::class, DataVersion::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(

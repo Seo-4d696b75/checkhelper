@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.TextView
+import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -178,7 +179,7 @@ class MainFragment : AppFragment() {
                             expand
                         )
                     )
-                    if ((expand && selected) || (!expand && fabPredict.visibility)) list.add(
+                    if ((expand && running) || (!expand && fabPredict.visibility)) list.add(
                         fabPredict.animate(
                             expand
                         )
@@ -186,20 +187,19 @@ class MainFragment : AppFragment() {
                     AnimatorSet().apply {
                         playTogether(list)
                         duration = 300L
-                        addListener(object : Animator.AnimatorListener {
-                            override fun onAnimationStart(animation: Animator?) {
+                        addListener(
+                            onStart = {
                                 if (expand) {
                                     fabMap.visibility = true
                                     fabTimer.visibility = true
                                     fabFixTimer.visibility = true
                                     fabSelectLine.visibility = running
-                                    fabPredict.visibility = selected
+                                    fabPredict.visibility = running
                                 } else {
                                     fabMenu.visibility = true
                                 }
-                            }
-
-                            override fun onAnimationEnd(animation: Animator?) {
+                            },
+                            onEnd = {
                                 if (!expand) {
                                     fabMap.visibility = false
                                     fabTimer.visibility = false
@@ -210,11 +210,7 @@ class MainFragment : AppFragment() {
                                     fabMenu.visibility = false
                                 }
                             }
-
-                            override fun onAnimationCancel(animation: Animator?) {}
-
-                            override fun onAnimationRepeat(animation: Animator?) {}
-                        })
+                        )
                         start()
                     }
                 }
@@ -239,7 +235,7 @@ class MainFragment : AppFragment() {
                 animateFab(false)
             }
             fabPredict.view.setOnClickListener {
-                activityViewModel.requestDialog(LineDialog.DIALOG_SELECT_PREDICTION)
+                activityViewModel.requestDialog(LineDialog.DIALOG_SELECT_NAVIGATION)
                 animateFab(false)
             }
             fabMap.view.setOnClickListener {
