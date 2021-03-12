@@ -55,7 +55,8 @@
     <string name="log_save_fail">ログの書き出しに失敗しました</string>
     <string name="dialog_title_select_line">路線選択</string>
     <string name="dialog_message_select_line">現在乗車中の路線を選択します</string>
-    <string name="dialog_message_select_prediction">案内する路線を選択します</string>
+    <string name="dialog_message_select_navigation">案内する路線を選択します</string>
+    <string name="navigation_unsupported">この路線は対応していません</string>
     <string name="data_already_latest">データは最新です</string>
     <string name="timer_title">5分タイマー</string>
     <string name="timer_wait_message">まだ５分経過してません</string>

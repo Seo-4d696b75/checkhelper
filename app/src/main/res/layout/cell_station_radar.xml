@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/text_cell_station_distance"
         android:textSize="12sp"
-        android:textColor="@color/colorTextDark"
+        android:textColor="@color/colorText"
         android:gravity="center"
         android:text="" />
 
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/text_cell_station_name"
         android:textSize="14sp"
-        android:textColor="@color/colorText"
+        android:textColor="@color/colorTextDark"
         android:text=""
         custom:maxWidth="150dp" />
 

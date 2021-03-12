@@ -365,6 +365,7 @@ class StationService : LifecycleService() {
             .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
             .putExtra(AlarmClock.EXTRA_LENGTH, 300)
             .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val manager = getSystemService(ALARM_SERVICE)
         if (manager is AlarmManager && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
