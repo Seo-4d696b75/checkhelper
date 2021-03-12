@@ -57,6 +57,10 @@ class ApplicationViewModel(
         setSearchState(false)
         requestFinishActivity.call()
         requestFinishService.call()
+
+        // this view model is in application-scoped
+        // clear variable which is needed to be initialized when activity rebooted
+        fixTimer.value = false
     }
 
     fun startService(activity: AppCompatActivity) {

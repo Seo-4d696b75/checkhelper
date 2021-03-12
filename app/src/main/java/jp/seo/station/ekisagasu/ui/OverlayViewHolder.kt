@@ -7,10 +7,7 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
-import android.os.Handler
-import android.os.PowerManager
-import android.os.SystemClock
+import android.os.*
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -365,11 +362,7 @@ class OverlayViewHolder(
     private var touchY = -1f
 
     fun fixTimer(fix: Boolean) {
-        if (fix) {
-            setFixedTimer(true, false)
-        } else {
-            setFixedTimer(false, false)
-        }
+        setFixedTimer(fix, false)
     }
 
     fun setTimerState(running: Boolean) {
@@ -388,7 +381,11 @@ class OverlayViewHolder(
                 var pos = timerPosition
                 if (pos < 0) {
                     pos = Point().apply {
-                        context.display?.getRealSize(this)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            context.display?.getRealSize(this)
+                        } else {
+                            windowManager.defaultDisplay.getRealSize(this)
+                        }
                     }.y / 2
                     timerPosition = pos
                 }
