@@ -30,8 +30,8 @@ class GPSClient(ctx: Context) : LocationCallback() {
     private val _location: MutableLiveData<Location?> = MutableLiveData(null)
     private val _running: MutableLiveData<Boolean> = MutableLiveData(false)
     private var running = false
-    val messageLog = LiveEvent<String>()
-    val messageError = LiveEvent<String>(true)
+    val messageLog = MutableLiveData<String?>(null)
+    val messageError = MutableLiveData<String?>(null)
 
     val currentLocation: LiveData<Location?> = _location
 
@@ -40,9 +40,8 @@ class GPSClient(ctx: Context) : LocationCallback() {
     val apiException = LiveEvent<ResolvableApiException>(true)
 
     override fun onLocationResult(result: LocationResult?) {
-        result?.lastLocation?.let { loc ->
-            //Log.d("GPS", String.format("%.6f/%.6f", it.latitude, it.longitude))
-            _location.value = loc
+        result?.lastLocation?.let {
+            _location.value = it
         }
     }
 
@@ -100,11 +99,10 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
 
     private fun requestGPSUpdate() {
-        val request = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = minInterval * 1000L
-            fastestInterval = minInterval * 1000L
-        }
+        val request = LocationRequest()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(minInterval * 1000L)
+            .setFastestInterval(minInterval * 1000L)
         val settingRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(request)
             .build()
@@ -168,14 +166,14 @@ class GPSClient(ctx: Context) : LocationCallback() {
     }
 
     private fun log(log: String) {
-        messageLog.postCall(log)
+        messageLog.postValue(log)
     }
 
     private fun error(log: String, mes: String) {
         log(log)
         running = false
         _running.value = false
-        messageError.postCall(mes)
+        messageError.postValue(mes)
     }
 
     private data class GPSRequest(

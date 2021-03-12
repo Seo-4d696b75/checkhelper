@@ -7,10 +7,9 @@ import android.os.Build
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
-import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.*
-import jp.seo.station.ekisagasu.utils.LiveEvent
 import jp.seo.station.ekisagasu.utils.UnitLiveEvent
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
@@ -26,17 +25,19 @@ import java.io.StringWriter
  */
 class ApplicationViewModel(
     private val stationRepository: StationRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val gps: GPSClient,
 ) : ViewModel() {
 
     companion object {
         fun getInstance(
             owner: ViewModelStoreOwner,
             stationRepository: StationRepository,
-            userRepository: UserRepository
+            userRepository: UserRepository,
+            gps: GPSClient
         ): ApplicationViewModel {
             return ViewModelProvider(owner, getViewModelFactory {
-                ApplicationViewModel(stationRepository, userRepository)
+                ApplicationViewModel(stationRepository, userRepository, gps)
             }).get(
                 ApplicationViewModel::class.java
             )
@@ -52,11 +53,8 @@ class ApplicationViewModel(
     @MainThread
     fun finish() {
         setSearchState(false)
-        if (isActivityAlive) {
-            requestFinishActivity.call()
-        } else {
-            requestFinishService.call()
-        }
+        requestFinishActivity.call()
+        requestFinishService.call()
     }
 
     fun startService(activity: AppCompatActivity) {
@@ -78,10 +76,8 @@ class ApplicationViewModel(
     /**
      * 探索が現在進行中であるか
      */
-    val isRunning = MutableLiveData(false)
+    val isRunning: LiveData<Boolean> = gps.isRunning
 
-    val requestGPSUpdate = LiveEvent<Int>()
-    val requestGPSStop = UnitLiveEvent()
 
     enum class SearchState {
         STOPPED,
@@ -91,7 +87,7 @@ class ApplicationViewModel(
 
     val state: LiveData<SearchState> = combineLiveData(
         SearchState.STOPPED,
-        isRunning,
+        gps.isRunning,
         stationRepository.nearestStation
     ) { run, station ->
         if (run) {
@@ -106,13 +102,15 @@ class ApplicationViewModel(
         if (value) {
             if (stationRepository.dataInitialized) {
                 userRepository.gpsUpdateInterval.value?.let {
-                    requestGPSUpdate.call(it)
+                    gps.requestGPSUpdate(it, "main-service")
                 }
             }
 
         } else {
-            requestGPSStop.call()
-            stationRepository.onStopSearch()
+
+            if (gps.stopGPSUpdate("main-service")) {
+                stationRepository.onStopSearch()
+            }
         }
     }
 
@@ -137,7 +135,7 @@ class ApplicationViewModel(
         }
     }
 
-    val apiException = LiveEvent<ResolvableApiException>()
+    val apiException = gps.apiException
 
     fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -166,24 +164,18 @@ class ApplicationViewModel(
 
     fun location(location: Location) {
         viewModelScope.launch {
-            userRepository.logLocation(location)
+            userRepository.logLocation(location.latitude, location.longitude)
         }
     }
 
-    fun updateLocation(location: Location) {
+    fun updateStation(location: Location, k: Int) {
         viewModelScope.launch {
-            stationRepository.updateNearestStations(location)
+            stationRepository.updateNearestStations(location, k)
         }
     }
 
-    fun updateSearchK(k: Int) {
-        viewModelScope.launch {
-            stationRepository.setSearchK(k)
-        }
-    }
-
-    fun logStation(station: NearStation) = viewModelScope.launch {
-        userRepository.logStation(station)
+    fun logStation(station: Station) = viewModelScope.launch {
+        userRepository.logStation(String.format("%s(%d)", station.name, station.code))
     }
 
 

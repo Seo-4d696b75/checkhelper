@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.ui
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.AndroidEntryPoint
+import jp.seo.station.ekisagasu.core.GPSClient
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
@@ -30,6 +31,8 @@ open class AppFragment : Fragment() {
     @Inject
     lateinit var userRepository: UserRepository
 
+    @Inject
+    lateinit var gpsClient: GPSClient
 
     /**
      * Applicationレベル(Singletonスコープ)で共有するViewModel
@@ -41,6 +44,7 @@ open class AppFragment : Fragment() {
             { singletonStore },
             stationRepository,
             userRepository,
+            gpsClient
         )
     }
 

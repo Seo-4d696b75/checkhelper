@@ -4,9 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
-import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
@@ -89,7 +87,6 @@ class ActivityViewModel(
 
     private var hasPermissionChecked = false
     private var hasVersionChecked = false
-    private var hasBindService = false
 
     /**
      * check whether connected service is ready for use.
@@ -170,14 +167,6 @@ class ActivityViewModel(
         }
         hasPermissionChecked = true
         return true
-    }
-
-    fun bindService(activity: AppCompatActivity, con: ServiceConnection) {
-        if (!hasBindService) {
-            hasBindService = true
-            val intent = Intent(activity, StationService::class.java)
-            activity.bindService(intent, con, BIND_AUTO_CREATE)
-        }
     }
 
     val requestToast = LiveEvent<String>()

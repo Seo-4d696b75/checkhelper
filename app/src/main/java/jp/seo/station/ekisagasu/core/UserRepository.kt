@@ -1,7 +1,6 @@
 package jp.seo.station.ekisagasu.core
 
 import android.content.Context
-import android.location.Location
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
@@ -10,7 +9,6 @@ import androidx.lifecycle.switchMap
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_ISO8601_EXTEND
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -123,20 +121,13 @@ class UserRepository(
         _hasError = true
     }
 
-    suspend fun logLocation(location: Location) {
-        val mes = String.format(
-            "(%.6f,%.6f)@%s", location.latitude, location.longitude, formatTime(
-                TIME_PATTERN_MILLI_SEC, Date(location.time)
-            )
-        )
+    suspend fun logLocation(lat: Double, lng: Double) {
+        val mes = String.format("(%.6f,%.6f)", lat, lng)
         log(AppLog.TYPE_LOCATION, mes)
     }
 
-    suspend fun logStation(n: NearStation) {
-        val mes = String.format(
-            "%s[%d]@%s", n.station.name, n.station.code, formatTime(TIME_PATTERN_MILLI_SEC, n.time)
-        )
-        log(AppLog.TYPE_STATION, mes)
+    suspend fun logStation(station: String) {
+        log(AppLog.TYPE_STATION, station)
     }
 
     suspend fun onAppReboot(context: Context) {

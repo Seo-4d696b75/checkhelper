@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.core.GPSClient
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
@@ -42,6 +43,9 @@ class LineDialog : DialogFragment() {
     lateinit var userRepository: UserRepository
 
     @Inject
+    lateinit var gpsClient: GPSClient
+
+    @Inject
     lateinit var singletonStore: ViewModelStore
 
     private val viewModel: ActivityViewModel by lazy {
@@ -58,6 +62,7 @@ class LineDialog : DialogFragment() {
             { singletonStore },
             stationRepository,
             userRepository,
+            gpsClient
         )
     }
 
