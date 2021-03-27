@@ -189,6 +189,10 @@ class OverlayViewHolder(
             }
         }
 
+    companion object {
+        const val MIN_BRIGHTNESS = 20
+    }
+
     var brightness: Int = 255
         set(value) {
             if (value != field && value > 50 && value < 256) {

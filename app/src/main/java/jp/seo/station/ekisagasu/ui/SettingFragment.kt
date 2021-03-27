@@ -118,7 +118,7 @@ class SettingFragment : AppFragment() {
         val brightness = view.findViewById<SeekBar>(R.id.seek_brightness)
         val screen = view.findViewById<View>(R.id.view_sample_brightness)
         brightness.max = 255
-        brightness.min = 50
+        brightness.min = OverlayViewHolder.MIN_BRIGHTNESS
         userRepository.brightness.value?.let {
             brightness.progress = it
             screen.background = ColorDrawable((255 - it).shl(24))
