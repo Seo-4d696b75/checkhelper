@@ -250,7 +250,9 @@ class MainFragment : AppFragment() {
                 animateFab(false)
             }
             fabFixTimer.view.setOnClickListener {
-                appViewModel.fixTimer.value = true
+                appViewModel.fixTimer.value?.let {
+                    appViewModel.fixTimer.value = !it
+                }
                 animateFab(false)
             }
 
