@@ -24,6 +24,7 @@ import java.util.*
  * @author Seo-4d696b75
  * @version 2021/01/20.
  */
+@SuppressLint("ClickableViewAccessibility")
 class OverlayViewHolder(
     private val context: Context,
     private val prefectureRepository: PrefectureRepository,
@@ -41,8 +42,9 @@ class OverlayViewHolder(
     private val animClose = AnimationUtils.loadAnimation(context, R.anim.anim_close)
 
     private val icon: View
-    private val backScreen: View
-    private var nightScreen: View? = null
+    private val keepOnScreen: View
+    private val touchScreen: View
+    private val darkScreen: View
     private val notification: View
 
     private val notificationContainer: View
@@ -58,9 +60,7 @@ class OverlayViewHolder(
 
     init {
         val inflater = LayoutInflater.from(context)
-        val layerType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else
-            WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+        val layerType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
 
         var layoutParam = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -83,6 +83,7 @@ class OverlayViewHolder(
         }
         windowManager.addView(icon, layoutParam)
 
+        // transparent & not touchable view so that screen kept turn on
         layoutParam = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -90,18 +91,54 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSLUCENT
         )
-        backScreen = View(context)
-        backScreen.visibility = View.GONE
-        backScreen.setOnClickListener {
-            backScreen.visibility = View.GONE
-            onNotificationRemoved(null)
-        }
-        windowManager.addView(backScreen, layoutParam)
+        keepOnScreen = View(context)
+        keepOnScreen.visibility = View.GONE
+        windowManager.addView(keepOnScreen, layoutParam)
 
+        layoutParam = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            0, 0, layerType,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        darkScreen = View(context)
+        darkScreen.visibility = View.GONE
+        windowManager.addView(darkScreen, layoutParam)
+
+        // zero size view to watch any touch event and not consume any touch event
+        layoutParam = WindowManager.LayoutParams(
+            0, 0,
+            0, 0, layerType,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+            PixelFormat.TRANSLUCENT
+        )
+        touchScreen = View(context)
+        touchScreen.setOnTouchListener { v, event ->
+            if (keepOnScreen.visibility == View.VISIBLE) {
+                keepOnScreen.visibility = View.GONE
+                if (!keepNotification) {
+                    onNotificationRemoved(null)
+                }
+            }
+            if (nightModeTimeout > 0 || !nightMode) {
+                darkScreen.visibility = View.GONE
+            }
+            if (nightMode) {
+                setNightModeTimeout(true)
+            }
+            false
+        }
+        touchScreen.isClickable = false
+        touchScreen.isLongClickable = false
+        windowManager.addView(touchScreen, layoutParam)
 
         layoutParam = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -186,6 +223,12 @@ class OverlayViewHolder(
                         onNotifyStation(request, !keepNotification)
                     }
                 }
+                if (!value && nightMode && nightModeTimeout > 0) {
+                    darkScreen.visibility = View.GONE
+                }
+                if (nightMode) {
+                    setNightModeTimeout(value)
+                }
             }
         }
 
@@ -195,16 +238,10 @@ class OverlayViewHolder(
 
     var brightness: Int = 255
         set(value) {
-            if (value != field && value > 50 && value < 256) {
+            if (value != field && value >= MIN_BRIGHTNESS && value < 256) {
                 field = value
                 val black = ColorDrawable((255 - value).shl(24))
-                val night = nightScreen
-                if (night == null) {
-                    backScreen.background = black
-                } else {
-                    backScreen.background = ColorDrawable(0)
-                    night.background = black
-                }
+                darkScreen.background = black
             }
         }
 
@@ -212,33 +249,50 @@ class OverlayViewHolder(
         set(value) {
             if (value == field) return
             field = value
-            if (value) {
+            setNightMode(value, nightModeTimeout)
+        }
 
-                val layerType =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
-                val night = View(context)
-                val params = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    0, 0, layerType,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    PixelFormat.TRANSLUCENT
-                )
-                night.background = ColorDrawable((255 - brightness).shl(24))
-                backScreen.background = ColorDrawable(0x00000000)
-                windowManager.addView(night, params)
-                night.visibility = View.VISIBLE
-                nightScreen = night
+    var nightModeTimeout: Int = 0
+        set(value) {
+            if (value == field || value < 0) return
+            field = value
+            setNightMode(nightMode, value)
+        }
+
+    private var timeoutCallback: Runnable? = null
+
+    private fun setNightMode(enable: Boolean, timeout: Int) {
+        if (enable) {
+            if (timeout == 0) {
+                darkScreen.visibility = View.VISIBLE
             } else {
-                nightScreen?.let {
-                    windowManager.removeViewImmediate(it)
-                    nightScreen = null
-                    backScreen.background = ColorDrawable((255 - brightness).shl(24))
+                setNightModeTimeout(true)
+            }
+        } else {
+            setNightModeTimeout(false)
+            darkScreen.visibility = View.GONE
+            keepOnScreen.visibility = View.GONE
+        }
+    }
+
+    private fun setNightModeTimeout(set: Boolean) {
+        if (set) {
+            if (nightModeTimeout > 0 && nightMode) {
+                timeoutCallback?.let { main.removeCallbacks(it) }
+                val callback = Runnable {
+                    timeoutCallback = null
+                    darkScreen.visibility = View.VISIBLE
                 }
+                timeoutCallback = callback
+                main.postDelayed(callback, 1000L * nightModeTimeout)
+            }
+        } else {
+            timeoutCallback?.let {
+                main.removeCallbacks(it)
+                timeoutCallback = null
             }
         }
+    }
 
     fun onStationChanged(station: NearStation) = synchronized(this) {
         if (!notify) return@synchronized
@@ -246,14 +300,20 @@ class OverlayViewHolder(
         detectedTime = SystemClock.elapsedRealtime()
         nearestStation = station
         if (screen) {
-            onNotifyStation(station, !keepNotification)
+            if (nightMode && nightModeTimeout > 0 && darkScreen.visibility == View.VISIBLE) {
+                keepOnScreen.visibility = View.VISIBLE
+                onNotifyStation(station, false)
+            } else {
+                onNotifyStation(station, !keepNotification)
+            }
         } else if (forceNotify) {
             val wakeLock = powerManager.newWakeLock(
                 PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
                 "station-found:"
             )
             wakeLock.acquire(10)
-            backScreen.visibility = View.VISIBLE
+            keepOnScreen.visibility = View.VISIBLE
+            darkScreen.visibility = View.VISIBLE
             onNotifyStation(station, false)
         } else {
             requestedStation = station
@@ -495,19 +555,24 @@ class OverlayViewHolder(
 
     fun release() {
         windowManager.removeView(icon)
-        windowManager.removeView(backScreen)
+        windowManager.removeView(keepOnScreen)
+        windowManager.removeViewImmediate(touchScreen)
+        windowManager.removeView(darkScreen)
         windowManager.removeView(notification)
         nightMode = false
 
         icon.setOnClickListener(null)
-        backScreen.setOnClickListener(null)
-        notification.setOnClickListener(null)
+        touchScreen.setOnTouchListener(null)
 
         elapsedTimer?.cancel()
         elapsedTimer = null
         durationCallback?.let {
             main.removeCallbacks(it)
             durationCallback = null
+        }
+        timeoutCallback?.let {
+            main.removeCallbacks(it)
+            timeoutCallback = null
         }
         timerView?.let {
             windowManager.removeView(it)
