@@ -120,7 +120,11 @@ class LogTypeAdapter(
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val value = getItem(position)
-        val view = convertView ?: inflater.inflate(R.layout.cell_spinner_filter_log, parent, false)
+        val view = convertView ?: inflater.inflate(
+            android.R.layout.simple_spinner_dropdown_item,
+            null,
+            false
+        )
         if (value != null && view is TextView) {
             view.text = value.name
         }

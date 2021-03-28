@@ -92,12 +92,8 @@ class AppHistoryDialog : DialogFragment() {
                     TIME_PATTERN_DATETIME, log.start
                 )
                 view.findViewById<TextView>(R.id.text_history_duration).text = log.finish?.let {
-                    val duration = (it.time - log.start.time) / (1000L * 60L)
-                    if (duration < 60) {
-                        "${duration}min"
-                    } else {
-                        String.format("%f.1h", duration.toFloat() / 60f)
-                    }
+                    val duration = ((it.time - log.start.time) / 1000L).toInt()
+                    formatTime(context, duration)
                 } ?: ""
                 view.findViewById<View>(R.id.text_history_now).visibility =
                     if (position == 0) View.VISIBLE else View.GONE
