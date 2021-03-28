@@ -44,9 +44,12 @@
     <string name="setting_title_notify_prefecture">都道府県の表示</string>
     <string name="setting_mes_notify_prefecture">通知に駅が所在する都道府県を表示させます.</string>
     <string name="setting_title_meter">接近距離</string>
-    <string name="setting_mes_meter">路線案内モード中において次の駅までの距離が指定値以下になるとバイブレータを鳴らします.</string>
+    <string name="setting_mes_meter">路線案内モード中において次の駅までの距離(m)が指定値以下になるとバイブレータを鳴らします.</string>
     <string name="setting_title_night">夜間モード</string>
     <string name="setting_mes_night">画面の輝度を強制的に下げます. ただし画面上部のステータスバーや下部のナビゲーションバーなどシステムUI上には影響しません.</string>
+    <string name="setting_title_night_switch">夜間モードの自動切替</string>
+    <string name="setting_mes_night_switch_always">常に有効化</string>
+    <string name="setting_mes_night_switch" formatted="false">操作がない状態で%s後に有効化</string>
     <string name="setting_title_brightness">あかるさ</string>
     <string name="setting_mes_brightness">画面の暗さを調整します.</string>
     <string name="preference_setting_backup">setting_preference_backup</string>
@@ -63,4 +66,7 @@
     <string name="timer_set_message">５分タイマーをセット</string>
     <string name="dialog_title_history">アプリ使用履歴</string>
     <string name="navigation_wait">探索中…</string>
+    <string name="time_unit_sec">秒</string>
+    <string name="time_unit_min">分</string>
+    <string name="time_unit_hour">時間</string>
 </resources>

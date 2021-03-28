@@ -61,6 +61,7 @@ class ApplicationViewModel(
         // this view model is in application-scoped
         // clear variable which is needed to be initialized when activity rebooted
         fixTimer.value = false
+        nightMode.value = false
     }
 
     fun startService(activity: AppCompatActivity) {
@@ -122,6 +123,7 @@ class ApplicationViewModel(
 
     val startTimer = UnitLiveEvent(false)
     val fixTimer = MutableLiveData(false)
+    val nightMode = MutableLiveData(false)
 
     val isNavigationRunning = navigator.running
 

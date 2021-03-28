@@ -170,6 +170,8 @@ class StationService : LifecycleService() {
         // when navigation changed
         navigator.running.observe(this) {
             if (it) {
+                hasApproach = false
+                nextApproachStation = null
                 navigator.line?.let { line ->
                     stationRepository.nearestStation.value?.let { n ->
                         overlayView.navigation.startNavigation(line, n.station)
@@ -180,7 +182,19 @@ class StationService : LifecycleService() {
             }
         }
         navigator.predictions.observe(this) {
-            it?.let { result -> overlayView.navigation.onUpdate(result) }
+            it?.let { result ->
+                if (result.size > 0) {
+                    val next = result.getStation(0)
+                    if (nextApproachStation == null || nextApproachStation != next) {
+                        nextApproachStation = next
+                        hasApproach = false
+                    } else if (isVibrateWhenApproach && !hasApproach && result.getDistance(0) < vibrateMeterWhenApproach) {
+                        hasApproach = true
+                        vibrate(VIBRATE_PATTERN_APPROACH)
+                    }
+                }
+                overlayView.navigation.onUpdate(result)
+            }
         }
         overlayView.navigation.stopNavigation.observe(this) {
             viewModel.setNavigationLine(null)
@@ -224,14 +238,23 @@ class StationService : LifecycleService() {
         userRepository.isNotifyPrefecture.observe(this) {
             overlayView.displayPrefecture = it
         }
-        userRepository.nightMode.observe(this) {
+        viewModel.nightMode.observe(this) {
             overlayView.nightMode = it
+        }
+        userRepository.nightModeTimeout.observe(this) {
+            overlayView.nightModeTimeout = it
         }
         userRepository.brightness.observe(this) {
             overlayView.brightness = it
         }
         userRepository.isVibrate.observe(this) {
             isVibrate = it
+        }
+        userRepository.isVibrateApproach.observe(this) {
+            isVibrateWhenApproach = it
+        }
+        userRepository.vibrateDistance.observe(this) {
+            vibrateMeterWhenApproach = it
         }
 
         // check notification channel setting
@@ -332,16 +355,20 @@ class StationService : LifecycleService() {
 
     private lateinit var vibrator: Vibrator
     private var isVibrate: Boolean = false
+    private var isVibrateWhenApproach: Boolean = false
 
     private val VIBRATE_PATTERN_NORMAL = longArrayOf(0, 500, 100, 100)
     private val VIBRATE_PATTERN_ALERT = longArrayOf(0, 500, 100, 100, 100, 100, 100, 100)
     private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
 
     private var currentLine: Line? = null
+    private var vibrateMeterWhenApproach: Int = 100
+    private var hasApproach: Boolean = false
+    private var nextApproachStation: Station? = null
 
     private fun vibrate(s: Station) {
         val line = currentLine
-        if (line != null && s.isLine(line)) {
+        if (line != null && !s.isLine(line)) {
             vibrate(VIBRATE_PATTERN_ALERT)
         } else {
             vibrate(VIBRATE_PATTERN_NORMAL)

@@ -1,13 +1,12 @@
 package jp.seo.station.ekisagasu.ui
 
+import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.CustomNumberPicker
@@ -110,9 +109,35 @@ class SettingFragment : AppFragment() {
         }
 
         val night = view.findViewById<SwitchCompat>(R.id.switch_night)
-        userRepository.nightMode.value?.let { night.isChecked = it }
+        appViewModel.nightMode.value?.let { night.isChecked = it }
         night.setOnCheckedChangeListener { buttonView, isChecked ->
-            userRepository.nightMode.value = isChecked
+            appViewModel.nightMode.value = isChecked
+        }
+
+        val nightTimeout = view.findViewById<Spinner>(R.id.spinner_night_mode_switch)
+        context?.let { ctx ->
+            val values = ctx.resources.getIntArray(R.array.night_mode_switch_timeout).toTypedArray()
+            nightTimeout.adapter = NightModeTimeoutAdapter(ctx, values)
+            userRepository.nightModeTimeout.value?.let { timeout ->
+                val index = values.indexOfFirst { it == timeout }
+                if (index >= 0) nightTimeout.setSelection(index)
+            }
+            nightTimeout.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    parent?.getItemAtPosition(position)?.let {
+                        if (it is Int) {
+                            userRepository.nightModeTimeout.value = it
+                        }
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         }
 
         val brightness = view.findViewById<SeekBar>(R.id.seek_brightness)
@@ -159,5 +184,43 @@ class SettingFragment : AppFragment() {
             activityViewModel.checkLatestData(requireContext())
         }
 
+    }
+}
+
+class NightModeTimeoutAdapter(
+    context: Context,
+    values: Array<Int>
+) : ArrayAdapter<Int>(context, 0, values) {
+
+    private val inflater = LayoutInflater.from(context)
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view = convertView ?: inflater.inflate(android.R.layout.simple_spinner_item, null)
+        val value = getItem(position)
+        if (value != null && view is TextView) {
+            view.text = if (value == 0) {
+                context.getString(R.string.setting_mes_night_switch_always)
+            } else {
+                String.format(
+                    context.getString(R.string.setting_mes_night_switch),
+                    formatTime(context, value)
+                )
+            }
+        }
+        return view
+    }
+
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view =
+            convertView ?: inflater.inflate(android.R.layout.simple_spinner_dropdown_item, null)
+        val value = getItem(position)
+        if (value != null && view is TextView) {
+            view.text = if (value == 0) {
+                context.getString(R.string.setting_mes_night_switch_always)
+            } else {
+                formatTime(context, value)
+            }
+        }
+        return view
     }
 }

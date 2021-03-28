@@ -36,7 +36,7 @@ class UserRepository(
         private const val KEY_NOTIFY_PREFECTURE = "notify_prefecture"
         private const val KEY_VIBRATE_METER = "vibrate_meter"
         private const val KEY_VIBRATE_APPROACH = "vibrate_approach"
-        private const val KEY_NIGHT = "night_mode"
+        private const val KEY_NIGHT_TIMEOUT = "night_mode_timeout"
         private const val KEY_TIMER_POSITION = "timer_position_y"
     }
 
@@ -50,7 +50,7 @@ class UserRepository(
     val isVibrate = MutableLiveData(false)
     val isVibrateApproach = MutableLiveData(false)
     val vibrateDistance = MutableLiveData(100)
-    val nightMode = MutableLiveData(false)
+    val nightModeTimeout = MutableLiveData<Int>(0)
     val brightness = MutableLiveData<Int>(128)
     var timerPosition = 0
 
@@ -68,7 +68,7 @@ class UserRepository(
         isVibrate.postValue(reference.getBoolean(KEY_VIBRATE, false))
         isVibrateApproach.postValue(reference.getBoolean(KEY_VIBRATE_APPROACH, false))
         vibrateDistance.postValue(reference.getInt(KEY_VIBRATE_METER, 300))
-        nightMode.postValue(reference.getBoolean(KEY_NIGHT, false))
+        nightModeTimeout.postValue(reference.getInt(KEY_NIGHT_TIMEOUT, 0))
         brightness.postValue(reference.getInt(KEY_BRIGHTNESS, 200))
         timerPosition = reference.getInt(KEY_TIMER_POSITION, -1)
     }
@@ -89,7 +89,7 @@ class UserRepository(
         isVibrate.value?.let { editor.putBoolean(KEY_VIBRATE, it) }
         isVibrateApproach.value?.let { editor.putBoolean(KEY_VIBRATE_APPROACH, it) }
         vibrateDistance.value?.let { editor.putInt(KEY_VIBRATE_METER, it) }
-        nightMode.value?.let { editor.putBoolean(KEY_NIGHT, it) }
+        nightModeTimeout.value?.let { editor.putInt(KEY_NIGHT_TIMEOUT, it) }
         brightness.value?.let { editor.putInt(KEY_BRIGHTNESS, it) }
         editor.putInt(KEY_TIMER_POSITION, timerPosition)
         editor.apply()
