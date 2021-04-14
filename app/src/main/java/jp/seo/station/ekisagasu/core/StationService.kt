@@ -157,8 +157,8 @@ class StationService : LifecycleService() {
                     getString(R.string.notification_message_start)
                 )
             } else {
-                // TODO stop prediction
-                Toast.makeText(this, "Stop Search", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.message_stop_search), Toast.LENGTH_SHORT)
+                    .show()
                 viewModel.message("GPS search stopped")
                 notificationHolder.update(
                     getString(R.string.notification_title_wait),
