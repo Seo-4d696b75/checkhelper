@@ -14,15 +14,16 @@
 
         <RelativeLayout
             android:id="@+id/container_notification_icon"
-            android:layout_width="50dp"
+            android:layout_width="56dp"
             android:layout_height="match_parent"
             android:background="@drawable/notification_back_left"
             android:orientation="vertical">
 
             <ImageView
+                android:layout_margin="3dp"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/launch_icon_old" />
+                android:src="@drawable/launch_icon" />
 
         </RelativeLayout>
 

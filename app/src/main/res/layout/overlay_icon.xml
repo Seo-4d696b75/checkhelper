@@ -5,9 +5,10 @@
     android:background="@drawable/notification_back">
 
     <ImageView
+        android:layout_margin="3dp"
         android:id="@+id/imageAppIcon"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/launch_icon_old" />
+        android:src="@drawable/launch_icon" />
 
 </RelativeLayout>

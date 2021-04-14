@@ -30,7 +30,7 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         viewTreeObserver.addOnGlobalLayoutListener(this)
 
         val res = context.resources
-        foreground = BitmapFactory.decodeResource(res, R.drawable.launch_icon_old)
+        foreground = BitmapFactory.decodeResource(res, R.drawable.launch_icon)
         background = BitmapFactory.decodeResource(res, R.drawable.loop_line)
         paint = Paint()
         _matrix = Matrix()
@@ -151,6 +151,7 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         }
 
         companion object {
+            @JvmField
             val CREATOR: Parcelable.Creator<SavedState?> =
                 object : Parcelable.Creator<SavedState?> {
                     override fun createFromParcel(`in`: Parcel): SavedState {
