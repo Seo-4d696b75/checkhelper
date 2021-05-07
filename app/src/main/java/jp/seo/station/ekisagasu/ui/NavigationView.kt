@@ -31,7 +31,7 @@ import jp.seo.station.ekisagasu.utils.setAnimationListener
  * @author Seo-4d696b75
  * @version 2021/03/07.
  */
-class NavigationViewHolder(
+class NavigationView(
     ctx: Context,
     layerType: Int,
     private val windowManager: WindowManager,
@@ -134,9 +134,9 @@ class NavigationViewHolder(
         view.setOnClickListener(null)
     }
 
-    private fun toggleNavigation() {
+    fun toggleNavigation() {
         if (runningAnimation) return
-        if (view.visibility == View.GONE) {
+        if (view.visibility == View.VISIBLE) {
             animShrink.setAnimationListener(onEnd = {
                 view.visibility = View.GONE
                 runningAnimation = false
@@ -144,7 +144,7 @@ class NavigationViewHolder(
             contentContainer.startAnimation(animShrink)
             icon.visibility = View.VISIBLE
             runningAnimation = true
-        } else if (view.visibility == View.VISIBLE) {
+        } else if (view.visibility == View.GONE) {
             animExpand.setAnimationListener(onEnd = {
                 icon.visibility = View.GONE
                 runningAnimation = false

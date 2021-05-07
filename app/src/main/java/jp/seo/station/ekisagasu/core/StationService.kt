@@ -165,6 +165,7 @@ class StationService : LifecycleService() {
                     getString(R.string.notification_message_wait)
                 )
             }
+            overlayView.isSearchRunning = it
         }
 
         // when navigation changed
@@ -180,6 +181,7 @@ class StationService : LifecycleService() {
             } else {
                 overlayView.navigation.stopNavigation()
             }
+            overlayView.isNavigationRunning = it
         }
         navigator.predictions.observe(this) {
             it?.let { result ->

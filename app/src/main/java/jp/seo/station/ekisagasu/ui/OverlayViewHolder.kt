@@ -56,7 +56,7 @@ class OverlayViewHolder(
     private val lines: TextView
     private val time: TextView
 
-    val navigation: NavigationViewHolder
+    val navigation: NavigationView
 
     init {
         val inflater = LayoutInflater.from(context)
@@ -74,13 +74,6 @@ class OverlayViewHolder(
         layoutParam.screenBrightness = -1.0f
         icon = inflater.inflate(R.layout.overlay_icon, null, false)
         icon.visibility = View.GONE
-        icon.setOnClickListener {
-            if (keepNotification) {
-                toggleNotification()
-            } else {
-                onNotificationRemoved(null)
-            }
-        }
         windowManager.addView(icon, layoutParam)
 
         // transparent & not touchable view so that screen kept turn on
@@ -169,8 +162,17 @@ class OverlayViewHolder(
         notificationContainer = notification.findViewById(R.id.container_notification)
         notificationContent = notification.findViewById(R.id.container_notification_detail)
 
-        navigation = NavigationViewHolder(context, layerType, windowManager, icon)
+        navigation = NavigationView(context, layerType, windowManager, icon)
 
+        icon.setOnClickListener {
+            if (isNavigationRunning) {
+                navigation.toggleNavigation()
+            } else if (keepNotification) {
+                toggleNotification()
+            } else {
+                onNotificationRemoved(null)
+            }
+        }
     }
 
     private val timeNow = context.getString(R.string.notification_time_now)
@@ -200,18 +202,33 @@ class OverlayViewHolder(
 
     var keepNotification: Boolean = false
         set(value) {
-            if (value != field) {
-                field = value
-                if (value) {
-                    nearestStation?.let { onNotifyStation(it, false) }
-                } else {
-                    onNotificationRemoved(null)
-                }
-            }
+            field = value
+            checkKeepNotification()
         }
 
     var forceNotify: Boolean = false
 
+    var isSearchRunning: Boolean = false
+        set(value) {
+            field = value
+            if (!value) {
+                onNotificationRemoved(null)
+            }
+        }
+
+    var isNavigationRunning: Boolean = false
+        set(value) {
+            field = value
+            checkKeepNotification()
+        }
+
+    private fun checkKeepNotification() {
+        if (isSearchRunning && keepNotification && !isNavigationRunning) {
+            nearestStation?.let { onNotifyStation(it, false) }
+        } else {
+            onNotificationRemoved(null)
+        }
+    }
 
     var screen: Boolean = true
         set(value) = synchronized(this) {
@@ -295,10 +312,10 @@ class OverlayViewHolder(
     }
 
     fun onStationChanged(station: NearStation) = synchronized(this) {
-        if (!notify) return@synchronized
-        if (navigation.show) return@synchronized
         detectedTime = SystemClock.elapsedRealtime()
         nearestStation = station
+        if (!notify) return@synchronized
+        if (isNavigationRunning) return@synchronized
         if (screen) {
             if (nightMode && nightModeTimeout > 0 && darkScreen.visibility == View.VISIBLE) {
                 keepOnScreen.visibility = View.VISIBLE
@@ -403,6 +420,7 @@ class OverlayViewHolder(
                 notification.visibility = View.GONE
             })
             notificationContent.startAnimation(animClose)
+            icon.visibility = View.VISIBLE
         } else {
             notification.visibility = View.VISIBLE
             notificationContent.visibility = View.VISIBLE
