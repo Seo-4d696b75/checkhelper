@@ -2,7 +2,6 @@ package jp.seo.station.ekisagasu.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +9,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
@@ -38,11 +39,9 @@ class MainActivity : AppCompatActivity() {
 
         // try to resolve API exception if any
         appViewModel.apiException.observe(this) {
-            try {
-                it?.startResolutionForResult(this, RESOLVE_API_EXCEPTION)
-            } catch (e: IntentSender.SendIntentException) {
-                Log.e(e.javaClass.name, e.message ?: "fail to resolve")
-            }
+            resolvableApiLauncher.launch(
+                IntentSenderRequest.Builder(it.resolution).build()
+            )
         }
 
         // finish activity if requested
@@ -119,6 +118,16 @@ class MainActivity : AppCompatActivity() {
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
+    private val resolvableApiLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            Log.d("ResolvableAPI", "resolved")
+        } else {
+            Log.d("ResolvableAPI", "fail")
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PERMISSION_REQUEST_OVERLAY) {
@@ -134,8 +143,6 @@ class MainActivity : AppCompatActivity() {
                 ).show()
                 finish()
             }
-        } else if (requestCode == RESOLVE_API_EXCEPTION) {
-            Log.d("ActivityResult", "resolve_api_exception")
         } else if (requestCode == WRITE_EXTERNAL_FILE) {
             if (resultCode == Activity.RESULT_OK) {
                 data?.data?.let { viewModel.writeFile(it, contentResolver) }
