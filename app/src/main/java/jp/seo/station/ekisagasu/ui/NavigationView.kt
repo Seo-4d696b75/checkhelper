@@ -85,10 +85,22 @@ class NavigationView(
             view.findViewById(R.id.text_station_fade)
         )
         markers = arrayOf(
-            view.findViewById(R.id.station_marker_current),
-            view.findViewById(R.id.station_marker_next1),
-            view.findViewById(R.id.station_marker_next2),
-            view.findViewById(R.id.station_marker_fade)
+            view.findViewById<View>(R.id.station_marker_current).also {
+                it.pivotX = 0f
+                it.pivotY = 0f
+            },
+            view.findViewById<View>(R.id.station_marker_next1).also {
+                it.pivotX = 0f
+                it.pivotY = 0f
+            },
+            view.findViewById<View>(R.id.station_marker_next2).also {
+                it.pivotX = 0f
+                it.pivotY = 0f
+            },
+            view.findViewById<View>(R.id.station_marker_fade).also {
+                it.pivotX = 0f
+                it.pivotY = 0f
+            }
         )
 
         view.setOnClickListener {
@@ -259,20 +271,28 @@ class NavigationView(
             markers[1].width.toFloat() / markers[2].width,
             markers[2].width.toFloat() / markers[3].width
         )
-
+        // setting pivots for scaling
+        distances[0].also {
+            it.pivotX = 0f
+            it.pivotY = it.height.toFloat()
+        }
+        distances[2].also {
+            it.pivotX = it.width.toFloat()
+            it.pivotY = 0f
+        }
+        stations[0].also {
+            it.pivotX = 0f
+            it.pivotY = it.height.toFloat()
+        }
+        stations[3].also {
+            it.pivotX = it.width.toFloat()
+            it.pivotY = 0f
+        }
         val animatorSet = AnimatorSet()
         if (result.size > 1) {
             distances[2].text = formatDistance(result.getDistance(1).toDouble())
             stations[3].text = result.getStation(1).name
         }
-        distances[0].pivotX = 0f
-        distances[0].pivotY = distances[0].height.toFloat()
-        distances[2].pivotX = distances[2].width.toFloat()
-        distances[2].pivotY = 0f
-        stations[0].pivotX = 0f
-        stations[0].pivotY = stations[0].height.toFloat()
-        stations[3].pivotX = stations[3].width.toFloat()
-        stations[3].pivotY = 0f
         animatorSet.playTogether(
             ObjectAnimator.ofPropertyValuesHolder(
                 distances[0],
