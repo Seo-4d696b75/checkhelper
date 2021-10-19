@@ -7,17 +7,17 @@ import android.animation.PropertyValuesHolder
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.animation.addListener
-import androidx.core.content.res.ResourcesCompat
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
@@ -299,7 +299,9 @@ class NavigationView(
                 PropertyValuesHolder.ofFloat("scaleY", 1f, 0.5f),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, 0.5f),
                 PropertyValuesHolder.ofFloat("alpha", 1f, 0.2f)
-            ),
+            ).also {
+                it.interpolator = DecelerateInterpolator()
+            },
             ObjectAnimator.ofPropertyValuesHolder(
                 distances[1],
                 PropertyValuesHolder.ofFloat("translationX", 0f, distanceX[0] - distanceX[1]),
@@ -310,13 +312,17 @@ class NavigationView(
                 PropertyValuesHolder.ofFloat("scaleY", 0.5f, 1f),
                 PropertyValuesHolder.ofFloat("scaleX", 0.5f, 1f),
                 PropertyValuesHolder.ofFloat("alpha", 0.2f, 1f)
-            ),
+            ).also {
+                it.interpolator = AccelerateInterpolator()
+            },
             ObjectAnimator.ofPropertyValuesHolder(
                 stations[0],
                 PropertyValuesHolder.ofFloat("scaleY", 1f, 0.5f),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, 0.5f),
                 PropertyValuesHolder.ofFloat("alpha", 1f, 0.2f)
-            ),
+            ).also {
+                it.interpolator = DecelerateInterpolator()
+            },
             ObjectAnimator.ofPropertyValuesHolder(
                 stations[1],
                 PropertyValuesHolder.ofFloat("translationX", 0f, nameX[0] - nameX[1]),
