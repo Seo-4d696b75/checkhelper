@@ -59,13 +59,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.requestToast.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
+
+        viewModel.checkPermission(this)
+        viewModel.checkData()
+        appViewModel.startService(this)
     }
 
     override fun onResume() {
         super.onResume()
-        appViewModel.startService(this)
-        viewModel.checkData()
-        viewModel.checkPermission(this)
 
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
