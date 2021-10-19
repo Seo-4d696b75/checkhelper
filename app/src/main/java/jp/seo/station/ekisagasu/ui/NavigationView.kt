@@ -44,9 +44,6 @@ class NavigationView(
     private val stations: Array<TextView>
     private val markers: Array<View>
 
-    private val markerNormal: Drawable
-    private val markerAccent: Drawable
-
     private val contentContainer: View
     private val stationContainer: View
     private val waitContainer: View
@@ -93,12 +90,6 @@ class NavigationView(
             view.findViewById(R.id.station_marker_next2),
             view.findViewById(R.id.station_marker_fade)
         )
-
-        val res = ctx.resources
-        markerNormal =
-            ResourcesCompat.getDrawable(res, R.drawable.station_marker_normal, ctx.theme)!!
-        markerAccent =
-            ResourcesCompat.getDrawable(res, R.drawable.station_marker_accent, ctx.theme)!!
 
         view.setOnClickListener {
             toggleNavigation()
