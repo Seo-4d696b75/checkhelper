@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
 import jp.seo.station.ekisagasu.R
@@ -78,7 +77,6 @@ class ActivityViewModel(
 
     val requestFinish = UnitLiveEvent(true)
 
-    private var hasPermissionChecked = false
     private var hasVersionChecked = false
 
     /**
@@ -89,7 +87,7 @@ class ActivityViewModel(
     fun checkData() {
 
         // check data version
-        if (!hasVersionChecked || !stationRepository.dataInitialized) {
+        if (!hasVersionChecked) {
             hasVersionChecked = true
 
             viewModelScope.launch {
@@ -110,17 +108,6 @@ class ActivityViewModel(
 
             }
         }
-    }
-
-    fun checkPermission(activity: AppCompatActivity): Boolean {
-        if (hasPermissionChecked) return true
-
-
-        viewModelScope.launch {
-            userRepository.logMessage("all permission checked")
-        }
-        hasPermissionChecked = true
-        return true
     }
 
     val requestToast = LiveEvent<String>()

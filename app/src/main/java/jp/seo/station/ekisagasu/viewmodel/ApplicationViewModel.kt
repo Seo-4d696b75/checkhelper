@@ -1,11 +1,8 @@
 package jp.seo.station.ekisagasu.viewmodel
 
 import android.content.Context
-import android.content.Intent
 import android.location.Location
-import android.os.Build
 import androidx.annotation.MainThread
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
@@ -64,21 +61,27 @@ class ApplicationViewModel(
         nightMode.value = false
     }
 
-    fun startService(activity: AppCompatActivity) {
-        if (!isServiceAlive) {
+    private var hasAppReboot = false
 
-            val intent = Intent(activity, StationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                activity.startForegroundService(intent)
-            } else {
-                activity.startService(intent)
-            }
-            viewModelScope.launch(Dispatchers.IO) {
-                userRepository.onAppReboot(activity)
-            }
-            isServiceAlive = true
-        }
+    /**
+     * App起動時の初期化処理
+     */
+    fun onAppReboot(context: Context) = viewModelScope.launch {
+        if (hasAppReboot) return@launch
+        userRepository.onAppReboot(context)
+        hasAppReboot = true
     }
+
+    var hasPermissionChecked = false
+        set(value) {
+            if (field) return
+            if (!value) throw RuntimeException()
+            viewModelScope.launch {
+                userRepository.logMessage("all permission checked")
+            }
+            field = true
+        }
+
 
     /**
      * 探索が現在進行中であるか

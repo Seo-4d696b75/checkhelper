@@ -22,10 +22,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.GPSClient
-import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import javax.inject.Inject
@@ -64,13 +61,19 @@ class MainActivity : AppCompatActivity() {
         viewModel.requestToast.observe(this) {
             Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
         }
+
+        appViewModel.onAppReboot(applicationContext)
+
     }
 
     override fun onResume() {
         super.onResume()
-        appViewModel.startService(this)
-        viewModel.checkData()
         checkPermission()
+        if (appViewModel.hasPermissionChecked) {
+            startService()
+            viewModel.checkData()
+        }
+
 
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
@@ -117,13 +120,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val PERMISSION_REQUEST_OVERLAY = 3900
         const val PERMISSION_REQUEST = 3901
         const val WRITE_EXTERNAL_FILE = 3903
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
+    private fun startService() {
+        if (!appViewModel.isServiceAlive) {
+            val intent = Intent(this, StationService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            appViewModel.isServiceAlive = true
+        }
+    }
+
     private fun checkPermission() {
+        if (appViewModel.hasPermissionChecked) return
         // Runtime Permission required API level >= 23
         if (!Settings.canDrawOverlays(applicationContext)) {
             Toast.makeText(
@@ -168,7 +183,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        viewModel.checkPermission(this)
+        appViewModel.hasPermissionChecked = true
     }
 
     private val overlayPermissionLauncher = registerForActivityResult(
@@ -233,7 +248,6 @@ class MainActivity : AppCompatActivity() {
                 ).show()
                 finish()
             }
-
         }
     }
 
