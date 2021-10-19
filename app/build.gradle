@@ -5,6 +5,14 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
+    signingConfigs {
+        'default-signing' {
+        storeFile file('C:\\Users\\skaor\\android_ekisagasu_keystore.jks')
+            storePassword 'ekisagsu'
+            keyAlias 'ekisagasu'
+            keyPassword 'ekisagasu'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.0"
 
@@ -22,6 +30,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.'default-signing'
         }
     }
 
