@@ -1,17 +1,13 @@
 package jp.seo.station.ekisagasu.viewmodel
 
-import android.Manifest
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
 import com.google.android.gms.common.ConnectionResult
@@ -120,25 +116,6 @@ class ActivityViewModel(
 
     fun checkPermission(activity: AppCompatActivity): Boolean {
         if (hasPermissionChecked) return true
-        if (
-            ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                MainActivity.PERMISSION_REQUEST
-            )
-            return false
-        }
 
         val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity)
         if (code != ConnectionResult.SUCCESS) {

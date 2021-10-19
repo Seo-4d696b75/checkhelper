@@ -1,5 +1,6 @@
 package jp.seo.station.ekisagasu.ui
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,6 +14,8 @@ import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -134,6 +137,29 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        if (
+            ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                PERMISSION_REQUEST
+            )
+            return
+        }
+
         viewModel.checkPermission(this)
     }
 
@@ -169,20 +195,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PERMISSION_REQUEST_OVERLAY) {
-            Log.d("ActivityResult", "permission_request_overlay")
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                Toast.makeText(applicationContext, "Please reboot app", Toast.LENGTH_SHORT).show()
-            }
-            if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(
-                    applicationContext,
-                    "overlay permission not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
-        } else if (requestCode == WRITE_EXTERNAL_FILE) {
+        if (requestCode == WRITE_EXTERNAL_FILE) {
             if (resultCode == Activity.RESULT_OK) {
                 data?.data?.let { viewModel.writeFile(it, contentResolver) }
             }
