@@ -351,7 +351,11 @@ class NavigationView(
             )
         )
         animatorSet.duration = 500L
-        animatorSet.addListener(onEnd = {
+        animatorSet.addListener(onStart = {
+            distances[2].visibility = View.VISIBLE
+            markers[3].visibility = View.VISIBLE
+            stations[3].visibility = View.VISIBLE
+        }, onEnd = {
             runningAnimator = null
             it.removeAllListeners()
 
@@ -380,8 +384,8 @@ class NavigationView(
                 view.scaleY = 1f
             }
             distances[2].visibility = View.INVISIBLE
-            stations[2].visibility = View.INVISIBLE
-            markers[2].visibility = View.INVISIBLE
+            stations[3].visibility = View.INVISIBLE
+            markers[3].visibility = View.INVISIBLE
             invalidate(result)
         })
         runningAnimator = animatorSet

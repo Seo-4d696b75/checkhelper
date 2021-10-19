@@ -143,6 +143,7 @@
                             android:layout_above="@id/text_station_next1"
                             android:layout_marginStart="120dp"
                             android:textColor="@color/colorTextDark"
+                            android:visibility="invisible"
                             android:textSize="16sp" />
 
                         <jp.seo.android.widget.ExpandableTextView
