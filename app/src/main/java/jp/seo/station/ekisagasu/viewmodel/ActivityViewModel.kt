@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -121,21 +120,7 @@ class ActivityViewModel(
 
     fun checkPermission(activity: AppCompatActivity): Boolean {
         if (hasPermissionChecked) return true
-
-        // Runtime Permission required API level >= 23
-        if (!Settings.canDrawOverlays(activity)) {
-            Toast.makeText(
-                activity.applicationContext,
-                "Need \"DrawOverlay\" Permission",
-                Toast.LENGTH_SHORT
-            ).show()
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${activity.packageName}")
-            )
-            activity.startActivityForResult(intent, MainActivity.PERMISSION_REQUEST_OVERLAY)
-            return false
-        } else if (
+        if (
             ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
             || ContextCompat.checkSelfPermission(

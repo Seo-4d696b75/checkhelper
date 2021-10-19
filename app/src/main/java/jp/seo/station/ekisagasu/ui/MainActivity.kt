@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         appViewModel.startService(this)
         viewModel.checkData()
-        viewModel.checkPermission(this)
+        checkPermission()
 
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
@@ -113,9 +114,47 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val PERMISSION_REQUEST_OVERLAY = 3900
         const val PERMISSION_REQUEST = 3901
-        const val RESOLVE_API_EXCEPTION = 3902
         const val WRITE_EXTERNAL_FILE = 3903
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
+    }
+
+    private fun checkPermission() {
+        // Runtime Permission required API level >= 23
+        if (!Settings.canDrawOverlays(applicationContext)) {
+            Toast.makeText(
+                applicationContext,
+                "Need \"DrawOverlay\" Permission",
+                Toast.LENGTH_SHORT
+            ).show()
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${applicationContext.packageName}")
+            )
+            overlayPermissionLauncher.launch(intent)
+            return
+        }
+
+        viewModel.checkPermission(this)
+    }
+
+    private val overlayPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            Log.d("Overlay", "permission_request_overlay")
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                Toast.makeText(applicationContext, "Please reboot app", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(
+                    applicationContext,
+                    "overlay permission not granted",
+                    Toast.LENGTH_SHORT
+                ).show()
+                finish()
+            }
+        }
     }
 
     private val resolvableApiLauncher = registerForActivityResult(
