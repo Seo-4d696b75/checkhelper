@@ -1,25 +1,18 @@
 package jp.seo.station.ekisagasu.ui
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.GPSClient
@@ -45,9 +38,11 @@ class MainActivity : AppCompatActivity() {
 
         // try to resolve API exception if any
         appViewModel.apiException.observe(this) {
-            resolvableApiLauncher.launch(
-                IntentSenderRequest.Builder(it.resolution).build()
-            )
+            try {
+                it?.startResolutionForResult(this, RESOLVE_API_EXCEPTION)
+            } catch (e: IntentSender.SendIntentException) {
+                Log.e(e.javaClass.name, e.message ?: "fail to resolve")
+            }
         }
 
         // finish activity if requested
@@ -68,9 +63,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        checkPermission()
         appViewModel.startService(this)
         viewModel.checkData()
+        viewModel.checkPermission(this)
 
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
@@ -119,66 +114,18 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val PERMISSION_REQUEST_OVERLAY = 3900
         const val PERMISSION_REQUEST = 3901
+        const val RESOLVE_API_EXCEPTION = 3902
+        const val WRITE_EXTERNAL_FILE = 3903
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
-    private fun checkPermission() {
-        if (appViewModel.hasPermissionChecked) return
-        // Runtime Permission required API level >= 23
-        if (!Settings.canDrawOverlays(applicationContext)) {
-            Toast.makeText(
-                applicationContext,
-                "Need \"DrawOverlay\" Permission",
-                Toast.LENGTH_SHORT
-            ).show()
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${applicationContext.packageName}")
-            )
-            overlayPermissionLauncher.launch(intent)
-            return
-        }
-        if (
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                PERMISSION_REQUEST
-            )
-            return
-        }
-
-        val code =
-            GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(applicationContext)
-        if (code != ConnectionResult.SUCCESS) {
-            GoogleApiAvailability.getInstance().getErrorDialog(this, code, 0)?.show()
-            return
-        }
-        appViewModel.hasPermissionChecked = true
-    }
-
-    private val overlayPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            Log.d("Overlay", "permission_request_overlay")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PERMISSION_REQUEST_OVERLAY) {
+            Log.d("ActivityResult", "permission_request_overlay")
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
                 Toast.makeText(applicationContext, "Please reboot app", Toast.LENGTH_SHORT).show()
             }
-        } else {
             if (!Settings.canDrawOverlays(this)) {
                 Toast.makeText(
                     applicationContext,
@@ -187,16 +134,12 @@ class MainActivity : AppCompatActivity() {
                 ).show()
                 finish()
             }
-        }
-    }
-
-    private val resolvableApiLauncher = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            Log.d("ResolvableAPI", "resolved")
-        } else {
-            Log.d("ResolvableAPI", "fail")
+        } else if (requestCode == RESOLVE_API_EXCEPTION) {
+            Log.d("ActivityResult", "resolve_api_exception")
+        } else if (requestCode == WRITE_EXTERNAL_FILE) {
+            if (resultCode == Activity.RESULT_OK) {
+                data?.data?.let { viewModel.writeFile(it, contentResolver) }
+            }
         }
     }
 
@@ -223,6 +166,7 @@ class MainActivity : AppCompatActivity() {
                 ).show()
                 finish()
             }
+
         }
     }
 

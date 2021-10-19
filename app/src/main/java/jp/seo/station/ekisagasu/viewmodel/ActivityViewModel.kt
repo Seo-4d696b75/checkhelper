@@ -1,12 +1,22 @@
 package jp.seo.station.ekisagasu.viewmodel
 
+import android.Manifest
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.ui.*
@@ -75,6 +85,7 @@ class ActivityViewModel(
 
     val requestFinish = UnitLiveEvent(true)
 
+    private var hasPermissionChecked = false
     private var hasVersionChecked = false
 
     /**
@@ -106,6 +117,56 @@ class ActivityViewModel(
 
             }
         }
+    }
+
+    fun checkPermission(activity: AppCompatActivity): Boolean {
+        if (hasPermissionChecked) return true
+
+        // Runtime Permission required API level >= 23
+        if (!Settings.canDrawOverlays(activity)) {
+            Toast.makeText(
+                activity.applicationContext,
+                "Need \"DrawOverlay\" Permission",
+                Toast.LENGTH_SHORT
+            ).show()
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${activity.packageName}")
+            )
+            activity.startActivityForResult(intent, MainActivity.PERMISSION_REQUEST_OVERLAY)
+            return false
+        } else if (
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                MainActivity.PERMISSION_REQUEST
+            )
+            return false
+        }
+
+        val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity)
+        if (code != ConnectionResult.SUCCESS) {
+            GoogleApiAvailability.getInstance().getErrorDialog(activity, code, 0)?.show()
+            return false
+        }
+
+
+        viewModelScope.launch {
+            userRepository.logMessage("all permission checked")
+        }
+        hasPermissionChecked = true
+        return true
     }
 
     val requestToast = LiveEvent<String>()
@@ -233,27 +294,37 @@ class ActivityViewModel(
         logs.filter { (it.type and filter.filter) > 0 }
     }
 
-    fun prepareWriteLog(title: String, time: Date): String {
-        val type = requireNotNull(_filter.value)
+
+    fun writeLog(title: String, activity: Activity) {
         val builder = StringBuilder()
-        val list = requireNotNull(logs.value)
-        builder.append(title)
-        builder.append("\nlog type : ")
-        builder.append(type.name)
-        builder.append("\nwritten time : ")
-        builder.append(formatTime(TIME_PATTERN_DATETIME, time))
-        for (log in list) {
-            builder.append("\n")
-            builder.append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))
-            builder.append(" ")
-            builder.append(log.message)
+        val time = Date()
+        _filter.value?.let { type ->
+            logs.value?.let { list ->
+                val fileName = String.format(
+                    Locale.US, "%s_%sLog_%s.txt", title, type.name, formatTime(
+                        TIME_PATTERN_DATETIME_FILE, time
+                    )
+                )
+                builder.append(title)
+                builder.append("\nlog type : ")
+                builder.append(type.name)
+                builder.append("\nwritten time : ")
+                builder.append(formatTime(TIME_PATTERN_DATETIME, time))
+                for (log in list) {
+                    builder.append("\n")
+                    builder.append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))
+                    builder.append(" ")
+                    builder.append(log.message)
+                }
+                targetFileContent = builder.toString()
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    this.type = "text/plain"
+                    putExtra(Intent.EXTRA_TITLE, fileName)
+                }
+                activity.startActivityForResult(intent, MainActivity.WRITE_EXTERNAL_FILE)
+            }
         }
-        targetFileContent = builder.toString()
-        return String.format(
-            Locale.US, "%s_%sLog_%s.txt", title, type.name, formatTime(
-                TIME_PATTERN_DATETIME_FILE, time
-            )
-        )
     }
 
     private var targetFileContent: String? = null
