@@ -64,8 +64,18 @@ class ApplicationViewModel(
         nightMode.value = false
     }
 
+    var hasPermissionChecked = false
+        set(value) {
+            if (value) return
+            if (!value) throw RuntimeException()
+            viewModelScope.launch {
+                userRepository.logMessage("all permission checked")
+            }
+            field = true
+        }
+
     fun startService(activity: AppCompatActivity) {
-        if (!isServiceAlive) {
+        if (!isServiceAlive && hasPermissionChecked) {
 
             val intent = Intent(activity, StationService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

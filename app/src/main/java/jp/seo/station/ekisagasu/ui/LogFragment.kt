@@ -1,11 +1,14 @@
 package jp.seo.station.ekisagasu.ui
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +20,8 @@ import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * @author Seo-4d696b75
@@ -95,10 +100,29 @@ class LogFragment : AppFragment() {
                 adapter.notifyDataSetChanged()
             })
             view.findViewById<FloatingActionButton>(R.id.button_write_log).setOnClickListener {
-                viewModel.writeLog(getString(R.string.app_name), requireActivity())
+                val title = getString(R.string.app_name)
+                val time = Date()
+                val fileName = viewModel.prepareWriteLog(title, time)
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    this.type = "text/plain"
+                    putExtra(Intent.EXTRA_TITLE, fileName)
+                }
+                writeFileRequestLauncher.launch(intent)
             }
         }
     }
+
+    private val writeFileRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            val data = requireNotNull(it.data)
+            val uri = requireNotNull(data.data)
+            viewModel.writeFile(uri, requireActivity().contentResolver)
+        }
+    }
+
 }
 
 class LogTypeAdapter(
