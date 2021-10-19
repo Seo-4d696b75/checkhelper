@@ -10,8 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.ui.*
@@ -116,12 +114,6 @@ class ActivityViewModel(
 
     fun checkPermission(activity: AppCompatActivity): Boolean {
         if (hasPermissionChecked) return true
-
-        val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity)
-        if (code != ConnectionResult.SUCCESS) {
-            GoogleApiAvailability.getInstance().getErrorDialog(activity, code, 0)?.show()
-            return false
-        }
 
 
         viewModelScope.launch {

@@ -18,6 +18,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.findNavController
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.GPSClient
@@ -157,6 +159,12 @@ class MainActivity : AppCompatActivity() {
                 ),
                 PERMISSION_REQUEST
             )
+            return
+        }
+
+        val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+        if (code != ConnectionResult.SUCCESS) {
+            GoogleApiAvailability.getInstance().getErrorDialog(this, code, 0)?.show()
             return
         }
 
