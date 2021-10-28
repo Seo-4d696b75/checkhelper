@@ -20,8 +20,8 @@ android {
         applicationId "jp.seo.station.ekisagasu"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 100
+        versionName "2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
