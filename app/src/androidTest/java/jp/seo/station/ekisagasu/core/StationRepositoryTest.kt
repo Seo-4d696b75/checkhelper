@@ -7,10 +7,11 @@ import androidx.core.os.HandlerCompat
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
 import jp.seo.station.ekisagasu.search.KdTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -44,35 +45,35 @@ class StationRepositoryTest {
     fun getStationDatabase() {
         runBlocking(Dispatchers.IO) {
             // empty database
-            assertThat(repository.lastCheckedVersion).isNull()
+            assertThat(repository.lastCheckedVersion, Matchers.nullValue())
             val info = repository.getLatestDataVersion()
-            assertThat(info.version).isGreaterThan(0L)
+            assertThat(info.version, Matchers.greaterThan(0L))
             val version = repository.getDataVersion()
-            assertThat(version).isNull()
-            assertThat(repository.dataInitialized).isFalse()
-            assertThat(repository.lastCheckedVersion).isNotNull()
-            assertThat(repository.lastCheckedVersion?.version).isEqualTo(info.version)
+            assertThat(version, Matchers.nullValue())
+            assertThat(repository.dataInitialized, Matchers.`is`(false))
+            assertThat(repository.lastCheckedVersion, Matchers.notNullValue())
+            assertThat(repository.lastCheckedVersion?.version, Matchers.`is`(info.version))
 
             // update data
             repository.updateData(info, object : StationRepository.UpdateProgressListener {
                 override fun onStateChanged(state: String) {
-                    assertThat(state).isNotEmpty()
+                    assertThat(state, Matchers.not(Matchers.isEmptyString()))
                 }
 
                 override fun onProgress(progress: Int) {
-                    assertThat(progress).isGreaterThan(-1)
-                    assertThat(progress).isLessThan(101)
+                    assertThat(progress, Matchers.greaterThanOrEqualTo(0))
+                    assertThat(progress, Matchers.lessThanOrEqualTo(100))
                 }
 
                 override fun onComplete(success: Boolean) {
-                    assertThat(success).isTrue()
+                    assertThat(success, Matchers.`is`(true))
                 }
 
             })
             val current = repository.getDataVersion()
-            assertThat(current).isNotNull()
-            assertThat(current?.version).isEqualTo(info.version)
-            assertThat(repository.dataInitialized).isTrue()
+            assertThat(current, Matchers.notNullValue())
+            assertThat(current?.version, Matchers.`is`(info.version))
+            assertThat(repository.dataInitialized, Matchers.`is`(true))
 
         }
 
@@ -99,13 +100,13 @@ class StationRepositoryTest {
                 loc.longitude = sample.lng
                 repository.updateNearestStations(loc)
                 val s = repository.detectedStation.value
-                assertThat(s).isNotNull()
-                assertThat(s?.station?.name).isEqualTo(sample.stationName)
+                assertThat(s, Matchers.notNullValue())
+                assertThat(s?.station?.name, Matchers.`is`(sample.stationName))
                 val n = repository.nearestStation.value
-                assertThat(n).isEqualTo(s)
+                assertThat(n, Matchers.`is`(s))
             }
             repository.onStopSearch()
-            assertThat(repository.nearestStation.value).isNull()
+            assertThat(repository.nearestStation.value, Matchers.nullValue())
         }
     }
 
