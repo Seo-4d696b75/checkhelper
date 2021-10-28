@@ -19,7 +19,7 @@ class APINetworkKtTest {
     fun testAPIClient() = runBlocking(Dispatchers.IO) {
         // select a url of appropriate branch
         val client =
-            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/master/")
+            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/")
         val info = client.getLatestInfo()
         assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
         val latest = client.getLatestData()

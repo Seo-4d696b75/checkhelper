@@ -34,7 +34,7 @@ class StationRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(ctx, StationDatabase::class.java).build()
         val tree = KdTree(db.dao)
         val api =
-            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/master/")
+            getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/")
         val main = HandlerCompat.createAsync(Looper.getMainLooper())
         repository = StationRepository(db.dao, api, tree, main)
     }

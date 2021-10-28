@@ -30,7 +30,7 @@ interface APIClient {
     @GET("latest_info.json")
     suspend fun getLatestInfo(): DataLatestInfo
 
-    @GET("out/data.json")
+    @GET("out/main/data.json")
     suspend fun getLatestData(): StationData
 
     @GET
