@@ -338,6 +338,9 @@ class OverlayViewHolder(
     }
 
     fun onLocationChanged(station: NearStation) {
+        if (requestedStation?.station == station.station) {
+            requestedStation = station
+        }
         distance.text = formatDistance(station.distance)
     }
 
