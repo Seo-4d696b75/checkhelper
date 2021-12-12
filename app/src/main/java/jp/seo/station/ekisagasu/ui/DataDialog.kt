@@ -125,7 +125,7 @@ class DataUpdateDialog : DataDialog() {
                 }
 
                 viewModel.updateStationData(info) { result ->
-                    viewModel.handleDialogResult(type, info, true)
+                    viewModel.handleDialogResult(type, info, result)
                     dismiss()
                 }
             }

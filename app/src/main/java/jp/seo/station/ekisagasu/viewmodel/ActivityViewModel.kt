@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
 import jp.seo.station.ekisagasu.R
@@ -15,7 +14,6 @@ import jp.seo.station.ekisagasu.ui.*
 import jp.seo.station.ekisagasu.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.io.IOException
 import java.io.OutputStreamWriter
@@ -74,6 +72,8 @@ class ActivityViewModel(
 
     private val messageAbortInit = context.getString(R.string.message_abort_init_data)
     private val messageSuccessUpdate = context.getString(R.string.message_success_data_update)
+    private val messageNetworkError = context.getString(R.string.message_network_failure)
+    private val messageFailUpdate = context.getString(R.string.message_fail_data_update)
 
     val requestFinish = UnitLiveEvent(true)
 
@@ -93,7 +93,13 @@ class ActivityViewModel(
             viewModelScope.launch {
 
                 val info = stationRepository.getDataVersion()
-                val latest = stationRepository.getLatestDataVersion(false)
+                val latest = try {
+                    stationRepository.getLatestDataVersion(false)
+                } catch (e: IOException) {
+                    requestToast.postCall(messageNetworkError)
+                    hasVersionChecked = false
+                    return@launch
+                }
 
                 if (info == null) {
                     targetInfo = latest
@@ -139,6 +145,8 @@ class ActivityViewModel(
                         info.version
                     )
                     requestToast.call(mes)
+                } else {
+                    requestToast.call(messageFailUpdate)
                 }
             }
             else -> {
@@ -167,43 +175,40 @@ class ActivityViewModel(
         get() = _updateProgress
 
     fun updateStationData(info: DataLatestInfo, callback: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                stationRepository.updateData(
-                    info,
-                    object : StationRepository.UpdateProgressListener {
-                        override fun onStateChanged(state: String) {
-                            _updateState.value = state
-                        }
+        viewModelScope.launch(Dispatchers.IO) {
+            stationRepository.updateData(
+                info,
+                object : StationRepository.UpdateProgressListener {
+                    override fun onStateChanged(state: String) {
+                        _updateState.value = state
+                    }
 
-                        override fun onProgress(progress: Int) {
-                            _updateProgress.value = progress
-                        }
+                    override fun onProgress(progress: Int) {
+                        _updateProgress.value = progress
+                    }
 
-                        override fun onComplete(success: Boolean) {
-                            callback(success)
-                        }
+                    override fun onComplete(success: Boolean) {
+                        callback(success)
+                    }
 
-                    })
-            }
+                })
         }
     }
 
     fun checkLatestData(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val latest = stationRepository.getLatestDataVersion(true)
+            val latest = try {
+                stationRepository.getLatestDataVersion(true)
+            } catch (e: IOException) {
+                requestToast.postCall(messageNetworkError)
+                return@launch
+            }
             val current = stationRepository.getDataVersion()
             if (current == null || latest.version > current.version) {
                 targetInfo = latest
                 requestDialog(DataDialog.DIALOG_LATEST)
             } else {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.data_already_latest),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                requestToast.postCall(context.getString(R.string.data_already_latest))
             }
         }
     }

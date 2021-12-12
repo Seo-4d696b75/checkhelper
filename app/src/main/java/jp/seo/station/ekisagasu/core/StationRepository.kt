@@ -189,27 +189,33 @@ class StationRepository(
             listener.onStateChanged(UpdateProgressListener.STATE_DOWNLOAD)
             listener.onProgress(0)
         }
-        var percent = 0
-        val download = getDownloadClient { length: Long ->
-            val p = floor(length.toFloat() / info.length * 100.0f).toInt()
-            if (p in 1..100 && p > percent) {
-                main.post { listener.onProgress(p) }
-                percent = p
-                if (percent == 100) main.post { listener.onStateChanged(UpdateProgressListener.STATE_PARSE) }
+        try {
+            var percent = 0
+            val download = getDownloadClient { length: Long ->
+                val p = floor(length.toFloat() / info.length * 100.0f).toInt()
+                if (p in 1..100 && p > percent) {
+                    main.post { listener.onProgress(p) }
+                    percent = p
+                    if (percent == 100) main.post { listener.onStateChanged(UpdateProgressListener.STATE_PARSE) }
+                }
             }
-        }
-        val data = download.getData(info.url)
-        var result = false
-        if (data.version == info.version) {
-            dao.updateData(data, listener, main)
-            val current = getDataVersion()
-            if (info.version == current?.version) {
-                _dataInitialized = true
-                _currentVersion.postValue(current)
-                result = true
+            val data = download.getData(info.url)
+            var result = false
+            if (data.version == info.version) {
+                dao.updateData(data, listener, main)
+                val current = getDataVersion()
+                if (info.version == current?.version) {
+                    _dataInitialized = true
+                    _currentVersion.postValue(current)
+                    result = true
+                }
             }
+
+            main.post { listener.onComplete(result) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            main.post { listener.onComplete(false) }
         }
-        main.post { listener.onComplete(result) }
     }
 
 }
