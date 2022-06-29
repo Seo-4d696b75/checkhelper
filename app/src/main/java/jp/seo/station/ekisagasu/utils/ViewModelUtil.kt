@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 
 fun <M : ViewModel> getViewModelFactory(constructor: () -> M): ViewModelProvider.Factory {
     return object : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("unchecked_cast")
             return constructor() as T
         }

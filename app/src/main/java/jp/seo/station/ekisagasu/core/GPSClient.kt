@@ -1,5 +1,6 @@
 package jp.seo.station.ekisagasu.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -38,14 +39,14 @@ class GPSClient(ctx: Context) : LocationCallback() {
 
     val apiException = LiveEvent<ResolvableApiException>(true)
 
-    override fun onLocationResult(result: LocationResult?) {
-        result?.lastLocation?.let {
+    override fun onLocationResult(result: LocationResult) {
+        result.lastLocation?.let {
             _location.value = it
         }
     }
 
-    override fun onLocationAvailability(p: LocationAvailability?) {
-        Log.d("GPS", "isLocationAvailable: " + (p?.isLocationAvailable ?: false))
+    override fun onLocationAvailability(p: LocationAvailability) {
+        Log.d("GPS", "isLocationAvailable: ${p.isLocationAvailable}")
     }
 
     /**
@@ -88,6 +89,7 @@ class GPSClient(ctx: Context) : LocationCallback() {
     }
 
 
+    @SuppressLint("MissingPermission")
     private fun requestGPSUpdate() {
         val request = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
