@@ -3,8 +3,8 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.7">
       <module name="diagram" target="1.7" />
-      <module name="Ekisagasu.app" target="1.8" />
-      <module name="Ekisagasu.widget" target="1.8" />
+      <module name="Ekisagasu.app" target="11" />
+      <module name="Ekisagasu.widget" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
