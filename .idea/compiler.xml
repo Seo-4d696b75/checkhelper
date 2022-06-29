@@ -4,7 +4,7 @@
     <bytecodeTargetLevel target="1.7">
       <module name="diagram" target="1.7" />
       <module name="Ekisagasu.app" target="1.8" />
-      <module name="Ekisagasu.customview" target="1.8" />
+      <module name="Ekisagasu.widget" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
