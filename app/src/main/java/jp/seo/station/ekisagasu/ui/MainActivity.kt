@@ -23,6 +23,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
+import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import javax.inject.Inject
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var userRepository: UserRepository
 
     @Inject
-    lateinit var gpsClient: GPSClient
+    lateinit var locationRepository: LocationRepository
 
     @Inject
     lateinit var navigator: NavigationRepository
@@ -114,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             { singletonStore },
             stationRepository,
             userRepository,
-            gpsClient,
+            locationRepository,
             navigator
         )
     }

@@ -6,7 +6,11 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.*
+import jp.seo.station.ekisagasu.core.NavigationRepository
+import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.utils.UnitLiveEvent
 import jp.seo.station.ekisagasu.utils.combineLiveData
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
@@ -23,7 +27,7 @@ import java.io.StringWriter
 class ApplicationViewModel(
     private val stationRepository: StationRepository,
     private val userRepository: UserRepository,
-    private val gps: GPSClient,
+    private val gps: LocationRepository,
     private val navigator: NavigationRepository,
 ) : ViewModel() {
 
@@ -32,7 +36,7 @@ class ApplicationViewModel(
             owner: ViewModelStoreOwner,
             stationRepository: StationRepository,
             userRepository: UserRepository,
-            gps: GPSClient,
+            gps: LocationRepository,
             navigator: NavigationRepository
         ): ApplicationViewModel {
             return ViewModelProvider(owner, getViewModelFactory {
@@ -112,13 +116,13 @@ class ApplicationViewModel(
         if (value) {
             if (stationRepository.dataInitialized) {
                 userRepository.gpsUpdateInterval.value?.let {
-                    gps.requestGPSUpdate(it)
+                    gps.startWatchCurrentLocation(it)
                 }
             }
 
         } else {
 
-            gps.stopGPSUpdate()
+            gps.stopWatchCurrentLocation()
             stationRepository.onStopSearch()
             navigator.stop()
         }
@@ -189,7 +193,7 @@ class ApplicationViewModel(
 
     fun setSearchInterval(sec: Int) {
         if (isRunning.value == true) {
-            gps.requestGPSUpdate(sec)
+            gps.startWatchCurrentLocation(sec)
         }
     }
 

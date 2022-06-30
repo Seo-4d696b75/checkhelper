@@ -17,12 +17,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
 import jp.seo.station.ekisagasu.utils.onChanged
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
-import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -109,17 +109,17 @@ class StationService : LifecycleService() {
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         // when current location changed
-        gpsClient.currentLocation.observe(this) {
+        locationRepository.currentLocation.observe(this) {
             it?.let { location ->
                 viewModel.updateLocation(location)
             }
         }
 
         // when message from gps
-        gpsClient.messageLog.observe(this) {
+        locationRepository.messageLog.observe(this) {
             viewModel.message(it)
         }
-        gpsClient.messageError.observe(this) {
+        locationRepository.messageError.observe(this) {
             viewModel.error(it)
         }
 
@@ -306,7 +306,7 @@ class StationService : LifecycleService() {
     lateinit var prefectureRepository: PrefectureRepository
 
     @Inject
-    lateinit var gpsClient: GPSClient
+    lateinit var locationRepository: LocationRepository
 
     @Inject
     lateinit var navigator: NavigationRepository
@@ -323,7 +323,7 @@ class StationService : LifecycleService() {
             owner,
             stationRepository,
             userRepository,
-            gpsClient,
+            locationRepository,
             navigator
         )
     }

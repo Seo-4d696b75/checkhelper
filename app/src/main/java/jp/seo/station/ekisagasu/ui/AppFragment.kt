@@ -3,10 +3,10 @@ package jp.seo.station.ekisagasu.ui
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelStore
 import dagger.hilt.android.AndroidEntryPoint
-import jp.seo.station.ekisagasu.core.GPSClient
 import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel
 import javax.inject.Inject
@@ -33,7 +33,7 @@ open class AppFragment : Fragment() {
     lateinit var userRepository: UserRepository
 
     @Inject
-    lateinit var gpsClient: GPSClient
+    lateinit var locationRepository: LocationRepository
 
     @Inject
     lateinit var navigator: NavigationRepository
@@ -48,7 +48,7 @@ open class AppFragment : Fragment() {
             { singletonStore },
             stationRepository,
             userRepository,
-            gpsClient,
+            locationRepository,
             navigator
         )
     }
