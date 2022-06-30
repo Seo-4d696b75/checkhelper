@@ -108,14 +108,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideGPSClient(
-        @ApplicationContext context: Context
-    ): GPSClient {
-        return GPSClient(context)
-    }
-
-    @Singleton
-    @Provides
     fun provideNavigator(
         tree: KdTree,
         db: StationDatabase
