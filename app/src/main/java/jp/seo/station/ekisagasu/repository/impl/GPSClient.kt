@@ -7,14 +7,12 @@ import android.location.Location
 import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.utils.LiveEvent
+import jp.seo.station.ekisagasu.repository.LogEmitter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -27,8 +25,9 @@ import kotlinx.coroutines.launch
  */
 class GPSClient(
     private val context: Context,
+    logger: LogEmitter,
     defaultDispatcher: CoroutineDispatcher,
-) : LocationCallback(), LocationRepository, CoroutineScope {
+) : LocationCallback(), LocationRepository, CoroutineScope, LogEmitter by logger {
 
     private val job = Job()
 
@@ -36,21 +35,18 @@ class GPSClient(
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(context)
     private val settingClient = LocationServices.getSettingsClient(context)
+    private val _message = MutableSharedFlow<AppMessage>()
 
     private var minInterval = 0
 
-    private val _location = MutableSharedFlow<Location?>(replay = 0)
+    private val _location = MutableSharedFlow<Location>(replay = 0)
 
-    private val _running: MutableLiveData<Boolean> = MutableLiveData(false)
+    private val _running = MutableSharedFlow<Boolean>(replay = 0)
     private var running = false
-    override val messageLog = LiveEvent<String>()
-    override val messageError = LiveEvent<String>()
 
-    override val currentLocation = _location.asLiveData(context = coroutineContext)
+    override val currentLocation = _location
 
-    override val isRunning: LiveData<Boolean> = _running
-
-    override val apiException = LiveEvent<ResolvableApiException>(true)
+    override val isRunning = _running
 
     override fun onLocationResult(result: LocationResult) {
         result.lastLocation?.let {
@@ -97,7 +93,9 @@ class GPSClient(
                 )
             }
         } catch (e: ResolvableApiException) {
-            apiException.postCall(e)
+            launch {
+                _message.emit(AppMessage.AppResolvableException(e))
+            }
         }
     }
 
@@ -121,7 +119,7 @@ class GPSClient(
                 ) {
                     locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
                     running = true
-                    _running.value = true
+                    launch { _running.emit(true) }
                 } else {
                     error("permission denied: ACCESS_FILE_LOCATION", "Permission Denied")
 
@@ -142,25 +140,12 @@ class GPSClient(
                 .addOnCompleteListener {
                     running = false
                 }
-
-            _running.value = false
-            launch { _location.emit(null) }
+            launch { _running.emit(false) }
             log("GPS has stopped")
             job.cancel()
             return true
         }
         return false
-    }
-
-    private fun log(log: String) {
-        messageLog.postCall(log)
-    }
-
-    private fun error(log: String, mes: String) {
-        log(log)
-        running = false
-        _running.value = false
-        messageError.postCall(mes)
     }
 
 }
