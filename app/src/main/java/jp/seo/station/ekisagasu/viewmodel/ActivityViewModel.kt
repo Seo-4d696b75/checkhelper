@@ -156,7 +156,7 @@ class ActivityViewModel(
     }
 
     fun requestDialog(type: String) {
-        requestDialog.call(type)
+        requestDialog.postCall(type)
         dialogType = type
     }
 
