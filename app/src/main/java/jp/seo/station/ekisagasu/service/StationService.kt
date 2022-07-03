@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.core
+package jp.seo.station.ekisagasu.service
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -10,18 +10,25 @@ import android.os.*
 import android.provider.AlarmClock
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.*
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.core.NavigationRepository
+import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
-import jp.seo.station.ekisagasu.utils.onChanged
-import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -69,8 +76,7 @@ class StationService : LifecycleService() {
             if (it.hasExtra(KEY_REQUEST)) {
                 when (it.getStringExtra(KEY_REQUEST)) {
                     REQUEST_EXIT_SERVICE -> {
-                        viewModel.setSearchState(false)
-                        viewModel.finish()
+                        viewModel.requestAppFinish()
                     }
                     REQUEST_START_TIMER -> {
                         setTimer()
@@ -98,14 +104,14 @@ class StationService : LifecycleService() {
         // init repository
         viewModel.onServiceInit(this, prefectureRepository)
 
-        viewModel.isServiceAlive = true
-
         // start this service as foreground one
         startForeground(NotificationViewHolder.NOTIFICATION_TAG, notificationHolder.notification)
         notificationHolder.update("init", "initializing app")
 
         // init vibrator
-        vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+        vibrator = kotlin.run {
+            getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        }.defaultVibrator
 
         // when current location changed
         lifecycleScope.launch {
@@ -127,7 +133,7 @@ class StationService : LifecycleService() {
         // update notification when nearest station changed
         stationRepository.detectedStation.observe(this) {
             it?.let { n ->
-                viewModel.logStation(n.station)
+                viewModel.saveStationLog(n.station)
                 overlayView.onStationChanged(n)
                 vibrate(n.station)
             }
@@ -148,25 +154,34 @@ class StationService : LifecycleService() {
         }
 
         // update running state
-        viewModel.isRunning.onChanged(this) {
-            if (it) {
+        lifecycleScope.launch {
+            viewModel.isRunning
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    if (it) {
 
-                viewModel.message("start: try to getting GPS ready")
+                        viewModel.message("start: try to getting GPS ready")
 
-                notificationHolder.update(
-                    getString(R.string.notification_title_start),
-                    getString(R.string.notification_message_start)
-                )
-            } else {
-                Toast.makeText(this, getString(R.string.message_stop_search), Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.message("GPS search stopped")
-                notificationHolder.update(
-                    getString(R.string.notification_title_wait),
-                    getString(R.string.notification_message_wait)
-                )
-            }
-            overlayView.isSearchRunning = it
+                        notificationHolder.update(
+                            getString(R.string.notification_title_start),
+                            getString(R.string.notification_message_start)
+                        )
+                    } else {
+                        Toast.makeText(
+                            this@StationService,
+                            getString(R.string.message_stop_search),
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        viewModel.message("GPS search stopped")
+                        notificationHolder.update(
+                            getString(R.string.notification_title_wait),
+                            getString(R.string.notification_message_wait)
+                        )
+                    }
+                    overlayView.isSearchRunning = it
+                }
+                .collect()
         }
 
         // when navigation changed
@@ -200,12 +215,15 @@ class StationService : LifecycleService() {
             }
         }
         overlayView.navigation.stopNavigation.observe(this) {
-            viewModel.setNavigationLine(null)
+            viewModel.clearNavigationLine()
         }
 
         // when finish requested
-        viewModel.requestFinishService.observe(this) {
-            stopSelf()
+        lifecycleScope.launch {
+            viewModel.appFinish
+                .flowWithLifecycle(lifecycle)
+                .onEach { stopSelf() }
+                .collect()
         }
 
         // init notification
@@ -241,8 +259,11 @@ class StationService : LifecycleService() {
         userRepository.isNotifyPrefecture.observe(this) {
             overlayView.displayPrefecture = it
         }
-        viewModel.nightMode.observe(this) {
-            overlayView.nightMode = it
+        lifecycleScope.launch {
+            viewModel.nightMode
+                .flowWithLifecycle(lifecycle)
+                .onEach { overlayView.nightMode = it }
+                .collect()
         }
         userRepository.nightModeTimeout.observe(this) {
             overlayView.nightModeTimeout = it
@@ -268,11 +289,15 @@ class StationService : LifecycleService() {
         // set timer
         overlayView.timerListener = { setTimer() }
         overlayView.timerPosition = userRepository.timerPosition
-        viewModel.startTimer.observe(this) {
-            setTimer()
-        }
-        viewModel.fixTimer.observe(this) {
-            overlayView.fixTimer(it)
+        lifecycleScope.launch {
+            viewModel.startTimer
+                .flowWithLifecycle(lifecycle)
+                .onEach { setTimer() }
+                .collect()
+            viewModel.fixTimer
+                .flowWithLifecycle(lifecycle)
+                .onEach { overlayView.fixTimer(it) }
+                .collect()
         }
     }
 
@@ -322,16 +347,11 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var logger: AppLogger
 
-    private val viewModel: ApplicationViewModel by lazy {
-        val owner = ViewModelStoreOwner { singletonStore }
-        ApplicationViewModel.getInstance(
-            owner,
-            stationRepository,
-            userRepository,
-            locationRepository,
-            navigator,
-            logger,
-        )
+    private val viewModel: ServiceViewModel by lazy {
+        // service起動毎に異なるインスタンスで問題なし
+        val owner = ViewModelStoreOwner { ViewModelStore() }
+        val provider = ViewModelProvider(owner)
+        provider[ServiceViewModel::class.java]
     }
 
     private val notificationHolder: NotificationViewHolder by lazy {
@@ -343,31 +363,29 @@ class StationService : LifecycleService() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        // TODO useCaseにまとめたい
         viewModel.message("service terminated")
-        viewModel.setSearchState(false)
-        viewModel.isServiceAlive = false
+        viewModel.stopStationSearch()
         userRepository.timerPosition = overlayView.timerPosition
         viewModel.onServiceFinish(this)
         overlayView.release()
         unregisterReceiver(receiver)
+        super.onDestroy()
     }
 
     companion object {
-        const val KEY_CLOSE_NOTIFICATION_PANEL = "close_notification_panel"
         const val KEY_REQUEST = "service_request"
         const val REQUEST_EXIT_SERVICE = "exit_service"
         const val REQUEST_START_TIMER = "start_timer"
         const val REQUEST_FINISH_TIMER = "finish_timer"
+        private val VIBRATE_PATTERN_NORMAL = longArrayOf(0, 500, 100, 100)
+        private val VIBRATE_PATTERN_ALERT = longArrayOf(0, 500, 100, 100, 100, 100, 100, 100)
+        private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
     }
 
     private lateinit var vibrator: Vibrator
     private var isVibrate: Boolean = false
     private var isVibrateWhenApproach: Boolean = false
-
-    private val VIBRATE_PATTERN_NORMAL = longArrayOf(0, 500, 100, 100)
-    private val VIBRATE_PATTERN_ALERT = longArrayOf(0, 500, 100, 100, 100, 100, 100, 100)
-    private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
 
     private var currentLine: Line? = null
     private var vibrateMeterWhenApproach: Int = 100
@@ -420,7 +438,7 @@ class StationService : LifecycleService() {
             timerRunning = true
             Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()
         } else {
-            viewModel.error("fail to start timer")
+            viewModel.error("fail to start timer", "タイマーを設定できませんでした")
         }
     }
 
