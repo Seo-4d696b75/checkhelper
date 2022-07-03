@@ -10,6 +10,8 @@ import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.model.AppMessage
+import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.utils.UnitLiveEvent
 import jp.seo.station.ekisagasu.utils.combineLiveData
@@ -29,6 +31,7 @@ class ApplicationViewModel(
     private val userRepository: UserRepository,
     private val gps: LocationRepository,
     private val navigator: NavigationRepository,
+    private val logger: AppLogger
 ) : ViewModel() {
 
     companion object {
@@ -37,10 +40,13 @@ class ApplicationViewModel(
             stationRepository: StationRepository,
             userRepository: UserRepository,
             gps: LocationRepository,
-            navigator: NavigationRepository
+            navigator: NavigationRepository,
+            logger: AppLogger,
         ): ApplicationViewModel {
             return ViewModelProvider(owner, getViewModelFactory {
-                ApplicationViewModel(stationRepository, userRepository, gps, navigator)
+                ApplicationViewModel(
+                    stationRepository, userRepository, gps, navigator, logger,
+                )
             }).get(
                 ApplicationViewModel::class.java
             )
@@ -90,7 +96,7 @@ class ApplicationViewModel(
     /**
      * 探索が現在進行中であるか
      */
-    val isRunning: LiveData<Boolean> = gps.isRunning
+    val isRunning: LiveData<Boolean> = gps.isRunning.asLiveData()
 
 
     enum class SearchState {
@@ -101,7 +107,7 @@ class ApplicationViewModel(
 
     val state: LiveData<SearchState> = combineLiveData(
         SearchState.STOPPED,
-        gps.isRunning,
+        isRunning,
         stationRepository.nearestStation
     ) { run, station ->
         if (run) {
@@ -148,11 +154,8 @@ class ApplicationViewModel(
     fun selectLine(line: Line?) {
         if (isRunning.value == true) {
             stationRepository.selectLine(line)
-            message(String.format("select line: %s", line?.name ?: "null"))
         }
     }
-
-    val apiException = gps.apiException
 
     fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -161,23 +164,34 @@ class ApplicationViewModel(
         }
     }
 
-    fun message(mes: String) {
-        viewModelScope.launch { userRepository.logMessage(mes) }
+    val appMessage = logger.message
+
+    fun message(text: String) = viewModelScope.launch {
+        logger.log(text)
     }
 
-    fun error(mes: String, cause: Throwable) {
-        val sw = StringWriter()
-        val pw = PrintWriter(sw)
-        cause.printStackTrace(pw)
-        error(String.format("%s caused by;\n%s", mes, sw.toString()))
+    fun error(text: String) = viewModelScope.launch {
+        logger.error(text, text)
     }
 
-    fun error(mes: String) {
-        viewModelScope.launch {
-            userRepository.logError(mes)
-            setSearchState(false)
+    fun saveMessage(message: AppMessage) =
+        viewModelScope.launch(Dispatchers.IO) {
+            when (message) {
+                is AppMessage.AppLog -> userRepository.logMessage(message.message)
+                is AppMessage.AppError -> {
+                    val str = if (message.cause == null) {
+                        message.message
+                    } else {
+                        val sw = StringWriter()
+                        val pw = PrintWriter(sw)
+                        message.cause.printStackTrace(pw)
+                        String.format("%s caused by;\n%s", message.message, sw.toString())
+                    }
+                    userRepository.logError(str)
+                }
+                is AppMessage.AppResolvableException -> userRepository.logError(message.exception.toString())
+            }
         }
-    }
 
     fun updateLocation(location: Location) = viewModelScope.launch {
         userRepository.logLocation(location.latitude, location.longitude)

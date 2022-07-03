@@ -10,19 +10,21 @@ import android.os.*
 import android.provider.AlarmClock
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.*
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
 import jp.seo.station.ekisagasu.utils.onChanged
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -109,18 +111,20 @@ class StationService : LifecycleService() {
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         // when current location changed
-        locationRepository.currentLocation.observe(this) {
-            it?.let { location ->
-                viewModel.updateLocation(location)
-            }
+        lifecycleScope.launch {
+            locationRepository
+                .currentLocation
+                .flowWithLifecycle(lifecycle)
+                .onEach { viewModel.updateLocation(it) }
+                .collect()
         }
 
-        // when message from gps
-        locationRepository.messageLog.observe(this) {
-            viewModel.message(it)
-        }
-        locationRepository.messageError.observe(this) {
-            viewModel.error(it)
+        // when message from logger
+        lifecycleScope.launch {
+            logger.message
+                .flowWithLifecycle(lifecycle)
+                .onEach { viewModel.saveMessage(it) }
+                .collect()
         }
 
         // update notification when nearest station changed
@@ -290,6 +294,7 @@ class StationService : LifecycleService() {
                         viewModel.message("user present")
                         overlayView.screen = true
                     }
+                    else -> {}
                 }
             }
         }
@@ -317,6 +322,9 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var mainHandler: Handler
 
+    @Inject
+    lateinit var logger: AppLogger
+
     private val viewModel: ApplicationViewModel by lazy {
         val owner = ViewModelStoreOwner { singletonStore }
         ApplicationViewModel.getInstance(
@@ -324,7 +332,8 @@ class StationService : LifecycleService() {
             stationRepository,
             userRepository,
             locationRepository,
-            navigator
+            navigator,
+            logger,
         )
     }
 

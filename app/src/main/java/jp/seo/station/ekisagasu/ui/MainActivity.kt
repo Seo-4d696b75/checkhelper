@@ -17,15 +17,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
+import jp.seo.station.ekisagasu.model.AppMessage
+import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -42,10 +49,17 @@ class MainActivity : AppCompatActivity() {
         appViewModel.isActivityAlive = true
 
         // try to resolve API exception if any
-        appViewModel.apiException.observe(this) {
-            resolvableApiLauncher.launch(
-                IntentSenderRequest.Builder(it.resolution).build()
-            )
+        lifecycleScope.launch {
+            appViewModel.appMessage
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    if (it is AppMessage.AppResolvableException) {
+                        resolvableApiLauncher.launch(
+                            IntentSenderRequest.Builder(it.exception.resolution).build()
+                        )
+                    }
+                }
+                .collect()
         }
 
         // finish activity if requested
@@ -104,6 +118,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var navigator: NavigationRepository
 
+    @Inject
+    lateinit var logger: AppLogger
+
     private val viewModel: ActivityViewModel by lazy {
         // ActivityScoped
         ActivityViewModel.getInstance(this, this, stationRepository, userRepository)
@@ -116,7 +133,8 @@ class MainActivity : AppCompatActivity() {
             stationRepository,
             userRepository,
             locationRepository,
-            navigator
+            navigator,
+            logger,
         )
     }
 
