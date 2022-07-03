@@ -38,3 +38,11 @@ interface LoggerModule {
     fun bindsLogger(impl: AppLoggerImpl): AppLogger
 
 }
+
+@Module
+@InstallIn(SingletonComponent::class)
+interface AppStateModule {
+    @Binds
+    @Singleton
+    fun bindAppStateRepository(impl: AppStateRepositoryImpl): AppStateRepository
+}
