@@ -21,7 +21,6 @@ interface LogEmitter {
     fun CoroutineScope.requestExceptionResolved(e: ResolvableApiException)
 }
 
-@Singleton
 class LogEmitterImpl @Inject constructor(
     private val logger: AppLogger
 ) : LogEmitter {

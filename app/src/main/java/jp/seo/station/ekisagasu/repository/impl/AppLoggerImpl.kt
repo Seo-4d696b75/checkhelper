@@ -5,8 +5,9 @@ import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import javax.inject.Inject
 
-class AppLoggerImpl : AppLogger {
+class AppLoggerImpl @Inject constructor() : AppLogger {
     private val _message = MutableSharedFlow<AppMessage>(replay = 0)
 
     override val message: Flow<AppMessage> = _message
