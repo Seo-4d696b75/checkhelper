@@ -7,10 +7,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jp.seo.station.ekisagasu.repository.AppLogger
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.LogEmitter
+import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.repository.impl.AppLoggerImpl
+import jp.seo.station.ekisagasu.repository.impl.AppStateRepositoryImpl
 import jp.seo.station.ekisagasu.repository.impl.GPSClient
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
@@ -36,6 +35,10 @@ interface LoggerModule {
     @Binds
     @Singleton
     fun bindsLogger(impl: AppLoggerImpl): AppLogger
+
+    @Binds
+    @Singleton
+    fun bindsLogEmitter(impl: LogEmitterImpl): LogEmitter
 
 }
 
