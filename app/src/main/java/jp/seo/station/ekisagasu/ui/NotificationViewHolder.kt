@@ -85,14 +85,12 @@ class NotificationViewHolder(
         val view = RemoteViews(ctx.packageName, R.layout.notification_main)
         val exit = Intent(ctx, StationService::class.java)
             .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_EXIT_SERVICE)
-            .putExtra(StationService.KEY_CLOSE_NOTIFICATION_PANEL, true)
         view.setOnClickPendingIntent(
             R.id.notificationButton1,
             PendingIntent.getService(ctx, 1, exit, PendingIntent.FLAG_ONE_SHOT)
         )
         val timer = Intent(ctx, StationService::class.java)
             .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
-            .putExtra(StationService.KEY_CLOSE_NOTIFICATION_PANEL, true)
         view.setOnClickPendingIntent(
             R.id.notificationButton2,
             PendingIntent.getService(ctx, 2, timer, PendingIntent.FLAG_CANCEL_CURRENT)
