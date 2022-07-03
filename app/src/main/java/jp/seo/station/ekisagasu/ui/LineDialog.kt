@@ -15,6 +15,7 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
@@ -52,6 +53,9 @@ class LineDialog : DialogFragment() {
     @Inject
     lateinit var singletonStore: ViewModelStore
 
+    @Inject
+    lateinit var appLogger: AppLogger
+
     private val viewModel: ActivityViewModel by lazy {
         ActivityViewModel.getInstance(
             requireActivity(),
@@ -67,7 +71,8 @@ class LineDialog : DialogFragment() {
             stationRepository,
             userRepository,
             locationRepository,
-            navigator
+            navigator,
+            appLogger,
         )
     }
 

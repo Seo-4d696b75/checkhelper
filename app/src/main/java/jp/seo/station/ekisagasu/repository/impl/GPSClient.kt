@@ -59,6 +59,10 @@ class GPSClient(
     }
 
     /**
+     * 現在位置の監視を開始する
+     *
+     * - まだ開始されていない：新たに監視を開始
+     * - 既に開始されている：指定されたintervalが現在値と異なる場合は再度スタートする
      * @param interval  in seconds
      * @throws ResolvableApiException
      */

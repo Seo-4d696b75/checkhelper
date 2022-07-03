@@ -6,6 +6,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
+import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import jp.seo.station.ekisagasu.viewmodel.MainViewModel
@@ -38,6 +39,9 @@ open class AppFragment : Fragment() {
     @Inject
     lateinit var navigator: NavigationRepository
 
+    @Inject
+    lateinit var logger: AppLogger
+
     /**
      * Applicationレベル(Singletonスコープ)で共有するViewModel
      *
@@ -49,7 +53,8 @@ open class AppFragment : Fragment() {
             stationRepository,
             userRepository,
             locationRepository,
-            navigator
+            navigator,
+            logger,
         )
     }
 

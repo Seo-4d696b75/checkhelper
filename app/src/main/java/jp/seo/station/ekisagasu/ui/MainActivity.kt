@@ -27,7 +27,9 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppLogger
+import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
 import kotlinx.coroutines.flow.collect
@@ -46,8 +48,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        appViewModel.isActivityAlive = true
-
         // try to resolve API exception if any
         lifecycleScope.launch {
             appViewModel.appMessage
@@ -64,10 +64,15 @@ class MainActivity : AppCompatActivity() {
 
         // finish activity if requested
         viewModel.requestFinish.observe(this) {
-            appViewModel.finish()
+            lifecycleScope.launch {
+                appStateRepository.finishApp()
+            }
         }
-        appViewModel.requestFinishActivity.observe(this) {
-            finish()
+        lifecycleScope.launch {
+            appStateRepository.finishAppEvent
+                .flowWithLifecycle(lifecycle)
+                .onEach { finish() }
+                .collect()
         }
 
         viewModel.requestDialog.observe(this) { type ->
@@ -98,11 +103,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        appViewModel.isActivityAlive = false
-    }
-
     @Inject
     lateinit var singletonStore: ViewModelStore
 
@@ -120,6 +120,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var logger: AppLogger
+
+    @Inject
+    lateinit var appStateRepository: AppStateRepository
 
     private val viewModel: ActivityViewModel by lazy {
         // ActivityScoped
@@ -145,14 +148,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startService() {
-        if (!appViewModel.isServiceAlive) {
+        if (!appStateRepository.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent)
             } else {
                 startService(intent)
             }
-            appViewModel.isServiceAlive = true
+            appStateRepository.isServiceRunning = true
         }
     }
 

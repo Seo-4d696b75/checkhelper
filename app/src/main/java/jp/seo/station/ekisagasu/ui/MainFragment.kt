@@ -12,6 +12,8 @@ import android.view.*
 import android.widget.TextView
 import androidx.core.animation.addListener
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,12 +21,16 @@ import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.AnimationHolder
 import jp.seo.station.ekisagasu.utils.onChanged
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel.SearchState
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -37,6 +43,9 @@ class MainFragment : AppFragment() {
 
     @Inject
     lateinit var prefectureRepository: PrefectureRepository
+
+    @Inject
+    lateinit var appStateRepository: AppStateRepository
 
     private val activityViewModel: ActivityViewModel by lazy {
         ActivityViewModel.getInstance(
@@ -55,6 +64,8 @@ class MainFragment : AppFragment() {
         setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
+
+    private var isTimerFixed = false
 
     @SuppressWarnings("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -228,7 +239,9 @@ class MainFragment : AppFragment() {
                 animateFab(true)
             }
             fabExit.view.setOnClickListener {
-                appViewModel.finish()
+                lifecycleScope.launch {
+                    appStateRepository.finishApp()
+                }
             }
             fabSelectLine.view.setOnClickListener {
                 activityViewModel.requestDialog(LineDialog.DIALOG_SELECT_CURRENT)
@@ -246,16 +259,25 @@ class MainFragment : AppFragment() {
                 startActivity(intent)
             }
             fabTimer.view.setOnClickListener {
-                appViewModel.startTimer.call()
+                lifecycleScope.launch {
+                    appStateRepository.startTimer()
+                }
                 animateFab(false)
             }
             fabFixTimer.view.setOnClickListener {
-                appViewModel.fixTimer.value?.let {
-                    appViewModel.fixTimer.value = !it
+                lifecycleScope.launch {
+                    appStateRepository.setTimerFixed(!isTimerFixed)
                 }
                 animateFab(false)
             }
 
+        }
+
+        lifecycleScope.launch {
+            appStateRepository.fixTimer
+                .flowWithLifecycle(lifecycle)
+                .onEach { isTimerFixed = it }
+                .collect()
         }
     }
 

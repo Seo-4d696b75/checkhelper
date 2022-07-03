@@ -8,12 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.CustomNumberPicker
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
@@ -38,6 +45,9 @@ class SettingFragment : AppFragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_setting, container, false)
     }
+
+    @Inject
+    lateinit var appStateRepository: AppStateRepository
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val notify = view.findViewById<SwitchCompat>(R.id.switch_notification)
@@ -109,9 +119,16 @@ class SettingFragment : AppFragment() {
         }
 
         val night = view.findViewById<SwitchCompat>(R.id.switch_night)
-        appViewModel.nightMode.value?.let { night.isChecked = it }
-        night.setOnCheckedChangeListener { buttonView, isChecked ->
-            appViewModel.nightMode.value = isChecked
+        lifecycleScope.launch {
+            appStateRepository.nightMode
+                .flowWithLifecycle(lifecycle)
+                .onEach { night.isChecked = it }
+                .collect()
+        }
+        night.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appStateRepository.setNightMode(isChecked)
+            }
         }
 
         val nightTimeout = view.findViewById<Spinner>(R.id.spinner_night_mode_switch)
