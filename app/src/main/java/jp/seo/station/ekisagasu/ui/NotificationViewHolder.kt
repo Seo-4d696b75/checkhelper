@@ -6,12 +6,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.StationService
+import jp.seo.station.ekisagasu.service.StationService
 
 /**
  * @author Seo-4d696b75
@@ -34,15 +33,14 @@ class NotificationViewHolder(
 
     init {
         // init notification channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                "MainNotification",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            channel.description = "This is main notification"
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            "MainNotification",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        channel.description = "This is main notification"
+        notificationManager.createNotificationChannel(channel)
+
         builder = NotificationCompat.Builder(ctx, NOTIFICATION_CHANNEL_ID)
 
         // pending intent to MainActivity
@@ -66,17 +64,15 @@ class NotificationViewHolder(
         get() = builder.build()
 
     val needNotificationSetting: Boolean by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID)
-            val vibrate = channel.shouldVibrate()
-            val sound = channel.sound
-            if (vibrate || sound != null) {
-                // user must edit notification channel setting
-                channel.enableVibration(false)
-                channel.enableLights(false)
-                channel.setSound(null, null)
-                return@lazy true
-            }
+        val channel = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID)
+        val vibrate = channel.shouldVibrate()
+        val sound = channel.sound
+        if (vibrate || sound != null) {
+            // user must edit notification channel setting
+            channel.enableVibration(false)
+            channel.enableLights(false)
+            channel.setSound(null, null)
+            return@lazy true
         }
         false
     }
@@ -87,13 +83,23 @@ class NotificationViewHolder(
             .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_EXIT_SERVICE)
         view.setOnClickPendingIntent(
             R.id.notificationButton1,
-            PendingIntent.getService(ctx, 1, exit, PendingIntent.FLAG_ONE_SHOT)
+            PendingIntent.getService(
+                ctx,
+                1,
+                exit,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+            )
         )
         val timer = Intent(ctx, StationService::class.java)
             .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
         view.setOnClickPendingIntent(
             R.id.notificationButton2,
-            PendingIntent.getService(ctx, 2, timer, PendingIntent.FLAG_CANCEL_CURRENT)
+            PendingIntent.getService(
+                ctx,
+                2,
+                timer,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
         )
         builder.setCustomContentView(view)
         remoteView = view
