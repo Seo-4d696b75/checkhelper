@@ -30,7 +30,7 @@ class ServiceViewModel @Inject constructor(
     private val appStateRepository: AppStateRepository,
 ) : ViewModel() {
     /**
-     * 探索が現在進行中であるか
+     * 現在の探索・待機状態の変更を通知する
      */
     val isRunning = locationRepository.isRunning
 
@@ -113,7 +113,9 @@ class ServiceViewModel @Inject constructor(
     }
 
     fun setSearchInterval(sec: Int) {
-        locationRepository.startWatchCurrentLocation(sec)
+        if (locationRepository.isRunning.value) {
+            locationRepository.startWatchCurrentLocation(sec)
+        }
     }
 
     fun clearNavigationLine() {
