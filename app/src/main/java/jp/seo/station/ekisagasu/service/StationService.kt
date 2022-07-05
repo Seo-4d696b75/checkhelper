@@ -25,10 +25,12 @@ import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.repository.AppLogger
+import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
+import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.onEach
@@ -349,10 +351,23 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var logger: AppLogger
 
+    @Inject
+    lateinit var appStateRepository: AppStateRepository
+
     private val viewModel: ServiceViewModel by lazy {
         // service起動毎に異なるインスタンスで問題なし
         val owner = ViewModelStoreOwner { ViewModelStore() }
-        val provider = ViewModelProvider(owner)
+        val factory = getViewModelFactory {
+            ServiceViewModel(
+                locationRepository,
+                logger,
+                stationRepository,
+                navigator,
+                userRepository,
+                appStateRepository,
+            )
+        }
+        val provider = ViewModelProvider(owner, factory)
         provider[ServiceViewModel::class.java]
     }
 
