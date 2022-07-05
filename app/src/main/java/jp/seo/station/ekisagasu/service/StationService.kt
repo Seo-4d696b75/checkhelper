@@ -112,9 +112,10 @@ class StationService : LifecycleService() {
         notificationHolder.update("init", "initializing app")
 
         // init vibrator
-        vibrator = kotlin.run {
-            getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
-        }.defaultVibrator
+        vibrator = getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
+            val manager = it as VibratorManager
+            manager.defaultVibrator
+        }
 
         // when current location changed
         lifecycleScope.launch {
@@ -400,7 +401,7 @@ class StationService : LifecycleService() {
         private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
     }
 
-    private lateinit var vibrator: Vibrator
+    private var vibrator: Vibrator? = null
     private var isVibrate: Boolean = false
     private var isVibrateWhenApproach: Boolean = false
 
@@ -419,8 +420,8 @@ class StationService : LifecycleService() {
     }
 
     private fun vibrate(pattern: LongArray) {
-        if (!isVibrate || !vibrator.hasVibrator()) return
-        vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+        if (!isVibrate || vibrator?.hasVibrator() != true) return
+        vibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
     }
 
     private var timerRunning = false
