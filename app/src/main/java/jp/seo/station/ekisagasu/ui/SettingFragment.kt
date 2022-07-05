@@ -17,7 +17,7 @@ import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -119,12 +119,12 @@ class SettingFragment : AppFragment() {
         }
 
         val night = view.findViewById<SwitchCompat>(R.id.switch_night)
-        lifecycleScope.launch {
-            appStateRepository.nightMode
-                .flowWithLifecycle(lifecycle)
-                .onEach { night.isChecked = it }
-                .collect()
-        }
+
+        appStateRepository.nightMode
+            .flowWithLifecycle(lifecycle)
+            .onEach { night.isChecked = it }
+            .launchIn(lifecycleScope)
+
         night.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appStateRepository.setNightMode(isChecked)

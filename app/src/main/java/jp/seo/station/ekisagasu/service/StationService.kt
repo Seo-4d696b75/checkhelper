@@ -31,10 +31,9 @@ import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -118,21 +117,17 @@ class StationService : LifecycleService() {
         }
 
         // when current location changed
-        lifecycleScope.launch {
-            locationRepository
-                .currentLocation
-                .flowWithLifecycle(lifecycle)
-                .onEach { viewModel.updateLocation(it) }
-                .collect()
-        }
+        locationRepository
+            .currentLocation
+            .flowWithLifecycle(lifecycle)
+            .onEach { viewModel.updateLocation(it) }
+            .launchIn(lifecycleScope)
 
         // when message from logger
-        lifecycleScope.launch {
-            logger.message
-                .flowWithLifecycle(lifecycle)
-                .onEach { viewModel.saveMessage(it) }
-                .collect()
-        }
+        logger.message
+            .flowWithLifecycle(lifecycle)
+            .onEach { viewModel.saveMessage(it) }
+            .launchIn(lifecycleScope)
 
         // update notification when nearest station changed
         stationRepository.detectedStation.observe(this) {
@@ -158,36 +153,35 @@ class StationService : LifecycleService() {
         }
 
         // update running state
-        lifecycleScope.launch {
-            viewModel.isRunning
-                .flowWithLifecycle(lifecycle)
-                .drop(1)
-                .onEach {
-                    if (it) {
+        viewModel.isRunning
+            .flowWithLifecycle(lifecycle)
+            .drop(1)
+            .onEach {
+                if (it) {
 
-                        viewModel.message("start: try to getting GPS ready")
+                    viewModel.message("start: try to getting GPS ready")
 
-                        notificationHolder.update(
-                            getString(R.string.notification_title_start),
-                            getString(R.string.notification_message_start)
-                        )
-                    } else {
-                        Toast.makeText(
-                            this@StationService,
-                            getString(R.string.message_stop_search),
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        viewModel.message("GPS search stopped")
-                        notificationHolder.update(
-                            getString(R.string.notification_title_wait),
-                            getString(R.string.notification_message_wait)
-                        )
-                    }
-                    overlayView.isSearchRunning = it
+                    notificationHolder.update(
+                        getString(R.string.notification_title_start),
+                        getString(R.string.notification_message_start)
+                    )
+                } else {
+                    Toast.makeText(
+                        this@StationService,
+                        getString(R.string.message_stop_search),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                    viewModel.message("GPS search stopped")
+                    notificationHolder.update(
+                        getString(R.string.notification_title_wait),
+                        getString(R.string.notification_message_wait)
+                    )
                 }
-                .collect()
-        }
+                overlayView.isSearchRunning = it
+            }
+            .launchIn(lifecycleScope)
+
 
         // when navigation changed
         navigator.running.observe(this) {
@@ -224,12 +218,10 @@ class StationService : LifecycleService() {
         }
 
         // when finish requested
-        lifecycleScope.launch {
-            viewModel.appFinish
-                .flowWithLifecycle(lifecycle)
-                .onEach { stopSelf() }
-                .collect()
-        }
+        viewModel.appFinish
+            .flowWithLifecycle(lifecycle)
+            .onEach { stopSelf() }
+            .launchIn(lifecycleScope)
 
         // init notification
         notificationHolder.update(
@@ -264,12 +256,10 @@ class StationService : LifecycleService() {
         userRepository.isNotifyPrefecture.observe(this) {
             overlayView.displayPrefecture = it
         }
-        lifecycleScope.launch {
-            viewModel.nightMode
-                .flowWithLifecycle(lifecycle)
-                .onEach { overlayView.nightMode = it }
-                .collect()
-        }
+        viewModel.nightMode
+            .flowWithLifecycle(lifecycle)
+            .onEach { overlayView.nightMode = it }
+            .launchIn(lifecycleScope)
         userRepository.nightModeTimeout.observe(this) {
             overlayView.nightModeTimeout = it
         }
@@ -294,16 +284,15 @@ class StationService : LifecycleService() {
         // set timer
         overlayView.timerListener = { setTimer() }
         overlayView.timerPosition = userRepository.timerPosition
-        lifecycleScope.launch {
-            viewModel.startTimer
-                .flowWithLifecycle(lifecycle)
-                .onEach { setTimer() }
-                .collect()
-            viewModel.fixTimer
-                .flowWithLifecycle(lifecycle)
-                .onEach { overlayView.fixTimer(it) }
-                .collect()
-        }
+        viewModel.startTimer
+            .flowWithLifecycle(lifecycle)
+            .onEach { setTimer() }
+            .launchIn(lifecycleScope)
+        viewModel.fixTimer
+            .flowWithLifecycle(lifecycle)
+            .onEach { overlayView.fixTimer(it) }
+            .launchIn(lifecycleScope)
+
     }
 
     private val receiver = object : BroadcastReceiver() {

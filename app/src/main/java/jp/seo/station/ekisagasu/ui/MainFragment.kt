@@ -28,7 +28,7 @@ import jp.seo.station.ekisagasu.utils.onChanged
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel.SearchState
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
@@ -273,12 +273,11 @@ class MainFragment : AppFragment() {
 
         }
 
-        lifecycleScope.launch {
-            appStateRepository.fixTimer
-                .flowWithLifecycle(lifecycle)
-                .onEach { isTimerFixed = it }
-                .collect()
-        }
+        appStateRepository.fixTimer
+            .flowWithLifecycle(lifecycle)
+            .onEach { isTimerFixed = it }
+            .launchIn(lifecycleScope)
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

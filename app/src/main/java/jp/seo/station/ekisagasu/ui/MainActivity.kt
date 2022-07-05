@@ -32,7 +32,7 @@ import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,18 +49,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
 
         // try to resolve API exception if any
-        lifecycleScope.launch {
-            appViewModel.appMessage
-                .flowWithLifecycle(lifecycle)
-                .onEach {
-                    if (it is AppMessage.AppResolvableException) {
-                        resolvableApiLauncher.launch(
-                            IntentSenderRequest.Builder(it.exception.resolution).build()
-                        )
-                    }
+        appViewModel.appMessage
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                if (it is AppMessage.AppResolvableException) {
+                    resolvableApiLauncher.launch(
+                        IntentSenderRequest.Builder(it.exception.resolution).build()
+                    )
                 }
-                .collect()
-        }
+            }
+            .launchIn(lifecycleScope)
+
 
         // finish activity if requested
         viewModel.requestFinish.observe(this) {
@@ -68,12 +67,11 @@ class MainActivity : AppCompatActivity() {
                 appStateRepository.finishApp()
             }
         }
-        lifecycleScope.launch {
-            appStateRepository.finishAppEvent
-                .flowWithLifecycle(lifecycle)
-                .onEach { finish() }
-                .collect()
-        }
+        appStateRepository.finishAppEvent
+            .flowWithLifecycle(lifecycle)
+            .onEach { finish() }
+            .launchIn(lifecycleScope)
+
 
         viewModel.requestDialog.observe(this) { type ->
             ActivityViewModel.getDialog(type)?.show(supportFragmentManager, type)
