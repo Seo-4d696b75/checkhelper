@@ -1,19 +1,19 @@
 package jp.seo.station.ekisagasu.service
 
-import android.content.Context
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
+import jp.seo.station.ekisagasu.usecase.BootUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.PrintWriter
@@ -28,6 +28,8 @@ class ServiceViewModel @Inject constructor(
     private val navigator: NavigationRepository,
     private val userRepository: UserRepository,
     private val appStateRepository: AppStateRepository,
+    private val bootUseCase: BootUseCase,
+    private val appFinishUseCase: AppFinishUseCase,
 ) : ViewModel() {
     /**
      * 現在の探索・待機状態の変更を通知する
@@ -77,11 +79,9 @@ class ServiceViewModel @Inject constructor(
         navigator.stop()
     }
 
-    fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) =
-        viewModelScope.launch(Dispatchers.IO) {
-            userRepository.onAppReboot(context)
-            prefectureRepository.setData(context)
-        }
+    fun onServiceInit() = viewModelScope.launch {
+        bootUseCase()
+    }
 
     /**
      * 必要ならActivity側に通知して終了させる
@@ -92,15 +92,8 @@ class ServiceViewModel @Inject constructor(
 
     val appFinish = appStateRepository.finishAppEvent
 
-    fun onServiceFinish(context: Context) = viewModelScope.launch {
-        // TODO useCaseにまとめたい
-
-        appStateRepository.isServiceRunning = false
-        userRepository.onAppFinish(context)
-
-        // reset
-        appStateRepository.setTimerFixed(false)
-        appStateRepository.setNightMode(false)
+    fun onServiceFinish() = viewModelScope.launch {
+        appFinishUseCase()
     }
 
     // accessor to app state

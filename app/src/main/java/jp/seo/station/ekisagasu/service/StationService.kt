@@ -30,6 +30,8 @@ import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
+import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
+import jp.seo.station.ekisagasu.usecase.BootUseCase
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
@@ -104,7 +106,7 @@ class StationService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         // init repository
-        viewModel.onServiceInit(this, prefectureRepository)
+        viewModel.onServiceInit()
 
         // start this service as foreground one
         startForeground(NotificationViewHolder.NOTIFICATION_TAG, notificationHolder.notification)
@@ -344,6 +346,12 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var appStateRepository: AppStateRepository
 
+    @Inject
+    lateinit var bootUseCase: BootUseCase
+
+    @Inject
+    lateinit var appFinishUseCase: AppFinishUseCase
+
     private val viewModel: ServiceViewModel by lazy {
         // service起動毎に異なるインスタンスで問題なし
         val owner = ViewModelStoreOwner { ViewModelStore() }
@@ -355,6 +363,8 @@ class StationService : LifecycleService() {
                 navigator,
                 userRepository,
                 appStateRepository,
+                bootUseCase,
+                appFinishUseCase,
             )
         }
         val provider = ViewModelProvider(owner, factory)
@@ -370,13 +380,12 @@ class StationService : LifecycleService() {
     }
 
     override fun onDestroy() {
-        // TODO useCaseにまとめたい
         viewModel.message("service terminated")
         viewModel.stopStationSearch()
         userRepository.timerPosition = overlayView.timerPosition
-        viewModel.onServiceFinish(this)
         overlayView.release()
         unregisterReceiver(receiver)
+        viewModel.onServiceFinish()
         super.onDestroy()
     }
 
