@@ -45,7 +45,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        // TODO activityの再生成が失敗するので暫定的に初期状態から
+        super.onCreate(null)
         setContentView(R.layout.main_activity)
 
         // try to resolve API exception if any
