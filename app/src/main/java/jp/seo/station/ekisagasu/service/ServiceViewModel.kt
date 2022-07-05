@@ -79,7 +79,7 @@ class ServiceViewModel @Inject constructor(
 
     fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) =
         viewModelScope.launch(Dispatchers.IO) {
-            //userRepository.onAppReboot(context)
+            userRepository.onAppReboot(context)
             prefectureRepository.setData(context)
         }
 
