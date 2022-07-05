@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -39,7 +40,7 @@ class GPSClient(
 
     private val _location = MutableSharedFlow<Location>(replay = 0)
 
-    private val _running = MutableSharedFlow<Boolean>(replay = 0)
+    private val _running = MutableStateFlow(false)
     private var running = false
 
     override val currentLocation = _location
@@ -140,7 +141,7 @@ class GPSClient(
                 .addOnCompleteListener {
                     running = false
                 }
-            launch { _running.emit(false) }
+            _running.value = false
             log("GPS has stopped")
             job.cancel()
             return true

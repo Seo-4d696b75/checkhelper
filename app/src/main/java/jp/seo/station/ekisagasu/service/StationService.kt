@@ -30,6 +30,7 @@ import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
@@ -157,6 +158,7 @@ class StationService : LifecycleService() {
         lifecycleScope.launch {
             viewModel.isRunning
                 .flowWithLifecycle(lifecycle)
+                .drop(1)
                 .onEach {
                     if (it) {
 
