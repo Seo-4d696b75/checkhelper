@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.repository.LogEmitter
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,7 +34,6 @@ class GPSClient(
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(context)
     private val settingClient = LocationServices.getSettingsClient(context)
-    private val _message = MutableSharedFlow<AppMessage>()
 
     private var minInterval = 0
 
@@ -97,9 +95,7 @@ class GPSClient(
                 )
             }
         } catch (e: ResolvableApiException) {
-            launch {
-                _message.emit(AppMessage.AppResolvableException(e))
-            }
+            requestExceptionResolved(e)
         }
     }
 
