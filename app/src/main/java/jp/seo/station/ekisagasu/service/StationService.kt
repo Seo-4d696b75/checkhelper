@@ -10,29 +10,19 @@ import android.os.*
 import android.provider.AlarmClock
 import android.util.Log
 import android.widget.Toast
+import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.NavigationRepository
 import jp.seo.station.ekisagasu.core.PrefectureRepository
-import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
-import jp.seo.station.ekisagasu.repository.AppLogger
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
-import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
-import jp.seo.station.ekisagasu.usecase.BootUseCase
-import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -119,20 +109,20 @@ class StationService : LifecycleService() {
         }
 
         // when current location changed
-        locationRepository
+        viewModel
             .currentLocation
             .flowWithLifecycle(lifecycle)
             .onEach { viewModel.updateLocation(it) }
             .launchIn(lifecycleScope)
 
         // when message from logger
-        logger.message
+        viewModel.log
             .flowWithLifecycle(lifecycle)
             .onEach { viewModel.saveMessage(it) }
             .launchIn(lifecycleScope)
 
         // update notification when nearest station changed
-        stationRepository.detectedStation.observe(this) {
+        viewModel.detectedStation.observe(this) {
             it?.let { n ->
                 viewModel.saveStationLog(n.station)
                 overlayView.onStationChanged(n)
@@ -144,7 +134,7 @@ class StationService : LifecycleService() {
         }
 
         // update notification when nearest station or distance changed
-        stationRepository.nearestStation.observe(this) {
+        viewModel.nearestStation.observe(this) {
             it?.let { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
@@ -186,12 +176,12 @@ class StationService : LifecycleService() {
 
 
         // when navigation changed
-        navigator.running.observe(this) {
+        viewModel.isNavigatorRunning.observe(this) {
             if (it) {
                 hasApproach = false
                 nextApproachStation = null
-                navigator.line?.let { line ->
-                    stationRepository.nearestStation.value?.let { n ->
+                viewModel.navigationLine?.let { line ->
+                    viewModel.nearestStation.value?.let { n ->
                         overlayView.navigation.startNavigation(line, n.station)
                     }
                 }
@@ -200,7 +190,7 @@ class StationService : LifecycleService() {
             }
             overlayView.isNavigationRunning = it
         }
-        navigator.predictions.observe(this) {
+        viewModel.navigationPrediction.observe(this) {
             it?.let { result ->
                 if (result.size > 0) {
                     val next = result.getStation(0)
@@ -320,63 +310,21 @@ class StationService : LifecycleService() {
     }
 
     @Inject
-    lateinit var stationRepository: StationRepository
-
-    @Inject
     lateinit var userRepository: UserRepository
 
     @Inject
     lateinit var prefectureRepository: PrefectureRepository
 
     @Inject
-    lateinit var locationRepository: LocationRepository
-
-    @Inject
-    lateinit var navigator: NavigationRepository
-
-    @Inject
-    lateinit var singletonStore: ViewModelStore
-
-    @Inject
-    lateinit var mainHandler: Handler
-
-    @Inject
-    lateinit var logger: AppLogger
-
-    @Inject
-    lateinit var appStateRepository: AppStateRepository
-
-    @Inject
-    lateinit var bootUseCase: BootUseCase
-
-    @Inject
-    lateinit var appFinishUseCase: AppFinishUseCase
-
-    private val viewModel: ServiceViewModel by lazy {
-        // service起動毎に異なるインスタンスで問題なし
-        val owner = ViewModelStoreOwner { ViewModelStore() }
-        val factory = getViewModelFactory {
-            ServiceViewModel(
-                locationRepository,
-                logger,
-                stationRepository,
-                navigator,
-                userRepository,
-                appStateRepository,
-                bootUseCase,
-                appFinishUseCase,
-            )
-        }
-        val provider = ViewModelProvider(owner, factory)
-        provider[ServiceViewModel::class.java]
-    }
+    lateinit var viewModel: ServiceViewModel
 
     private val notificationHolder: NotificationViewHolder by lazy {
         NotificationViewHolder(this)
     }
 
     private val overlayView: OverlayViewHolder by lazy {
-        OverlayViewHolder(this, prefectureRepository, mainHandler)
+        val handler = HandlerCompat.createAsync(Looper.getMainLooper())
+        OverlayViewHolder(this, prefectureRepository, handler)
     }
 
     override fun onDestroy() {

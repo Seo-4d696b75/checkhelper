@@ -20,7 +20,6 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import javax.inject.Inject
 
-@HiltViewModel
 class ServiceViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val logger: AppLogger,
@@ -40,6 +39,17 @@ class ServiceViewModel @Inject constructor(
 
     fun error(text: String, displayedText: String) =
         viewModelScope.launch { logger.error(text, displayedText) }
+
+    val currentLocation = locationRepository.currentLocation
+
+    val log = logger.message
+
+    val detectedStation = stationRepository.detectedStation
+    val nearestStation = stationRepository.nearestStation
+
+    val isNavigatorRunning = navigator.running
+    val navigationPrediction = navigator.predictions
+    val navigationLine = navigator.line
 
     fun saveMessage(message: AppMessage) = viewModelScope.launch(Dispatchers.IO) {
         when (message) {
