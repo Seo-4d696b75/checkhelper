@@ -2,8 +2,6 @@ package jp.seo.station.ekisagasu.core
 
 import android.content.Context
 import android.os.Handler
-import android.os.Looper
-import androidx.core.os.HandlerCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.room.Room
 import dagger.Module
@@ -83,19 +81,12 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideMainHandler(): Handler {
-        return HandlerCompat.createAsync(Looper.getMainLooper())
-    }
-
-    @Singleton
-    @Provides
     fun provideStationRepository(
         db: StationDatabase,
         api: APIClient,
         tree: KdTree,
-        handler: Handler
     ): StationRepository {
-        return StationRepository(db.dao, api, tree, handler)
+        return StationRepository(db.dao, api, tree)
     }
 
     @Singleton

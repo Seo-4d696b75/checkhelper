@@ -1,8 +1,9 @@
 package jp.seo.station.ekisagasu.core
 
 import android.location.Location
-import android.os.Handler
+import android.os.Looper
 import androidx.annotation.MainThread
+import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import jp.seo.station.ekisagasu.Line
@@ -16,7 +17,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.floor
 
 /**
@@ -27,7 +27,6 @@ class StationRepository(
     private val dao: StationDao,
     private val api: APIClient,
     private val tree: KdTree,
-    private val main: Handler
 ) {
 
     fun getStation(code: Int) = dao.getStation(code)
@@ -183,6 +182,8 @@ class StationRepository(
         fun onProgress(progress: Int)
         fun onComplete(success: Boolean)
     }
+
+    private val main = HandlerCompat.createAsync(Looper.getMainLooper())
 
     suspend fun updateData(info: DataLatestInfo, listener: UpdateProgressListener) {
         main.post {
