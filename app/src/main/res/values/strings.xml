@@ -40,8 +40,8 @@
     <string name="setting_title_accuracy">距離計算の精度</string>
     <string name="setting_mes_accuracy">高精度では球面を考慮して計算します. 駅メモ！仕様の低精度では平面を仮定して三平方の定理で計算します. この場合表示される距離と内部で処理される距離の大小に不整合が生じることがあります.</string>
     <string name="setting_title_data">駅データ</string>
-    <string name="setting_mes_data_version">バージョン</string>
-    <string name="setting_mes_data_timestamp">更新日時</string>
+    <string name="setting_mes_data_version">バージョン: %1$d</string>
+    <string name="setting_mes_data_timestamp">更新日時: %1$s</string>
     <string name="setting_title_notify_stationary">常駐モード</string>
     <string name="setting_mes_notify_stationary">通知を常時画面上部に表示させます. </string>
     <string name="setting_title_notify_prefecture">都道府県の表示</string>
