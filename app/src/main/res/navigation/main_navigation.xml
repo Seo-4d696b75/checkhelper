@@ -24,6 +24,6 @@
         app:destination="@id/mainFragment" />
     <fragment
         android:id="@+id/settingFragment"
-        android:name="jp.seo.station.ekisagasu.ui.SettingFragment"
+        android:name="jp.seo.station.ekisagasu.ui.setting.SettingFragment"
         android:label="SettingFragment" />
 </navigation>
