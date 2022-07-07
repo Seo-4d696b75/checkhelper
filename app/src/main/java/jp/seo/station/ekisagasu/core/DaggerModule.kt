@@ -91,14 +91,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideUserRepository(
-        db: UserDatabase
-    ): UserRepository {
-        return UserRepository(db.userDao)
-    }
-
-    @Singleton
-    @Provides
     fun provideNavigator(
         tree: KdTree,
         db: StationDatabase

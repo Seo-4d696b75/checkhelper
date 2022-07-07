@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 /**
@@ -119,6 +120,6 @@ abstract class UserDao {
     abstract fun getRebootHistory(): LiveData<List<AppRebootLog>>
 
     @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
-    abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): LiveData<List<AppLog>>
+    abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): Flow<List<AppLog>>
 
 }

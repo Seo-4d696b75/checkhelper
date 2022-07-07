@@ -3,23 +3,23 @@ package jp.seo.station.ekisagasu.core
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.switchMap
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.model.UserSetting
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_ISO8601_EXTEND
 import jp.seo.station.ekisagasu.utils.formatTime
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import java.io.File
 import java.io.IOException
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
+@ExperimentalCoroutinesApi
 class UserRepository(
     private val dao: UserDao,
     defaultDispatcher: CoroutineDispatcher,
@@ -36,17 +36,17 @@ class UserRepository(
 
     val history = dao.getRebootHistory()
 
-    val currentLogTarget: LiveData<LogTarget?>
+    val currentLogTarget: StateFlow<LogTarget?>
         get() = _logFilter
 
     suspend fun selectLogsSince(since: AppRebootLog) = withContext(Dispatchers.IO) {
         val until = dao.getNextReboot(since.id)
-        _logFilter.postValue(LogTarget(since, since.id, until ?: Long.MAX_VALUE))
+        _logFilter.emit(LogTarget(since, since.id, until ?: Long.MAX_VALUE))
     }
 
-    val logs: LiveData<List<AppLog>> = _logFilter.switchMap {
+    val logs: StateFlow<List<AppLog>> = _logFilter.flatMapLatest {
         dao.getLogs(it.since, it.until)
-    }
+    }.stateIn(this, SharingStarted.Eagerly, emptyList())
 
     suspend fun logMessage(message: String) {
         log(AppLog.TYPE_SYSTEM, message)
@@ -122,7 +122,7 @@ class UserRepository(
                         time
                     )
                 )
-                logs?.forEach { log ->
+                logs.forEach { log ->
                     builder.append(log.toString())
                     builder.append("\n")
                 }
