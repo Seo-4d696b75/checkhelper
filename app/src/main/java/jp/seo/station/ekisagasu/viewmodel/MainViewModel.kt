@@ -13,6 +13,8 @@ import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.map
 import java.util.*
 import kotlin.NoSuchElementException
 
@@ -20,6 +22,7 @@ import kotlin.NoSuchElementException
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
+@ExperimentalCoroutinesApi
 class MainViewModel(
     private val stationRepository: StationRepository,
     userRepository: UserRepository,
@@ -61,7 +64,7 @@ class MainViewModel(
     /**
      * 現在地から探索する駅の個数
      */
-    var radarNum = userRepository.searchK
+    var radarNum = userRepository.setting.map { it.searchK }
 
     /**
      * 現在選択している路線

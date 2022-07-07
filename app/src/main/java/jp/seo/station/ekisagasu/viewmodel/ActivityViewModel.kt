@@ -13,6 +13,7 @@ import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.ui.*
 import jp.seo.station.ekisagasu.utils.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import java.io.BufferedWriter
 import java.io.IOException
@@ -27,6 +28,7 @@ import kotlin.collections.ArrayList
  * @author Seo-4d696b75
  * @version 2021/01/13.
  */
+@ExperimentalCoroutinesApi
 class ActivityViewModel(
     context: Context,
     private val stationRepository: StationRepository,
@@ -195,23 +197,7 @@ class ActivityViewModel(
         }
     }
 
-    fun checkLatestData(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val latest = try {
-                stationRepository.getLatestDataVersion(true)
-            } catch (e: IOException) {
-                requestToast.postCall(messageNetworkError)
-                return@launch
-            }
-            val current = stationRepository.getDataVersion()
-            if (current == null || latest.version > current.version) {
-                targetInfo = latest
-                requestDialog(DataDialog.DIALOG_LATEST)
-            } else {
-                requestToast.postCall(context.getString(R.string.data_already_latest))
-            }
-        }
-    }
+
 
     data class LogFilter(
         val filter: Int,
@@ -235,7 +221,7 @@ class ActivityViewModel(
     val logs: LiveData<List<AppLog>> = combineLiveData(
         ArrayList(),
         _filter,
-        userRepository.logs
+        userRepository.logs.asLiveData()
     ) { filter, logs ->
         logs.filter { (it.type and filter.filter) > 0 }
     }
