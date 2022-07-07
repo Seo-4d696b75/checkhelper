@@ -330,48 +330,6 @@
                 android:enabled="@{viewMode.setting.isVibrate}"
                 custom:value="@{viewMode.setting.vibrateDistance}" />
 
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_margin="10dp"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDark"
-                android:layout_columnSpan="3" />
-
-            <ImageView
-                android:layout_margin="10dp"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@drawable/ic_location"
-                android:layout_rowSpan="2" />
-
-            <TextView
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:textSize="18sp"
-                android:textColor="@color/colorPrimary"
-                android:text="@string/setting_title_accuracy" />
-
-            <ToggleButton
-                android:id="@+id/toggle_accuracy"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="5dp"
-                android:textOn="high"
-                android:textOff="low"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_rowSpan="2" />
-
-            <TextView
-                android:padding="3dp"
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:textSize="12sp"
-                android:textColor="@color/colorText"
-                android:text="@string/setting_mes_accuracy" />
-
             <View
                 android:layout_width="match_parent"
                 android:layout_margin="10dp"
