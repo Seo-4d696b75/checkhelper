@@ -51,6 +51,13 @@ class ServiceViewModel @Inject constructor(
     val navigationPrediction = navigator.predictions
     val navigationLine = navigator.line
 
+    val userSetting = userRepository.setting
+    fun saveTimerPosition(position: Int) {
+        userRepository.setting.value = userRepository.setting.value.copy(
+            timerPosition = position
+        )
+    }
+
     fun saveMessage(message: AppMessage) = viewModelScope.launch(Dispatchers.IO) {
         when (message) {
             is AppMessage.AppLog -> userRepository.logMessage(message.message)

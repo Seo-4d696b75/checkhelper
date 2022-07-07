@@ -23,9 +23,11 @@ import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -230,43 +232,34 @@ class StationService : LifecycleService() {
         registerReceiver(receiver, filter)
 
         // when user setting changed
-        userRepository.searchK.observe(this) {
-            viewModel.setSearchK(it)
-        }
-        userRepository.isNotify.observe(this) {
-            overlayView.notify = it
-        }
-        userRepository.isKeepNotification.observe(this) {
-            overlayView.keepNotification = it
-        }
-        userRepository.isNotifyForce.observe(this) {
-            overlayView.forceNotify = it
-        }
-        userRepository.gpsUpdateInterval.observe(this) { interval ->
-            viewModel.setSearchInterval(interval)
-        }
-        userRepository.isNotifyPrefecture.observe(this) {
-            overlayView.displayPrefecture = it
-        }
+        viewModel.userSetting
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                // station search param
+                viewModel.setSearchK(it.searchK)
+                viewModel.setSearchInterval(it.locationUpdateInterval)
+                // notification param
+                overlayView.apply {
+                    notify = it.isPushNotification
+                    keepNotification = it.isKeepNotification
+                    forceNotify = it.isPushNotificationForce
+                    displayPrefecture = it.isShowPrefectureNotification
+                    nightModeTimeout = it.nightModeTimeout
+                    brightness = it.nightModeBrightness
+                    timerPosition = it.timerPosition
+                }
+                // vibration param
+                isVibrate = it.isVibrate
+                isVibrateWhenApproach = it.isVibrateWhenApproach
+                vibrateMeterWhenApproach = it.vibrateDistance
+            }
+            .launchIn(lifecycleScope)
+
+        // switch night mode
         viewModel.nightMode
             .flowWithLifecycle(lifecycle)
             .onEach { overlayView.nightMode = it }
             .launchIn(lifecycleScope)
-        userRepository.nightModeTimeout.observe(this) {
-            overlayView.nightModeTimeout = it
-        }
-        userRepository.brightness.observe(this) {
-            overlayView.brightness = it
-        }
-        userRepository.isVibrate.observe(this) {
-            isVibrate = it
-        }
-        userRepository.isVibrateApproach.observe(this) {
-            isVibrateWhenApproach = it
-        }
-        userRepository.vibrateDistance.observe(this) {
-            vibrateMeterWhenApproach = it
-        }
 
         // check notification channel setting
         if (notificationHolder.needNotificationSetting) {
@@ -275,7 +268,6 @@ class StationService : LifecycleService() {
 
         // set timer
         overlayView.timerListener = { setTimer() }
-        overlayView.timerPosition = userRepository.timerPosition
         viewModel.startTimer
             .flowWithLifecycle(lifecycle)
             .onEach { setTimer() }
@@ -330,7 +322,7 @@ class StationService : LifecycleService() {
     override fun onDestroy() {
         viewModel.message("service terminated")
         viewModel.stopStationSearch()
-        userRepository.timerPosition = overlayView.timerPosition
+        viewModel.saveTimerPosition(overlayView.timerPosition)
         overlayView.release()
         unregisterReceiver(receiver)
         viewModel.onServiceFinish()
