@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +19,15 @@ import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/21.
  */
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class LogFragment : AppFragment() {
 
@@ -52,15 +58,18 @@ class LogFragment : AppFragment() {
                 )
             )
             val target = view.findViewById<TextView>(R.id.text_log_filter_since)
-            viewModel.logTarget.observe(viewLifecycleOwner) {
-                it?.target?.let { log ->
-                    target.text = String.format(
-                        "%s～%s",
-                        formatTime(TIME_PATTERN_DATETIME, log.start),
-                        formatTime(TIME_PATTERN_DATETIME, log.finish)
-                    )
+            viewModel.logTarget
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    it?.target?.let { log ->
+                        target.text = String.format(
+                            "%s～%s",
+                            formatTime(TIME_PATTERN_DATETIME, log.start),
+                            formatTime(TIME_PATTERN_DATETIME, log.finish)
+                        )
+                    }
                 }
-            }
+                .launchIn(lifecycleScope)
             view.findViewById<Button>(R.id.button_select_history).setOnClickListener {
                 viewModel.requestDialog(AppHistoryDialog.DIALOG_SELECT_HISTORY)
             }

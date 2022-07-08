@@ -1,15 +1,16 @@
 package jp.seo.station.ekisagasu.repository
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 interface AppStateRepository {
     var isServiceRunning: Boolean
-    val startTimerEvent: Flow<Unit>
+    val startTimerEvent: SharedFlow<Unit>
     suspend fun startTimer()
-    val fixTimer: Flow<Boolean>
+    val fixTimer: SharedFlow<Boolean>
     suspend fun setTimerFixed(fixed: Boolean)
-    val nightMode: Flow<Boolean>
+    val nightMode: StateFlow<Boolean>
     suspend fun setNightMode(enabled: Boolean)
-    val finishAppEvent: Flow<Unit>
+    val finishAppEvent: SharedFlow<Unit>
     suspend fun finishApp()
 }

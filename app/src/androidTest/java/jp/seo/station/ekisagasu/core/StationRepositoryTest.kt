@@ -36,8 +36,7 @@ class StationRepositoryTest {
         val tree = KdTree(db.dao)
         val api =
             getAPIClient("https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/")
-        val main = HandlerCompat.createAsync(Looper.getMainLooper())
-        repository = StationRepository(db.dao, api, tree, main)
+        repository = StationRepository(db.dao, api, tree)
     }
 
     @Test

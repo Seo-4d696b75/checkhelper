@@ -1,70 +1,64 @@
 package jp.seo.station.ekisagasu.service
 
-import android.content.Context
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.PrefectureRepository
 import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.core.UserRepository
-import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.AppLogger
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import kotlinx.coroutines.Dispatchers
+import jp.seo.station.ekisagasu.repository.*
+import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
+import jp.seo.station.ekisagasu.usecase.BootUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import java.io.PrintWriter
-import java.io.StringWriter
 import javax.inject.Inject
 
-@HiltViewModel
+@ExperimentalCoroutinesApi
 class ServiceViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
+    private val logRepository: LogRepository,
     private val logger: AppLogger,
+    private val userSettingRepository: UserSettingRepository,
     private val stationRepository: StationRepository,
     private val navigator: NavigationRepository,
-    private val userRepository: UserRepository,
     private val appStateRepository: AppStateRepository,
-) : ViewModel() {
+    private val bootUseCase: BootUseCase,
+    private val appFinishUseCase: AppFinishUseCase,
+) : ViewModel(), AppLogger by logger {
     /**
      * 現在の探索・待機状態の変更を通知する
      */
     val isRunning = locationRepository.isRunning
 
-    fun message(text: String) = viewModelScope.launch { logger.log(text) }
+    val currentLocation = locationRepository.currentLocation
 
-    fun error(text: String, displayedText: String) =
-        viewModelScope.launch { logger.error(text, displayedText) }
+    fun log(message: String) = viewModelScope.log(message)
+    fun error(message: String) = viewModelScope.error(message)
 
-    fun saveMessage(message: AppMessage) = viewModelScope.launch(Dispatchers.IO) {
-        when (message) {
-            is AppMessage.AppLog -> userRepository.logMessage(message.message)
-            is AppMessage.AppError -> {
-                val str = if (message.cause == null) {
-                    message.message
-                } else {
-                    val sw = StringWriter()
-                    val pw = PrintWriter(sw)
-                    message.cause.printStackTrace(pw)
-                    String.format("%s caused by;\n%s", message.message, sw.toString())
-                }
-                userRepository.logError(str)
-            }
-            is AppMessage.AppResolvableException -> userRepository.logError(message.exception.toString())
-        }
+    val message = logRepository.message
+
+    val detectedStation = stationRepository.detectedStation
+    val nearestStation = stationRepository.nearestStation
+
+    val isNavigatorRunning = navigator.running
+    val navigationPrediction = navigator.predictions
+    val navigationLine = navigator.line
+
+    val userSetting = userSettingRepository.setting
+    fun saveTimerPosition(position: Int) {
+        userSettingRepository.setting.value = userSettingRepository.setting.value.copy(
+            timerPosition = position
+        )
     }
 
     val selectedLine = stationRepository.selectedLine
 
     fun saveStationLog(station: Station) = viewModelScope.launch {
-        userRepository.logStation(String.format("%s(%d)", station.name, station.code))
+        logRepository.logStation(station)
     }
 
     fun updateLocation(location: Location) = viewModelScope.launch {
-        userRepository.logLocation(location.latitude, location.longitude)
+        logRepository.logLocation(location.latitude, location.longitude)
         stationRepository.updateNearestStations(location)
         stationRepository.nearestStation.value?.let {
             navigator.updateLocation(location, it.station)
@@ -77,11 +71,9 @@ class ServiceViewModel @Inject constructor(
         navigator.stop()
     }
 
-    fun onServiceInit(context: Context, prefectureRepository: PrefectureRepository) =
-        viewModelScope.launch(Dispatchers.IO) {
-            //userRepository.onAppReboot(context)
-            prefectureRepository.setData(context)
-        }
+    fun onServiceInit() = viewModelScope.launch {
+        bootUseCase()
+    }
 
     /**
      * 必要ならActivity側に通知して終了させる
@@ -92,15 +84,8 @@ class ServiceViewModel @Inject constructor(
 
     val appFinish = appStateRepository.finishAppEvent
 
-    fun onServiceFinish(context: Context) = viewModelScope.launch {
-        // TODO useCaseにまとめたい
-
-        appStateRepository.isServiceRunning = false
-        userRepository.onAppFinish(context)
-
-        // reset
-        appStateRepository.setTimerFixed(false)
-        appStateRepository.setNightMode(false)
+    fun onServiceFinish() = viewModelScope.launch {
+        appFinishUseCase()
     }
 
     // accessor to app state

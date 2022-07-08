@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 /**
@@ -48,12 +49,12 @@ data class AppLog constructor(
     var timestamp: Date = Date()
 
     companion object {
-        val TYPE_SYSTEM = 0b001
-        val TYPE_LOCATION = 0b010
-        val TYPE_STATION = 0b100
+        const val TYPE_SYSTEM = 0b001
+        const val TYPE_LOCATION = 0b010
+        const val TYPE_STATION = 0b100
 
-        val FILTER_ALL = 0b111
-        val FILTER_GEO = 0b110
+        const val FILTER_ALL = 0b111
+        const val FILTER_GEO = 0b110
 
     }
 
@@ -116,9 +117,9 @@ abstract class UserDao {
     abstract suspend fun getNextReboot(id: Long): Long?
 
     @Query("SELECT * FROM reboot ORDER BY id DESC")
-    abstract fun getRebootHistory(): LiveData<List<AppRebootLog>>
+    abstract fun getRebootHistory(): Flow<List<AppRebootLog>>
 
     @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
-    abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): LiveData<List<AppLog>>
+    abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): Flow<List<AppLog>>
 
 }

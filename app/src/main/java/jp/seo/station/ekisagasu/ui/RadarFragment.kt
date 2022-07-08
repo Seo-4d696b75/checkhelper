@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,11 +17,15 @@ import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.NearStation
 import jp.seo.station.ekisagasu.search.formatDistance
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * @author Seo-4d696b75
  * @version 2021/01/14.
  */
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class RadarFragment : AppFragment() {
 
@@ -53,9 +59,12 @@ class RadarFragment : AppFragment() {
                 findNavController().navigate(R.id.action_global_stationFragment)
             }
             val radarNum = view.findViewById<TextView>(R.id.text_radar_num)
-            mainViewModel.radarNum.observe(viewLifecycleOwner) {
-                radarNum.text = String.format("x%d", it)
-            }
+            mainViewModel.radarNum
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    radarNum.text = String.format("x%d", it)
+                }
+                .launchIn(lifecycleScope)
         }
     }
 
