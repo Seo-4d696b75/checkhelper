@@ -19,15 +19,13 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.PrefectureRepository
-import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -38,6 +36,7 @@ import javax.inject.Inject
  * Main service providing core function in background.
  * This service has to sense GPS location, so must be run as foreground service.
  */
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class StationService : LifecycleService() {
 
@@ -49,24 +48,24 @@ class StationService : LifecycleService() {
 
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
-        viewModel.message("onBind: client requests to bind service")
+        viewModel.log("onBind: client requests to bind service")
         return StationServiceBinder()
     }
 
 
     override fun onUnbind(intent: Intent?): Boolean {
-        viewModel.message("onUnbind: client unbinds service")
+        viewModel.log("onUnbind: client unbinds service")
         return true
     }
 
     override fun onRebind(intent: Intent?) {
-        viewModel.message("onRebind: client binds service again")
+        viewModel.log("onRebind: client binds service again")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        viewModel.message("service received start-command")
+        viewModel.log("service received start-command")
 
         intent?.let {
             if (it.hasExtra(KEY_REQUEST)) {
@@ -117,12 +116,6 @@ class StationService : LifecycleService() {
             .onEach { viewModel.updateLocation(it) }
             .launchIn(lifecycleScope)
 
-        // when message from logger
-        viewModel.log
-            .flowWithLifecycle(lifecycle)
-            .onEach { viewModel.saveMessage(it) }
-            .launchIn(lifecycleScope)
-
         // update notification when nearest station changed
         viewModel.detectedStation.observe(this) {
             it?.let { n ->
@@ -153,7 +146,7 @@ class StationService : LifecycleService() {
             .onEach {
                 if (it) {
 
-                    viewModel.message("start: try to getting GPS ready")
+                    viewModel.log("start: try to getting GPS ready")
 
                     notificationHolder.update(
                         getString(R.string.notification_title_start),
@@ -166,7 +159,7 @@ class StationService : LifecycleService() {
                         Toast.LENGTH_SHORT
                     )
                         .show()
-                    viewModel.message("GPS search stopped")
+                    viewModel.log("GPS search stopped")
                     notificationHolder.update(
                         getString(R.string.notification_title_wait),
                         getString(R.string.notification_message_wait)
@@ -285,13 +278,13 @@ class StationService : LifecycleService() {
                 when (it) {
                     Intent.ACTION_SCREEN_OFF -> {
                         overlayView.screen = false
-                        viewModel.message("screen off")
+                        viewModel.log("screen off")
                     }
                     Intent.ACTION_SCREEN_ON -> {
-                        viewModel.message("screen on")
+                        viewModel.log("screen on")
                     }
                     Intent.ACTION_USER_PRESENT -> {
-                        viewModel.message("user present")
+                        viewModel.log("user present")
                         overlayView.screen = true
                     }
                     else -> {}
@@ -300,9 +293,6 @@ class StationService : LifecycleService() {
         }
 
     }
-
-    @Inject
-    lateinit var userRepository: UserRepository
 
     @Inject
     lateinit var prefectureRepository: PrefectureRepository
@@ -320,7 +310,7 @@ class StationService : LifecycleService() {
     }
 
     override fun onDestroy() {
-        viewModel.message("service terminated")
+        viewModel.log("service terminated")
         viewModel.stopStationSearch()
         viewModel.saveTimerPosition(overlayView.timerPosition)
         overlayView.release()
@@ -394,7 +384,7 @@ class StationService : LifecycleService() {
             timerRunning = true
             Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()
         } else {
-            viewModel.error("fail to start timer", "タイマーを設定できませんでした")
+            viewModel.error("タイマーを設定できませんでした")
         }
     }
 
