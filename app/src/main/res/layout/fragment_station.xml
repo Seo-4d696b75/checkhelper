@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:columnCount="3">
 
-            <jp.seo.station.ekisagasu.ui.StationNameView
+            <jp.seo.station.ekisagasu.ui.common.StationNameView
                 android:id="@+id/station_name_detail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

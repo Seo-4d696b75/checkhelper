@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.ui.common.StationNameView
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import javax.inject.Inject
 
