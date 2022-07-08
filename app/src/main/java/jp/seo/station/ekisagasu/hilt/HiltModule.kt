@@ -8,11 +8,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jp.seo.station.ekisagasu.core.UserDatabase
-import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.repository.*
-import jp.seo.station.ekisagasu.repository.impl.AppLoggerImpl
 import jp.seo.station.ekisagasu.repository.impl.AppStateRepositoryImpl
 import jp.seo.station.ekisagasu.repository.impl.GPSClient
+import jp.seo.station.ekisagasu.repository.impl.LogRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.UserSettingRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
@@ -25,7 +25,7 @@ object LocationModule {
     @Singleton
     fun provideLocationRepository(
         @ApplicationContext context: Context,
-        logger: LogEmitter,
+        logger: AppLogger,
     ): LocationRepository {
         return GPSClient(context, logger, Dispatchers.Main)
     }
@@ -37,11 +37,11 @@ interface LoggerModule {
 
     @Binds
     @Singleton
-    fun bindsLogger(impl: AppLoggerImpl): AppLogger
+    fun bindsLogger(impl: LogRepositoryImpl): LogRepository
 
     @Binds
     @Singleton
-    fun bindsLogEmitter(impl: LogEmitterImpl): LogEmitter
+    fun bindsLogEmitter(impl: AppLoggerImpl): AppLogger
 
 }
 
@@ -56,13 +56,26 @@ interface AppStateModule {
 @ExperimentalCoroutinesApi
 @Module
 @InstallIn(SingletonComponent::class)
-object UserRepositoryModule {
+object LogModule {
 
     @Singleton
     @Provides
-    fun provideUserRepository(
+    fun provideLogRepository(
         db: UserDatabase
-    ): UserRepository {
-        return UserRepository(db.userDao, Dispatchers.Main)
+    ): LogRepository {
+        return LogRepositoryImpl(db.userDao, Dispatchers.Main)
+    }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object SettingModule {
+
+    @Singleton
+    @Provides
+    fun provideSettingRepository(
+        @ApplicationContext context: Context,
+    ): UserSettingRepository {
+        return UserSettingRepositoryImpl(context)
     }
 }
