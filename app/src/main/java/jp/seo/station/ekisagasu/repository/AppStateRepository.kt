@@ -7,7 +7,7 @@ interface AppStateRepository {
     var isServiceRunning: Boolean
     val startTimerEvent: SharedFlow<Unit>
     suspend fun startTimer()
-    val fixTimer: SharedFlow<Boolean>
+    val fixTimer: StateFlow<Boolean>
     suspend fun setTimerFixed(fixed: Boolean)
     val nightMode: StateFlow<Boolean>
     suspend fun setNightMode(enabled: Boolean)
