@@ -32,8 +32,6 @@ interface AppLogger {
     fun CoroutineScope.log(message: String)
     fun CoroutineScope.error(message: String, cause: Throwable? = null)
     fun CoroutineScope.requestExceptionResolved(message: String, e: ResolvableApiException)
-    fun CoroutineScope.logLocation(lat: Double, lng: Double)
-    fun CoroutineScope.logStation(station: Station)
 }
 
 class AppLoggerImpl @Inject constructor(
@@ -50,13 +48,4 @@ class AppLoggerImpl @Inject constructor(
     override fun CoroutineScope.requestExceptionResolved(message: String, e: ResolvableApiException) {
         launch { repository.requestExceptionResolved(message, e) }
     }
-
-    override fun CoroutineScope.logLocation(lat: Double, lng: Double) {
-        launch { repository.logLocation(lat, lng) }
-    }
-
-    override fun CoroutineScope.logStation(station: Station) {
-        launch { repository.logStation(station) }
-    }
-
 }
