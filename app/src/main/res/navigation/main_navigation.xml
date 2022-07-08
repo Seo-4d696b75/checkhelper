@@ -2,12 +2,12 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/topFragment">
 
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="jp.seo.station.ekisagasu.ui.MainFragment"
-        android:label="MainFragment">
+        android:id="@+id/topFragment"
+        android:name="jp.seo.station.ekisagasu.ui.top.TopFragment"
+        android:label="TopFragment">
         <action
             android:id="@+id/action_mainFragment_to_logFragment"
             app:destination="@id/logFragment" />
@@ -21,7 +21,7 @@
         android:label="LogFragment" />
     <action
         android:id="@+id/action_global_mainFragment"
-        app:destination="@id/mainFragment" />
+        app:destination="@id/topFragment" />
     <fragment
         android:id="@+id/settingFragment"
         android:name="jp.seo.station.ekisagasu.ui.SettingFragment"
