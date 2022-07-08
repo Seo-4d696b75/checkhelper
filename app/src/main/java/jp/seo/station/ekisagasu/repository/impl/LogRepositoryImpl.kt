@@ -9,8 +9,8 @@ import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.core.AppRebootLog
 import jp.seo.station.ekisagasu.core.UserDao
 import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.model.LogTarget
+import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_ISO8601_EXTEND
 import jp.seo.station.ekisagasu.utils.formatTime
@@ -18,12 +18,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.io.File
 import java.io.IOException
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.*
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
-class LogRepositoryImpl @Inject constructor(
+class LogRepositoryImpl(
     private val dao: UserDao,
     defaultDispatcher: CoroutineDispatcher,
 ) : LogRepository, CoroutineScope {
@@ -50,9 +51,15 @@ class LogRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logError(message: String, cause: Throwable?) {
-        Log.e("AppMessage.Error", message)
+        val str = if (cause != null) {
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            cause.printStackTrace(pw)
+            String.format("%s caused by;\n%s", message, sw.toString())
+        } else message
+        Log.e("AppMessage.Error", str)
         _message.emit(AppMessage.Error(message, cause))
-        saveLog(AppLog.TYPE_SYSTEM, message)
+        saveLog(AppLog.TYPE_SYSTEM, str)
         _hasError = true
     }
 

@@ -1,12 +1,10 @@
 package jp.seo.station.ekisagasu.repository.impl
 
 import jp.seo.station.ekisagasu.repository.AppStateRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import javax.inject.Inject
 
-class AppStateRepositoryImpl @Inject constructor() : AppStateRepository {
+class AppStateRepositoryImpl : AppStateRepository {
 
     override var isServiceRunning = false
 
@@ -16,10 +14,10 @@ class AppStateRepositoryImpl @Inject constructor() : AppStateRepository {
     private val _finishApp = MutableSharedFlow<Unit>()
 
 
-    override val startTimerEvent: Flow<Unit> = _startTimerEvent
-    override val fixTimer: Flow<Boolean> = _fixTimer
-    override val nightMode: Flow<Boolean> = _nightMode
-    override val finishAppEvent: Flow<Unit> = _finishApp
+    override val startTimerEvent = _startTimerEvent
+    override val fixTimer = _fixTimer
+    override val nightMode = _nightMode
+    override val finishAppEvent = _finishApp
 
     override suspend fun startTimer() {
         _startTimerEvent.emit(Unit)
