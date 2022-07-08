@@ -10,8 +10,8 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.LogEmitter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -25,9 +25,9 @@ import kotlinx.coroutines.launch
  */
 class GPSClient(
     private val context: Context,
-    logger: LogEmitter,
+    logger: AppLogger,
     defaultDispatcher: CoroutineDispatcher,
-) : LocationCallback(), LocationRepository, CoroutineScope, LogEmitter by logger {
+) : LocationCallback(), LocationRepository, CoroutineScope, AppLogger by logger {
 
     private val job = Job()
 
@@ -96,7 +96,7 @@ class GPSClient(
                 )
             }
         } catch (e: ResolvableApiException) {
-            requestExceptionResolved(e)
+            requestExceptionResolved("GPSによる現在値取得に追加の操作が必要です", e)
         }
     }
 
@@ -122,15 +122,15 @@ class GPSClient(
                     running = true
                     launch { _running.emit(true) }
                 } else {
-                    error("permission denied: ACCESS_FILE_LOCATION", "Permission Denied")
+                    error("permission denied: ACCESS_FILE_LOCATION")
 
                 }
             }.addOnFailureListener { e ->
                 if (e is ApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
-                    error("resolution required:" + e.message, "Please grant permission")
+                    error("resolution required", e)
                     throw e as ResolvableApiException
                 } else {
-                    error("Fail to start GPS update: " + e.message, "Fail to start GPS")
+                    error("Fail to start GPS update", e)
                 }
             }
     }
@@ -140,10 +140,10 @@ class GPSClient(
             locationClient.removeLocationUpdates(this)
                 .addOnCompleteListener {
                     running = false
+                    job.cancel()
                 }
             _running.value = false
             log("GPS has stopped")
-            job.cancel()
             return true
         }
         return false
