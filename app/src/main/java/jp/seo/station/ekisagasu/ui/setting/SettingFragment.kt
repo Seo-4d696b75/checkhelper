@@ -50,6 +50,8 @@ class SettingFragment : AppFragment() {
             container,
             false
         )
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

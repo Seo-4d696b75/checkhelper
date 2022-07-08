@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.model.UserSetting
 import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val settingRepository: UserSettingRepository,
     private val appStateRepository: AppStateRepository,
     private val stationRepository: StationRepository,
 ) : ViewModel() {
@@ -45,7 +45,7 @@ class SettingViewModel @Inject constructor(
         }
 
     private val _setting = MutableStateFlow(
-        SettingState.fromUserSetting(userRepository.setting.value)
+        SettingState.fromUserSetting(settingRepository.setting.value)
     )
 
     val setting: StateFlow<SettingState> = _setting
@@ -54,7 +54,10 @@ class SettingViewModel @Inject constructor(
         get() = _setting.value
         set(value) {
             _setting.value = value
-            userRepository.setting.value = value.toUserSetting()
+            settingRepository.setting.value = value.toUserSetting()
+            viewModelScope.launch {
+                appStateRepository.setNightMode(value.isNightMode)
+            }
         }
 
 }
