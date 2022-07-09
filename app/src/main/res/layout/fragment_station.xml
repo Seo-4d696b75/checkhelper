@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -25,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="駅詳細"
+                android:text="@string/title_detail_station"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="18sp" />
 
@@ -43,6 +44,7 @@
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="50dp"
                     android:layout_marginBottom="5dp"
+                    app:nearestStationName="@{viewModel.station}"
                     custom:kanaTextColor="@color/black"
                     custom:kanaTextSize="12sp"
                     custom:nameTextColor="@color/black"
@@ -61,35 +63,35 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="所在："
+                    android:text="@string/title_detail_station_prefecture"
                     android:textColor="@color/colorText" />
 
                 <TextView
                     android:id="@+id/text_station_detail_prefecture"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
+                    android:text="@{viewModel.stationPrefecture}"
                     android:textColor="@color/colorText" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="場所："
+                    android:text="@string/title_detail_station_location"
                     android:textColor="@color/colorText" />
 
                 <TextView
                     android:id="@+id/text_station_detail_location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="@color/colorText" />
+                    android:textColor="@color/colorText"
+                    app:stationLocation="@{viewModel.station}" />
             </GridLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="登録路線一覧"
+                android:text="@string/title_line_list"
                 android:textColor="@color/colorPrimary"
                 android:textSize="16sp" />
 
@@ -110,7 +112,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/delete_button" />
+            android:background="@drawable/delete_button"
+            android:onClick="@{() -> viewModel.close()}" />
 
 
         <Button
@@ -121,7 +124,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="80dp"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/map_button" />
+            android:background="@drawable/map_button"
+            android:onClick="@{() -> viewModel.showMap()}" />
 
 
     </RelativeLayout>
