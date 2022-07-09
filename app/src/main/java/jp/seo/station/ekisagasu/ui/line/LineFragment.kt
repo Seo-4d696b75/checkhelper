@@ -53,7 +53,7 @@ class LineFragment : Fragment() {
             binding.listLineDetailStations.adapter = it
             binding.listLineDetailStations.setOnItemClickListener { _, _, position, _ ->
                 val station = it.getItem(position)!!.station
-                val action = StationFragmentDirections.actionGlobalStationFragment()
+                val action = StationFragmentDirections.actionGlobalStationFragment(station)
                 findNavController().navigate(action)
             }
         }
