@@ -1,104 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="5dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <data>
+
+        <variable
+            name="viewModel"
+            type="jp.seo.station.ekisagasu.ui.line.LineViewModel" />
+    </data>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:padding="5dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="路線詳細"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp" />
-
-        <GridLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="2">
-
-            <TextView
-                android:id="@+id/text_line_detail_symbol"
-                android:layout_margin="5dp"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@drawable/line_symbol"
-                android:layout_rowSpan="2"
-                android:gravity="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/text_line_detail_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:paddingTop="5dp"
-                android:text=""
-                android:textColor="@color/colorText"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/text_line_detail_name_kana"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text=""
-                android:textColor="@color/colorText"
-                android:textSize="12sp" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="10dp"
-                android:layout_columnSpan="2" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/station"
-                android:contentDescription="line color and symbol"
-                android:layout_marginStart="5dp" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="登録駅一覧"
-                android:textColor="@color/colorPrimary"
-                android:textSize="16sp" />
-        </GridLayout>
+                android:padding="8dp"
+                android:text="@string/title_detail_line"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="18sp" />
 
-        <ListView
-            android:id="@+id/list_line_detail_stations"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2">
+
+                <TextView
+                    android:id="@+id/text_line_detail_symbol"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_rowSpan="2"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/line_symbol"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:lineSymbol="@{viewModel.line}" />
+
+                <TextView
+                    android:id="@+id/text_line_detail_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:paddingTop="5dp"
+                    android:textColor="@color/colorText"
+                    android:textSize="20sp"
+                    app:lineName="@{viewModel.line}" />
+
+                <TextView
+                    android:id="@+id/text_line_detail_name_kana"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/colorText"
+                    android:textSize="12sp"
+                    app:lineNameKana="@{viewModel.line}" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="10dp"
+                    android:layout_columnSpan="2" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="5dp"
+                    android:src="@drawable/station" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="@string/title_detail_list_station"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp" />
+            </GridLayout>
+
+            <ListView
+                android:id="@+id/list_line_detail_stations"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
 
 
-    <Button
-        android:id="@+id/button_line_detail_delete"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="10dp"
-        android:background="@drawable/delete_button" />
+        <Button
+            android:id="@+id/button_line_detail_delete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/delete_button"
+            android:onClick="@{() -> viewModel.close()}" />
 
 
-    <Button
-        android:id="@+id/button_line_detail_show_map"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="10dp"
-        android:background="@drawable/line_map_button" />
+        <Button
+            android:id="@+id/button_line_detail_show_map"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="80dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/line_map_button"
+            android:onClick="@{() -> viewModel.showMap()}" />
 
-</RelativeLayout>
+    </RelativeLayout>
+</layout>

@@ -75,4 +75,6 @@
     <string name="time_unit_min">分</string>
     <string name="time_unit_hour">時間</string>
     <string name="title_nearest_station">最寄駅の情報</string>
+    <string name="title_detail_line">路線詳細</string>
+    <string name="title_detail_list_station">登録駅一覧</string>
 </resources>
