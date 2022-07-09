@@ -39,7 +39,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="8dp"
-                        android:text="最寄駅の情報"
+                        android:paddingEnd="0dp"
+                        android:text="@string/title_nearest_station"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="18sp" />
 
