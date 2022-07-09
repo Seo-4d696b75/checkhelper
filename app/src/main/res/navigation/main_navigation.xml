@@ -28,8 +28,13 @@
         android:label="SettingFragment" />
     <dialog
         android:id="@+id/lineDialog"
-        android:name="jp.seo.station.ekisagasu.ui.LineDialog"
-        android:label="LineDialog" />
+        android:name="jp.seo.station.ekisagasu.ui.dialog.line.LineDialog"
+        android:label="LineDialog">
+        <argument
+            android:name="type"
+            android:defaultValue="SELECT_CURRENT"
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.line.LineDialogType" />
+    </dialog>
     <action
         android:id="@+id/action_global_lineDialog"
         app:destination="@id/lineDialog" />

@@ -23,6 +23,8 @@ import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
+import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogType
 import jp.seo.station.ekisagasu.utils.AnimationHolder
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import kotlinx.coroutines.flow.filter
@@ -199,7 +201,9 @@ class TopFragment : Fragment() {
                         startActivity(intent)
                     }
                     is TopFragmentEvent.SelectLine -> {
-                        view.findNavController().navigate(R.id.action_global_lineDialog)
+                        val action =
+                            LineDialogDirections.actionGlobalLineDialog(LineDialogType.SELECT_CURRENT)
+                        view.findNavController().navigate(action)
                     }
                     is TopFragmentEvent.StartNavigation -> {
                         // TODO
