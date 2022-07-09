@@ -14,7 +14,7 @@
     </fragment>
     <fragment
         android:id="@+id/stationFragment"
-        android:name="jp.seo.station.ekisagasu.ui.StationFragment"
+        android:name="jp.seo.station.ekisagasu.ui.station.StationFragment"
         android:label="StationFragment">
         <action
             android:id="@+id/action_stationFragment_to_lineFragment"
