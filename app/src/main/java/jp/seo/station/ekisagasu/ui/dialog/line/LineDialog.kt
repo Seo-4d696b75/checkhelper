@@ -10,7 +10,7 @@ import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.DialogSelectLineBinding
-import jp.seo.station.ekisagasu.ui.StationFragment
+import jp.seo.station.ekisagasu.ui.common.LineAdapter
 
 /**
  * @author Seo-4d696b75
@@ -70,7 +70,7 @@ class LineDialog : DialogFragment() {
 
         binding.listNearLines.also {
             val lines = viewModel.lines
-            it.adapter = StationFragment.LineAdapter(context, lines)
+            it.adapter = LineAdapter(context, lines)
             it.setOnItemClickListener { _, _, position, _ ->
                 viewModel.onLineSelected(lines[position])
                 dismiss()
