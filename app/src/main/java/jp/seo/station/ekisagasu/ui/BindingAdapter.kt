@@ -32,12 +32,15 @@ fun setNearestStationName(view: StationNameView, s: Station?) {
 
 @BindingAdapter("stationDistance")
 fun setNearestStationDistance(view: TextView, n: NearStation?) {
-    n?.let {
-        view.text = formatDistance(it.distance)
-    }
+    view.text = n?.let { formatDistance(it.distance) } ?: ""
 }
 
 @BindingAdapter("lineName")
 fun setLineName(view: TextView, line: Line?) {
     view.text = line?.name ?: view.context.getString(R.string.no_selected_line)
+}
+
+@BindingAdapter("stationLocation")
+fun setStationLocation(view: TextView, s: Station?) {
+    view.text = s?.let { String.format("E%.6f N%.6f", it.lng, it.lat) } ?: ""
 }
