@@ -217,6 +217,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="0dp"
                 android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.showMap()}"
                 android:src="@drawable/ic_maps"
                 android:visibility="invisible"
                 app:backgroundTint="@color/colorPrimary"

@@ -26,4 +26,11 @@
         android:id="@+id/settingFragment"
         android:name="jp.seo.station.ekisagasu.ui.setting.SettingFragment"
         android:label="SettingFragment" />
+    <dialog
+        android:id="@+id/lineDialog"
+        android:name="jp.seo.station.ekisagasu.ui.LineDialog"
+        android:label="LineDialog" />
+    <action
+        android:id="@+id/action_global_lineDialog"
+        app:destination="@id/lineDialog" />
 </navigation>

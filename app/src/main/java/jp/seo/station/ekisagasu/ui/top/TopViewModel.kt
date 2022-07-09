@@ -72,29 +72,33 @@ class TopViewModel @Inject constructor(
         }
     }
 
-    private val _menuToggle = MutableSharedFlow<Boolean>()
-    val menuToggle: SharedFlow<Boolean> = _menuToggle
+    private val _event = MutableSharedFlow<TopFragmentEvent>()
+    val event: SharedFlow<TopFragmentEvent> = _event
 
     fun openMenu() = viewModelScope.launch {
-        _menuToggle.emit(true)
+        _event.emit(TopFragmentEvent.ToggleMenu(true))
     }
 
     fun closeMenu() = viewModelScope.launch {
-        _menuToggle.emit(false)
+        _event.emit(TopFragmentEvent.ToggleMenu(false))
     }
 
     fun finishApp() = viewModelScope.launch {
         appStateRepository.finishApp()
     }
 
-    fun selectCurrentLine() {
-        // TODO 現在の路線を選択
+    fun selectCurrentLine() = viewModelScope.launch {
+        _event.emit(TopFragmentEvent.SelectLine)
         closeMenu()
     }
 
-    fun startNavigation() {
-        // TODO
+    fun startNavigation() = viewModelScope.launch {
+        _event.emit(TopFragmentEvent.StartNavigation)
         closeMenu()
+    }
+
+    fun showMap() = viewModelScope.launch {
+        _event.emit(TopFragmentEvent.ShowMap)
     }
 
     fun startTimer() = viewModelScope.launch {
@@ -113,4 +117,11 @@ enum class SearchState {
     STOPPED,
     STARTING,
     RUNNING
+}
+
+sealed interface TopFragmentEvent {
+    object ShowMap : TopFragmentEvent
+    object SelectLine : TopFragmentEvent
+    object StartNavigation : TopFragmentEvent
+    data class ToggleMenu(val open: Boolean) : TopFragmentEvent
 }

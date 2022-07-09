@@ -185,25 +185,33 @@ class TopFragment : Fragment() {
             }
         }
 
-        // Menuの開閉
-        viewModel.menuToggle
+        // Event
+        viewModel.event
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach { animateFab(it) }
+            .onEach {
+                when (it) {
+                    is TopFragmentEvent.ToggleMenu -> animateFab(it.open)
+                    is TopFragmentEvent.ShowMap -> {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(getString(R.string.map_url))
+                        )
+                        startActivity(intent)
+                    }
+                    is TopFragmentEvent.SelectLine -> {
+                        view.findNavController().navigate(R.id.action_global_lineDialog)
+                    }
+                    is TopFragmentEvent.StartNavigation -> {
+                        // TODO
+                    }
+                }
+            }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         // 他の部分をタップしたらMenuを閉じる
         binding.fabContainer.setOnTouchListener { _, _ ->
             viewModel.closeMenu()
             false
-        }
-
-        // 地図の表示
-        fabMap.view.setOnClickListener {
-            val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(getString(R.string.map_url))
-            )
-            startActivity(intent)
         }
 
     }
