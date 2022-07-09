@@ -23,6 +23,8 @@ import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
+import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogType
 import jp.seo.station.ekisagasu.utils.AnimationHolder
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import kotlinx.coroutines.flow.filter
@@ -185,25 +187,35 @@ class TopFragment : Fragment() {
             }
         }
 
-        // Menuの開閉
-        viewModel.menuToggle
+        // Event
+        viewModel.event
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach { animateFab(it) }
+            .onEach {
+                when (it) {
+                    is TopFragmentEvent.ToggleMenu -> animateFab(it.open)
+                    is TopFragmentEvent.ShowMap -> {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(getString(R.string.map_url))
+                        )
+                        startActivity(intent)
+                    }
+                    is TopFragmentEvent.SelectLine -> {
+                        val action =
+                            LineDialogDirections.actionGlobalLineDialog(LineDialogType.SELECT_CURRENT)
+                        view.findNavController().navigate(action)
+                    }
+                    is TopFragmentEvent.StartNavigation -> {
+                        // TODO
+                    }
+                }
+            }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         // 他の部分をタップしたらMenuを閉じる
         binding.fabContainer.setOnTouchListener { _, _ ->
             viewModel.closeMenu()
             false
-        }
-
-        // 地図の表示
-        fabMap.view.setOnClickListener {
-            val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(getString(R.string.map_url))
-            )
-            startActivity(intent)
         }
 
     }

@@ -62,6 +62,8 @@
     <string name="dialog_title_select_line">路線選択</string>
     <string name="dialog_message_select_line">現在乗車中の路線を選択します.</string>
     <string name="dialog_message_select_navigation">案内する路線を選択します.</string>
+    <string name="dialog_button_cancel">キャンセル</string>
+    <string name="dialog_button_unregister">解除</string>
     <string name="navigation_unsupported">この路線は対応していません</string>
     <string name="data_already_latest">データは最新です</string>
     <string name="timer_title">5分タイマー</string>
@@ -72,4 +74,5 @@
     <string name="time_unit_sec">秒</string>
     <string name="time_unit_min">分</string>
     <string name="time_unit_hour">時間</string>
+    <string name="title_nearest_station">最寄駅の情報</string>
 </resources>
