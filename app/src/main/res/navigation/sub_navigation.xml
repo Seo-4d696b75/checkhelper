@@ -16,6 +16,9 @@
         android:id="@+id/stationFragment"
         android:name="jp.seo.station.ekisagasu.ui.station.StationFragment"
         android:label="StationFragment">
+        <argument
+            android:name="station"
+            app:argType="jp.seo.station.ekisagasu.Station" />
         <action
             android:id="@+id/action_stationFragment_to_lineFragment"
             app:destination="@id/lineFragment" />
