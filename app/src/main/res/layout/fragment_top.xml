@@ -96,7 +96,7 @@
                                 android:layout_columnSpan="3"
                                 android:layout_marginStart="8dp"
                                 android:layout_marginBottom="7dp"
-                                app:nearestStationName="@{viewModel.nearestStation}"
+                                app:nearestStationName="@{viewModel.station}"
                                 custom:kanaTextColor="@color/colorText"
                                 custom:kanaTextSize="12sp"
                                 custom:nameTextColor="@color/colorTextDark"
@@ -114,8 +114,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
-                                android:text="@{viewModel.nearestStationDistance}"
-                                android:textColor="@color/colorText" />
+                                android:textColor="@color/colorText"
+                                app:stationDistance="@{viewModel.nearestStation}" />
 
                             <TextView
                                 android:id="@+id/text_station_prefecture"
@@ -165,7 +165,7 @@
                         android:layout_height="wrap_content"
                         android:paddingStart="6dp"
                         android:paddingEnd="0dp"
-                        android:text="@{viewModel.selectedLine}"
+                        app:lineName="@{viewModel.selectedLine}"
                         custom:maxWidth="100dp" />
                 </LinearLayout>
 

@@ -32,19 +32,13 @@ class TopViewModel @Inject constructor(
     val isRunning = locationRepository.isRunning
 
     val nearestStation = stationRepository.nearestStation
+    val station = nearestStation.map { it?.station }
     val nearestStationPrefecture = nearestStation.map { n ->
         n?.let {
             prefectureRepository.getName(it.station.prefecture)
         } ?: ""
     }
-    val nearestStationDistance = nearestStation.map { n ->
-        n?.let {
-            formatDistance(it.distance)
-        } ?: ""
-    }
-    val selectedLine = stationRepository.selectedLine.map {
-        it?.name ?: context.getString(R.string.no_selected_line)
-    }
+    val selectedLine = stationRepository.selectedLine
 
     val state: LiveData<SearchState> = combineLiveData(
         SearchState.STOPPED,
