@@ -9,16 +9,20 @@ import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.NearStation
+import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.databinding.FragmentRadarBinding
 import jp.seo.station.ekisagasu.search.formatDistance
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * @author Seo-4d696b75
@@ -69,9 +73,10 @@ class RadarFragment : Fragment() {
             it.adapter = adapter
         }
 
-        viewModel.radarList.observe(viewLifecycleOwner) {
-            adapter.data = it
-        }
+        viewModel.radarList
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .onEach { adapter.data = it }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private class StationAdapter(context: Context) :

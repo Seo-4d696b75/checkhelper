@@ -4,15 +4,14 @@ import android.location.Location
 import android.os.Looper
 import androidx.annotation.MainThread
 import androidx.core.os.HandlerCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.search.measureDistance
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_SIMPLE
-import jp.seo.station.ekisagasu.utils.formatTime
+import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -27,11 +26,8 @@ class StationRepository(
     private val dao: StationDao,
     private val api: APIClient,
     private val tree: KdTree,
+    private val updateUseCase: DataUpdateUseCase,
 ) {
-
-    fun getStation(code: Int) = dao.getStation(code)
-
-    fun getLine(code: Int) = dao.getLine(code)
 
     suspend fun getLines(codes: Array<Int>) = withContext(Dispatchers.IO) {
         dao.getLines(codes)
@@ -41,17 +37,17 @@ class StationRepository(
         dao.getStations(codes)
     }
 
-    private val _currentVersion = MutableLiveData<DataVersion?>(null)
+    private val _currentVersion = MutableStateFlow<DataVersion?>(null)
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
     private var _lastCheckedLocation: Location? = null
     private var _lastSearchK: Int? = null
-    private val _currentStation = MutableLiveData<NearStation?>(null)
-    private val _nearestStation = MutableLiveData<NearStation?>(null)
-    private val _selectedLine = MutableLiveData<Line?>(null)
-    private val _nearestStations = MutableLiveData<List<NearStation>>(ArrayList())
+    private val _currentStation = MutableStateFlow<NearStation?>(null)
+    private val _nearestStation = MutableStateFlow<NearStation?>(null)
+    private val _selectedLine = MutableStateFlow<Line?>(null)
+    private val _nearestStations = MutableStateFlow<List<NearStation>>(emptyList())
 
-    suspend fun searchNearestStations(
+    private suspend fun searchNearestStations(
         lat: Double,
         lng: Double,
         k: Int,
@@ -124,26 +120,26 @@ class StationRepository(
      * 現在位置から最近傍の駅と距離情報
      * 探索を開始し位置情報を更新された状態でのみ `not-Null`
      */
-    val nearestStation: LiveData<NearStation?> = _nearestStation
+    val nearestStation: StateFlow<NearStation?> = _nearestStation
 
-    val selectedLine: LiveData<Line?> = _selectedLine
+    val selectedLine: StateFlow<Line?> = _selectedLine
 
     /**
      * 現在位置からの近傍駅を近い順にソートしたリスト
      */
-    val nearestStations: LiveData<List<NearStation>> = _nearestStations
+    val nearestStations: StateFlow<List<NearStation>> = _nearestStations
 
     /**
      * 現在位置からの最近傍の駅
      * [nearestStation]とは異なり現在位置が変化しても更新されず、駅が変化したタイミングでのみ更新される
      * [NearStation]の距離・タイムスタンプは更新されたときの値のまま保持される
      */
-    val detectedStation: LiveData<NearStation?> = _currentStation
+    val detectedStation: StateFlow<NearStation?> = _currentStation
 
     val dataInitialized: Boolean
         get() = _dataInitialized
 
-    val dataVersion: LiveData<DataVersion?> = _currentVersion
+    val dataVersion: StateFlow<DataVersion?> = _currentVersion
 
     val lastCheckedVersion: DataLatestInfo?
         get() = _lastCheckedVersion
@@ -152,7 +148,7 @@ class StationRepository(
     suspend fun getDataVersion(): DataVersion? = withContext(Dispatchers.IO) {
         val version = dao.getCurrentDataVersion()
         _dataInitialized = version != null
-        _currentVersion.postValue(version)
+        _currentVersion.value = version
         version
     }
 
@@ -170,76 +166,20 @@ class StationRepository(
 
     suspend fun getDataVersionHistory() = dao.getDataVersionHistory()
 
-    interface UpdateProgressListener {
-        companion object {
-            const val STATE_DOWNLOAD = "download"
-            const val STATE_PARSE = "parse"
-            const val STATE_CLEAN = "clean"
-            const val STATE_ADD = "add"
-        }
+    val dataUpdateProgress = updateUseCase.progress
 
-        fun onStateChanged(state: String)
-        fun onProgress(progress: Int)
-        fun onComplete(success: Boolean)
-    }
-
-    private val main = HandlerCompat.createAsync(Looper.getMainLooper())
-
-    suspend fun updateData(info: DataLatestInfo, listener: UpdateProgressListener) {
-        main.post {
-            listener.onStateChanged(UpdateProgressListener.STATE_DOWNLOAD)
-            listener.onProgress(0)
-        }
-        try {
-            var percent = 0
-            val download = getDownloadClient { length: Long ->
-                val p = floor(length.toFloat() / info.length * 100.0f).toInt()
-                if (p in 1..100 && p > percent) {
-                    main.post { listener.onProgress(p) }
-                    percent = p
-                    if (percent == 100) main.post { listener.onStateChanged(UpdateProgressListener.STATE_PARSE) }
-                }
-            }
-            val data = download.getData(info.url)
-            var result = false
-            if (data.version == info.version) {
-                dao.updateData(data, listener, main)
-                val current = getDataVersion()
-                if (info.version == current?.version) {
+    suspend fun updateData(info: DataLatestInfo) {
+        updateUseCase(info).also {
+            when (it) {
+                is DataUpdateUseCase.Result.Success -> {
                     _dataInitialized = true
-                    _currentVersion.postValue(current)
-                    result = true
+                    _currentVersion.value = it.version
+                }
+                is DataUpdateUseCase.Result.Failure -> {
+
                 }
             }
-
-            main.post { listener.onComplete(result) }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            main.post { listener.onComplete(false) }
         }
     }
 
-}
-
-data class NearStation(
-    val station: Station,
-    /**
-     * distance from the current position to this station
-     */
-    val distance: Double,
-    /**
-     * Time when this near station detected
-     */
-    val time: Date,
-
-    val lines: List<Line>
-) {
-
-    fun getDetectedTime(): String {
-        return formatTime(TIME_PATTERN_SIMPLE, time)
-    }
-
-    fun getLinesName(): String {
-        return lines.joinToString(separator = " ", transform = { line -> line.name })
-    }
 }
