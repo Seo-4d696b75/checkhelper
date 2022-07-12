@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.dialog.line
+package jp.seo.station.ekisagasu.ui.dialog
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

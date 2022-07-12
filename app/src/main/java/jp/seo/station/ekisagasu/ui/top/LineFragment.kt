@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.line
+package jp.seo.station.ekisagasu.ui.top
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +15,6 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentLineBinding
 import jp.seo.station.ekisagasu.ui.common.StationAdapter
-import jp.seo.station.ekisagasu.ui.station.StationFragmentDirections
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 

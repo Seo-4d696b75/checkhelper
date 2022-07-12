@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.dialog.line
+package jp.seo.station.ekisagasu.ui.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog

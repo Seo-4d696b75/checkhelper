@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.station
+package jp.seo.station.ekisagasu.ui.top
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

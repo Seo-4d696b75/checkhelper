@@ -28,7 +28,7 @@
         android:label="SettingFragment" />
     <dialog
         android:id="@+id/lineDialog"
-        android:name="jp.seo.station.ekisagasu.ui.dialog.line.LineDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.LineDialog"
         android:label="LineDialog">
         <argument
             android:name="type"

@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="jp.seo.station.ekisagasu.ui.line.LineViewModel" />
+            type="jp.seo.station.ekisagasu.ui.top.LineViewModel" />
     </data>
 
     <RelativeLayout

@@ -24,8 +24,7 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
 import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogDirections
-import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogType
-import jp.seo.station.ekisagasu.ui.station.StationFragmentDirections
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.utils.AnimationHolder
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import kotlinx.coroutines.flow.filter

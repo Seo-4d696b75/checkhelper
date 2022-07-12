@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="jp.seo.station.ekisagasu.ui.station.StationViewModel" />
+            type="jp.seo.station.ekisagasu.ui.top.StationViewModel" />
     </data>
 
     <RelativeLayout

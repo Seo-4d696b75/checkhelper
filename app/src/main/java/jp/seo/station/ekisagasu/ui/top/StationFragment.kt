@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.station
+package jp.seo.station.ekisagasu.ui.top
 
 import android.content.Intent
 import android.net.Uri
