@@ -73,3 +73,10 @@ fun setLineSymbol(view: TextView, line: Line?) {
         } ?: Color.BLACK
     )
 }
+
+@BindingAdapter("searchK")
+fun setSearchK(view: TextView, k: Int?) {
+    view.text = k?.let {
+        String.format("x%d", it)
+    } ?: ""
+}
