@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/radarFragment"
-        android:name="jp.seo.station.ekisagasu.ui.RadarFragment"
+        android:name="jp.seo.station.ekisagasu.ui.top.RadarFragment"
         android:label="RadarFragment">
         <action
             android:id="@+id/action_radarFragment_to_stationFragment"
