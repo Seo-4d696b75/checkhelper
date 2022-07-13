@@ -1,28 +1,21 @@
 package jp.seo.station.ekisagasu.ui.top
 
-import android.content.Context
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.PrefectureRepository
-import jp.seo.station.ekisagasu.core.StationRepository
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.UserSettingRepository
-import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.utils.combineLiveData
+import jp.seo.station.ekisagasu.repository.*
+import jp.seo.station.ekisagasu.utils.mapState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TopViewModel @Inject constructor(
-    @ApplicationContext context: Context,
     private val locationRepository: LocationRepository,
-    private val stationRepository: StationRepository,
+    private val searchRepository: SearchRepository,
+    private val dataRepository: DataRepository,
     private val settingRepository: UserSettingRepository,
     private val navigationRepository: NavigationRepository,
     private val prefectureRepository: PrefectureRepository,
@@ -31,19 +24,18 @@ class TopViewModel @Inject constructor(
 
     val isRunning = locationRepository.isRunning
 
-    val nearestStation = stationRepository.nearestStation
-    val station = nearestStation.map { it?.station }
-    val nearestStationPrefecture = nearestStation.map { n ->
+    val nearestStation = searchRepository.nearestStation
+    val station = nearestStation.mapState(viewModelScope) { it?.station }
+    val nearestStationPrefecture = nearestStation.mapState(viewModelScope) { n ->
         n?.let {
             prefectureRepository.getName(it.station.prefecture)
         } ?: ""
     }
-    val selectedLine = stationRepository.selectedLine
+    val selectedLine = searchRepository.selectedLine
 
-    val state: LiveData<SearchState> = combineLiveData(
-        SearchState.STOPPED,
-        isRunning.asLiveData(),
-        stationRepository.nearestStation
+    val state = combine(
+        isRunning,
+        searchRepository.nearestStation,
     ) { run, station ->
         if (run) {
             if (station == null) SearchState.STARTING else SearchState.RUNNING
@@ -54,14 +46,14 @@ class TopViewModel @Inject constructor(
 
     fun onSearchStateChanged() {
         if (isRunning.value) {
-            if (stationRepository.dataInitialized) {
+            if (dataRepository.dataInitialized) {
                 val interval = settingRepository.setting.value.locationUpdateInterval
                 locationRepository.startWatchCurrentLocation(interval)
             }
         } else {
             // TODO このへんの処理がviewModelで重複してる？
             locationRepository.stopWatchCurrentLocation()
-            stationRepository.onStopSearch()
+            searchRepository.onStopSearch()
             navigationRepository.stop()
         }
     }

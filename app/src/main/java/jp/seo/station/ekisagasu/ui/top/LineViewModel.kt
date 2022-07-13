@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.model.StationRegister
+import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LineViewModel @Inject constructor(
-    private val stationRepository: StationRepository,
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
 
     private var _line: Line? = null
@@ -22,7 +22,7 @@ class LineViewModel @Inject constructor(
     fun setUiState(line: Line) = viewModelScope.launch {
         _line = line
         val indices = line.stationList.map { it.code }
-        val list = stationRepository.getStations(indices)
+        val list = dataRepository.getStations(indices)
         _stations = line.stationList.map { r ->
             val s = list.find { it.code == r.code } ?: throw NoSuchElementException()
             StationRegister(r.code, s, r.getNumberingString())

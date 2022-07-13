@@ -18,12 +18,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.OverlayViewHolder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.*
@@ -117,27 +118,34 @@ class StationService : LifecycleService() {
             .launchIn(lifecycleScope)
 
         // update notification when nearest station changed
-        viewModel.detectedStation.observe(this) {
-            it?.let { n ->
+        viewModel.detectedStation
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach { n ->
                 viewModel.saveStationLog(n.station)
                 overlayView.onStationChanged(n)
                 vibrate(n.station)
             }
-        }
-        viewModel.selectedLine.observe(this) {
-            currentLine = it
-        }
+            .launchIn(lifecycleScope)
+        viewModel.selectedLine
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                currentLine = it
+            }
+            .launchIn(lifecycleScope)
 
         // update notification when nearest station or distance changed
-        viewModel.nearestStation.observe(this) {
-            it?.let { s ->
+        viewModel.nearestStation
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
                     String.format("%s   %s", formatDistance(s.distance), s.getLinesName())
                 )
                 overlayView.onLocationChanged(s)
             }
-        }
+            .launchIn(lifecycleScope)
 
         // update running state
         viewModel.isRunning
@@ -145,9 +153,7 @@ class StationService : LifecycleService() {
             .drop(1)
             .onEach {
                 if (it) {
-
                     viewModel.log("start: try to getting GPS ready")
-
                     notificationHolder.update(
                         getString(R.string.notification_title_start),
                         getString(R.string.notification_message_start)
@@ -171,22 +177,28 @@ class StationService : LifecycleService() {
 
 
         // when navigation changed
-        viewModel.isNavigatorRunning.observe(this) {
-            if (it) {
-                hasApproach = false
-                nextApproachStation = null
-                viewModel.navigationLine?.let { line ->
-                    viewModel.nearestStation.value?.let { n ->
-                        overlayView.navigation.startNavigation(line, n.station)
+        viewModel.isNavigatorRunning
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                if (it) {
+                    hasApproach = false
+                    nextApproachStation = null
+                    viewModel.navigationLine?.let { line ->
+                        viewModel.nearestStation.value?.let { n ->
+                            overlayView.navigation.startNavigation(line, n.station)
+                        }
                     }
+                } else {
+                    overlayView.navigation.stopNavigation()
                 }
-            } else {
-                overlayView.navigation.stopNavigation()
+                overlayView.isNavigationRunning = it
             }
-            overlayView.isNavigationRunning = it
-        }
-        viewModel.navigationPrediction.observe(this) {
-            it?.let { result ->
+            .launchIn(lifecycleScope)
+
+        viewModel.navigationPrediction
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach { result ->
                 if (result.size > 0) {
                     val next = result.getStation(0)
                     if (nextApproachStation == null || nextApproachStation != next) {
@@ -199,7 +211,8 @@ class StationService : LifecycleService() {
                 }
                 overlayView.navigation.onUpdate(result)
             }
-        }
+            .launchIn(lifecycleScope)
+
         overlayView.navigation.stopNavigation.observe(this) {
             viewModel.clearNavigationLine()
         }
@@ -260,7 +273,8 @@ class StationService : LifecycleService() {
         }
 
         // set timer
-        overlayView.timerListener = { setTimer() }
+        overlayView.timerListener =
+            { setTimer() }
         viewModel.startTimer
             .flowWithLifecycle(lifecycle)
             .onEach { setTimer() }

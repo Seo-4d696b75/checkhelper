@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.PrefectureRepository
-import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -15,12 +15,12 @@ import javax.inject.Inject
 @HiltViewModel
 class StationViewModel @Inject constructor(
     private val prefectureRepository: PrefectureRepository,
-    private val stationRepository: StationRepository,
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
 
     fun setUiState(station: Station) = viewModelScope.launch {
         _station = station
-        _lines = stationRepository.getLines(station.lines)
+        _lines = dataRepository.getLines(station.lines)
     }
 
     private var _station: Station? = null

@@ -2,8 +2,6 @@ package jp.seo.station.ekisagasu.position
 
 import android.location.Location
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
@@ -11,17 +9,18 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.StationDao
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
-import jp.seo.station.ekisagasu.search.KdTree
+import jp.seo.station.ekisagasu.search.NearestSearch
 import jp.seo.station.ekisagasu.utils.PolylineSegment
 import jp.seo.station.ekisagasu.utils.StationArea
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.*
-import kotlin.NoSuchElementException
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -62,7 +61,7 @@ class PredictionResult(
 }
 
 class PositionNavigator(
-    private val explorer: KdTree,
+    private val explorer: NearestSearch,
     private val dao: StationDao,
     val line: Line
 ) {
@@ -88,8 +87,8 @@ class PositionNavigator(
         cursors.clear()
     }
 
-    private val _results = MutableLiveData<PredictionResult?>(null)
-    val results: LiveData<PredictionResult?> = _results
+    private val _results = MutableStateFlow<PredictionResult?>(null)
+    val results: StateFlow<PredictionResult?> = _results
 
     private fun setPolylineFragment(tag: String, fragment: PolylineSegment) {
         val list = if (fragmentJunction.containsKey(tag)) {
@@ -133,7 +132,7 @@ class PositionNavigator(
                 if (cursors.isEmpty()) {
                     initialize(location)
                     val result = PredictionResult(0, station)
-                    _results.postValue(result)
+                    _results.value = result
                     return@withContext
                 }
                 if (currentStation?.station != station) {
@@ -154,7 +153,9 @@ class PositionNavigator(
                         list[0].state.speed * 3.6
                     )
                 )
-                if (lastLocation?.distanceTo(location) ?: 100000f < DISTANCE_THRESHOLD) return@withContext
+                if ((lastLocation?.distanceTo(location)
+                        ?: 100000f) < DISTANCE_THRESHOLD
+                ) return@withContext
                 lastLocation = location
 
                 // prediction の集計
@@ -193,7 +194,7 @@ class PositionNavigator(
                         )
                     )
                 }
-                _results.postValue(result)
+                _results.value = result
             }
         }
 

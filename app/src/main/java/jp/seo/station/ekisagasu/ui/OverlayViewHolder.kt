@@ -15,7 +15,7 @@ import androidx.core.animation.addListener
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.model.NearStation
-import jp.seo.station.ekisagasu.core.PrefectureRepository
+import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 import java.util.*

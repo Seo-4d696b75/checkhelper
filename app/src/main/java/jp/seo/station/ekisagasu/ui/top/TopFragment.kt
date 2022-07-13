@@ -23,11 +23,12 @@ import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
-import jp.seo.station.ekisagasu.ui.dialog.line.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.utils.AnimationHolder
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.*
@@ -68,18 +69,18 @@ class TopFragment : Fragment() {
 
         // 駅の登録路線リスト
         val adapter = LineNamesAdapter(ctx).also {
-            it.setOnItemSelectedListener { view, data, position ->
+            it.setOnItemSelectedListener { _, data, _ ->
                 Log.d("Line", "selected: $data")
                 // TODO 選択された路線を伝達する Navigation SafeArgがよさそう
                 navigationHost.findNavController().navigate(R.id.action_global_lineFragment)
             }
         }
         binding.listLineNames.adapter = adapter
-        viewModel.nearestStation.observe(viewLifecycleOwner) {
-            it?.let { s ->
-                adapter.data = s.lines
-            }
-        }
+        viewModel.nearestStation
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .filterNotNull()
+            .onEach { adapter.data = it.lines}
+            .launchIn(viewLifecycleOwner.lifecycleScope)
 
         // 探索が終了したらRadarFragmentに遷移する
         viewModel.isRunning

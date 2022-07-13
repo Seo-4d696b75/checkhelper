@@ -4,12 +4,12 @@ import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
 import jp.seo.station.ekisagasu.usecase.BootUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +19,7 @@ class ServiceViewModel @Inject constructor(
     private val logRepository: LogRepository,
     private val logger: AppLogger,
     private val userSettingRepository: UserSettingRepository,
-    private val stationRepository: StationRepository,
+    private val searchRepository: SearchRepository,
     private val navigator: NavigationRepository,
     private val appStateRepository: AppStateRepository,
     private val bootUseCase: BootUseCase,
@@ -37,11 +37,12 @@ class ServiceViewModel @Inject constructor(
 
     val message = logRepository.message
 
-    val detectedStation = stationRepository.detectedStation
-    val nearestStation = stationRepository.nearestStation
+    val detectedStation = searchRepository.detectedStation
+    val nearestStation = searchRepository.nearestStation
 
     val isNavigatorRunning = navigator.running
-    val navigationPrediction = navigator.predictions
+    val navigationPrediction =
+        navigator.predictions.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val navigationLine = navigator.line
 
     val userSetting = userSettingRepository.setting
@@ -51,7 +52,7 @@ class ServiceViewModel @Inject constructor(
         )
     }
 
-    val selectedLine = stationRepository.selectedLine
+    val selectedLine = searchRepository.selectedLine
 
     fun saveStationLog(station: Station) = viewModelScope.launch {
         logRepository.logStation(station)
@@ -59,15 +60,15 @@ class ServiceViewModel @Inject constructor(
 
     fun updateLocation(location: Location) = viewModelScope.launch {
         logRepository.logLocation(location.latitude, location.longitude)
-        stationRepository.updateNearestStations(location)
-        stationRepository.nearestStation.value?.let {
+        searchRepository.updateNearestStations(location)
+        searchRepository.nearestStation.value?.let {
             navigator.updateLocation(location, it.station)
         }
     }
 
     fun stopStationSearch() {
         locationRepository.stopWatchCurrentLocation()
-        stationRepository.onStopSearch()
+        searchRepository.onStopSearch()
         navigator.stop()
     }
 
@@ -94,7 +95,7 @@ class ServiceViewModel @Inject constructor(
     val nightMode = appStateRepository.nightMode
 
     fun setSearchK(k: Int) = viewModelScope.launch {
-        stationRepository.setSearchK(k)
+        searchRepository.setSearchK(k)
     }
 
     fun setSearchInterval(sec: Int) {
@@ -104,7 +105,7 @@ class ServiceViewModel @Inject constructor(
     }
 
     fun clearNavigationLine() {
-        stationRepository.selectLine(null)
+        searchRepository.selectLine(null)
         navigator.stop()
     }
 }

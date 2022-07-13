@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.model.UserSetting
 import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,21 +21,21 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     private val settingRepository: UserSettingRepository,
     private val appStateRepository: AppStateRepository,
-    private val stationRepository: StationRepository,
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
 
-    val dataVersion = stationRepository.dataVersion
+    val dataVersion = dataRepository.dataVersion
 
     fun checkLatestData(context: Context) =
         viewModelScope.launch(Dispatchers.IO) {
-            // TODO
+            // TODO ダイアログの表示
             val latest = try {
-                stationRepository.getLatestDataVersion(true)
+                dataRepository.getLatestDataVersion(true)
             } catch (e: IOException) {
                 //requestToast.postCall(messageNetworkError)
                 return@launch
             }
-            val current = stationRepository.getDataVersion()
+            val current = dataRepository.getDataVersion()
             if (current == null || latest.version > current.version) {
                 //targetInfo = latest
                 //requestDialog(DataDialog.DIALOG_LATEST)

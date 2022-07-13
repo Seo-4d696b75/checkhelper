@@ -5,15 +5,15 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.StationRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.repository.NavigationRepository
+import jp.seo.station.ekisagasu.repository.SearchRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class LineSelectionViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
-    private val stationRepository: StationRepository,
+    private val searchRepository: SearchRepository,
     private val navigationRepository: NavigationRepository,
 ) : ViewModel() {
 
@@ -31,19 +31,19 @@ class LineSelectionViewModel @Inject constructor(
     }
 
     val currentLine: Line?
-        get() = stationRepository.selectedLine.value
+        get() = searchRepository.selectedLine.value
 
     val isNavigationRunning: Boolean
-        get() = navigationRepository.running.value ?: false
+        get() = navigationRepository.running.value
 
     val lines: List<Line>
-        get() = stationRepository.nearestStations.value?.let { stations ->
+        get() = searchRepository.nearestStations.value.let { stations ->
             val set = mutableSetOf<Line>()
             stations.forEach { s ->
                 set.addAll(s.lines)
             }
             set.toList()
-        } ?: emptyList()
+        }
 
     fun onLineSelected(line: Line) {
         when (_type) {
@@ -61,7 +61,7 @@ class LineSelectionViewModel @Inject constructor(
 
     fun selectCurrentLine(line: Line?) {
         if (locationRepository.isRunning.value) {
-            stationRepository.selectLine(line)
+            searchRepository.selectLine(line)
         }
     }
 
