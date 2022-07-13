@@ -2,8 +2,6 @@ package jp.seo.station.ekisagasu.core
 
 import android.content.Context
 import android.location.Location
-import android.os.Looper
-import androidx.core.os.HandlerCompat
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4

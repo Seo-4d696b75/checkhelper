@@ -32,10 +32,36 @@
         android:label="LineDialog">
         <argument
             android:name="type"
-            android:defaultValue="SELECT_CURRENT"
-            app:argType="jp.seo.station.ekisagasu.ui.dialog.line.LineDialogType" />
+            android:defaultValue="Current"
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.LineDialogType" />
     </dialog>
     <action
         android:id="@+id/action_global_lineDialog"
         app:destination="@id/lineDialog" />
+    <dialog
+        android:id="@+id/dataCheckDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.DataCheckDialog"
+        android:label="DataCheckDialog">
+        <argument
+            android:name="type"
+            android:defaultValue="Latest"
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.DataCheckType" />
+        <argument
+            android:name="info"
+            app:argType="jp.seo.station.ekisagasu.core.DataLatestInfo" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_dataCheckDialog"
+        app:destination="@id/dataCheckDialog" />
+    <dialog
+        android:id="@+id/dataUpdateDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialog"
+        android:label="DataUpdateDialog">
+        <argument
+            android:name="info"
+            app:argType="jp.seo.station.ekisagasu.core.DataLatestInfo" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_dataUpdateDialog"
+        app:destination="@id/dataUpdateDialog" />
 </navigation>

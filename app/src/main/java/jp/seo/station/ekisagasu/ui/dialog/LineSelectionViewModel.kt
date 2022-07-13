@@ -17,7 +17,7 @@ class LineSelectionViewModel @Inject constructor(
     private val navigationRepository: NavigationRepository,
 ) : ViewModel() {
 
-    private var _type = LineDialogType.SELECT_CURRENT
+    private var _type = LineDialogType.Current
     private var _message = ""
     val message: String
         get() = _message
@@ -25,8 +25,8 @@ class LineSelectionViewModel @Inject constructor(
     fun setUiState(context: Context, type: LineDialogType) {
         _type = type
         _message = when (type) {
-            LineDialogType.SELECT_CURRENT -> context.getString(R.string.dialog_message_select_line)
-            LineDialogType.SELECT_NAVIGATION -> context.getString(R.string.dialog_message_select_navigation)
+            LineDialogType.Current -> context.getString(R.string.dialog_message_select_line)
+            LineDialogType.Navigation -> context.getString(R.string.dialog_message_select_navigation)
         }
     }
 
@@ -47,8 +47,8 @@ class LineSelectionViewModel @Inject constructor(
 
     fun onLineSelected(line: Line) {
         when (_type) {
-            LineDialogType.SELECT_CURRENT -> selectCurrentLine(line)
-            LineDialogType.SELECT_NAVIGATION -> {
+            LineDialogType.Current -> selectCurrentLine(line)
+            LineDialogType.Navigation -> {
                 if (line.polyline == null) {
                     // TODO
                     // viewModel.requestToast.call(getString(R.string.navigation_unsupported))

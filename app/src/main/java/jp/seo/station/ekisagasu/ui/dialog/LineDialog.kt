@@ -48,14 +48,14 @@ class LineDialog : DialogFragment() {
         builder.setView(binding.root)
 
         when (type) {
-            LineDialogType.SELECT_CURRENT -> {
+            LineDialogType.Current -> {
                 if (viewModel.currentLine != null) {
                     builder.setPositiveButton(R.string.dialog_button_unregister) { _, _ ->
                         viewModel.selectCurrentLine(null)
                     }
                 }
             }
-            LineDialogType.SELECT_NAVIGATION -> {
+            LineDialogType.Navigation -> {
                 if (viewModel.isNavigationRunning) {
                     builder.setPositiveButton(R.string.dialog_button_unregister) { _, _ ->
                         viewModel.selectNavigationLine(null)
@@ -82,6 +82,6 @@ class LineDialog : DialogFragment() {
 }
 
 enum class LineDialogType {
-    SELECT_CURRENT,
-    SELECT_NAVIGATION,
+    Current,
+    Navigation,
 }

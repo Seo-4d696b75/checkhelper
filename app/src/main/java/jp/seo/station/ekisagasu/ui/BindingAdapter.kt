@@ -12,6 +12,7 @@ import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.common.StationNameView
 import jp.seo.station.ekisagasu.ui.top.AnimationView
+import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import jp.seo.station.ekisagasu.utils.getVFromColorCode
 import jp.seo.station.ekisagasu.utils.parseColorCode
 
@@ -79,4 +80,17 @@ fun setSearchK(view: TextView, k: Int?) {
     view.text = k?.let {
         String.format("x%d", it)
     } ?: ""
+}
+
+@BindingAdapter("dataUpdateProgress")
+fun setDataUpdateProgress(view: TextView, progress: DataUpdateProgress?) {
+    view.text = when(progress) {
+        is DataUpdateProgress.Download -> {
+            view.context.getString(R.string.update_state_download, progress.percent)
+        }
+        is DataUpdateProgress.Save -> {
+            view.context.getString(R.string.update_state_save)
+        }
+        else -> ""
+    }
 }

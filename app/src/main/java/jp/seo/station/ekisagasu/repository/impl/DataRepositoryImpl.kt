@@ -5,6 +5,7 @@ import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.DataVersion
 import jp.seo.station.ekisagasu.core.StationDao
 import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,14 +62,14 @@ class DataRepositoryImpl @Inject constructor(
 
     override val dataUpdateProgress = updateUseCase.progress
 
-    override suspend fun updateData(info: DataLatestInfo) {
-        updateUseCase(info).also {
+    override suspend fun updateData(info: DataLatestInfo): DataUpdateResult {
+        return updateUseCase(info).also {
             when (it) {
-                is DataUpdateUseCase.Result.Success -> {
+                is DataUpdateResult.Success -> {
                     _dataInitialized = true
                     _currentVersion.value = it.version
                 }
-                is DataUpdateUseCase.Result.Failure -> {
+                is DataUpdateResult.Failure -> {
 
                 }
             }

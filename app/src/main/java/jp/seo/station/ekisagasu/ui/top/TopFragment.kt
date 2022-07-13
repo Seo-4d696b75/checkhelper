@@ -204,7 +204,7 @@ class TopFragment : Fragment() {
                     }
                     is TopFragmentEvent.SelectLine -> {
                         val action =
-                            LineDialogDirections.actionGlobalLineDialog(LineDialogType.SELECT_CURRENT)
+                            LineDialogDirections.actionGlobalLineDialog(LineDialogType.Current)
                         view.findNavController().navigate(action)
                     }
                     is TopFragmentEvent.StartNavigation -> {

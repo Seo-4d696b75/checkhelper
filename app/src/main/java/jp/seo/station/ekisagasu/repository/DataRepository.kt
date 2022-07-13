@@ -4,7 +4,8 @@ import jp.seo.station.ekisagasu.Line
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.DataVersion
-import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase
+import jp.seo.station.ekisagasu.model.DataUpdateProgress
+import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -20,6 +21,6 @@ interface DataRepository {
     suspend fun getDataVersion(): DataVersion?
     suspend fun getLatestDataVersion(forceRefresh: Boolean = true): DataLatestInfo
     suspend fun getDataVersionHistory(): List<DataVersion>
-    val dataUpdateProgress: SharedFlow<DataUpdateUseCase.UpdateProgress>
-    suspend fun updateData(info: DataLatestInfo)
+    val dataUpdateProgress: SharedFlow<DataUpdateProgress>
+    suspend fun updateData(info: DataLatestInfo): DataUpdateResult
 }
