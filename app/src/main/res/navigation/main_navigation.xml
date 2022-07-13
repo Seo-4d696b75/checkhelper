@@ -64,4 +64,12 @@
     <action
         android:id="@+id/action_global_dataUpdateDialog"
         app:destination="@id/dataUpdateDialog" />
+    <dialog
+        android:id="@+id/appHistoryDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialog"
+        android:label="DataUpdateDialog">
+    </dialog>
+    <action
+        android:id="@+id/action_global_appHistoryDialog"
+        app:destination="@id/appHistoryDialog" />
 </navigation>
