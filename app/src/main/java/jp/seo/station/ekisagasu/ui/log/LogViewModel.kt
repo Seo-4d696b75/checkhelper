@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.top
+package jp.seo.station.ekisagasu.ui.log
 
 import android.app.Activity
 import android.content.ContentResolver
@@ -7,7 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.core.AppLog
+import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LogRepository

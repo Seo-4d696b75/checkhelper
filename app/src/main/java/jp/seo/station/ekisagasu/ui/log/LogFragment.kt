@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.top
+package jp.seo.station.ekisagasu.ui.log
 
 import android.content.Context
 import android.os.Bundle
@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.AppLog
+import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.databinding.FragmentLogBinding
 import jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialogDirections
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
