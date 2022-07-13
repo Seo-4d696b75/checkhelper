@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui
+package jp.seo.station.ekisagasu.ui.overlay
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.service.StationService
+import jp.seo.station.ekisagasu.ui.MainActivity
 
 /**
  * @author Seo-4d696b75

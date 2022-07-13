@@ -17,8 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentSettingBinding
-import jp.seo.station.ekisagasu.ui.AppFragment
-import jp.seo.station.ekisagasu.ui.OverlayViewHolder
+import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi

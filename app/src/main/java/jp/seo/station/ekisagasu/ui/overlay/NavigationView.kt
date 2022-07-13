@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui
+package jp.seo.station.ekisagasu.ui.overlay
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -23,6 +23,7 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.position.PredictionResult
 import jp.seo.station.ekisagasu.search.formatDistance
+import jp.seo.station.ekisagasu.ui.MainActivity
 import jp.seo.station.ekisagasu.utils.UnitLiveEvent
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 

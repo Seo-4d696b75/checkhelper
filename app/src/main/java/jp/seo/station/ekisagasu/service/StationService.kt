@@ -20,8 +20,8 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.ui.NotificationViewHolder
-import jp.seo.station.ekisagasu.ui.OverlayViewHolder
+import jp.seo.station.ekisagasu.ui.overlay.NotificationViewHolder
+import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull

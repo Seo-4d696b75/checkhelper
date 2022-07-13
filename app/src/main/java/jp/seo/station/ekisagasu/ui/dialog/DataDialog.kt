@@ -3,11 +3,7 @@ package jp.seo.station.ekisagasu.ui.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -94,7 +90,7 @@ class DataUpdateDialog : DialogFragment() {
         viewModel.result
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach {
-                when(it) {
+                when (it) {
                     // TODO 結果の通知
                     is DataUpdateResult.Success -> {
 

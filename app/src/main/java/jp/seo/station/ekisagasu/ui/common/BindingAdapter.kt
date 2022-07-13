@@ -13,8 +13,12 @@ import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.common.StationNameView
 import jp.seo.station.ekisagasu.ui.top.AnimationView
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
+import jp.seo.station.ekisagasu.model.LogTarget
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
+import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.utils.getVFromColorCode
 import jp.seo.station.ekisagasu.utils.parseColorCode
+import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 
 @BindingAdapter("searchRunning")
 fun setSearchState(view: FloatingActionButton, running: Boolean) {
@@ -93,4 +97,15 @@ fun setDataUpdateProgress(view: TextView, progress: DataUpdateProgress?) {
         }
         else -> ""
     }
+}
+
+@BindingAdapter("logTarget")
+fun setLogFilter(view: TextView, log: LogTarget?) {
+    view.text = log?.target?.let {
+        String.format(
+            "%s～%s",
+            formatTime(TIME_PATTERN_DATETIME, it.start),
+            formatTime(TIME_PATTERN_DATETIME, it.finish)
+        )
+    } ?: ""
 }
