@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,13 +19,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/23.
  */
-class GPSClient(
-    private val context: Context,
+class GPSClient @Inject constructor(
+    @ApplicationContext private val context: Context,
     logger: AppLogger,
     defaultDispatcher: CoroutineDispatcher,
 ) : LocationCallback(), LocationRepository, CoroutineScope, AppLogger by logger {

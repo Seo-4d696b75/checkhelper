@@ -21,10 +21,11 @@ import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.*
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
-class LogRepositoryImpl(
+class LogRepositoryImpl @Inject constructor(
     private val dao: UserDao,
     defaultDispatcher: CoroutineDispatcher,
 ) : LogRepository, CoroutineScope {

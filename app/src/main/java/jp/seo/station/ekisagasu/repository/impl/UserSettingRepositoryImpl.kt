@@ -1,13 +1,15 @@
 package jp.seo.station.ekisagasu.repository.impl
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.UserSetting
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
-class UserSettingRepositoryImpl(
-    private val context: Context,
+class UserSettingRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
 ) : UserSettingRepository {
     override val setting = MutableStateFlow(UserSetting())
 

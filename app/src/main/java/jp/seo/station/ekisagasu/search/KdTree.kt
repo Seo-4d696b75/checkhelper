@@ -1,15 +1,10 @@
 package jp.seo.station.ekisagasu.search
 
-import jp.seo.station.ekisagasu.Station
 import jp.seo.station.ekisagasu.core.StationDao
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.asin
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.sin
+import javax.inject.Inject
+import kotlin.math.*
 
 /**
  * @author Seo-4d696b75
@@ -19,9 +14,9 @@ import kotlin.math.sin
  * (1) sphere == false 緯度経度をそのまま直交座標系に投影した平面状でのユークリッド距離
  * (2) sphere == true  地球を完全な球体と仮定して計算した大円距離
  */
-class KdTree(
+class KdTree @Inject constructor(
     private val database: StationDao,
-) {
+) : NearestSearch {
 
     private var _root: NodeAdapter? = null
 
@@ -113,20 +108,12 @@ class KdTree(
         val dist: Double
     )
 
-    class SearchResult(
-        val lat: Double,
-        val lng: Double,
-        val k: Int,
-        val r: Double,
-        val stations: List<Station>
-    )
-
-    suspend fun search(
+    override suspend fun search(
         lat: Double,
         lng: Double,
         k: Int,
         r: Double,
-        sphere: Boolean = false
+        sphere: Boolean,
     ): SearchResult {
         val prop = SearchProperties(lat, lng, k, r, sphere)
         search(getRoot(), prop)
