@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.repository.impl
 
 import android.location.Location
-import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.SearchRepository

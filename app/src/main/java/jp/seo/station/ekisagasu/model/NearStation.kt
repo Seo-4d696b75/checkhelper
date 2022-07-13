@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.model
 
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_SIMPLE
 import jp.seo.station.ekisagasu.utils.formatTime
 import java.util.*

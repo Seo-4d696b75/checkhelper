@@ -1,13 +1,13 @@
-package jp.seo.station.ekisagasu.ui
+package jp.seo.station.ekisagasu.ui.common
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.common.StationNameView

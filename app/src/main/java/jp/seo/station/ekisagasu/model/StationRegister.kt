@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.model
 
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 
 data class StationRegister(
     val code: Int,

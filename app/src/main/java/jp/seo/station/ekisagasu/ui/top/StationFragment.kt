@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.databinding.FragmentStationBinding
 import jp.seo.station.ekisagasu.ui.common.LineAdapter
 import kotlinx.coroutines.flow.launchIn

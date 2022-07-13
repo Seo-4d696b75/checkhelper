@@ -18,9 +18,9 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.animation.addListener
-import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.position.PredictionResult
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.MainActivity

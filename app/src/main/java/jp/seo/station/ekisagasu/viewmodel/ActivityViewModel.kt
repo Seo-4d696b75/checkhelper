@@ -11,6 +11,7 @@ import androidx.lifecycle.*
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.ui.*
+import jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialog
 import jp.seo.station.ekisagasu.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

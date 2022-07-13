@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.service
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.usecase.AppFinishUseCase

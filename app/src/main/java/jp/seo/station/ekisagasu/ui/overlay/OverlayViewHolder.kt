@@ -13,7 +13,7 @@ import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.core.animation.addListener
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance

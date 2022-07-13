@@ -20,7 +20,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
-import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections

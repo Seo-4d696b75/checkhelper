@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import jp.seo.android.widget.ExpandableTextView
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import kotlin.math.max
 
 

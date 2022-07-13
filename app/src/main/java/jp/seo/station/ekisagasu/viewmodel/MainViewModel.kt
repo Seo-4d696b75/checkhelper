@@ -8,9 +8,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.utils.getViewModelFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -4,8 +4,8 @@ import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.core.StationDao
 import jp.seo.station.ekisagasu.position.PositionNavigator
 import jp.seo.station.ekisagasu.position.PredictionResult

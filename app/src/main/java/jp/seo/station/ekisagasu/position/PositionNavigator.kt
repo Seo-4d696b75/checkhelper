@@ -5,8 +5,8 @@ import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.core.StationDao
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
 import jp.seo.station.ekisagasu.search.NearestSearch

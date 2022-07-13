@@ -2,8 +2,8 @@ package jp.seo.station.ekisagasu.core
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.search.TreeSegment
 import jp.seo.station.ekisagasu.utils.ArrayIntConverter
 import jp.seo.station.ekisagasu.utils.NodeListConverter

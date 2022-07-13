@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.repository
 
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.core.DataLatestInfo
 import jp.seo.station.ekisagasu.core.DataVersion
 import jp.seo.station.ekisagasu.model.DataUpdateProgress

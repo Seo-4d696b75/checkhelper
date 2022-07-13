@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.ui.top
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.StationRegister
 import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.flow.MutableSharedFlow

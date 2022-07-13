@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.search
 
 import android.location.Location
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import kotlin.math.*
 
 /**

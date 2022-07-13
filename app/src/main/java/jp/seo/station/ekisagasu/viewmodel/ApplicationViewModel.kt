@@ -3,9 +3,8 @@ package jp.seo.station.ekisagasu.viewmodel
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.core.NavigationRepository
-import jp.seo.station.ekisagasu.core.StationRepository
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.core.UserRepository
 import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.LocationRepository

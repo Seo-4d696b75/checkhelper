@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.core.AppLog
 import jp.seo.station.ekisagasu.core.AppRebootLog
 import jp.seo.station.ekisagasu.core.UserDao

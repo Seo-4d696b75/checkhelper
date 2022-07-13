@@ -5,7 +5,7 @@ import com.google.maps.android.data.geojson.GeoJsonFeature
 import com.google.maps.android.data.geojson.GeoJsonLineString
 import com.google.maps.android.data.geojson.GeoJsonParser
 import com.google.maps.android.data.geojson.GeoJsonPolygon
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.position.PositionNavigator.NearestPoint
 import org.json.JSONObject
 

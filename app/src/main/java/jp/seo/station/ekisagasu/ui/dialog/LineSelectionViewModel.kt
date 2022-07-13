@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.ui.dialog
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.Line
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.repository.NavigationRepository

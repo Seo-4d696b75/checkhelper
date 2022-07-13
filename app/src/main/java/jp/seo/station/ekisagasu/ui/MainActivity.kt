@@ -29,6 +29,7 @@ import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
 import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel

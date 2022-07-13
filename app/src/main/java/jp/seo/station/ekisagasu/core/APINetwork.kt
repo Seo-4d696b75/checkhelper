@@ -3,10 +3,10 @@ package jp.seo.station.ekisagasu.core
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.LineConverter
-import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.StationConverter
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.LineConverter
+import jp.seo.station.ekisagasu.model.Station
+import jp.seo.station.ekisagasu.model.StationConverter
 import jp.seo.station.ekisagasu.search.TreeSegment
 import okhttp3.MediaType
 import okhttp3.OkHttpClient

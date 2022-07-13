@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.utils
 import androidx.room.TypeConverter
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.*
-import jp.seo.station.ekisagasu.StationRegistration
+import jp.seo.station.ekisagasu.model.StationRegistration
 import jp.seo.station.ekisagasu.search.StationNode
 import org.json.JSONObject
 import java.lang.reflect.Type

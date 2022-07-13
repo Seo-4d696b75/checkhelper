@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.search
 
-import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.Station
 
 /**
  * 近傍探索
