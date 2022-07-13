@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.repository.impl
 
-import jp.seo.station.ekisagasu.core.APIClient
-import jp.seo.station.ekisagasu.core.DataLatestInfo
+import jp.seo.station.ekisagasu.api.APIClient
+import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.repository.DataRepository
