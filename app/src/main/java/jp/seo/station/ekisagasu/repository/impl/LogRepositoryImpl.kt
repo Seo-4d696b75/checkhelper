@@ -2,12 +2,10 @@ package jp.seo.station.ekisagasu.repository.impl
 
 import android.content.Context
 import android.util.Log
-import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.core.AppLog
-import jp.seo.station.ekisagasu.core.AppRebootLog
-import jp.seo.station.ekisagasu.core.UserDao
+import jp.seo.station.ekisagasu.database.AppLog
+import jp.seo.station.ekisagasu.database.AppRebootLog
+import jp.seo.station.ekisagasu.database.UserDao
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.model.LogTarget
 import jp.seo.station.ekisagasu.repository.LogRepository

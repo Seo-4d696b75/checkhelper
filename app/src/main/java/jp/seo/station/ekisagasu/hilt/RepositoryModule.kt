@@ -5,8 +5,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jp.seo.station.ekisagasu.repository.NavigationRepository
-import jp.seo.station.ekisagasu.core.StationDatabase
 import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.repository.impl.*
 import jp.seo.station.ekisagasu.search.KdTree

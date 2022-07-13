@@ -2,8 +2,8 @@ package jp.seo.station.ekisagasu.repository.impl
 
 import jp.seo.station.ekisagasu.core.APIClient
 import jp.seo.station.ekisagasu.core.DataLatestInfo
-import jp.seo.station.ekisagasu.core.DataVersion
-import jp.seo.station.ekisagasu.core.StationDao
+import jp.seo.station.ekisagasu.database.DataVersion
+import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase

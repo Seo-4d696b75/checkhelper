@@ -7,10 +7,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jp.seo.station.ekisagasu.core.StationDao
-import jp.seo.station.ekisagasu.core.StationDatabase
-import jp.seo.station.ekisagasu.core.UserDao
-import jp.seo.station.ekisagasu.core.UserDatabase
+import jp.seo.station.ekisagasu.database.StationDao
+import jp.seo.station.ekisagasu.database.StationDatabase
+import jp.seo.station.ekisagasu.database.UserDao
+import jp.seo.station.ekisagasu.database.UserDatabase
 import javax.inject.Singleton
 
 @Module

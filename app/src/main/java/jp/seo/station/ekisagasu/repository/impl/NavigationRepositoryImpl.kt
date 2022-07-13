@@ -1,17 +1,16 @@
 package jp.seo.station.ekisagasu.repository.impl
 
 import android.location.Location
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.switchMap
+import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.core.StationDao
 import jp.seo.station.ekisagasu.position.PositionNavigator
-import jp.seo.station.ekisagasu.position.PredictionResult
 import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 class NavigationRepositoryImpl @Inject constructor(
