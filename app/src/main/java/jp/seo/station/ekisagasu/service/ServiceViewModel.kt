@@ -4,11 +4,13 @@ import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.seo.station.ekisagasu.Station
+import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
 import jp.seo.station.ekisagasu.usecase.BootUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,7 +18,6 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 class ServiceViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
-    private val logRepository: LogRepository,
     private val logger: AppLogger,
     private val userSettingRepository: UserSettingRepository,
     private val searchRepository: SearchRepository,
@@ -35,7 +36,7 @@ class ServiceViewModel @Inject constructor(
     fun log(message: String) = viewModelScope.log(message)
     fun error(message: String) = viewModelScope.error(message)
 
-    val message = logRepository.message
+    val message = appStateRepository.message
 
     val detectedStation = searchRepository.detectedStation
     val nearestStation = searchRepository.nearestStation
@@ -55,11 +56,15 @@ class ServiceViewModel @Inject constructor(
     val selectedLine = searchRepository.selectedLine
 
     fun saveStationLog(station: Station) = viewModelScope.launch {
-        logRepository.logStation(station)
+        appStateRepository.emitMessage(
+            AppMessage.Station(station)
+        )
     }
 
     fun updateLocation(location: Location) = viewModelScope.launch {
-        logRepository.logLocation(location.latitude, location.longitude)
+        appStateRepository.emitMessage(
+            AppMessage.Location(location.latitude, location.longitude)
+        )
         searchRepository.updateNearestStations(location)
         searchRepository.nearestStation.value?.let {
             navigator.updateLocation(location, it.station)
@@ -80,17 +85,19 @@ class ServiceViewModel @Inject constructor(
      * 必要ならActivity側に通知して終了させる
      */
     fun requestAppFinish() = viewModelScope.launch {
-        appStateRepository.finishApp()
+        appStateRepository.emitMessage(
+            AppMessage.FinishApp
+        )
     }
 
-    val appFinish = appStateRepository.finishAppEvent
+    val appFinish = appStateRepository.message.filterIsInstance<AppMessage.FinishApp>()
 
     fun onServiceFinish() = viewModelScope.launch {
         appFinishUseCase()
     }
 
     // accessor to app state
-    val startTimer = appStateRepository.startTimerEvent
+    val startTimer = appStateRepository.message.filterIsInstance<AppMessage.StartTimer>()
     val fixTimer = appStateRepository.fixTimer
     val nightMode = appStateRepository.nightMode
 

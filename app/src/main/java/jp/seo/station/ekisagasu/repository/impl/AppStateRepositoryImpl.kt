@@ -1,27 +1,26 @@
 package jp.seo.station.ekisagasu.repository.impl
 
+import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.LogRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import javax.inject.Inject
 
-class AppStateRepositoryImpl : AppStateRepository {
+class AppStateRepositoryImpl @Inject constructor(
+    private val logRepository: LogRepository,
+) : AppStateRepository {
 
     override var isServiceRunning = false
 
-    private val _startTimerEvent = MutableSharedFlow<Unit>()
+    private val _message = MutableSharedFlow<AppMessage>()
     private val _fixTimer = MutableStateFlow<Boolean>(false)
     private val _nightMode = MutableStateFlow<Boolean>(false)
-    private val _finishApp = MutableSharedFlow<Unit>()
 
-
-    override val startTimerEvent = _startTimerEvent
     override val fixTimer = _fixTimer
     override val nightMode = _nightMode
-    override val finishAppEvent = _finishApp
-
-    override suspend fun startTimer() {
-        _startTimerEvent.emit(Unit)
-    }
+    override val message = _message
 
     override suspend fun setTimerFixed(fixed: Boolean) {
         _fixTimer.emit(fixed)
@@ -31,7 +30,8 @@ class AppStateRepositoryImpl : AppStateRepository {
         _nightMode.emit(enabled)
     }
 
-    override suspend fun finishApp() {
-        _finishApp.emit(Unit)
+    override suspend fun emitMessage(message: AppMessage) {
+        _message.emit(message)
+        logRepository.saveMessage(message)
     }
 }

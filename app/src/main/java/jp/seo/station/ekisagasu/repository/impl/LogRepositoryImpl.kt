@@ -38,52 +38,49 @@ class LogRepositoryImpl @Inject constructor(
 
     private var _hasError = false
 
-    private val _message = MutableSharedFlow<AppMessage>()
-
     private suspend fun saveLog(type: Int, message: String) = withContext(Dispatchers.IO) {
         val log = AppLog(type, message)
         dao.insertLog(log)
     }
 
-    override suspend fun logMessage(message: String) {
-        Log.i("AppMessage.Log", message)
-        _message.emit(AppMessage.Log(message))
-        saveLog(AppLog.TYPE_SYSTEM, message)
+    override suspend fun saveMessage(message: AppMessage) {
+        when (message) {
+            is AppMessage.Log -> {
+                Log.i("AppMessage.Log", message.message)
+                saveLog(AppLog.TYPE_SYSTEM, message.message)
+            }
+            is AppMessage.Error -> {
+                val cause = message.cause
+                val str = if (cause != null) {
+                    val sw = StringWriter()
+                    val pw = PrintWriter(sw)
+                    cause.printStackTrace(pw)
+                    String.format("%s caused by;\n%s", message.message, sw.toString())
+                } else message.message
+                Log.e("AppMessage.Error", str)
+                saveLog(AppLog.TYPE_SYSTEM, str)
+                _hasError = true
+            }
+            is AppMessage.ResolvableException -> {
+                Log.w("AppMessage.ResolvableException", "${message.message}: ${message.exception}")
+                saveLog(AppLog.TYPE_SYSTEM, message.message)
+            }
+            is AppMessage.Location -> {
+                val mes = String.format("(%.6f,%.6f)", message.lat, message.lng)
+                Log.i("Location", mes)
+                saveLog(AppLog.TYPE_LOCATION, mes)
+            }
+            is AppMessage.Station -> {
+                val station = message.station
+                val mes = String.format("%s(%d)", station.name, station.code)
+                Log.i("Station", mes)
+                saveLog(AppLog.TYPE_STATION, mes)
+            }
+            else -> {
+                Log.i("AppMessage", message.toString())
+            }
+        }
     }
-
-    override suspend fun logError(message: String, cause: Throwable?) {
-        val str = if (cause != null) {
-            val sw = StringWriter()
-            val pw = PrintWriter(sw)
-            cause.printStackTrace(pw)
-            String.format("%s caused by;\n%s", message, sw.toString())
-        } else message
-        Log.e("AppMessage.Error", str)
-        _message.emit(AppMessage.Error(message, cause))
-        saveLog(AppLog.TYPE_SYSTEM, str)
-        _hasError = true
-    }
-
-    override suspend fun requestExceptionResolved(message: String, e: ResolvableApiException) {
-        Log.w("AppMessage.ResolvableException", "$message: $e")
-        _message.emit(AppMessage.ResolvableException(e))
-        saveLog(AppLog.TYPE_SYSTEM, message)
-    }
-
-    override suspend fun logLocation(lat: Double, lng: Double) {
-        val mes = String.format("(%.6f,%.6f)", lat, lng)
-        Log.i("Location", mes)
-        saveLog(AppLog.TYPE_LOCATION, mes)
-    }
-
-    override suspend fun logStation(station: Station) {
-        val mes = String.format("%s(%d)", station.name, station.code)
-        Log.i("Station", mes)
-        saveLog(AppLog.TYPE_STATION, mes)
-    }
-
-    override val message: SharedFlow<AppMessage>
-        get() = _message
 
     override val history: StateFlow<List<AppRebootLog>>
         get() = dao.getRebootHistory().stateIn(this, SharingStarted.Eagerly, emptyList())

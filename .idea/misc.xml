@@ -7,6 +7,7 @@
         <entry key="app/src/main/res/layout/dialog_data_update.xml" value="0.1" />
         <entry key="app/src/main/res/layout/dialog_history.xml" value="0.17553191489361702" />
         <entry key="app/src/main/res/layout/dialog_select_line.xml" value="0.17553191489361702" />
+        <entry key="app/src/main/res/layout/fragment_log.xml" value="0.1697061803444782" />
         <entry key="app/src/main/res/layout/fragment_main.xml" value="0.2351851851851852" />
         <entry key="app/src/main/res/layout/fragment_radar.xml" value="0.17553191489361702" />
         <entry key="app/src/main/res/layout/fragment_setting.xml" value="0.1" />
