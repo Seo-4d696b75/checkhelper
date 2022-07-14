@@ -2,8 +2,7 @@ package jp.seo.station.ekisagasu.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import jp.seo.station.ekisagasu.core.StationData
-import jp.seo.station.ekisagasu.core.TimestampConverter
+import jp.seo.station.ekisagasu.api.StationData
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.search.TreeSegment

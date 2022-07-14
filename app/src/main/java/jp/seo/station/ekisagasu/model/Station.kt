@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.model
 import androidx.room.*
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 import java.lang.reflect.Type
 
 /**
@@ -40,7 +41,7 @@ data class Station constructor(
     val voronoi: String,
     @ColumnInfo(name = "attr")
     val attr: String?
-) {
+) : Serializable {
 
 
     override fun equals(other: Any?): Boolean {

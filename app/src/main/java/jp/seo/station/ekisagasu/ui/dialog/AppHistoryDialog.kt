@@ -16,7 +16,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.AppRebootLog
+import jp.seo.station.ekisagasu.database.AppRebootLog
 import jp.seo.station.ekisagasu.databinding.DialogHistoryBinding
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.formatTime

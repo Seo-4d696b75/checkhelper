@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.ui.top
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.utils.mapState
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -70,7 +71,7 @@ class TopViewModel @Inject constructor(
     }
 
     fun finishApp() = viewModelScope.launch {
-        appStateRepository.finishApp()
+        appStateRepository.emitMessage(AppMessage.FinishApp)
     }
 
     fun selectCurrentLine() = viewModelScope.launch {
@@ -88,7 +89,7 @@ class TopViewModel @Inject constructor(
     }
 
     fun startTimer() = viewModelScope.launch {
-        appStateRepository.startTimer()
+        appStateRepository.emitMessage(AppMessage.StartTimer)
         closeMenu()
     }
 

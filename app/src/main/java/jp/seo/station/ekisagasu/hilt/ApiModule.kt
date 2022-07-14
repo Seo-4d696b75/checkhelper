@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.APIClient
-import jp.seo.station.ekisagasu.core.getAPIClient
+import jp.seo.station.ekisagasu.api.APIClient
+import jp.seo.station.ekisagasu.api.getAPIClient
 import javax.inject.Singleton
 
 @Module

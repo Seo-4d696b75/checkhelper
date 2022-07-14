@@ -48,7 +48,7 @@
             app:argType="jp.seo.station.ekisagasu.ui.dialog.DataCheckType" />
         <argument
             android:name="info"
-            app:argType="jp.seo.station.ekisagasu.core.DataLatestInfo" />
+            app:argType="jp.seo.station.ekisagasu.api.DataLatestInfo" />
     </dialog>
     <action
         android:id="@+id/action_global_dataCheckDialog"
@@ -59,7 +59,7 @@
         android:label="DataUpdateDialog">
         <argument
             android:name="info"
-            app:argType="jp.seo.station.ekisagasu.core.DataLatestInfo" />
+            app:argType="jp.seo.station.ekisagasu.api.DataLatestInfo" />
     </dialog>
     <action
         android:id="@+id/action_global_dataUpdateDialog"

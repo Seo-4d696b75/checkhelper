@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.ui.dialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.core.DataLatestInfo
+import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult

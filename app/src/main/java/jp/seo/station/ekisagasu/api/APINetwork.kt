@@ -19,6 +19,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Url
+import java.io.Serializable
 import java.text.StringCharacterIterator
 
 
@@ -53,6 +54,7 @@ fun getAPIClient(baseURL: String): APIClient {
     return retrofit.create(APIClient::class.java)
 }
 
+// TODO kotlin-serialization
 data class DataLatestInfo(
     @SerializedName("version")
     @Expose
@@ -63,7 +65,7 @@ data class DataLatestInfo(
     @SerializedName("url")
     @Expose
     val url: String
-) {
+) : Serializable {
     fun fileSize(): String {
         var bytes = length
         if (bytes < 0) return "0 B"

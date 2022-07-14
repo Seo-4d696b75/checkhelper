@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.ui.dialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.core.AppRebootLog
+import jp.seo.station.ekisagasu.database.AppRebootLog
 import jp.seo.station.ekisagasu.repository.LogRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject

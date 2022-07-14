@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.model
 import androidx.room.*
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
-import jp.seo.station.ekisagasu.model.StationRegistration
+import java.io.Serializable
 import java.lang.reflect.Type
 
 /**
@@ -36,8 +36,7 @@ data class Line(
     val stationList: Array<StationRegistration>,
     @ColumnInfo(name = "polyline")
     val polyline: String?,
-
-    ) {
+) : Serializable {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
