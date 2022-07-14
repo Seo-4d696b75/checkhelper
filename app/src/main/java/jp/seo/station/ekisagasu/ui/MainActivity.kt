@@ -11,11 +11,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,7 +23,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
@@ -32,7 +30,6 @@ import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 /**
  * @author Seo-4d696b75
@@ -40,7 +37,7 @@ import kotlinx.coroutines.launch
  */
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -52,15 +49,24 @@ class MainActivity : AppCompatActivity() {
         // try to resolve API exception if any
         viewModel.message
             .flowWithLifecycle(lifecycle)
-            .onEach {
-                when (it) {
+            .onEach { message ->
+                when (message) {
                     is AppMessage.ResolvableException -> {
                         resolvableApiLauncher.launch(
-                            IntentSenderRequest.Builder(it.exception.resolution).build()
+                            IntentSenderRequest.Builder(message.exception.resolution).build()
                         )
                     }
                     is AppMessage.StartActivityForResult -> {
-                        startActivityForResult(it.intent, it.code);
+                        val launcher = registerForActivityResult(
+                            ActivityResultContracts.StartActivityForResult()
+                        ) { result ->
+                            viewModel.onActivityResultResolved(
+                                message.code,
+                                result.resultCode,
+                                result.data
+                            )
+                        }
+                        launcher.launch(message.intent)
                     }
                     is AppMessage.FinishApp -> {
                         finish()
@@ -90,7 +96,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val PERMISSION_REQUEST = 3901
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
@@ -105,6 +110,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermission() {
         if (viewModel.hasPermissionChecked) return
         // Runtime Permission required API level >= 23
+        // TODO permissionの必要をユーザ側に説明するUI
         if (!Settings.canDrawOverlays(applicationContext)) {
             Toast.makeText(
                 applicationContext,
@@ -118,27 +124,25 @@ class MainActivity : AppCompatActivity() {
             overlayPermissionLauncher.launch(intent)
             return
         }
-
         if (
             ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
             != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            return
+        }
+
+        if (
+            ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                PERMISSION_REQUEST
-            )
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return
         }
 
@@ -181,34 +185,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        viewModel.onActivityResultResolved(requestCode, resultCode, data)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    applicationContext,
-                    "location permission not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
-            if (grantResults[1] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    applicationContext,
-                    "storage permission not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
+        if (!it) {
+            Toast.makeText(
+                applicationContext,
+                "permission not granted",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
         }
     }
 
