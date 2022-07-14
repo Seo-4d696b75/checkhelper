@@ -13,10 +13,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -26,24 +26,24 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.core.*
 import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.AppLogger
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.service.StationService
-import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
-import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
+import jp.seo.station.ekisagasu.ui.top.MainViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO activityの再生成が失敗するので暫定的に初期状態から
@@ -51,94 +51,43 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
 
         // try to resolve API exception if any
-        appViewModel.appMessage
+        viewModel.message
             .flowWithLifecycle(lifecycle)
             .onEach {
-                if (it is AppMessage.AppResolvableException) {
-                    resolvableApiLauncher.launch(
-                        IntentSenderRequest.Builder(it.exception.resolution).build()
-                    )
+                when (it) {
+                    is AppMessage.ResolvableException -> {
+                        resolvableApiLauncher.launch(
+                            IntentSenderRequest.Builder(it.exception.resolution).build()
+                        )
+                    }
+                    is AppMessage.StartActivityForResult -> {
+                        startActivityForResult(it.intent, it.code);
+                    }
+                    is AppMessage.FinishApp -> {
+                        finish()
+                    }
+                    else -> {}
                 }
             }
             .launchIn(lifecycleScope)
-
-
-        // finish activity if requested
-        viewModel.requestFinish.observe(this) {
-            lifecycleScope.launch {
-                appStateRepository.finishApp()
-            }
-        }
-        appStateRepository.finishAppEvent
-            .flowWithLifecycle(lifecycle)
-            .onEach { finish() }
-            .launchIn(lifecycleScope)
-
-
-        viewModel.requestDialog.observe(this) { type ->
-            ActivityViewModel.getDialog(type)?.show(supportFragmentManager, type)
-        }
-        viewModel.requestToast.observe(this) {
-            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-        }
-
-        appViewModel.onAppReboot(applicationContext)
-
     }
 
     override fun onResume() {
         super.onResume()
         checkPermission()
-        if (appViewModel.hasPermissionChecked) {
+        if (viewModel.hasPermissionChecked) {
             startService()
             viewModel.checkData()
         }
 
-
+        // handle intent
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
                 it.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
-                viewModel.requestDialog(LineDialog.DIALOG_SELECT_NAVIGATION)
+                val action = LineDialogDirections.actionGlobalLineDialog(LineDialogType.Navigation)
+                findNavController(R.id.main_nav_host).navigate(action)
             }
         }
-    }
-
-    @Inject
-    lateinit var singletonStore: ViewModelStore
-
-    @Inject
-    lateinit var stationRepository: StationRepository
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
-    @Inject
-    lateinit var locationRepository: LocationRepository
-
-    @Inject
-    lateinit var navigator: NavigationRepository
-
-    @Inject
-    lateinit var logger: AppLogger
-
-    @Inject
-    lateinit var appStateRepository: AppStateRepository
-
-    private val viewModel: ActivityViewModel by lazy {
-        // ActivityScoped
-        ActivityViewModel.getInstance(this, this, stationRepository, userRepository)
-    }
-
-    private val appViewModel: ApplicationViewModel by lazy {
-        // SingletonScoped
-        ApplicationViewModel.getInstance(
-            { singletonStore },
-            stationRepository,
-            userRepository,
-            locationRepository,
-            navigator,
-            logger,
-        )
     }
 
     companion object {
@@ -148,19 +97,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startService() {
-        if (!appStateRepository.isServiceRunning) {
+        if (!viewModel.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent)
-            } else {
-                startService(intent)
-            }
-            appStateRepository.isServiceRunning = true
+            startForegroundService(intent)
+            viewModel.isServiceRunning = true
         }
     }
 
     private fun checkPermission() {
-        if (appViewModel.hasPermissionChecked) return
+        if (viewModel.hasPermissionChecked) return
         // Runtime Permission required API level >= 23
         if (!Settings.canDrawOverlays(applicationContext)) {
             Toast.makeText(
@@ -205,7 +150,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        appViewModel.hasPermissionChecked = true
+        viewModel.hasPermissionChecked = true
     }
 
     private val overlayPermissionLauncher = registerForActivityResult(
@@ -240,11 +185,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == WRITE_EXTERNAL_FILE) {
-            if (resultCode == Activity.RESULT_OK) {
-                data?.data?.let { viewModel.writeFile(it, contentResolver) }
-            }
-        }
+        viewModel.onActivityResultResolved(requestCode, resultCode, data)
     }
 
     override fun onRequestPermissionsResult(

@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/logFragment"
-        android:name="jp.seo.station.ekisagasu.ui.LogFragment"
+        android:name="jp.seo.station.ekisagasu.ui.log.LogFragment"
         android:label="LogFragment" />
     <action
         android:id="@+id/action_global_mainFragment"

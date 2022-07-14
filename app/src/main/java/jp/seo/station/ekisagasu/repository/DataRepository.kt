@@ -1,10 +1,10 @@
 package jp.seo.station.ekisagasu.repository
 
+import jp.seo.station.ekisagasu.api.DataLatestInfo
+import jp.seo.station.ekisagasu.database.DataVersion
+import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.core.DataLatestInfo
-import jp.seo.station.ekisagasu.core.DataVersion
-import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow

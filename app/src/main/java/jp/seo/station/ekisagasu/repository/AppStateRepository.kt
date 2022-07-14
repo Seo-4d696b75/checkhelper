@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface AppStateRepository {
     var isServiceRunning: Boolean
+    var hasPermissionChecked: Boolean
+    var hasDataVersionChecked: Boolean
 
     val message: SharedFlow<AppMessage>
     suspend fun emitMessage(message: AppMessage)

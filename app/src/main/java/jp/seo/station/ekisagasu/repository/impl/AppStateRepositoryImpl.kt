@@ -5,7 +5,6 @@ import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LogRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import javax.inject.Inject
 
 class AppStateRepositoryImpl @Inject constructor(
@@ -13,6 +12,8 @@ class AppStateRepositoryImpl @Inject constructor(
 ) : AppStateRepository {
 
     override var isServiceRunning = false
+    override var hasPermissionChecked = false
+    override var hasDataVersionChecked = false
 
     private val _message = MutableSharedFlow<AppMessage>()
     private val _fixTimer = MutableStateFlow<Boolean>(false)
