@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.ui.top
+package jp.seo.station.ekisagasu.ui
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
