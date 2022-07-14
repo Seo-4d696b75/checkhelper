@@ -8,8 +8,6 @@
     <string name="dialog_title_latest_data">駅データの更新</string>
     <string name="dialog_button_update_positive">OK</string>
     <string name="dialog_button_update_negative">キャンセル</string>
-    <string name="dialog_message_data_version">version: %1$d</string>
-    <string name="dialog_message_data_size">size: %1$s</string>
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
     <string name="message_network_failure">ネットワークから情報を利用できません</string>
@@ -42,8 +40,6 @@
     <string name="setting_title_accuracy">距離計算の精度</string>
     <string name="setting_mes_accuracy">高精度では球面を考慮して計算します. 駅メモ！仕様の低精度では平面を仮定して三平方の定理で計算します. この場合表示される距離と内部で処理される距離の大小に不整合が生じることがあります.</string>
     <string name="setting_title_data">駅データ</string>
-    <string name="setting_mes_data_version">バージョン: %1$d</string>
-    <string name="setting_mes_data_timestamp">更新日時: %1$s</string>
     <string name="setting_title_notify_stationary">常駐モード</string>
     <string name="setting_mes_notify_stationary">通知を常時画面上部に表示させます. </string>
     <string name="setting_title_notify_prefecture">都道府県の表示</string>
@@ -84,4 +80,7 @@
     <string name="title_detail_station_location">場所：</string>
     <string name="title_line_list">登録路線一覧</string>
     <string name="title_radar_list">周辺駅</string>
+    <string name="text_data_version">バージョン: %1$d</string>
+    <string name="text_data_updated_at">更新日時: %1$s</string>
+    <string name="text_data_size">データ: %1$s</string>
 </resources>

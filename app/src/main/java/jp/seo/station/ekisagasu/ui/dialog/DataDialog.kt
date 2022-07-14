@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.DataLatestInfo
+import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.databinding.DialogDataCheckBinding
 import jp.seo.station.ekisagasu.databinding.DialogDataUpdateBinding
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
@@ -41,8 +41,8 @@ class DataCheckDialog : DialogFragment() {
             null,
             false,
         ).apply {
-            textVersion.text = getString(R.string.dialog_message_data_version, info.version)
-            textSize.text = getString(R.string.dialog_message_data_size, info.fileSize())
+            textVersion.text = getString(R.string.text_data_version, info.version)
+            textSize.text = getString(R.string.text_data_size, info.fileSize())
             textDialogMessage.text = getString(
                 if (type == DataCheckType.Init)
                     R.string.dialog_message_init_data

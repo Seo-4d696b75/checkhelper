@@ -2,29 +2,29 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="10dp">
 
         <GridLayout
-            android:layout_margin="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:columnCount="2">
 
             <ImageView
-                android:layout_height="80dp"
                 android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:src="@drawable/ic_download" />
 
 
             <TextView
                 android:id="@+id/text_dialog_message"
-                android:textColor="@color/colorText"
                 android:layout_width="1dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_height="wrap_content" />
+                android:textColor="@color/colorText" />
 
             <TextView
                 android:layout_width="100dp"
@@ -36,11 +36,11 @@
 
             <TextView
                 android:id="@+id/text_version"
-                android:layout_margin="4dp"
-                android:textColor="@color/colorText"
                 android:layout_width="1dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_height="wrap_content" />
+                android:layout_margin="4dp"
+                android:textColor="@color/colorText" />
 
 
             <TextView
@@ -48,16 +48,15 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:gravity="end"
-                android:text="データサイズ："
                 android:textColor="@color/colorText" />
 
             <TextView
                 android:id="@+id/text_size"
-                android:layout_margin="4dp"
-                android:textColor="@color/colorText"
                 android:layout_width="1dp"
+                android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
-                android:layout_height="wrap_content" />
+                android:layout_margin="4dp"
+                android:textColor="@color/colorText" />
 
         </GridLayout>
 

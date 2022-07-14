@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +33,7 @@ import kotlinx.coroutines.flow.onEach
  */
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class SettingFragment : AppFragment() {
+class SettingFragment : Fragment() {
 
     private val viewModel: SettingViewModel by viewModels()
 
@@ -140,16 +141,6 @@ class SettingFragment : AppFragment() {
             .onEach { binding.viewSampleBrightness.background = ColorDrawable((255 - it).shl(24)) }
             .launchIn(lifecycleScope)
 
-        viewModel.dataVersion.observe(viewLifecycleOwner) {
-            it?.let { data ->
-                binding.textDataVersion.text =
-                    getString(R.string.setting_mes_data_version, data.version)
-                binding.textDataTimestamp.text = getString(
-                    R.string.setting_mes_data_timestamp,
-                    formatTime(TIME_PATTERN_DATETIME, data.timestamp)
-                )
-            }
-        }
         binding.buttonUpdateData.setOnClickListener {
             viewModel.checkLatestData(requireContext())
         }

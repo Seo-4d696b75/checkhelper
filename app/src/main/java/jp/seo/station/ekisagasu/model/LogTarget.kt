@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.model
 
-import jp.seo.station.ekisagasu.core.AppRebootLog
+import jp.seo.station.ekisagasu.database.AppRebootLog
 
 data class LogTarget(
     val target: AppRebootLog?,
