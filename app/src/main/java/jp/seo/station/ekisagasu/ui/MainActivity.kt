@@ -92,7 +92,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val PERMISSION_REQUEST = 3901
-        const val WRITE_EXTERNAL_FILE = 3903
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
