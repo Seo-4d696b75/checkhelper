@@ -33,11 +33,11 @@ interface LocationModule {
 @ExperimentalCoroutinesApi
 @Module
 @InstallIn(SingletonComponent::class)
-interface LoggerModule {
+interface LogModule {
 
     @Binds
     @Singleton
-    fun bindsLogger(impl: LogRepositoryImpl): LogRepository
+    fun bindsLogRepository(impl: LogRepositoryImpl): LogRepository
 
     @Binds
     @Singleton
@@ -51,16 +51,6 @@ interface AppStateModule {
     @Binds
     @Singleton
     fun bindAppStateRepository(impl: AppStateRepositoryImpl): AppStateRepository
-}
-
-@ExperimentalCoroutinesApi
-@Module
-@InstallIn(SingletonComponent::class)
-interface LogModule {
-
-    @Binds
-    @Singleton
-    fun bindLogRepository(impl: LogRepositoryImpl): LogRepository
 }
 
 @Module
