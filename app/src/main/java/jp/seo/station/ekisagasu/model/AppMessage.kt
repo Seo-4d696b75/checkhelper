@@ -42,5 +42,11 @@ sealed interface AppMessage {
     data class RequestDataUpdate(
         val type: DataUpdateType,
         val info: DataLatestInfo,
+        val confirmed: Boolean = false,
+    ) : AppMessage
+
+    data class DataUpdateResult(
+        val type: DataUpdateType,
+        val success: Boolean,
     ) : AppMessage
 }

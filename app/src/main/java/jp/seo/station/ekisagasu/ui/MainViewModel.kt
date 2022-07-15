@@ -88,4 +88,10 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    fun requestAppFinish() = viewModelScope.launch {
+        appStateRepository.emitMessage(
+            AppMessage.FinishApp
+        )
+    }
 }

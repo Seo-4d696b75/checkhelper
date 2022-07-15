@@ -54,11 +54,11 @@ class ConfirmDataUpdateDialog : DialogFragment() {
         return AlertDialog.Builder(context).apply {
             setTitle(if (type == DataUpdateType.Init) R.string.dialog_title_init_data else R.string.dialog_title_latest_data)
             setPositiveButton(R.string.dialog_button_update_positive) { _, _ ->
-                // TODO 結果の通知
+                viewModel.onResult(true)
                 dismiss()
             }
             setNegativeButton(R.string.dialog_button_update_negative) { _, _ ->
-                // TODO 結果の通知
+                viewModel.onResult(false)
                 dismiss()
             }
             setView(binding.root)
@@ -71,12 +71,17 @@ class ConfirmDataUpdateDialog : DialogFragment() {
 @AndroidEntryPoint
 class DataUpdateDialog : DialogFragment() {
 
+    private val type: DataUpdateType by navArgs()
+
     private val info: DataLatestInfo by lazy {
         arguments?.getSerializable("info") as DataLatestInfo
     }
+
     private val viewModel: DataUpdateViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        viewModel.setTargetData(type, info)
 
         val binding = DataBindingUtil.inflate<DialogDataUpdateBinding>(
             layoutInflater,
@@ -92,12 +97,11 @@ class DataUpdateDialog : DialogFragment() {
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach {
                 when (it) {
-                    // TODO 結果の通知
                     is DataUpdateResult.Success -> {
-
+                        viewModel.onResult(true)
                     }
                     is DataUpdateResult.Failure -> {
-
+                        viewModel.onResult(false)
                     }
                 }
                 dismiss()
@@ -108,7 +112,7 @@ class DataUpdateDialog : DialogFragment() {
             setTitle(R.string.dialog_title_update_data)
             setNegativeButton(R.string.dialog_button_update_negative) { _, _ ->
                 viewModel.viewModelScope.coroutineContext.cancel()
-                // TODO 結果の通知
+                viewModel.onResult(false)
                 dismiss()
             }
             setView(binding.root)
@@ -119,7 +123,7 @@ class DataUpdateDialog : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.update(info)
+        viewModel.update()
     }
 
 }

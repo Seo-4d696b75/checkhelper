@@ -25,9 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
-import jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialogDirections
-import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
-import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
+import jp.seo.station.ekisagasu.ui.dialog.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -73,11 +71,28 @@ class MainActivity : ComponentActivity() {
                         finish()
                     }
                     is AppMessage.RequestDataUpdate -> {
-                        val action = ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
-                            info = message.info,
-                            type = message.type,
-                        )
+                        // ユーザの確認を経てから実行
+                        val action = if (message.confirmed) {
+                            DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
+                                info = message.info,
+                                type = message.type,
+                            )
+                        } else {
+                            ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
+                                info = message.info,
+                                type = message.type,
+                            )
+                        }
                         findNavController(R.id.main_nav_host).navigate(action)
+                    }
+                    is AppMessage.DataUpdateResult -> {
+                        if (message.success) {
+                            // TODO show ui
+                        } else if (message.type == DataUpdateType.Init) {
+                            // データの初期化に失敗・これ以上の続行不可能
+                            // TODO show ui
+                            viewModel.requestAppFinish()
+                        }
                     }
                     else -> {}
                 }
