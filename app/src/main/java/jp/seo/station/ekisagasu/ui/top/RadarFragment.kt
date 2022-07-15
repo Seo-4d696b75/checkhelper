@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.databinding.FragmentRadarBinding
+import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.search.formatDistance
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
@@ -56,7 +56,8 @@ class RadarFragment : Fragment() {
         val context = requireContext()
         val adapter = StationAdapter(context).apply {
             setOnItemSelectedListener { _, data, _ ->
-                val action = StationFragmentDirections.actionGlobalStationFragment(data.station)
+                val action =
+                    StationFragmentDirections.actionGlobalStationFragment(data.station.code)
                 findNavController().navigate(action)
             }
         }
