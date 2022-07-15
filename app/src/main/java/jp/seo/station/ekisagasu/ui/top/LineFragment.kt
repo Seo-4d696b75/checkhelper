@@ -1,5 +1,7 @@
 package jp.seo.station.ekisagasu.ui.top
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -66,7 +68,11 @@ class LineFragment : Fragment() {
                         findNavController().navigate(R.id.action_global_to_radarFragment)
                     }
                     is LineFragmentEvent.ShowMap -> {
-                        // TODO
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(getString(R.string.map_url) + "?line=${viewModel.line?.id}")
+                        )
+                        startActivity(intent)
                     }
                 }
             }

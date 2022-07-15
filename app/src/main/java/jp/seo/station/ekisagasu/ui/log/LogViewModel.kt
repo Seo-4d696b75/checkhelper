@@ -72,7 +72,6 @@ class LogViewModel @Inject constructor(
             this.type = "text/plain"
             putExtra(Intent.EXTRA_TITLE, fileName)
         }
-        // TODO activityにcontent resolverをgetしてもらう
         appStateRepository.emitMessage(
             AppMessage.StartActivityForResult(REQUEST_CODE, intent)
         )

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.core.animation.addListener
@@ -20,9 +19,9 @@ import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.android.widget.HorizontalListView
-import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.utils.AnimationHolder
@@ -78,7 +77,7 @@ class TopFragment : Fragment() {
         viewModel.nearestStation
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .filterNotNull()
-            .onEach { adapter.data = it.lines}
+            .onEach { adapter.data = it.lines }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         // 探索が終了したらRadarFragmentに遷移する
@@ -206,7 +205,9 @@ class TopFragment : Fragment() {
                         view.findNavController().navigate(action)
                     }
                     is TopFragmentEvent.StartNavigation -> {
-                        // TODO
+                        val action =
+                            LineDialogDirections.actionGlobalLineDialog(LineDialogType.Navigation)
+                        view.findNavController().navigate(action)
                     }
                 }
             }

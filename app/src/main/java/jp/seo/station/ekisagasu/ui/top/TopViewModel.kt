@@ -52,7 +52,6 @@ class TopViewModel @Inject constructor(
                 locationRepository.startWatchCurrentLocation(interval)
             }
         } else {
-            // TODO このへんの処理がviewModelで重複してる？
             locationRepository.stopWatchCurrentLocation()
             searchRepository.onStopSearch()
             navigationRepository.stop()
