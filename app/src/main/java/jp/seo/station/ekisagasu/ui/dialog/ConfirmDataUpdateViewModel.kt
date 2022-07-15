@@ -1,9 +1,9 @@
 package jp.seo.station.ekisagasu.ui.dialog
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import kotlinx.coroutines.launch
@@ -12,25 +12,20 @@ import javax.inject.Inject
 @HiltViewModel
 class ConfirmDataUpdateViewModel @Inject constructor(
     private val appStateRepository: AppStateRepository,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private lateinit var _type: DataUpdateType
-    private lateinit var _info: DataLatestInfo
-
-    val info: DataLatestInfo
-        get() = _info
-
-    val type: DataUpdateType
-        get() = _type
-
-    fun setTargetData(type: DataUpdateType, info: DataLatestInfo) {
-        _type = type
-        _info = info
+    private val args by lazy {
+        ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
     }
+
+    val info by lazy { args.info }
+
+    val type by lazy { args.type }
 
     fun onResult(confirmed: Boolean) = viewModelScope.launch {
         appStateRepository.emitMessage(
-            if(confirmed) {
+            if (confirmed) {
                 AppMessage.RequestDataUpdate(
                     info = info,
                     type = type,

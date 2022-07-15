@@ -29,30 +29,22 @@ enum class DataUpdateType {
 @AndroidEntryPoint
 class ConfirmDataUpdateDialog : DialogFragment() {
 
-    private val type: DataUpdateType by navArgs()
-
-    private val info: DataLatestInfo by lazy {
-        requireArguments().getSerializable("info") as DataLatestInfo
-    }
+    private val args: ConfirmDataUpdateDialogArgs by navArgs()
 
     private val viewModel: ConfirmDataUpdateViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        viewModel.setTargetData(type, info)
 
         val binding = DataBindingUtil.inflate<DialogDataCheckBinding>(
             layoutInflater,
             R.layout.dialog_data_check,
             null,
             false,
-        ).also {
-            it.viewModel = viewModel
-            it.lifecycleOwner = viewLifecycleOwner
-        }
+        )
+        binding.viewModel = viewModel
 
         return AlertDialog.Builder(context).apply {
-            setTitle(if (type == DataUpdateType.Init) R.string.dialog_title_init_data else R.string.dialog_title_latest_data)
+            setTitle(if (args.type == DataUpdateType.Init) R.string.dialog_title_init_data else R.string.dialog_title_latest_data)
             setPositiveButton(R.string.dialog_button_update_positive) { _, _ ->
                 viewModel.onResult(true)
                 dismiss()
@@ -66,6 +58,7 @@ class ConfirmDataUpdateDialog : DialogFragment() {
             setCanceledOnTouchOutside(false)
         }
     }
+
 }
 
 @AndroidEntryPoint
@@ -79,18 +72,18 @@ class DataUpdateDialog : DialogFragment() {
 
     private val viewModel: DataUpdateViewModel by viewModels()
 
+    private lateinit var binding: DialogDataUpdateBinding
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         viewModel.setTargetData(type, info)
 
-        val binding = DataBindingUtil.inflate<DialogDataUpdateBinding>(
+        binding = DataBindingUtil.inflate(
             layoutInflater,
             R.layout.dialog_data_update,
             null,
             false,
         )
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
 
         // 更新が終わったら閉じる
         viewModel.result
@@ -123,6 +116,10 @@ class DataUpdateDialog : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
         viewModel.update()
     }
 

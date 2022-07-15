@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -9,52 +10,58 @@
             type="jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="14dp">
 
-        <GridLayout
+        <TextView
+            android:id="@+id/text_dialog_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:columnCount="2">
+            android:layout_columnSpan="2"
+            android:layout_columnWeight="1"
+            android:textColor="@color/colorText"
+            app:confirmDataUpdate="@{viewModel.type}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="ここにデータ更新の詳細なメッセージが表示される" />
 
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/ic_download" />
+        <ImageView
+            android:id="@+id/image_data_download"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_rowSpan="2"
+            android:src="@drawable/ic_download"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_dialog_message" />
 
-            <TextView
-                android:id="@+id/text_dialog_message"
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_marginTop="10dp"
-                android:padding="4dp"
-                android:textColor="@color/colorText"
-                app:confirmDataUpdate="@{viewModel.type}" />
+        <TextView
+            android:id="@+id/text_data_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:padding="2dp"
+            android:textColor="@color/colorText"
+            app:dataVersion="@{viewModel.info}"
+            app:layout_constraintBottom_toTopOf="@id/text_data_size"
+            app:layout_constraintStart_toEndOf="@id/image_data_download"
+            app:layout_constraintTop_toTopOf="@id/image_data_download"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="バージョン： 20202222" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_columnSpan="2"
-                android:layout_marginStart="20dp"
-                android:padding="4dp"
-                android:textColor="@color/colorText"
-                app:dataVersion="@{viewModel.info}" />
+        <TextView
+            android:id="@+id/text_data_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:padding="2dp"
+            android:textColor="@color/colorText"
+            app:dataSize="@{viewModel.info}"
+            app:layout_constraintBottom_toBottomOf="@id/image_data_download"
+            app:layout_constraintStart_toEndOf="@id/image_data_download"
+            app:layout_constraintTop_toBottomOf="@id/text_data_version"
+            tools:text="サイズ： 100GB" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_columnSpan="2"
-                android:layout_marginStart="20dp"
-                android:padding="4dp"
-                android:textColor="@color/colorText"
-                app:dataSize="@{viewModel.info}" />
-
-        </GridLayout>
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
