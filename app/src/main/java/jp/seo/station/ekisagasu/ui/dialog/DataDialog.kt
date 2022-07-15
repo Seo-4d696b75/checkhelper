@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.ui.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -13,7 +13,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.databinding.DialogDataCheckBinding
 import jp.seo.station.ekisagasu.databinding.DialogDataUpdateBinding
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
@@ -64,30 +63,22 @@ class ConfirmDataUpdateDialog : DialogFragment() {
 @AndroidEntryPoint
 class DataUpdateDialog : DialogFragment() {
 
-    private val type: DataUpdateType by navArgs()
-
-    private val info: DataLatestInfo by lazy {
-        arguments?.getSerializable("info") as DataLatestInfo
-    }
-
     private val viewModel: DataUpdateViewModel by viewModels()
-
-    private lateinit var binding: DialogDataUpdateBinding
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        viewModel.setTargetData(type, info)
-
-        binding = DataBindingUtil.inflate(
+        val binding = DataBindingUtil.inflate<DialogDataUpdateBinding>(
             layoutInflater,
             R.layout.dialog_data_update,
             null,
             false,
         )
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
         // 更新が終わったら閉じる
         viewModel.result
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .flowWithLifecycle(lifecycle)
             .onEach {
                 when (it) {
                     is DataUpdateResult.Success -> {
@@ -99,7 +90,10 @@ class DataUpdateDialog : DialogFragment() {
                 }
                 dismiss()
             }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+            .launchIn(lifecycleScope)
+
+        // 実行
+        viewModel.update()
 
         return AlertDialog.Builder(context).apply {
             setTitle(R.string.dialog_title_update_data)
@@ -113,14 +107,4 @@ class DataUpdateDialog : DialogFragment() {
             setCanceledOnTouchOutside(false)
         }
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        viewModel.update()
-    }
-
 }

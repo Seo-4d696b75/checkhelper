@@ -1,5 +1,6 @@
 package jp.seo.station.ekisagasu.ui.dialog
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,17 @@ import javax.inject.Inject
 class DataUpdateViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val appStateRepository: AppStateRepository,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    private val args by lazy {
+        ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
+    }
+
+    val info by lazy { args.info }
+
+    val type by lazy { args.type }
+
     val progress = dataRepository.dataUpdateProgress.stateIn(
         viewModelScope, SharingStarted.Eagerly,
         DataUpdateProgress.Download(0),
@@ -29,14 +40,6 @@ class DataUpdateViewModel @Inject constructor(
     private val _result = MutableSharedFlow<DataUpdateResult>()
 
     val result: SharedFlow<DataUpdateResult> = _result
-
-    private lateinit var info: DataLatestInfo
-    private lateinit var type: DataUpdateType
-
-    fun setTargetData(type: DataUpdateType, info: DataLatestInfo) {
-        this.info = info
-        this.type = type
-    }
 
     fun update() = viewModelScope.launch {
         val result = dataRepository.updateData(info)

@@ -27,12 +27,14 @@ class DataUpdateUseCase @Inject constructor(
                 val download = getDownloadClient { length: Long ->
                     val p = floor(length.toFloat() / info.length * 100.0f).toInt()
                     if (p in 1..100 && p > percent) {
-                        launch { _progress.emit(DataUpdateProgress.Download(p)) }
+                        launch(Dispatchers.Main) { _progress.emit(DataUpdateProgress.Download(p)) }
                         percent = p
                     }
                 }
                 val data = download.getData(info.url)
-                _progress.emit(DataUpdateProgress.Save)
+                withContext(Dispatchers.Main) {
+                    _progress.emit(DataUpdateProgress.Save)
+                }
                 if (data.version == info.version) {
                     dao.updateData(data)
                     val current = dao.getCurrentDataVersion()
