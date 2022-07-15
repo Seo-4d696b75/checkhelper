@@ -11,11 +11,11 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.onEach
  */
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
