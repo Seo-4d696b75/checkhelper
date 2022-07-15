@@ -6,9 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.*
 import jp.seo.station.ekisagasu.utils.mapState
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,7 +41,7 @@ class TopViewModel @Inject constructor(
         } else {
             SearchState.STOPPED
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, SearchState.STOPPED)
 
     fun onSearchStateChanged() {
         if (isRunning.value) {
