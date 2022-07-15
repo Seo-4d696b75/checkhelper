@@ -21,17 +21,19 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-enum class DataCheckType {
+enum class DataUpdateType {
     Init,
     Latest,
 }
 
 @AndroidEntryPoint
-class DataCheckDialog : DialogFragment() {
+class ConfirmDataUpdateDialog : DialogFragment() {
 
-    private val type: DataCheckType by navArgs()
+    private val type: DataUpdateType by navArgs()
 
-    private val info: DataLatestInfo by navArgs()
+    private val info: DataLatestInfo by lazy {
+        requireArguments().getSerializable("info") as DataLatestInfo
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -44,7 +46,7 @@ class DataCheckDialog : DialogFragment() {
             textVersion.text = getString(R.string.text_data_version, info.version)
             textSize.text = getString(R.string.text_data_size, info.fileSize())
             textDialogMessage.text = getString(
-                if (type == DataCheckType.Init)
+                if (type == DataUpdateType.Init)
                     R.string.dialog_message_init_data
                 else
                     R.string.dialog_message_latest_data
@@ -52,7 +54,7 @@ class DataCheckDialog : DialogFragment() {
         }
 
         return AlertDialog.Builder(context).apply {
-            setTitle(if (type == DataCheckType.Init) R.string.dialog_title_init_data else R.string.dialog_title_latest_data)
+            setTitle(if (type == DataUpdateType.Init) R.string.dialog_title_init_data else R.string.dialog_title_latest_data)
             setPositiveButton(R.string.dialog_button_update_positive) { _, _ ->
                 // TODO 結果の通知
                 dismiss()
@@ -71,8 +73,9 @@ class DataCheckDialog : DialogFragment() {
 @AndroidEntryPoint
 class DataUpdateDialog : DialogFragment() {
 
-    private val info: DataLatestInfo by navArgs()
-
+    private val info: DataLatestInfo by lazy {
+        arguments?.getSerializable("info") as DataLatestInfo
+    }
     private val viewModel: DataUpdateViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

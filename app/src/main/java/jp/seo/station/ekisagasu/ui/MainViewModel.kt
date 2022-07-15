@@ -4,13 +4,11 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.DataRepository
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
@@ -34,10 +32,6 @@ class MainViewModel @Inject constructor(
         set(value) {
             appStateRepository.isServiceRunning = value
         }
-
-    private val _event = MutableSharedFlow<MainViewEvent>()
-
-    val event: SharedFlow<MainViewEvent> = _event
 
     fun onActivityResultResolved(requestCode: Int, resultCode: Int, data: Intent?) =
         viewModelScope.launch {
@@ -73,20 +67,25 @@ class MainViewModel @Inject constructor(
                 }
 
                 if (info == null) {
-                    _event.emit(MainViewEvent.NeedUpdateData(latest))
+                    appStateRepository.emitMessage(
+                        AppMessage.RequestDataUpdate(
+                            type = DataUpdateType.Init,
+                            info = latest,
+                        )
+                    )
                 } else {
                     log(String.format("data found version:${info.version}"))
                     if (info.version < latest.version) {
-                        _event.emit(MainViewEvent.LatestDataFound(latest))
+                        appStateRepository.emitMessage(
+                            AppMessage.RequestDataUpdate(
+                                type = DataUpdateType.Latest,
+                                info = latest,
+                            )
+                        )
                     }
                 }
 
             }
         }
     }
-}
-
-sealed interface MainViewEvent {
-    data class NeedUpdateData(val info: DataLatestInfo) : MainViewEvent
-    data class LatestDataFound(val info: DataLatestInfo) : MainViewEvent
 }

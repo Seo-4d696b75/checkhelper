@@ -25,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
+import jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(null)
         setContentView(R.layout.main_activity)
 
-        // try to resolve API exception if any
+        // handle message
         viewModel.message
             .flowWithLifecycle(lifecycle)
             .onEach { message ->
@@ -70,6 +71,13 @@ class MainActivity : ComponentActivity() {
                     }
                     is AppMessage.FinishApp -> {
                         finish()
+                    }
+                    is AppMessage.RequestDataUpdate -> {
+                        val action = ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
+                            info = message.info,
+                            type = message.type,
+                        )
+                        findNavController(R.id.main_nav_host).navigate(action)
                     }
                     else -> {}
                 }
