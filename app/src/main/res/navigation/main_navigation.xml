@@ -39,20 +39,20 @@
         android:id="@+id/action_global_lineDialog"
         app:destination="@id/lineDialog" />
     <dialog
-        android:id="@+id/dataCheckDialog"
-        android:name="jp.seo.station.ekisagasu.ui.dialog.DataCheckDialog"
+        android:id="@+id/confirmDataUpdateDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialog"
         android:label="DataCheckDialog">
         <argument
             android:name="type"
             android:defaultValue="Latest"
-            app:argType="jp.seo.station.ekisagasu.ui.dialog.DataCheckType" />
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.DataUpdateType" />
         <argument
             android:name="info"
             app:argType="jp.seo.station.ekisagasu.api.DataLatestInfo" />
     </dialog>
     <action
-        android:id="@+id/action_global_dataCheckDialog"
-        app:destination="@id/dataCheckDialog" />
+        android:id="@+id/action_global_confirmDataUpdateDialog"
+        app:destination="@id/confirmDataUpdateDialog" />
     <dialog
         android:id="@+id/dataUpdateDialog"
         android:name="jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialog"

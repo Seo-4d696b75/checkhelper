@@ -1,6 +1,5 @@
 package jp.seo.station.ekisagasu.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import jp.seo.station.ekisagasu.api.StationData
 import jp.seo.station.ekisagasu.model.Line
@@ -34,10 +33,7 @@ abstract class StationDatabase : RoomDatabase() {
 abstract class StationDao {
 
     @Query("SELECT * FROM station WHERE code == :code")
-    abstract fun getStation(code: Int): LiveData<Station?>
-
-    @Query("SELECT * FROM station WHERE id == :id")
-    abstract fun getStation(id: String): LiveData<Station?>
+    abstract suspend fun getStation(code: Int): Station
 
     @Query("SELECT * FROM station WHERE code IN (:codes) ORDER BY code")
     abstract suspend fun getStations(codes: List<Int>): List<Station>
@@ -49,10 +45,7 @@ abstract class StationDao {
     abstract suspend fun addStations(stations: List<Station>)
 
     @Query("SELECT * FROM line WHERE code == :code")
-    abstract fun getLine(code: Int): LiveData<Line>
-
-    @Query("SELECT * FROM line WHERE id == :id")
-    abstract fun getLine(id: String): LiveData<Line>
+    abstract suspend fun getLine(code: Int): Line
 
     @Query("SELECT * FROM line WHERE code In (:codes) ORDER BY code")
     abstract suspend fun getLines(codes: Array<Int>): List<Line>

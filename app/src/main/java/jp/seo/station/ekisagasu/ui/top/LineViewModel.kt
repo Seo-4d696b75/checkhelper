@@ -19,7 +19,8 @@ class LineViewModel @Inject constructor(
     private var _line: Line? = null
     private var _stations: List<StationRegister> = emptyList()
 
-    fun setUiState(line: Line) = viewModelScope.launch {
+    fun setUiState(lineCode: Int) = viewModelScope.launch {
+        val line = dataRepository.getLine(code = lineCode)
         _line = line
         val indices = line.stationList.map { it.code }
         val list = dataRepository.getStations(indices)

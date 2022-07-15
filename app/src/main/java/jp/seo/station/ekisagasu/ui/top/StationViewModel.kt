@@ -18,7 +18,8 @@ class StationViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
 
-    fun setUiState(station: Station) = viewModelScope.launch {
+    fun setUiState(stationCode: Int) = viewModelScope.launch {
+        val station = dataRepository.getStation(stationCode)
         _station = station
         _lines = dataRepository.getLines(station.lines)
     }

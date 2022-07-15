@@ -15,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.databinding.FragmentStationBinding
 import jp.seo.station.ekisagasu.ui.common.LineAdapter
 import kotlinx.coroutines.flow.launchIn
@@ -30,7 +29,9 @@ class StationFragment : Fragment() {
 
     private val viewModel: StationViewModel by viewModels()
 
-    private val station: Station by navArgs()
+    private val stationCode: Int by lazy {
+        requireArguments().getInt("stationCode")
+    }
 
     private lateinit var binding: FragmentStationBinding
 
@@ -45,7 +46,7 @@ class StationFragment : Fragment() {
             container,
             false
         )
-        viewModel.setUiState(station)
+        viewModel.setUiState(stationCode)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
@@ -58,8 +59,8 @@ class StationFragment : Fragment() {
             binding.listStationDetailLines.adapter = it
             binding.listStationDetailLines.setOnItemClickListener { _, _, position, _ ->
                 val line = it.getItem(position)!!
-                // TODO safe args
-                findNavController().navigate(R.id.action_global_lineFragment)
+                val action = LineFragmentDirections.actionGlobalLineFragment(line.code)
+                findNavController().navigate(action)
             }
         }
 
@@ -73,7 +74,7 @@ class StationFragment : Fragment() {
                     is StationFragmentEvent.ShowMap -> {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.map_url) + "?station=${station.id}")
+                            Uri.parse(getString(R.string.map_url) + "?station=${viewModel.station?.id}")
                         )
                         startActivity(intent)
                     }

@@ -4,6 +4,8 @@ import jp.seo.station.ekisagasu.api.APIClient
 import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase
@@ -19,8 +21,16 @@ class DataRepositoryImpl @Inject constructor(
     private val updateUseCase: DataUpdateUseCase,
 ) : DataRepository {
 
+    override suspend fun getLine(code: Int) = withContext(Dispatchers.IO) {
+        dao.getLine(code)
+    }
+
     override suspend fun getLines(codes: Array<Int>) = withContext(Dispatchers.IO) {
         dao.getLines(codes)
+    }
+
+    override suspend fun getStation(code: Int) = withContext(Dispatchers.IO) {
+        dao.getStation(code)
     }
 
     override suspend fun getStations(codes: List<Int>) = withContext(Dispatchers.IO) {

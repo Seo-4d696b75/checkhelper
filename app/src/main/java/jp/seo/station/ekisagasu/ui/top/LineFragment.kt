@@ -28,7 +28,9 @@ class LineFragment : Fragment() {
 
     private lateinit var binding: FragmentLineBinding
 
-    private val line: Line by navArgs()
+    private val lineCode: Int by lazy {
+        requireArguments().getInt("lineCode")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,7 +43,7 @@ class LineFragment : Fragment() {
             container,
             false,
         )
-        viewModel.setUiState(line)
+        viewModel.setUiState(lineCode)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
@@ -52,7 +54,7 @@ class LineFragment : Fragment() {
             binding.listLineDetailStations.adapter = it
             binding.listLineDetailStations.setOnItemClickListener { _, _, position, _ ->
                 val station = it.getItem(position)!!.station
-                val action = StationFragmentDirections.actionGlobalStationFragment(station)
+                val action = StationFragmentDirections.actionGlobalStationFragment(station.code)
                 findNavController().navigate(action)
             }
         }

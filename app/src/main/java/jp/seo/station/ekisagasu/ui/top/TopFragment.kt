@@ -70,9 +70,8 @@ class TopFragment : Fragment() {
         // 駅の登録路線リスト
         val adapter = LineNamesAdapter(ctx).also {
             it.setOnItemSelectedListener { _, data, _ ->
-                Log.d("Line", "selected: $data")
-                // TODO 選択された路線を伝達する Navigation SafeArgがよさそう
-                navigationHost.findNavController().navigate(R.id.action_global_lineFragment)
+                val action = LineFragmentDirections.actionGlobalLineFragment(data.code)
+                navigationHost.findNavController().navigate(action)
             }
         }
         binding.listLineNames.adapter = adapter
@@ -95,8 +94,7 @@ class TopFragment : Fragment() {
         // クリックで駅詳細へ遷移する
         binding.stationNameMain.setOnClickListener {
             viewModel.nearestStation.value?.let { n ->
-                // TODO 現在の最近傍駅をStationFragmentに伝達する Navigation SafeArgがよさそう
-                val action = StationFragmentDirections.actionGlobalStationFragment(n.station)
+                val action = StationFragmentDirections.actionGlobalStationFragment(n.station.code)
                 navigationHost.findNavController().navigate(action)
             }
         }

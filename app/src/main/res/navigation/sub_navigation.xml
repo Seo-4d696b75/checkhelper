@@ -17,8 +17,8 @@
         android:name="jp.seo.station.ekisagasu.ui.top.StationFragment"
         android:label="StationFragment">
         <argument
-            android:name="station"
-            app:argType="jp.seo.station.ekisagasu.model.Station" />
+            android:name="stationCode"
+            app:argType="integer" />
         <action
             android:id="@+id/action_stationFragment_to_lineFragment"
             app:destination="@id/lineFragment" />
@@ -36,8 +36,8 @@
             android:id="@+id/action_lineFragment_to_stationFragment"
             app:destination="@id/stationFragment" />
         <argument
-            android:name="line"
-            app:argType="jp.seo.station.ekisagasu.model.Line" />
+            android:name="lineCode"
+            app:argType="integer" />
     </fragment>
     <action
         android:id="@+id/action_global_lineFragment"

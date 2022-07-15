@@ -36,7 +36,7 @@ data class Line(
     val stationList: Array<StationRegistration>,
     @ColumnInfo(name = "polyline")
     val polyline: String?,
-) : Serializable {
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

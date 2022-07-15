@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
  * 駅・路線データへのアクセス＆データの更新方法を提供
  */
 interface DataRepository {
+    suspend fun getLine(code: Int): Line
     suspend fun getLines(codes: Array<Int>): List<Line>
+    suspend fun getStation(code: Int): Station
     suspend fun getStations(codes: List<Int>): List<Station>
     val dataInitialized: Boolean
     val dataVersion: StateFlow<DataVersion?>

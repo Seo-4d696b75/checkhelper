@@ -41,7 +41,7 @@ data class Station constructor(
     val voronoi: String,
     @ColumnInfo(name = "attr")
     val attr: String?
-) : Serializable {
+) {
 
 
     override fun equals(other: Any?): Boolean {
