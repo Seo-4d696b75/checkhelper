@@ -10,6 +10,7 @@ import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.model.*
 import jp.seo.station.ekisagasu.search.formatDistance
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import jp.seo.station.ekisagasu.ui.top.AnimationView
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.formatTime
@@ -108,7 +109,7 @@ fun setLogFilter(view: TextView, log: LogTarget?) {
 
 @BindingAdapter("dataVersion")
 fun setDataVersion(view: TextView, version: DataVersion?) {
-    view.text = version?.let { 
+    view.text = version?.let {
         view.context.getString(R.string.text_data_version, it.version)
     } ?: ""
 }
@@ -129,10 +130,19 @@ fun setDataSize(view: TextView, info: DataLatestInfo?) {
 
 @BindingAdapter("dataUpdatedAt")
 fun setDataUpdatedAt(view: TextView, version: DataVersion?) {
-    view.text = version?.let { 
+    view.text = version?.let {
         view.context.getString(
             R.string.text_data_updated_at,
             formatTime(TIME_PATTERN_DATETIME, it.timestamp)
         )
     } ?: ""
+}
+
+@BindingAdapter("confirmDataUpdate")
+fun setConfirmDataUpdateMessage(view: TextView, type: DataUpdateType?) {
+    view.text = when (type) {
+        DataUpdateType.Init -> view.context.getString(R.string.dialog_message_init_data)
+        DataUpdateType.Latest -> view.context.getString(R.string.dialog_message_latest_data)
+        else -> ""
+    }
 }

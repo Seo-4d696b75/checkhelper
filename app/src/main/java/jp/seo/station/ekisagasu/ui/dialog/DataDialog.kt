@@ -35,22 +35,20 @@ class ConfirmDataUpdateDialog : DialogFragment() {
         requireArguments().getSerializable("info") as DataLatestInfo
     }
 
+    private val viewModel: ConfirmDataUpdateViewModel by viewModels()
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        viewModel.setTargetData(type, info)
 
         val binding = DataBindingUtil.inflate<DialogDataCheckBinding>(
             layoutInflater,
             R.layout.dialog_data_check,
             null,
             false,
-        ).apply {
-            textVersion.text = getString(R.string.text_data_version, info.version)
-            textSize.text = getString(R.string.text_data_size, info.fileSize())
-            textDialogMessage.text = getString(
-                if (type == DataUpdateType.Init)
-                    R.string.dialog_message_init_data
-                else
-                    R.string.dialog_message_latest_data
-            )
+        ).also {
+            it.viewModel = viewModel
+            it.lifecycleOwner = viewLifecycleOwner
         }
 
         return AlertDialog.Builder(context).apply {
