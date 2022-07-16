@@ -19,7 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentSettingBinding
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -57,9 +56,11 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        binding.numberTimeInterval.value = viewModel.state.locationUpdateInterval
         binding.numberTimeInterval.setOnValueChangedListener { _, _, value ->
             viewModel.state = viewModel.state.copy(locationUpdateInterval = value)
         }
+        binding.numberRadar.value = viewModel.state.searchK
         binding.numberRadar.setOnValueChangedListener { _, _, value ->
             viewModel.state = viewModel.state.copy(searchK = value)
         }
@@ -83,6 +84,8 @@ class SettingFragment : Fragment() {
         binding.switchVibrateApproach.setOnCheckedChangeListener { _, checked ->
             viewModel.state = viewModel.state.copy(isVibrateWhenApproach = checked)
         }
+
+        binding.numberVibrateMeter.value = viewModel.state.vibrateDistance
         binding.numberVibrateMeter.setOnValueChangedListener { _, _, value ->
             viewModel.state = viewModel.state.copy(vibrateDistance = value)
         }

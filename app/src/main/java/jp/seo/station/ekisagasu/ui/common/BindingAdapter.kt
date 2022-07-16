@@ -5,6 +5,7 @@ import android.graphics.drawable.GradientDrawable
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import jp.seo.android.widget.CustomNumberPicker
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion

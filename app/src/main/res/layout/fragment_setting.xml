@@ -48,7 +48,7 @@
                 app:speedShiftPoint="1"
                 app:speedShiftRate="2"
                 app:step="1"
-                app:value="@{viewModel.setting.locationUpdateInterval}" />
+                app:value="1" />
 
             <TextView
                 android:layout_width="1dp"
@@ -95,7 +95,7 @@
                 app:max="20"
                 app:min="12"
                 app:step="1"
-                app:value="@{viewModel.setting.searchK}" />
+                app:value="12" />
 
             <TextView
                 android:layout_width="1dp"
@@ -329,7 +329,7 @@
                 app:speedShiftPoint="1"
                 app:speedShiftRate="2"
                 app:step="10"
-                app:value="@{viewModel.setting.vibrateDistance}" />
+                app:value="100" />
 
             <View
                 android:layout_width="match_parent"
