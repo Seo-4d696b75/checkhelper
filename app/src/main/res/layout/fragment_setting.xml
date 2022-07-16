@@ -129,7 +129,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -160,7 +160,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_force_notify"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -192,7 +192,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_keep_notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -224,7 +224,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_display_prefecture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -265,7 +265,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_vibrate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -296,7 +296,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_vibrate_approach"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -353,7 +353,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_night"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -385,16 +385,33 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <Spinner
-                android:id="@+id/spinner_night_mode_switch"
-                android:layout_width="260dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/text_layout_log_filter"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_columnSpan="2"
-                android:layout_margin="4dp" />
+                android:layout_marginTop="10dp"
+                android:hint="@string/setting_mes_night_select"
+                app:layout_constraintStart_toEndOf="@id/text_layout_log_since"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_night_timeout"
+                    android:layout_width="240dp"
+                    android:layout_height="50dp"
+                    android:ellipsize="end"
+                    android:inputType="none"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
 
             <View
                 android:layout_width="1dp"
-                android:layout_height="10dp"
+                android:layout_height="15dp"
                 android:layout_columnSpan="2" />
 
             <TextView
@@ -415,7 +432,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="サンプル" />
+                    android:text="@string/setting_mes_brightness_sample" />
 
                 <View
                     android:id="@+id/view_sample_brightness"
@@ -446,22 +463,22 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="4"
                     android:gravity="center"
-                    android:text="暗"
+                    android:text="@string/setting_mes_brightness_dart"
                     android:textColor="@color/colorText" />
 
-                <SeekBar
+                <com.google.android.material.slider.Slider
                     android:id="@+id/seek_brightness"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:progress="@{viewModel.setting.nightModeBrightness}" />
+                    android:value="@{viewModel.setting.nightModeBrightness}" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="4"
                     android:gravity="center"
-                    android:text="明"
+                    android:text="@string/setting_mes_brightness_bright"
                     android:textColor="@color/colorText" />
             </LinearLayout>
 
@@ -490,7 +507,7 @@
             <Button
                 android:id="@+id/button_update_data"
                 android:layout_rowSpan="3"
-                android:text="更新" />
+                android:text="@string/setting_mes_update_data" />
 
 
             <TextView

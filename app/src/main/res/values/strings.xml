@@ -49,10 +49,15 @@
     <string name="setting_title_night">夜間モード</string>
     <string name="setting_mes_night">画面の輝度を強制的に下げます. ただし画面上部のステータスバーや下部のナビゲーションバーなどシステムUI上には影響しません.</string>
     <string name="setting_title_night_switch">夜間モードの自動切替</string>
+    <string name="setting_mes_night_select">選択</string>
     <string name="setting_mes_night_switch_always">常に有効化</string>
     <string name="setting_mes_night_switch">操作がない状態で%1$s後に有効化</string>
     <string name="setting_title_brightness">あかるさ</string>
+    <string name="setting_mes_brightness_sample">サンプル</string>
     <string name="setting_mes_brightness">画面の暗さを調整します.</string>
+    <string name="setting_mes_brightness_dart">暗</string>
+    <string name="setting_mes_brightness_bright">明</string>
+    <string name="setting_mes_update_data">更新</string>
     <string name="preference_setting_backup">setting_preference_backup</string>
     <string name="preference_setting">setting_preference</string>
     <string name="title_log_since">表示期間</string>

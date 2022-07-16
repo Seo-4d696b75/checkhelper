@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SeekBar
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -25,6 +23,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlin.math.roundToInt
 
 /**
  * @author Seo-4d696b75
@@ -94,54 +93,53 @@ class SettingFragment : Fragment() {
             viewModel.state = viewModel.state.copy(isNightMode = checked)
         }
 
-        binding.spinnerNightModeSwitch.also {
-            val ctx = requireContext()
-            val values = ctx.resources.getIntArray(R.array.night_mode_switch_timeout).toTypedArray()
-            it.adapter = NightModeTimeoutAdapter(ctx, values)
-            val timeout = viewModel.state.nightModeTimeout
-            val index = values.indexOfFirst { it == timeout }
-            if (index >= 0) it.setSelection(index)
-            it.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    parent.getItemAtPosition(position)?.let { value ->
-                        if (value is Int) {
-                            viewModel.state = viewModel.state.copy(nightModeTimeout = value)
+        binding.dropdownNightTimeout.apply {
+            val context = requireContext()
+            val values = context.resources
+                .getIntArray(R.array.night_mode_switch_timeout)
+                .toTypedArray()
+                .map { timeout ->
+                    NightModeTimeout(
+                        timeout = timeout,
+                        text = if (timeout == 0) {
+                            context.getString(R.string.setting_mes_night_switch_always)
+                        } else {
+                            context.getString(R.string.setting_mes_night_switch, timeout)
                         }
-                    }
+                    )
                 }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            val text = values.map { it.text }
+            val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, text)
+            setAdapter(adapter)
+            val timeout = viewModel.state.nightModeTimeout
+            values.find { it.timeout == timeout }?.let {
+                setText(it.text, false)
+            }
+            setOnItemClickListener { _, _, position, _ ->
+                val value = values[position].timeout
+                viewModel.state = viewModel.state.copy(nightModeTimeout = value)
             }
         }
 
         binding.seekBrightness.also {
-            it.min = OverlayViewHolder.MIN_BRIGHTNESS
-            it.max = 255
+            it.valueFrom = OverlayViewHolder.MIN_BRIGHTNESS
+            it.valueTo = 255f
+            it.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) {
+                    viewModel.state =
+                        viewModel.state.copy(nightModeBrightness = value)
+                }
+            }
         }
-
-        binding.seekBrightness.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                viewModel.state =
-                    viewModel.state.copy(nightModeBrightness = binding.seekBrightness.progress)
-            }
-        })
 
         viewModel.setting
             .flowWithLifecycle(lifecycle)
             .map { it.nightModeBrightness }
             .distinctUntilChanged()
-            .onEach { binding.viewSampleBrightness.background = ColorDrawable((255 - it).shl(24)) }
+            .onEach {
+                binding.viewSampleBrightness.background =
+                    ColorDrawable((255 - it.roundToInt()).shl(24))
+            }
             .launchIn(lifecycleScope)
 
         binding.buttonUpdateData.setOnClickListener {
@@ -150,6 +148,11 @@ class SettingFragment : Fragment() {
 
     }
 }
+
+private data class NightModeTimeout(
+    val timeout: Int,
+    val text: String,
+)
 
 class NightModeTimeoutAdapter(
     context: Context,

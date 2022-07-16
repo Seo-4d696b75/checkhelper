@@ -30,7 +30,7 @@ class UserSettingRepositoryImpl @Inject constructor(
                 it.getBoolean(KEY_VIBRATE_APPROACH, false),
                 it.getInt(KEY_VIBRATE_METER, 100),
                 it.getInt(KEY_NIGHT_TIMEOUT, 0),
-                it.getInt(KEY_BRIGHTNESS, 128),
+                it.getFloat(KEY_BRIGHTNESS, 128f),
                 it.getInt(KEY_TIMER_POSITION, 0)
             )
         }
@@ -53,7 +53,7 @@ class UserSettingRepositoryImpl @Inject constructor(
             editor.putBoolean(KEY_VIBRATE_APPROACH, setting.isVibrateWhenApproach)
             editor.putInt(KEY_VIBRATE_METER, setting.vibrateDistance)
             editor.putInt(KEY_NIGHT_TIMEOUT, setting.nightModeTimeout)
-            editor.putInt(KEY_BRIGHTNESS, setting.nightModeBrightness)
+            editor.putFloat(KEY_BRIGHTNESS, setting.nightModeBrightness)
             editor.putInt(KEY_TIMER_POSITION, setting.timerPosition)
             editor.apply()
         }
@@ -65,7 +65,7 @@ class UserSettingRepositoryImpl @Inject constructor(
         private const val KEY_VIBRATE = "vibrate"
         private const val KEY_NOTIFY = "notification"
         private const val KEY_FORCE_NOTIFY = "forceNotify"
-        private const val KEY_BRIGHTNESS = "brightness"
+        private const val KEY_BRIGHTNESS = "brightness_float"
         private const val KEY_KEEP_NOTIFICATION = "notification_stationary"
         private const val KEY_NOTIFY_PREFECTURE = "notify_prefecture"
         private const val KEY_VIBRATE_METER = "vibrate_meter"

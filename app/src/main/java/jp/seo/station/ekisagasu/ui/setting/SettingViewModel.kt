@@ -76,7 +76,7 @@ data class SettingState(
     val vibrateDistance: Int,
     val isNightMode: Boolean,
     val nightModeTimeout: Int,
-    val nightModeBrightness: Int,
+    val nightModeBrightness: Float,
     val timerPosition: Int,
 ) {
     companion object {

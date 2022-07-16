@@ -7,18 +7,22 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
-import android.os.*
+import android.os.Build
+import android.os.Handler
+import android.os.PowerManager
+import android.os.SystemClock
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.core.animation.addListener
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.NearStation
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * @author Seo-4d696b75
@@ -250,14 +254,14 @@ class OverlayViewHolder(
         }
 
     companion object {
-        const val MIN_BRIGHTNESS = 20
+        const val MIN_BRIGHTNESS = 20f
     }
 
-    var brightness: Int = 255
+    var brightness: Float = 255f
         set(value) {
-            if (value != field && value >= MIN_BRIGHTNESS && value < 256) {
+            if (value != field && value >= MIN_BRIGHTNESS && value < 256f) {
                 field = value
-                val black = ColorDrawable((255 - value).shl(24))
+                val black = ColorDrawable((255 - value.roundToInt()).shl(24))
                 darkScreen.background = black
             }
         }
