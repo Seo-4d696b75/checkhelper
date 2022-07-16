@@ -14,8 +14,8 @@ import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
  */
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 

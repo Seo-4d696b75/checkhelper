@@ -43,6 +43,11 @@ class TopFragment : Fragment() {
 
     private lateinit var binding: FragmentTopBinding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +66,6 @@ class TopFragment : Fragment() {
 
     @SuppressWarnings("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setHasOptionsMenu(true)
 
         val ctx = requireContext()
         val navigationHost = binding.subNavHost
