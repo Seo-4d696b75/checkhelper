@@ -16,8 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -26,9 +25,11 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.ui.dialog.*
+import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 /**
  * @author Seo-4d696b75
@@ -72,18 +73,24 @@ class MainActivity : FragmentActivity() {
                     }
                     is AppMessage.RequestDataUpdate -> {
                         // ユーザの確認を経てから実行
-                        val action = if (message.confirmed) {
-                            DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
+                        if (message.confirmed) {
+                            val action = DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
                                 info = message.info,
                                 type = message.type,
+                            )
+                            findNavController(R.id.main_nav_host).navigateWhenDialogClosed(
+                                action,
+                                R.id.confirmDataUpdateDialog,
+                                lifecycle,
                             )
                         } else {
-                            ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
-                                info = message.info,
-                                type = message.type,
-                            )
+                            val action =
+                                ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
+                                    info = message.info,
+                                    type = message.type,
+                                )
+                            findNavController(R.id.main_nav_host).navigate(action)
                         }
-                        findNavController(R.id.main_nav_host).navigate(action)
                     }
                     is AppMessage.DataUpdateResult -> {
                         if (message.success) {
