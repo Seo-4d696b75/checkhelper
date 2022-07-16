@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -9,70 +10,84 @@
             type="jp.seo.station.ekisagasu.ui.log.LogViewModel" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="5dp">
 
-        <GridLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_layout_log_since"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:padding="10dp">
+            android:hint="@string/title_log_since"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="表示期間"
-                android:textColor="@color/colorText" />
-
-            <TextView
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_log_filter_since"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:cursorVisible="false"
+                android:drawableEnd="@drawable/ic_calendar"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:inputType="none"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
                 android:textColor="@color/colorPrimary"
-                app:logTarget="@{viewModel.target}" />
+                android:textSize="14sp"
+                app:logTarget="@{viewModel.target}"
+                tools:text="2022-07-12 12:00~" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/button_select_history"
-                android:text="選択" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="フィルター"
-                android:textColor="@color/colorText" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_layout_log_filter"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:layout_marginStart="20dp"
+            android:hint="@string/title_log_filter"
+            app:layout_constraintStart_toEndOf="@id/text_layout_log_since"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <Spinner
-                android:id="@+id/spinner_filter_log"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_columnSpan="2"
-                android:layout_marginTop="10dp" />
-        </GridLayout>
+            <AutoCompleteTextView
+                android:id="@+id/dropdown_log_filter"
+                android:layout_width="140dp"
+                android:layout_height="50dp"
+                android:inputType="none"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="20dp"
             android:fastScrollEnabled="true"
             android:padding="3dp"
             android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical" />
+            android:scrollbars="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_layout_log_since" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_write_log"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_margin="10dp"
+            android:layout_margin="20dp"
             android:src="@drawable/ic_save"
             app:backgroundTint="@color/colorPrimary"
-            app:fabSize="normal" />
-    </RelativeLayout>
+            app:fabSize="normal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/white" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

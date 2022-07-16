@@ -66,17 +66,22 @@ class LogFragment : Fragment() {
             )
         }
 
-        binding.spinnerFilterLog.also {
-            val adapter = LogTypeAdapter(context, LogFilter.all)
-            it.adapter = adapter
-            it.setOnItemClickListener { _, _, position, _ ->
-                val filter = adapter.getItem(position)!!
+        binding.dropdownLogFilter.apply {
+            val values = LogFilter.all.map { it.name }
+            val adapter =
+                ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, values)
+            setAdapter(adapter)
+            setOnItemClickListener { _, _, position, _ ->
+                val name = adapter.getItem(position)!!
+                val filter =
+                    LogFilter.all.find { it.name == name } ?: throw NoSuchElementException()
                 viewModel.setLogFilter(filter)
             }
+            setSelection(0)
         }
 
         binding.listLog.also {
-            val adapter = LogAdapter(context, emptyList())
+            val adapter = LogAdapter(context, mutableListOf())
             it.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
                     stackFromEnd = true
@@ -95,7 +100,7 @@ class LogFragment : Fragment() {
             viewModel.requestWriteLog(getString(R.string.app_name))
         }
 
-        binding.buttonSelectHistory.setOnClickListener {
+        binding.textLogFilterSince.setOnClickListener {
             val action = AppHistoryDialogDirections.actionGlobalAppHistoryDialog()
             findNavController().navigate(action)
         }
@@ -106,38 +111,6 @@ class LogFragment : Fragment() {
                 viewModel.writeLog(it, context.contentResolver)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-}
-
-class LogTypeAdapter(
-    context: Context,
-    values: Array<LogFilter>
-) : ArrayAdapter<LogFilter>(context, 0, values) {
-
-    private val inflater = LayoutInflater.from(context)
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val value = getItem(position)
-        val view =
-            convertView ?: inflater.inflate(android.R.layout.simple_spinner_item, null, false)
-        if (value != null && view is TextView) {
-            view.text = value.name
-        }
-        return view
-    }
-
-    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val value = getItem(position)
-        val view = convertView ?: inflater.inflate(
-            android.R.layout.simple_spinner_dropdown_item,
-            null,
-            false
-        )
-        if (value != null && view is TextView) {
-            view.text = value.name
-        }
-        return view
     }
 
 }
