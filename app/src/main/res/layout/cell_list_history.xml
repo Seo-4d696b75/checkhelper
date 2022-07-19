@@ -1,43 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/text_history_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorText"
-        android:lines="1"
-        android:textSize="16sp" />
+    <data>
 
-    <TextView
-        android:id="@+id/text_history_duration"
-        android:layout_marginStart="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorTextGray"
-        android:lines="1"
-        android:textSize="13sp" />
+        <variable
+            name="data"
+            type="jp.seo.station.ekisagasu.database.AppRebootLog" />
 
-    <TextView
-        android:id="@+id/text_history_error"
-        android:layout_marginStart="5dp"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorAccent"
-        android:text="Error"
-        android:textSize="13sp" />
+        <variable
+            name="running"
+            type="Boolean" />
+    </data>
 
-    <TextView
-        android:id="@+id/text_history_now"
-        android:layout_marginStart="5dp"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/app_history_item_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="Running"
-        android:textSize="13sp" />
-</LinearLayout>
+        android:orientation="horizontal"
+        android:paddingTop="1dp"
+        android:paddingBottom="2dp">
+
+        <TextView
+            android:id="@+id/text_history_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:textColor="@color/colorText"
+            android:textSize="16sp"
+            app:formatDate="@{data.start}" />
+
+        <TextView
+            android:id="@+id/text_history_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:lines="1"
+            android:textColor="@color/colorTextGray"
+            android:textSize="13sp"
+            app:formatAppRunningDuration="@{data}" />
+
+        <TextView
+            android:id="@+id/text_history_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/app_history_has_error"
+            android:textColor="@color/colorAccent"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:visible="@{data.error}" />
+
+        <TextView
+            android:id="@+id/text_history_now"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/app_history_running"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:visible="@{running}" />
+    </LinearLayout>
+</layout>

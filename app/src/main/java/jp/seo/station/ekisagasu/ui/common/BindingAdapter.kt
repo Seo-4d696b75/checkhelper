@@ -2,12 +2,13 @@ package jp.seo.station.ekisagasu.ui.common
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import jp.seo.android.widget.CustomNumberPicker
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.api.DataLatestInfo
+import jp.seo.station.ekisagasu.database.AppRebootLog
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.model.*
 import jp.seo.station.ekisagasu.search.formatDistance
@@ -147,8 +148,28 @@ fun setConfirmDataUpdateMessage(view: TextView, type: DataUpdateType?) {
 }
 
 @BindingAdapter("formatDateMilliSec")
-fun setFormatDate(view: TextView, date: Date?){
+fun setFormatDateMilliSec(view: TextView, date: Date?) {
     view.text = date?.let {
         formatTime(TIME_PATTERN_MILLI_SEC, it)
     } ?: ""
+}
+
+@BindingAdapter("formatDate")
+fun setFormatDateTime(view: TextView, date: Date?) {
+    view.text = date?.let {
+        formatTime(TIME_PATTERN_DATETIME, it)
+    } ?: ""
+}
+
+@BindingAdapter("formatAppRunningDuration")
+fun setDuration(view: TextView, log: AppRebootLog?) {
+    view.text = log?.finish?.let {
+        val duration = ((it.time - log.start.time) / 1000L).toInt()
+        formatTime(view.context, duration)
+    } ?: ""
+}
+
+@BindingAdapter("visible")
+fun setVisible(view: View, visible: Boolean?) {
+    view.visibility = if (visible == true) View.VISIBLE else View.INVISIBLE
 }
