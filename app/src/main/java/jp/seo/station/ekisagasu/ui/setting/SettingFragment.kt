@@ -1,13 +1,11 @@
 package jp.seo.station.ekisagasu.ui.setting
 
-import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,7 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentSettingBinding
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
-import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
@@ -153,41 +150,3 @@ private data class NightModeTimeout(
     val timeout: Int,
     val text: String,
 )
-
-class NightModeTimeoutAdapter(
-    context: Context,
-    values: Array<Int>
-) : ArrayAdapter<Int>(context, 0, values) {
-
-    private val inflater = LayoutInflater.from(context)
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: inflater.inflate(android.R.layout.simple_spinner_item, null)
-        val value = getItem(position)
-        if (value != null && view is TextView) {
-            view.text = if (value == 0) {
-                context.getString(R.string.setting_mes_night_switch_always)
-            } else {
-                String.format(
-                    context.getString(R.string.setting_mes_night_switch),
-                    formatTime(context, value)
-                )
-            }
-        }
-        return view
-    }
-
-    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view =
-            convertView ?: inflater.inflate(android.R.layout.simple_spinner_dropdown_item, null)
-        val value = getItem(position)
-        if (value != null && view is TextView) {
-            view.text = if (value == 0) {
-                context.getString(R.string.setting_mes_night_switch_always)
-            } else {
-                formatTime(context, value)
-            }
-        }
-        return view
-    }
-}
