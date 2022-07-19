@@ -212,8 +212,8 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_map"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="0dp"
@@ -222,12 +222,13 @@
                 android:src="@drawable/ic_maps"
                 android:visibility="invisible"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_fix_timer"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="15dp"
@@ -236,13 +237,14 @@
                 android:src="@drawable/ic_fixed"
                 android:visibility="invisible"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_timer"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="15dp"
@@ -251,12 +253,13 @@
                 android:src="@drawable/ic_timer"
                 android:visibility="invisible"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_predict"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="15dp"
@@ -264,12 +267,13 @@
                 android:src="@drawable/line_position"
                 android:visibility="invisible"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_select_line"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="15dp"
@@ -277,12 +281,13 @@
                 android:src="@drawable/ic_line_selects"
                 android:visibility="invisible"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_more"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="65dp"
@@ -290,12 +295,13 @@
                 android:onClick="@{() -> viewModel.openMenu()}"
                 android:src="@drawable/ic_expand"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_exit"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="110dp"
@@ -303,19 +309,21 @@
                 android:onClick="@{() -> viewModel.finishApp()}"
                 android:src="@drawable/ic_deletes"
                 app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_start"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:onClick="@{() -> viewModel.onSearchStateChanged()}"
                 android:src="@drawable/ic_play"
                 app:backgroundTint="@color/colorPrimary"
                 app:fabSize="normal"
-                app:searchRunning="@{viewModel.isRunning}" />
+                app:searchRunning="@{viewModel.isRunning}"
+                app:tint="@color/white" />
 
 
         </RelativeLayout>
