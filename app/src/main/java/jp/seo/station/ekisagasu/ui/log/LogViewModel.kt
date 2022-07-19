@@ -73,7 +73,7 @@ class LogViewModel @Inject constructor(
             putExtra(Intent.EXTRA_TITLE, fileName)
         }
         appStateRepository.emitMessage(
-            AppMessage.StartActivityForResult(REQUEST_CODE, intent)
+            AppMessage.StartActivityForResult(REQUEST_CODE_LOG_FILE_URI, intent)
         )
     }
 
@@ -82,7 +82,7 @@ class LogViewModel @Inject constructor(
     val onLogFileUriResolved = appStateRepository.message
         .filterIsInstance<AppMessage.ReceiveActivityResult>()
         .filter {
-            it.code == REQUEST_CODE && it.result == Activity.RESULT_OK
+            it.code == REQUEST_CODE_LOG_FILE_URI && it.result == Activity.RESULT_OK
         }.map {
             it.data?.data
         }.filterNotNull()
@@ -102,7 +102,7 @@ class LogViewModel @Inject constructor(
     }
 
     companion object {
-        const val REQUEST_CODE = 20220713
+        const val REQUEST_CODE_LOG_FILE_URI = 20220713
     }
 }
 

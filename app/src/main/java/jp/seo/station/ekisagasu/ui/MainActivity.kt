@@ -16,7 +16,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -25,11 +26,11 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.ui.dialog.*
+import jp.seo.station.ekisagasu.ui.log.LogViewModel
 import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 /**
  * @author Seo-4d696b75
@@ -57,16 +58,14 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                     is AppMessage.StartActivityForResult -> {
-                        val launcher = registerForActivityResult(
-                            ActivityResultContracts.StartActivityForResult()
-                        ) { result ->
-                            viewModel.onActivityResultResolved(
-                                message.code,
-                                result.resultCode,
-                                result.data
-                            )
+                        when (message.code) {
+                            LogViewModel.REQUEST_CODE_LOG_FILE_URI -> {
+                                requestLogFileUriLauncher.launch(message.intent)
+                            }
+                            else -> {
+                                Log.w("MainActivity", "unknown request: $message")
+                            }
                         }
-                        launcher.launch(message.intent)
                     }
                     is AppMessage.FinishApp -> {
                         finish()
@@ -226,6 +225,17 @@ class MainActivity : AppCompatActivity() {
             ).show()
             finish()
         }
+    }
+
+
+    private val requestLogFileUriLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.onActivityResultResolved(
+            LogViewModel.REQUEST_CODE_LOG_FILE_URI,
+            result.resultCode,
+            result.data
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
