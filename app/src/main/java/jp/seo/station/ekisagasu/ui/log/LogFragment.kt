@@ -12,9 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.database.AppLog
@@ -77,7 +75,7 @@ class LogFragment : Fragment() {
                     LinearLayoutManager.VERTICAL,
                 )
             )
-            val adapter = LogAdapter(context, mutableListOf())
+            val adapter = LogAdapter(context)
             it.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
                     stackFromEnd = true
@@ -86,8 +84,7 @@ class LogFragment : Fragment() {
             viewModel.logs
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .onEach {
-                    adapter.logs = it
-                    adapter.notifyDataSetChanged()
+                    adapter.submitList(it)
                 }
                 .launchIn(viewLifecycleOwner.lifecycleScope)
         }
@@ -109,32 +106,37 @@ class LogFragment : Fragment() {
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-}
+    class LogViewHolder(val binding: CellListLogBinding) : RecyclerView.ViewHolder(binding.root)
 
-class LogViewHolder(val binding: CellListLogBinding) : RecyclerView.ViewHolder(binding.root)
+    class AppLogComparator : DiffUtil.ItemCallback<AppLog>() {
+        override fun areItemsTheSame(oldItem: AppLog, newItem: AppLog): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-class LogAdapter(context: Context, var logs: List<AppLog>) :
-    RecyclerView.Adapter<LogViewHolder>() {
+        override fun areContentsTheSame(oldItem: AppLog, newItem: AppLog): Boolean {
+            return oldItem == newItem
+        }
 
-    private val inflater = LayoutInflater.from(context)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
-        val binding = DataBindingUtil.inflate<CellListLogBinding>(
-            inflater,
-            R.layout.cell_list_log,
-            parent,
-            false,
-        )
-        return LogViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
-        val log = logs[position]
-        holder.binding.data = log
-    }
+    class LogAdapter(context: Context) :
+        ListAdapter<AppLog, LogViewHolder>(AppLogComparator()) {
 
-    override fun getItemCount(): Int {
-        return logs.size
-    }
+        private val inflater = LayoutInflater.from(context)
 
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
+            val binding = DataBindingUtil.inflate<CellListLogBinding>(
+                inflater,
+                R.layout.cell_list_log,
+                parent,
+                false,
+            )
+            return LogViewHolder(binding)
+        }
+
+        override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
+            val log = getItem(position)
+            holder.binding.data = log
+        }
+    }
 }
