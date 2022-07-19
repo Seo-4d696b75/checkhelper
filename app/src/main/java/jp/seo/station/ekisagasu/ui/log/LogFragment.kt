@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,10 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.database.AppLog
+import jp.seo.station.ekisagasu.databinding.CellListLogBinding
 import jp.seo.station.ekisagasu.databinding.FragmentLogBinding
 import jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialogDirections
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
-import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -57,14 +55,6 @@ class LogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val context = requireContext()
-        binding.listLog.apply {
-            addItemDecoration(
-                DividerItemDecoration(
-                    context,
-                    LinearLayoutManager.VERTICAL,
-                )
-            )
-        }
 
         binding.dropdownLogFilter.apply {
             val values = LogFilter.all.map { it.name }
@@ -81,6 +71,12 @@ class LogFragment : Fragment() {
         }
 
         binding.listLog.also {
+            it.addItemDecoration(
+                DividerItemDecoration(
+                    context,
+                    LinearLayoutManager.VERTICAL,
+                )
+            )
             val adapter = LogAdapter(context, mutableListOf())
             it.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
@@ -115,11 +111,7 @@ class LogFragment : Fragment() {
 
 }
 
-class LogViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-    val time: TextView = view.findViewById(R.id.text_log_time)
-    val message: TextView = view.findViewById(R.id.text_log_message)
-}
+class LogViewHolder(val binding: CellListLogBinding) : RecyclerView.ViewHolder(binding.root)
 
 class LogAdapter(context: Context, var logs: List<AppLog>) :
     RecyclerView.Adapter<LogViewHolder>() {
@@ -127,14 +119,18 @@ class LogAdapter(context: Context, var logs: List<AppLog>) :
     private val inflater = LayoutInflater.from(context)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
-        val view = inflater.inflate(R.layout.cell_list_log, parent, false)
-        return LogViewHolder(view)
+        val binding = DataBindingUtil.inflate<CellListLogBinding>(
+            inflater,
+            R.layout.cell_list_log,
+            parent,
+            false,
+        )
+        return LogViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
         val log = logs[position]
-        holder.time.text = formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp)
-        holder.message.text = log.message
+        holder.binding.data = log
     }
 
     override fun getItemCount(): Int {

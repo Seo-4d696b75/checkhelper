@@ -13,10 +13,8 @@ import jp.seo.station.ekisagasu.model.*
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import jp.seo.station.ekisagasu.ui.top.AnimationView
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
-import jp.seo.station.ekisagasu.utils.formatTime
-import jp.seo.station.ekisagasu.utils.getVFromColorCode
-import jp.seo.station.ekisagasu.utils.parseColorCode
+import jp.seo.station.ekisagasu.utils.*
+import java.util.*
 
 @BindingAdapter("searchRunning")
 fun setSearchState(view: FloatingActionButton, running: Boolean) {
@@ -146,4 +144,11 @@ fun setConfirmDataUpdateMessage(view: TextView, type: DataUpdateType?) {
         DataUpdateType.Latest -> view.context.getString(R.string.dialog_message_latest_data)
         else -> ""
     }
+}
+
+@BindingAdapter("formatDateMilliSec")
+fun setFormatDate(view: TextView, date: Date?){
+    view.text = date?.let {
+        formatTime(TIME_PATTERN_MILLI_SEC, it)
+    } ?: ""
 }
