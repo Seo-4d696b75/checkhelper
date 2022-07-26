@@ -45,14 +45,14 @@ class TopViewModel @Inject constructor(
 
     fun onSearchStateChanged() {
         if (isRunning.value) {
+            locationRepository.stopWatchCurrentLocation()
+            searchRepository.onStopSearch()
+            navigationRepository.stop()
+        } else {
             if (dataRepository.dataInitialized) {
                 val interval = settingRepository.setting.value.locationUpdateInterval
                 locationRepository.startWatchCurrentLocation(interval)
             }
-        } else {
-            locationRepository.stopWatchCurrentLocation()
-            searchRepository.onStopSearch()
-            navigationRepository.stop()
         }
     }
 
