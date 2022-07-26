@@ -32,11 +32,11 @@ class SearchRepositoryImpl @Inject constructor(
     private val _selectedLine = MutableStateFlow<Line?>(null)
     private val _nearestStations = MutableStateFlow<List<NearStation>>(emptyList())
 
-    override suspend fun setSearchK(value: Int) {
+    override suspend fun setSearchK(value: Int) = updateMutex.withLock {
         if (value != searchK) {
             searchK = value
             _lastCheckedLocation?.let {
-                updateNearestStations(it)
+                updateLocation(it)
             }
         }
     }
@@ -53,16 +53,15 @@ class SearchRepositoryImpl @Inject constructor(
         search.search(lat, lng, k, r, false)
     }
 
-    private fun checkNeedUpdate(location: Location): Boolean {
-        val last = _lastCheckedLocation
-        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return false
-        _lastCheckedLocation = location
-        return true
-    }
-
     override suspend fun updateNearestStations(location: Location) = updateMutex.withLock {
         if (searchK < 1) return
-        if (!checkNeedUpdate(location)) return
+        val last = _lastCheckedLocation
+        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) return
+        _lastCheckedLocation = location
+        updateLocation(location)
+    }
+
+    private suspend fun updateLocation(location: Location) {
         val result = searchNearestStations(location.latitude, location.longitude, searchK, 0.0)
         if (result.stations.isEmpty()) return
 
