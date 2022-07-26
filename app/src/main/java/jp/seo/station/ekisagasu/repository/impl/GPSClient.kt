@@ -28,12 +28,13 @@ import javax.inject.Inject
 class GPSClient @Inject constructor(
     @ApplicationContext private val context: Context,
     logger: AppLogger,
-    defaultDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher,
 ) : LocationCallback(), LocationRepository, CoroutineScope, AppLogger by logger {
 
-    private val job = Job()
+    private var job = Job()
 
-    override val coroutineContext = defaultDispatcher + job
+    override val coroutineContext
+        get() = defaultDispatcher + job
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(context)
     private val settingClient = LocationServices.getSettingsClient(context)
@@ -143,6 +144,7 @@ class GPSClient @Inject constructor(
                 .addOnCompleteListener {
                     running = false
                     job.cancel()
+                    job = Job()
                 }
             _running.value = false
             log("GPS has stopped")
