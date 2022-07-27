@@ -88,7 +88,6 @@ fun setLineSymbol(view: TextView, line: Line?) {
 
 @BindingAdapter("lineSymbolColor")
 fun setSimpleLineSymbol(view: TextView, line: Line?) {
-    view.text = line?.symbol ?: ""
     view.background = GradientDrawable().apply {
         cornerRadius = 4f
         shape = GradientDrawable.RECTANGLE
