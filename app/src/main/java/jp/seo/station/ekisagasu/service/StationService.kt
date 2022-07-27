@@ -15,8 +15,8 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
@@ -220,7 +220,9 @@ class StationService : LifecycleService() {
         // when finish requested
         viewModel.appFinish
             .flowWithLifecycle(lifecycle)
-            .onEach { stopSelf() }
+            .onEach {
+                stopService()
+            }
             .launchIn(lifecycleScope)
 
         // init notification
@@ -323,14 +325,11 @@ class StationService : LifecycleService() {
         OverlayViewHolder(this, prefectureRepository, handler)
     }
 
-    override fun onDestroy() {
-        viewModel.log("service terminated")
-        viewModel.stopStationSearch()
+    private fun stopService() {
         viewModel.saveTimerPosition(overlayView.timerPosition)
         overlayView.release()
         unregisterReceiver(receiver)
-        viewModel.onServiceFinish()
-        super.onDestroy()
+        stopSelf()
     }
 
     companion object {

@@ -11,6 +11,7 @@ import jp.seo.station.ekisagasu.usecase.BootUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -90,11 +91,14 @@ class ServiceViewModel @Inject constructor(
         )
     }
 
-    val appFinish = appStateRepository.message.filterIsInstance<AppMessage.FinishApp>()
-
-    fun onServiceFinish() = viewModelScope.launch {
-        appFinishUseCase()
-    }
+    val appFinish = appStateRepository
+        .message
+        .filterIsInstance<AppMessage.FinishApp>()
+        .onEach {
+            stopStationSearch()
+            log("service terminated")
+            appFinishUseCase()
+        }
 
     // accessor to app state
     val startTimer = appStateRepository.message.filterIsInstance<AppMessage.StartTimer>()
