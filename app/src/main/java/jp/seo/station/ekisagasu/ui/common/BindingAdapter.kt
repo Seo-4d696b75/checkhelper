@@ -86,6 +86,13 @@ fun setSimpleLineSymbol(view: TextView, line: Line?) {
     }
 }
 
+@BindingAdapter("stationSize")
+fun setStationSize(view: TextView, line: Line?) {
+    view.text = line?.let {
+        String.format("%d駅", it.stationSize)
+    } ?: ""
+}
+
 @BindingAdapter("searchK")
 fun setSearchK(view: TextView, k: Int?) {
     view.text = k?.let {
