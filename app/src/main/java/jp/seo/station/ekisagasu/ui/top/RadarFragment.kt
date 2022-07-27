@@ -57,6 +57,7 @@ class RadarFragment : Fragment() {
                     StationFragmentDirections.actionGlobalStationFragment(data.station.code)
                 findNavController().navigate(action)
             }
+            setHasStableIds(true)
         }
         binding.listRadar.also {
             it.addItemDecoration(
@@ -115,5 +116,8 @@ class RadarFragment : Fragment() {
             }
         }
 
+        override fun getItemId(position: Int): Long {
+            return getItem(position).station.code.toLong()
+        }
     }
 }

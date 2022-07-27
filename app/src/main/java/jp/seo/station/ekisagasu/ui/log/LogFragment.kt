@@ -75,7 +75,9 @@ class LogFragment : Fragment() {
                     LinearLayoutManager.VERTICAL,
                 )
             )
-            val adapter = LogAdapter(context)
+            val adapter = LogAdapter(context).apply {
+                setHasStableIds(true)
+            }
             it.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
                     stackFromEnd = true
@@ -137,6 +139,10 @@ class LogFragment : Fragment() {
         override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
             val log = getItem(position)
             holder.binding.data = log
+        }
+
+        override fun getItemId(position: Int): Long {
+            return getItem(position).id
         }
     }
 }
