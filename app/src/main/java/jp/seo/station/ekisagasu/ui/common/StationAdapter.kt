@@ -5,8 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.databinding.CellStationBinding
 import jp.seo.station.ekisagasu.model.StationRegister
 
 class StationAdapter(context: Context, stations: List<StationRegister>) :
@@ -15,11 +16,20 @@ class StationAdapter(context: Context, stations: List<StationRegister>) :
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: inflater.inflate(R.layout.cell_station, parent, false)
-        getItem(position)?.let { r ->
-            view.findViewById<TextView>(R.id.text_cell_station_name).text = r.station.name
-            view.findViewById<TextView>(R.id.text_cell_station_numbering).text = r.numbering
+        val binding = if (convertView == null) {
+            DataBindingUtil.inflate<CellStationBinding>(
+                inflater,
+                R.layout.cell_station,
+                parent,
+                false,
+            )
+        } else {
+            convertView.tag as CellStationBinding
         }
-        return view
+        getItem(position)?.let { r ->
+            binding.numbering = r.numbering
+            binding.stationName = r.station.name
+        }
+        return binding.root
     }
 }
