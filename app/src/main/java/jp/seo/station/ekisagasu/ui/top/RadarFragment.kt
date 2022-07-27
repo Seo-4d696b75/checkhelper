@@ -5,21 +5,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.*
 import dagger.hilt.android.AndroidEntryPoint
-import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.databinding.CellStationRadarBinding
 import jp.seo.station.ekisagasu.databinding.FragmentRadarBinding
 import jp.seo.station.ekisagasu.model.NearStation
-import jp.seo.station.ekisagasu.search.formatDistance
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -54,8 +51,8 @@ class RadarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val context = requireContext()
-        val adapter = StationAdapter(context).apply {
-            setOnItemSelectedListener { _, data, _ ->
+        val adapter = RadarAdapter(context).apply {
+            onItemClickListener = { data ->
                 val action =
                     StationFragmentDirections.actionGlobalStationFragment(data.station.code)
                 findNavController().navigate(action)
@@ -76,26 +73,46 @@ class RadarFragment : Fragment() {
 
         viewModel.radarList
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach { adapter.data = it }
+            .onEach { adapter.submitList(it) }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    private class StationAdapter(context: Context) :
-        HorizontalListView.ArrayAdapter<NearStation>() {
-
-        private val inflater = LayoutInflater.from(context)
-
-        override fun getView(group: ViewGroup): View {
-            return inflater.inflate(R.layout.cell_station_radar, group, false)
+    private class NearStationComparator : DiffUtil.ItemCallback<NearStation>() {
+        override fun areItemsTheSame(oldItem: NearStation, newItem: NearStation): Boolean {
+            return oldItem.station.id == newItem.station.id && oldItem.distance == newItem.distance
         }
 
-        override fun onBindView(view: View, data: NearStation, position: Int) {
-            view.findViewById<TextView>(R.id.text_station_cell_index).text =
-                (position + 1).toString()
-            view.findViewById<TextView>(R.id.text_cell_station_distance).text =
-                formatDistance(data.distance)
-            view.findViewById<TextView>(R.id.text_cell_station_name).text = data.station.name
-            view.findViewById<TextView>(R.id.text_cell_station_lines).text = data.getLinesName()
+        override fun areContentsTheSame(oldItem: NearStation, newItem: NearStation): Boolean {
+            return oldItem == newItem
+        }
+
+    }
+
+    private class RadarViewHolder(val binding: CellStationRadarBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    private class RadarAdapter(context: Context) :
+        ListAdapter<NearStation, RadarViewHolder>(NearStationComparator()) {
+        private val inflater = LayoutInflater.from(context)
+        var onItemClickListener: ((NearStation) -> Unit)? = null
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RadarViewHolder {
+            val binding = DataBindingUtil.inflate<CellStationRadarBinding>(
+                inflater,
+                R.layout.cell_station_radar,
+                parent,
+                false
+            )
+            return RadarViewHolder(binding)
+        }
+
+        override fun onBindViewHolder(holder: RadarViewHolder, position: Int) {
+            val near = getItem(position)
+            holder.binding.index = (position + 1).toString()
+            holder.binding.near = near
+            holder.binding.root.setOnClickListener {
+                onItemClickListener?.invoke(near)
+            }
         }
 
     }

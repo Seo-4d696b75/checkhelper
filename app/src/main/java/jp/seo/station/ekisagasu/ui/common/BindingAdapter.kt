@@ -41,6 +41,16 @@ fun setNearestStationDistance(view: TextView, n: NearStation?) {
     view.text = n?.let { formatDistance(it.distance) } ?: ""
 }
 
+@BindingAdapter("stationName")
+fun setStationName(view: TextView, n: NearStation?) {
+    view.text = n?.station?.name
+}
+
+@BindingAdapter("linesName")
+fun setLinesName(view: TextView, n: NearStation?) {
+    view.text = n?.let { it.getLinesName() } ?: ""
+}
+
 @BindingAdapter("selectedLineName")
 fun setSelectedLineName(view: TextView, line: Line?) {
     view.text = line?.name ?: view.context.getString(R.string.no_selected_line)
