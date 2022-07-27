@@ -2,13 +2,10 @@ package jp.seo.station.ekisagasu.ui.top
 
 import android.animation.Animator
 import android.animation.AnimatorSet
-import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.TextView
 import androidx.core.animation.addListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -18,14 +15,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
-import jp.seo.android.widget.HorizontalListView
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentTopBinding
-import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.ui.common.LineNameAdapter
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.utils.AnimationHolder
-import jp.seo.station.ekisagasu.utils.parseColorCode
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -71,17 +66,19 @@ class TopFragment : Fragment() {
         val navigationHost = binding.subNavHost
 
         // 駅の登録路線リスト
-        val adapter = LineNamesAdapter(ctx).also {
-            it.setOnItemSelectedListener { _, data, _ ->
-                val action = LineFragmentDirections.actionGlobalLineFragment(data.code)
+        val adapter = LineNameAdapter(ctx)
+        binding.listLineNames.also {
+            it.adapter = adapter
+            it.setOnItemClickListener { _, position ->
+                val line = adapter.getLine(position)
+                val action = LineFragmentDirections.actionGlobalLineFragment(line.code)
                 navigationHost.findNavController().navigate(action)
             }
         }
-        binding.listLineNames.adapter = adapter
         viewModel.nearestStation
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .filterNotNull()
-            .onEach { adapter.data = it.lines }
+            .onEach { adapter.submitList(it.lines) }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         // 探索が終了したらRadarFragmentに遷移する
@@ -222,31 +219,9 @@ class TopFragment : Fragment() {
             viewModel.closeMenu()
             false
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_main, menu)
-    }
-
-    private class LineNamesAdapter(context: Context) : HorizontalListView.ArrayAdapter<Line>() {
-
-        private val inflater = LayoutInflater.from(context)
-
-        override fun getView(group: ViewGroup): View {
-            return inflater.inflate(R.layout.cell_line_small, group, false)
-        }
-
-        override fun onBindView(view: View, data: Line, position: Int) {
-            val name = view.findViewById<TextView>(R.id.text_cell_line_name)
-            val symbol = view.findViewById<TextView>(R.id.text_cell_line_symbol)
-            name.text = data.name
-            val background = GradientDrawable()
-            background.shape = GradientDrawable.RECTANGLE
-            background.cornerRadius = 4f
-            background.setColor(parseColorCode(data.color))
-            symbol.background = background
-        }
-
     }
 }
