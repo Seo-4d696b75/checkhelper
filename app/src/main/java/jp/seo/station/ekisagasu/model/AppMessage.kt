@@ -2,7 +2,6 @@ package jp.seo.station.ekisagasu.model
 
 import android.content.Intent
 import com.google.android.gms.common.api.ResolvableApiException
-import jp.seo.station.ekisagasu.api.DataLatestInfo
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 
 sealed interface AppMessage {

@@ -213,7 +213,7 @@ class StationService : LifecycleService() {
             }
             .launchIn(lifecycleScope)
 
-        overlayView.navigation.stopNavigation.observe(this) {
+        overlayView.navigation.stopNavigationCallback = {
             viewModel.clearNavigationLine()
         }
 

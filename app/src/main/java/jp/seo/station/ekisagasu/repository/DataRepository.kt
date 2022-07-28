@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.repository
 
-import jp.seo.station.ekisagasu.api.DataLatestInfo
+import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import jp.seo.station.ekisagasu.model.Line

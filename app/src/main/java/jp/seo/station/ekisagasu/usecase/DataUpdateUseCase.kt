@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.usecase
 
-import jp.seo.station.ekisagasu.api.DataLatestInfo
+import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.api.getDownloadClient
 import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.model.DataUpdateProgress

@@ -7,11 +7,11 @@ import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
 import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.Station
+import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
 import jp.seo.station.ekisagasu.search.NearestSearch
-import jp.seo.station.ekisagasu.utils.PolylineSegment
-import jp.seo.station.ekisagasu.utils.StationArea
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers

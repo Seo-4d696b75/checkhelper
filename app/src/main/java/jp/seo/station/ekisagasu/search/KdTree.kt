@@ -1,6 +1,7 @@
 package jp.seo.station.ekisagasu.search
 
 import jp.seo.station.ekisagasu.database.StationDao
+import jp.seo.station.ekisagasu.model.StationNode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject

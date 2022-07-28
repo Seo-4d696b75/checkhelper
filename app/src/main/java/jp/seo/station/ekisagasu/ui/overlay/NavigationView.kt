@@ -18,13 +18,12 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.animation.addListener
-import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.position.PredictionResult
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.MainActivity
-import jp.seo.station.ekisagasu.utils.UnitLiveEvent
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 
 
@@ -115,7 +114,7 @@ class NavigationView(
             ctx.startActivity(intent)
         }
         view.findViewById<Button>(R.id.button_navigation_stop).setOnClickListener {
-            stopNavigation.call()
+            stopNavigationCallback?.invoke()
         }
 
 
@@ -126,7 +125,7 @@ class NavigationView(
 
     }
 
-    val stopNavigation = UnitLiveEvent()
+    var stopNavigationCallback: (() -> Unit)? = null
     private var currentStation: Station? = null
     private var runningAnimation = false
     private var runningAnimator: Animator? = null
@@ -136,6 +135,7 @@ class NavigationView(
     fun release() {
         windowManager.removeView(view)
         view.setOnClickListener(null)
+        stopNavigationCallback = null
     }
 
     fun toggleNavigation() {
