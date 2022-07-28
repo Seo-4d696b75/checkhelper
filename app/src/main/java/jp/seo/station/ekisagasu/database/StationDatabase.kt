@@ -1,13 +1,10 @@
 package jp.seo.station.ekisagasu.database
 
 import androidx.room.*
-import jp.seo.station.ekisagasu.api.StationData
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.search.TreeSegment
-import jp.seo.station.ekisagasu.utils.ArrayIntConverter
-import jp.seo.station.ekisagasu.utils.NodeListConverter
-import jp.seo.station.ekisagasu.utils.RegistrationListConverter
+import jp.seo.station.ekisagasu.model.StationData
+import jp.seo.station.ekisagasu.model.TreeSegment
 import java.util.*
 
 /**
