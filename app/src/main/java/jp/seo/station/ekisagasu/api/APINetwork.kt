@@ -1,13 +1,10 @@
 package jp.seo.station.ekisagasu.api
 
-import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.LineConverter
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.model.StationConverter
-import jp.seo.station.ekisagasu.search.TreeSegment
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import jp.seo.station.ekisagasu.model.DataLatestInfo
+import jp.seo.station.ekisagasu.model.StationData
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
@@ -16,11 +13,8 @@ import okio.BufferedSource
 import okio.ForwardingSource
 import okio.Okio
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Url
-import java.io.Serializable
-import java.text.StringCharacterIterator
 
 
 /**
@@ -38,14 +32,11 @@ interface APIClient {
     suspend fun getData(@Url url: String): StationData
 }
 
+@ExperimentalSerializationApi
 fun getAPIClient(baseURL: String): APIClient {
     val client = OkHttpClient.Builder().build()
-    val gson = GsonBuilder()
-        .registerTypeAdapter(Station::class.java, StationConverter())
-        .registerTypeAdapter(Line::class.java, LineConverter())
-        .serializeNulls()
-        .create()
-    val converter = GsonConverterFactory.create(gson)
+    val contentType = MediaType.get("application/json")
+    val converter = Json.asConverterFactory(contentType)
     val retrofit = Retrofit.Builder()
         .baseUrl(baseURL)
         .client(client)
@@ -53,46 +44,6 @@ fun getAPIClient(baseURL: String): APIClient {
         .build()
     return retrofit.create(APIClient::class.java)
 }
-
-// TODO kotlin-serialization
-data class DataLatestInfo(
-    @SerializedName("version")
-    @Expose
-    val version: Long,
-    @SerializedName("size")
-    @Expose
-    val length: Long,
-    @SerializedName("url")
-    @Expose
-    val url: String
-) : Serializable {
-    fun fileSize(): String {
-        var bytes = length
-        if (bytes < 0) return "0 B"
-        if (bytes < 1000) return "$bytes B"
-        val ci = StringCharacterIterator("KMGTPE")
-        while (bytes >= 999_950) {
-            bytes /= 1000
-            ci.next()
-        }
-        return String.format("%.1f %cB", bytes.toFloat() / 1000.0f, ci.current())
-    }
-}
-
-data class StationData(
-    @SerializedName("version")
-    @Expose
-    val version: Long,
-    @SerializedName("stations")
-    @Expose
-    val stations: List<Station>,
-    @SerializedName("lines")
-    @Expose
-    val lines: List<Line>,
-    @SerializedName("tree_segments")
-    @Expose
-    val trees: List<TreeSegment>
-)
 
 // https://stackoverflow.com/questions/42118924/android-retrofit-download-progress
 class ProgressResponseBody(
@@ -125,6 +76,7 @@ class ProgressResponseBody(
 
 }
 
+@ExperimentalSerializationApi
 fun getDownloadClient(listener: (Long) -> Unit): APIClient {
 
     val client = OkHttpClient.Builder()
@@ -137,12 +89,9 @@ fun getDownloadClient(listener: (Long) -> Unit): APIClient {
                     .build()
             } ?: res
         }.build()
-    val gson = GsonBuilder()
-        .registerTypeAdapter(Station::class.java, StationConverter())
-        .registerTypeAdapter(Line::class.java, LineConverter())
-        .serializeNulls()
-        .create()
-    val converter = GsonConverterFactory.create(gson)
+
+    val contentType = MediaType.get("application/json")
+    val converter = Json.asConverterFactory(contentType)
     val retrofit = Retrofit.Builder()
         .baseUrl("http://hoge.com")
         .client(client)
