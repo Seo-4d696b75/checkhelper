@@ -1,15 +1,17 @@
 package jp.seo.station.ekisagasu.model
 
-import androidx.room.*
-import com.google.gson.*
-import com.google.gson.annotations.SerializedName
-import java.io.Serializable
-import java.lang.reflect.Type
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/17.
  */
+@Serializable
 @Entity(tableName = "station", indices = [Index(value = ["id", "code"], unique = true)])
 data class Station constructor(
     @ColumnInfo(name = "id")
@@ -24,10 +26,10 @@ data class Station constructor(
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "original_name")
-    @SerializedName("original_name")
+    @SerialName("original_name")
     val originalName: String,
     @ColumnInfo(name = "name_kana")
-    @SerializedName("name_kana")
+    @SerialName("name_kana")
     val nameKana: String,
     @ColumnInfo(name = "prefecture")
     val prefecture: Int,
@@ -68,54 +70,9 @@ data class Station constructor(
 
 }
 
-class StationConverter : JsonDeserializer<Station> {
-    override fun deserialize(
-        json: JsonElement?,
-        typeOfT: Type?,
-        context: JsonDeserializationContext?
-    ): Station {
-        return json?.let {
-            val obj = it.asJsonObject
-            val gson = Gson()
-            val name = obj["name"].asString
-            Station(
-                obj["id"].asString,
-                obj["code"].asInt,
-                obj["lat"].asDouble,
-                obj["lng"].asDouble,
-                name,
-                obj["original_name"]?.asString ?: name,
-                obj["name_kana"]?.asString ?: "hoge",
-                obj["prefecture"].asInt,
-                gson.fromJson(obj["lines"], Array<Int>::class.java),
-                obj["closed"]?.asBoolean ?: false,
-                gson.fromJson(obj["next"], Array<Int>::class.java),
-                obj["voronoi"].toString(),
-                obj["attr"]?.asString
-            )
-        } ?: Station(
-            "000000",
-            0,
-            0.0,
-            0.0,
-            "none",
-            "none",
-            "none",
-            0,
-            arrayOf(),
-            true,
-            arrayOf(),
-            "",
-            null
-        )
-    }
-
-}
-
+@Serializable
 data class StationRegistration(
-    @SerializedName("code")
     val code: Int,
-    @SerializedName("numbering")
     val numbering: List<String>?
 ) {
 
