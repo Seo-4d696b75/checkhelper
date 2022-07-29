@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface DataRepository {
     suspend fun getLine(code: Int): Line
-    suspend fun getLines(codes: Array<Int>): List<Line>
+    suspend fun getLines(codes: List<Int>): List<Line>
     suspend fun getStation(code: Int): Station
     suspend fun getStations(codes: List<Int>): List<Station>
     val dataInitialized: Boolean

@@ -66,6 +66,22 @@ class ArrayIntConverter {
     }
 }
 
+class IntListConverter {
+    @TypeConverter
+    fun convertList(value: List<Int>?): String? {
+        return value?.let {
+            Json.encodeToString(it)
+        }
+    }
+
+    @TypeConverter
+    fun convertJson(value: String?): List<Int>? {
+        return value?.let {
+            Json.decodeFromString<List<Int>>(it)
+        }
+    }
+}
+
 class JSONRecordConverter {
     @TypeConverter
     fun convertObject(value: JSONObject?): String? {

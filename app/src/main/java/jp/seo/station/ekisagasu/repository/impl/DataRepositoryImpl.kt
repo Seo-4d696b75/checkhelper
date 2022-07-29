@@ -1,9 +1,9 @@
 package jp.seo.station.ekisagasu.repository.impl
 
 import jp.seo.station.ekisagasu.api.APIClient
-import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao
+import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase
@@ -23,7 +23,7 @@ class DataRepositoryImpl @Inject constructor(
         dao.getLine(code)
     }
 
-    override suspend fun getLines(codes: Array<Int>) = withContext(Dispatchers.IO) {
+    override suspend fun getLines(codes: List<Int>) = withContext(Dispatchers.IO) {
         dao.getLines(codes)
     }
 

@@ -42,11 +42,11 @@ data class Station constructor(
     @ColumnInfo(name = "prefecture")
     val prefecture: Int,
     @ColumnInfo(name = "lines")
-    val lines: Array<Int>,
+    val lines: List<Int>,
     @ColumnInfo(name = "closed")
     val closed: Boolean,
     @ColumnInfo(name = "next")
-    val next: Array<Int>,
+    val next: List<Int>,
     @Serializable(with = JsonObjectAsStringSerializer::class)
     @ColumnInfo(name = "voronoi")
     val voronoi: String,

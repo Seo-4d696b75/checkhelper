@@ -19,6 +19,7 @@ import java.util.*
 @TypeConverters(
     RegistrationListConverter::class,
     ArrayIntConverter::class,
+    IntListConverter::class,
     NodeListConverter::class,
     TimestampConverter::class
 )
@@ -45,7 +46,7 @@ abstract class StationDao {
     abstract suspend fun getLine(code: Int): Line
 
     @Query("SELECT * FROM line WHERE code In (:codes) ORDER BY code")
-    abstract suspend fun getLines(codes: Array<Int>): List<Line>
+    abstract suspend fun getLines(codes: List<Int>): List<Line>
 
     @Query("DELETE FROM line")
     abstract suspend fun clearLines()
