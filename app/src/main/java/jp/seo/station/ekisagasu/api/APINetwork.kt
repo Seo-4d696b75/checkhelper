@@ -33,10 +33,10 @@ interface APIClient {
 }
 
 @ExperimentalSerializationApi
-fun getAPIClient(baseURL: String): APIClient {
+fun getAPIClient(baseURL: String, json: Json): APIClient {
     val client = OkHttpClient.Builder().build()
     val contentType = MediaType.get("application/json")
-    val converter = Json.asConverterFactory(contentType)
+    val converter = json.asConverterFactory(contentType)
     val retrofit = Retrofit.Builder()
         .baseUrl(baseURL)
         .client(client)
@@ -77,7 +77,7 @@ class ProgressResponseBody(
 }
 
 @ExperimentalSerializationApi
-fun getDownloadClient(listener: (Long) -> Unit): APIClient {
+fun getDownloadClient(json: Json, listener: (Long) -> Unit): APIClient {
 
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
@@ -91,7 +91,7 @@ fun getDownloadClient(listener: (Long) -> Unit): APIClient {
         }.build()
 
     val contentType = MediaType.get("application/json")
-    val converter = Json.asConverterFactory(contentType)
+    val converter = json.asConverterFactory(contentType)
     val retrofit = Retrofit.Builder()
         .baseUrl("http://hoge.com")
         .client(client)

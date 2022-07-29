@@ -4,8 +4,16 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonObject
 
 /**
  * @author Seo-4d696b75
@@ -39,6 +47,7 @@ data class Station constructor(
     val closed: Boolean,
     @ColumnInfo(name = "next")
     val next: Array<Int>,
+    @Serializable(with = JsonObjectAsStringSerializer::class)
     @ColumnInfo(name = "voronoi")
     val voronoi: String,
     @ColumnInfo(name = "attr")
@@ -73,11 +82,27 @@ data class Station constructor(
 @Serializable
 data class StationRegistration(
     val code: Int,
-    val numbering: List<String>?
+    val numbering: List<String>? = null,
 ) {
 
     fun getNumberingString(): String {
         return numbering?.joinToString(separator = "/", transform = String::toString) ?: ""
+    }
+
+}
+
+class JsonObjectAsStringSerializer: KSerializer<String> {
+    override fun deserialize(decoder: Decoder): String {
+        require(decoder is JsonDecoder)
+        val obj = decoder.decodeJsonElement()
+        require(obj is JsonObject)
+        return obj.toString()
+    }
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("voronoi", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: String) {
+        throw NotImplementedError()
     }
 
 }

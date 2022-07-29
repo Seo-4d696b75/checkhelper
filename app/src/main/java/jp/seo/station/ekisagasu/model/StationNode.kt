@@ -13,11 +13,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StationNode(
     val code: Int,
-    val lat: Double?,
-    val lng: Double?,
-    val left: Int?,
-    val right: Int?,
-    val segment: String?
+    val lat: Double? = null,
+    val lng: Double? = null,
+    val left: Int? = null,
+    val right: Int? = null,
+    val segment: String? = null,
 )
 
 @Serializable
@@ -28,9 +28,6 @@ data class TreeSegment(
     val name: String,
     @ColumnInfo(name = "root")
     val root: Int,
-    @ColumnInfo(name = "station_size")
-    @SerialName("station_size")
-    val size: Int,
     @ColumnInfo(name = "node_list")
     @SerialName("node_list")
     val nodes: List<StationNode>

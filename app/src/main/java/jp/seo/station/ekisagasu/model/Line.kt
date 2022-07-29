@@ -28,16 +28,18 @@ data class Line(
     @SerialName("station_size")
     val stationSize: Int,
     @ColumnInfo(name = "symbol")
-    val symbol: String?,
+    val symbol: String? = null,
     @ColumnInfo(name = "color")
-    val color: String?,
+    val color: String? = null,
     @ColumnInfo(name = "closed")
     val closed: Boolean,
     @ColumnInfo(name = "station_list")
     @SerialName("station_list")
     val stationList: Array<StationRegistration>,
+    @SerialName("polyline_list")
+    @Serializable(with = JsonObjectAsStringSerializer::class)
     @ColumnInfo(name = "polyline")
-    val polyline: String?,
+    val polyline: String? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {
