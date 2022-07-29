@@ -7,6 +7,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import jp.seo.station.ekisagasu.model.StationData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -18,7 +21,7 @@ import java.io.BufferedReader
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-class DatabaseTest {
+class StationDatabaseTest {
 
     private lateinit var data: StationData
     private lateinit var stationDB: StationDatabase
@@ -74,4 +77,62 @@ class DatabaseTest {
     fun teardown() {
         stationDB.close()
     }
+}
+
+@ExperimentalCoroutinesApi
+@RunWith(AndroidJUnit4::class)
+class UserDatabaseTest {
+
+    private lateinit var userDB: UserDatabase
+
+    @Before
+    fun setup() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        userDB = Room.inMemoryDatabaseBuilder(context, UserDatabase::class.java).build()
+    }
+
+    @Test
+    fun testUserDB() = runTest {
+        val dao = userDB.userDao
+
+        // insert reboot log
+        val start = AppLog(AppLog.TYPE_SYSTEM, "start test")
+        dao.insertRebootLog(start)
+        val since = dao.getLatestID()
+
+        // insert log
+        dao.insertLog(AppLog(AppLog.TYPE_SYSTEM, "message1"))
+        dao.insertLog(AppLog(AppLog.TYPE_SYSTEM, "message2"))
+        dao.insertLog(AppLog(AppLog.TYPE_SYSTEM, "message3"))
+
+        // watch flow
+        val rebootList = mutableListOf<List<AppRebootLog>>()
+        val logList = mutableListOf<List<AppLog>>()
+        val job1 = launch {
+            dao.getRebootHistory().toList(rebootList)
+        }
+        val job2 = launch {
+            dao.getLogs(since).toList(logList)
+        }
+
+        // test reboot log
+        val r = dao.getCurrentReboot()
+        assertThat(r.start).isEqualTo(start.timestamp)
+
+        // check flow
+        advanceUntilIdle()
+        assertThat(rebootList.last().size).isEqualTo(1)
+        assertThat(rebootList.last()[0].start).isEqualTo(start.timestamp)
+        assertThat(logList.last().size).isGreaterThan(1)
+        assertThat(logList.last().last().message).isEqualTo("message3")
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @After
+    fun teardown() {
+        userDB.close()
+    }
+
 }
