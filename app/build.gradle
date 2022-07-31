@@ -119,7 +119,8 @@ dependencies {
     testImplementation 'androidx.test:core:1.4.0'
     // Optional -- MockK framework
     testImplementation "io.mockk:mockk:1.12.5"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1"
+    testImplementation "com.squareup.okhttp3:mockwebserver:4.9.3"
     // json source only for unit test
     testImplementation 'org.json:json:20200518'
 

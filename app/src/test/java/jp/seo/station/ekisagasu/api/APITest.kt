@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verifyOrder
 import jp.seo.station.ekisagasu.fakeDataString
+import jp.seo.station.ekisagasu.fakeLatestInfoString
 import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.StationData
 import jp.seo.station.ekisagasu.model.convertGeoJsonFeature
@@ -14,12 +15,16 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
-import java.io.BufferedReader
 import kotlin.random.Random
 
 
@@ -31,51 +36,58 @@ import kotlin.random.Random
 @ExperimentalCoroutinesApi
 class APITest {
 
+    private val server = MockWebServer()
+    private val info by fakeLatestInfoString
+    private val data by fakeDataString
+
+    private val serverDispatcher = object : Dispatcher() {
+        override fun dispatch(request: RecordedRequest): MockResponse {
+            return when (request.path) {
+                "/latest_info.json" -> MockResponse().setBody(info).setResponseCode(200)
+                "/out/main/data.json" -> MockResponse().setBody(data).setResponseCode(200)
+                else -> MockResponse().setResponseCode(404)
+            }
+        }
+    }
+
     private val json = Json {
         ignoreUnknownKeys = true
     }
-    private val baseURL = "https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/"
+
     private lateinit var retrofit: Retrofit
 
     @Before
     fun setup() {
+        server.dispatcher = serverDispatcher
+        server.start()
+        val url = server.url("")
         val client = OkHttpClient.Builder().build()
-        val contentType = MediaType.get("application/json")
+        val contentType = "application/json".toMediaType()
         val converter = json.asConverterFactory(contentType)
         retrofit = Retrofit.Builder()
-            .baseUrl(baseURL)
+            .baseUrl(url)
             .client(client)
             .addConverterFactory(converter)
             .build()
+
     }
 
-    @Test
-    fun testJsonDecode() {
-        // ローカルのデータでデコード処理
-        val str by fakeDataString
-        val data = json.decodeFromString<StationData>(str)
-        assertThat(data.version).isEqualTo(20220729)
-
-        assertData(data)
+    @After
+    fun teardown() {
+        server.shutdown()
     }
 
     @Test
     fun testAPIClient() = runTest {
-        // 実際にネットワーク上のAPIを呼び出す
         val api = retrofit.create(APIClient::class.java)
-        val data = api.getLatestData()
 
-        assertData(data)
-    }
-
-    @Test
-    fun testDownloadClient() = runTest {
-        val api = retrofit.create(APIClient::class.java)
         val info = api.getLatestInfo()
         assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
+
         val client = DownloadClientImpl(api)
         val callback = mockk<(Long) -> Unit>()
         every { callback.invoke(any()) } returns Unit
+
         val data = client(info.url, callback).let { json.decodeFromString<StationData>(it) }
         assertThat(data.version).isEqualTo(info.version)
         verifyOrder {
