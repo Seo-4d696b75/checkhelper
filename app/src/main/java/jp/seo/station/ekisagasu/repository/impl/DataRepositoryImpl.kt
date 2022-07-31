@@ -11,8 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Inject
 
+@ExperimentalSerializationApi
 class DataRepositoryImpl @Inject constructor(
     private val dao: StationDao,
     private val api: APIClient,
