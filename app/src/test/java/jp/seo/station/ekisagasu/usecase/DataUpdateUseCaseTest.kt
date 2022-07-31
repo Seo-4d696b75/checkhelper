@@ -7,7 +7,8 @@ import io.mockk.*
 import jp.seo.station.ekisagasu.api.DownloadClient
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao
-import jp.seo.station.ekisagasu.model.DataLatestInfo
+import jp.seo.station.ekisagasu.fakeDataString
+import jp.seo.station.ekisagasu.fakeLatestInfo
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,7 +23,6 @@ import kotlinx.serialization.json.Json
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.io.BufferedReader
 import java.io.IOException
 import kotlin.math.ceil
 
@@ -35,24 +35,13 @@ class DataUpdateUseCaseTest {
     private val downloadClient = mockk<DownloadClient>()
     private val json = Json { ignoreUnknownKeys = true }
 
-    private lateinit var dataStr: String
-    private lateinit var info: DataLatestInfo
+    private val dataStr by fakeDataString
+    private val info by fakeLatestInfo
 
     private lateinit var useCase: DataUpdateUseCase
 
-    private val url = "https://test.com/data.json"
-    private val version = 20220729L // src/test/resources/data.jsonに合わせる
-
     @Before
     fun setup() {
-        val stream = javaClass.classLoader?.getResourceAsStream("data.json")
-        val reader = BufferedReader(stream?.reader(Charsets.UTF_8))
-        dataStr = reader.readText()
-        info = DataLatestInfo(
-            version = version,
-            length = dataStr.toByteArray(Charsets.UTF_8).size.toLong(),
-            url = url,
-        )
         Dispatchers.setMain(defaultDispatcher)
 
         useCase = DataUpdateUseCase(dao, downloadClient, json)
@@ -66,7 +55,7 @@ class DataUpdateUseCaseTest {
     @Test
     fun `成功`() = runTest {
         // prepare
-        val callbackSlot = slot<(Long)->Unit>()
+        val callbackSlot = slot<(Long) -> Unit>()
         coEvery { downloadClient.invoke(any(), capture(callbackSlot)) } coAnswers {
             val callback = callbackSlot.captured
             callback(0L)
@@ -102,9 +91,9 @@ class DataUpdateUseCaseTest {
     }
 
     @Test
-    fun `ダウンロード失敗` () = runTest {
+    fun `ダウンロード失敗`() = runTest {
         // prepare
-        val callbackSlot = slot<(Long)->Unit>()
+        val callbackSlot = slot<(Long) -> Unit>()
         coEvery { downloadClient.invoke(any(), capture(callbackSlot)) } coAnswers {
             val callback = callbackSlot.captured
             callback(0L)

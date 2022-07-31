@@ -5,6 +5,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verifyOrder
+import jp.seo.station.ekisagasu.fakeDataString
 import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.StationData
 import jp.seo.station.ekisagasu.model.convertGeoJsonFeature
@@ -51,9 +52,7 @@ class APITest {
     @Test
     fun testJsonDecode() {
         // ローカルのデータでデコード処理
-        val stream = javaClass.classLoader?.getResourceAsStream("data.json")
-        val reader = BufferedReader(stream?.reader(Charsets.UTF_8))
-        val str = reader.readText()
+        val str by fakeDataString
         val data = json.decodeFromString<StationData>(str)
         assertThat(data.version).isEqualTo(20220729)
 
