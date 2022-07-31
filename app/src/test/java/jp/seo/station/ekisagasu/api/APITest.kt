@@ -1,15 +1,23 @@
 package jp.seo.station.ekisagasu.api
 
 import com.google.common.truth.Truth.assertThat
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verifyOrder
 import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.StationData
 import jp.seo.station.ekisagasu.model.convertGeoJsonFeature
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import org.junit.Before
 import org.junit.Test
+import retrofit2.Retrofit
 import java.io.BufferedReader
 import kotlin.random.Random
 
@@ -18,10 +26,26 @@ import kotlin.random.Random
  * @author Seo-4d696b75
  * @version 2020/12/26.
  */
+@ExperimentalSerializationApi
+@ExperimentalCoroutinesApi
 class APITest {
 
     private val json = Json {
         ignoreUnknownKeys = true
+    }
+    private val baseURL = "https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/"
+    private lateinit var retrofit: Retrofit
+
+    @Before
+    fun setup() {
+        val client = OkHttpClient.Builder().build()
+        val contentType = MediaType.get("application/json")
+        val converter = json.asConverterFactory(contentType)
+        retrofit = Retrofit.Builder()
+            .baseUrl(baseURL)
+            .client(client)
+            .addConverterFactory(converter)
+            .build()
     }
 
     @Test
@@ -36,18 +60,29 @@ class APITest {
         assertData(data)
     }
 
-    @ExperimentalSerializationApi
     @Test
-    fun testAPIClient() = runBlocking(Dispatchers.IO) {
+    fun testAPIClient() = runTest {
         // 実際にネットワーク上のAPIを呼び出す
-        val client = getAPIClient(
-            "https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/",
-            json,
-        )
-        val info = client.getLatestInfo()
+        val api = retrofit.create(APIClient::class.java)
+        val data = api.getLatestData()
+
+        assertData(data)
+    }
+
+    @Test
+    fun testDownloadClient() = runTest {
+        val api = retrofit.create(APIClient::class.java)
+        val info = api.getLatestInfo()
         assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
-        val data = client.getData(info.url)
+        val client = DownloadClientImpl(api)
+        val callback = mockk<(Long) -> Unit>()
+        every { callback.invoke(any()) } returns Unit
+        val data = client(info.url, callback).let { json.decodeFromString<StationData>(it) }
         assertThat(data.version).isEqualTo(info.version)
+        verifyOrder {
+            callback(0L)
+            callback(info.length)
+        }
 
         assertData(data)
     }
