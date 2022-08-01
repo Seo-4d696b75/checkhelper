@@ -4,16 +4,16 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
-import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.fakeData
+import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class NearestSearchTest {
-    private val dao = mockk<StationDao>()
-    private val search: NearestSearch = KdTree(dao)
+    private val repository = mockk<DataRepository>()
+    private val search: NearestSearch = KdTree(repository)
 
     private val samples = arrayOf(
         LocationTestCase(43.069589, 141.350628, "札幌"),
@@ -35,12 +35,12 @@ class NearestSearchTest {
     fun testNearestTest() = runTest {
         // prepare
         val nameSlot = slot<String>()
-        coEvery { dao.getTreeSegment(capture(nameSlot)) } answers {
+        coEvery { repository.getTreeSegment(capture(nameSlot)) } answers {
             val name = nameSlot.captured
             data.trees.find { it.name == name } ?: throw NoSuchElementException()
         }
         val codesSlot = slot<List<Int>>()
-        coEvery { dao.getStations(capture(codesSlot)) } answers {
+        coEvery { repository.getStations(capture(codesSlot)) } answers {
             val codes = codesSlot.captured
             codes.map { code ->
                 data.stations.find { it.code == code } ?: throw NoSuchElementException()

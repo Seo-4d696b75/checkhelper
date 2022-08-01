@@ -5,12 +5,12 @@ import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
-import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
+import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
@@ -62,7 +62,7 @@ class PredictionResult(
 
 class PositionNavigator(
     private val explorer: NearestSearch,
-    private val dao: StationDao,
+    private val repository: DataRepository,
     val line: Line
 ) {
 
@@ -513,7 +513,7 @@ class PositionNavigator(
                         val y = (1 - index) * b.latitude + index * a.latitude
                         val lng: Double = 2 * x - current.station.lng
                         val lat: Double = 2 * y - current.station.lat
-                        val neighbors = dao.getStations(current.station.next.toList())
+                        val neighbors = repository.getStations(current.station.next.toList())
                         // Search for which station was detected
                         val next =
                             neighbors.minByOrNull { s -> measureDistance(lat, lng, s.lat, s.lng) }

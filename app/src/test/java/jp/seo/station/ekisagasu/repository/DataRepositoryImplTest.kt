@@ -156,6 +156,11 @@ class DataRepositoryImplTest {
             val code = lineCodeSlot.captured
             data.lines.find { it.code == code } ?: throw NoSuchElementException()
         }
+        val treeNameSlop = slot<String>()
+        coEvery { dao.getTreeSegment(capture(treeNameSlop)) } answers {
+            val name = treeNameSlop.captured
+            data.trees.find { it.name == name } ?: throw NoSuchElementException()
+        }
         coEvery { dao.getDataVersionHistory() } returns listOf(
             DataVersion(0),
             DataVersion(1),
@@ -168,12 +173,15 @@ class DataRepositoryImplTest {
         assertThat(repository.getLine(line.code)).isEqualTo(line)
         val history = repository.getDataVersionHistory()
         assertThat(history.size).isEqualTo(2)
+        val segment = repository.getTreeSegment("root")
+        assertThat(segment.name).isEqualTo("root")
 
         // verify
         coVerifyOrder {
             dao.getStation(station.code)
             dao.getLine(line.code)
             dao.getDataVersionHistory()
+            dao.getTreeSegment("root")
         }
         confirmVerified(dao)
     }

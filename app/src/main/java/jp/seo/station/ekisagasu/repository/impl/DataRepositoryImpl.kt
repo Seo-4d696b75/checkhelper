@@ -37,6 +37,10 @@ class DataRepositoryImpl @Inject constructor(
         dao.getStations(codes)
     }
 
+    override suspend fun getTreeSegment(name: String) = withContext(Dispatchers.IO) {
+        dao.getTreeSegment(name)
+    }
+
     private val _currentVersion = MutableStateFlow<DataVersion?>(null)
     private var _dataInitialized: Boolean = false
     private var _lastCheckedVersion: DataLatestInfo? = null
