@@ -4,10 +4,7 @@ package jp.seo.station.ekisagasu.repository
 
 import android.location.Location
 import com.google.common.truth.Truth.assertThat
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
+import io.mockk.*
 import jp.seo.station.ekisagasu.fakeData
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.NearStation
@@ -23,10 +20,15 @@ import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.*
 
 @ExperimentalCoroutinesApi
-class SearchRepositoryImplTest {
+@RunWith(Parameterized::class)
+open class SearchRepositoryImplTest(
+    private val k: Int,
+) {
 
     private val dataRepository = mockk<DataRepository>()
     private val search = mockk<NearestSearch>()
@@ -42,6 +44,16 @@ class SearchRepositoryImplTest {
     @Before
     fun setup() {
         Dispatchers.setMain(defaultDispatcher)
+
+        every { dataRepository.dataInitialized } returns true
+
+        val codesSlot = slot<List<Int>>()
+        coEvery { dataRepository.getLines(capture(codesSlot)) } answers {
+            val codes = codesSlot.captured
+            codes.map { code ->
+                data.lines.find { it.code == code } ?: throw NoSuchElementException()
+            }
+        }
     }
 
     @After
@@ -56,7 +68,7 @@ class SearchRepositoryImplTest {
         val job = launch(defaultDispatcher) {
             repository.selectedLine.toList(lineList)
         }
-        val line = data.lines[0]
+        val line = data.lines.random()
 
         // test
         repository.selectLine(line)
@@ -72,8 +84,14 @@ class SearchRepositoryImplTest {
         job.cancel()
     }
 
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        fun params() = arrayOf(1, 2, 3)
+    }
+
     @Test
-    fun `近傍駅の探索(k=1)`() = runTest {
+    fun `近傍駅の探索`() = runTest {
         // prepare
         val nearStationList = mutableListOf<NearStation?>()
         val nearStationsList = mutableListOf<List<NearStation>>()
@@ -84,29 +102,23 @@ class SearchRepositoryImplTest {
             launch { repository.detectedStation.toList(detectList) }
         }
 
-        every { dataRepository.dataInitialized } returns true
-        val codesSlot = slot<List<Int>>()
-        coEvery { dataRepository.getLines(capture(codesSlot)) } answers {
-            val codes = codesSlot.captured
-            codes.map { code ->
-                data.lines.find { it.code == code } ?: throw NoSuchElementException()
-            }
-        }
-        val station = data.stations.random()
-        coEvery { search.search(any(), any(), 1, 0.0, false) } returns
-                SearchResult(0.0, 0.0, 1, 0.0, listOf(station))
+        val stations = List(k) { data.stations.random() }
+
+        coEvery { search.search(any(), any(), k, 0.0, false) } returns
+                SearchResult(0.0, 0.0, k, 0.0, stations)
 
         // test
-        repository.setSearchK(1)
+        repository.setSearchK(k)
         val time = Date()
+        val nearest = stations[0]
         val location1 = mockk<Location>().also {
-            every { it.latitude } returns station.lat + 0.001
-            every { it.longitude } returns station.lng
+            every { it.latitude } returns nearest.lat + 0.001
+            every { it.longitude } returns nearest.lng
             every { it.time } returns time.time
         }
         val location2 = mockk<Location>().also {
-            every { it.latitude } returns station.lat - 0.00001
-            every { it.longitude } returns station.lng
+            every { it.latitude } returns nearest.lat - 0.00001
+            every { it.longitude } returns nearest.lng
             every { it.time } returns time.time
         }
         repository.updateNearestStations(location1)
@@ -119,17 +131,17 @@ class SearchRepositoryImplTest {
         assertThat(nearStationList[0]).isNull()
         nearStationList[1].also {
             assertThat(it).isNotNull()
-            assertThat(it?.station).isEqualTo(station)
+            assertThat(it?.station).isEqualTo(nearest)
             assertThat(it?.time).isEqualTo(time)
-            assertThat(it?.distance).isEqualTo(measureDistance(station, location1))
-            val lines = station.lines.map { code ->
+            assertThat(it?.distance).isEqualTo(measureDistance(nearest, location1))
+            val lines = nearest.lines.map { code ->
                 data.lines.find { line -> line.code == code }
             }
             assertThat(it?.lines).isEqualTo(lines)
         }
         nearStationList[2].also {
             assertThat(it).isNotNull()
-            assertThat(it?.station).isEqualTo(station)
+            assertThat(it?.station).isEqualTo(nearest)
             assertThat(it?.time).isEqualTo(time)
         }
         assertThat(nearStationList[3]).isNull()
@@ -138,12 +150,12 @@ class SearchRepositoryImplTest {
         assertThat(nearStationsList.size).isEqualTo(4)
         assertThat(nearStationsList[0]).isEmpty()
         nearStationsList[1].also {
-            assertThat(it.size).isEqualTo(1)
-            assertThat(it[0].station).isEqualTo(station)
+            assertThat(it.size).isEqualTo(stations.size)
+            assertThat(it.map { it.station }).isEqualTo(stations)
         }
         nearStationsList[2].also {
-            assertThat(it.size).isEqualTo(1)
-            assertThat(it[0].station).isEqualTo(station)
+            assertThat(it.size).isEqualTo(stations.size)
+            assertThat(it.map { it.station }).isEqualTo(stations)
         }
         assertThat(nearStationsList[3]).isEmpty()
 
@@ -152,11 +164,16 @@ class SearchRepositoryImplTest {
         assertThat(detectList[0]).isNull()
         detectList[1].also {
             assertThat(it).isNotNull()
-            assertThat(it?.station).isEqualTo(station)
+            assertThat(it?.station).isEqualTo(nearest)
             assertThat(it?.time).isEqualTo(time)
-            assertThat(it?.distance).isEqualTo(measureDistance(station, location1))
+            assertThat(it?.distance).isEqualTo(measureDistance(nearest, location1))
         }
         assertThat(detectList[2]).isNull()
+
+        coVerifyOrder {
+            search.search(nearest.lat + 0.001, nearest.lng, k, 0.0, false)
+            search.search(nearest.lat - 0.00001, nearest.lng, k, 0.0, false)
+        }
 
         job.cancel()
     }
