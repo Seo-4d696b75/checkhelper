@@ -105,9 +105,14 @@ class StationService : LifecycleService() {
         notificationHolder.update("init", "initializing app")
 
         // init vibrator
-        vibrator = getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
-            val manager = it as VibratorManager
-            manager.defaultVibrator
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
+                val manager = it as VibratorManager
+                manager.defaultVibrator
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
         }
 
         // when current location changed
