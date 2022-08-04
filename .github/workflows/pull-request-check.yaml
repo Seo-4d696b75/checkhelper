@@ -53,4 +53,4 @@ jobs:
           JOB_STATUS: ${{ job.status }} # jobのステータスを Danger へ受け渡す
         run: |
           gem install ${{ steps.gem-info.outputs.packages }}
-          danger --dangerfile='.github/workflows/check-pull-request.danger' --remove-previous-comments --fail-on-errors=true
+          danger --dangerfile='.github/workflows/pull-request-check.danger' --remove-previous-comments --fail-on-errors=true
