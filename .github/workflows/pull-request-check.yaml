@@ -26,4 +26,6 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/buildSrc/**/*.kt', '**/libs.versions.toml') }}
       - name: Run ktlint
+        run: ./gradlew ktlintCheck
+      - name: Run Android Lint
         run: ./gradlew lint

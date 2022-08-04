@@ -4,6 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'kotlinx-serialization'
+apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
     compileSdkVersion 32
@@ -61,6 +62,16 @@ android {
     }
 }
 
+ktlint {
+    android = true
+    outputColorName = "RED"
+    ignoreFailures = true
+    reporters {
+        reporter "plain"
+        reporter "checkstyle"
+    }
+}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -103,7 +114,6 @@ dependencies {
     implementation 'org.apache.commons:commons-math3:3.6.1'
 
     implementation 'com.google.android.material:material:1.6.1'
-
 
     //include other module
     implementation project(':widget')
