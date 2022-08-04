@@ -75,10 +75,10 @@ class DataRepositoryImplTest {
     }
 
     @Test
-    fun `データのアップデート - 失敗`() = runTest {
+    fun `データのアップデート - 失敗`() = runTest(defaultDispatcher) {
         // watch flow
         val dataVersionList = mutableListOf<DataVersion?>()
-        val job = launch(defaultDispatcher) {
+        val job = launch {
             repository.dataVersion.toList(dataVersionList)
         }
 
@@ -96,14 +96,14 @@ class DataRepositoryImplTest {
 
 
     @Test
-    fun `データのアップデート - 成功`() = runTest {
+    fun `データのアップデート - 成功`() = runTest(defaultDispatcher) {
         // watch flow
         val dataVersionList = mutableListOf<DataVersion?>()
-        val job1 = launch(defaultDispatcher) {
+        val job1 = launch {
             repository.dataVersion.toList(dataVersionList)
         }
         val progressList = mutableListOf<DataUpdateProgress>()
-        val job2 = launch(defaultDispatcher) {
+        val job2 = launch {
             repository.dataUpdateProgress.toList(progressList)
         }
 

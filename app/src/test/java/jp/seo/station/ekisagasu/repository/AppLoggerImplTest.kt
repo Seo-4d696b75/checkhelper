@@ -9,12 +9,11 @@ import io.mockk.mockk
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.impl.AppLoggerImpl
 import jp.seo.station.ekisagasu.repository.impl.AppStateRepositoryImpl
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.*
-import org.junit.After
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -25,26 +24,18 @@ class AppLoggerImplTest {
     private lateinit var appStateRepository: AppStateRepository
     private lateinit var logger: AppLogger
 
-    private val defaultDispatcher = UnconfinedTestDispatcher()
-
     @Before
     fun setup() {
         appStateRepository = AppStateRepositoryImpl(logRepository)
         logger = AppLoggerImpl(appStateRepository)
         coEvery { logRepository.saveMessage(any()) } returns Unit
-        Dispatchers.setMain(defaultDispatcher)
-    }
-
-    @After
-    fun teardown() {
-        Dispatchers.resetMain()
     }
 
     @Test
     fun emitMessage() = runTest {
         // prepare
         val messageList = mutableListOf<AppMessage>()
-        val job = launch(defaultDispatcher) {
+        val job = launch {
             appStateRepository.message.toList(messageList)
         }
 

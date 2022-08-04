@@ -53,7 +53,7 @@ class DataUpdateUseCaseTest {
     }
 
     @Test
-    fun `成功`() = runTest {
+    fun `成功`() = runTest(defaultDispatcher) {
         // prepare
         val callbackSlot = slot<(Long) -> Unit>()
         coEvery { downloadClient.invoke(any(), capture(callbackSlot)) } coAnswers {
@@ -66,7 +66,7 @@ class DataUpdateUseCaseTest {
 
         // watch progress flow
         val progressList = mutableListOf<DataUpdateProgress>()
-        val job = launch(defaultDispatcher) {
+        val job = launch {
             useCase.progress.toList(progressList)
         }
 

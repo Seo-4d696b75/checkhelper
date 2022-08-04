@@ -125,6 +125,8 @@ open class SearchRepositoryImplTest(
         repository.updateNearestStations(location2)
         repository.onStopSearch()
 
+        advanceUntilIdle()
+
         // verify
         // 近傍駅情報の変化
         assertThat(nearStationList.size).isEqualTo(4)
