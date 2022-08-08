@@ -51,7 +51,7 @@
     <string name="setting_title_night_switch">夜間モードの自動切替</string>
     <string name="setting_mes_night_select">選択</string>
     <string name="setting_mes_night_switch_always">常に有効化</string>
-    <string name="setting_mes_night_switch">操作がない状態で%1$s後に有効化</string>
+    <string name="setting_mes_night_switch">操作がない状態で%1$d後に有効化</string>
     <string name="setting_title_brightness">あかるさ</string>
     <string name="setting_mes_brightness_sample">サンプル</string>
     <string name="setting_mes_brightness">画面の暗さを調整します.</string>

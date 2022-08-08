@@ -1,10 +1,11 @@
 package jp.seo.station.ekisagasu.repository
 
-import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.database.DataVersion
+import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
+import jp.seo.station.ekisagasu.model.TreeSegment
 import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,7 @@ interface DataRepository {
     suspend fun getLines(codes: List<Int>): List<Line>
     suspend fun getStation(code: Int): Station
     suspend fun getStations(codes: List<Int>): List<Station>
+    suspend fun getTreeSegment(name: String): TreeSegment
     val dataInitialized: Boolean
     val dataVersion: StateFlow<DataVersion?>
     val lastCheckedVersion: DataLatestInfo?

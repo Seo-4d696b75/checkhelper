@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.database
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import jp.seo.station.ekisagasu.fakeData
 import jp.seo.station.ekisagasu.model.StationData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -19,17 +20,11 @@ import java.io.BufferedReader
 @RunWith(RobolectricTestRunner::class)
 class StationDatabaseTest {
 
-    private lateinit var data: StationData
+    private val data by fakeData
     private lateinit var stationDB: StationDatabase
 
     @Before
     fun setup() {
-        val json = Json { ignoreUnknownKeys = true }
-        val stream = javaClass.classLoader?.getResourceAsStream("data.json")
-        val reader = BufferedReader(stream?.reader(Charsets.UTF_8))
-        val str = reader.readText()
-        data = json.decodeFromString(str)
-
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         stationDB = Room
             .databaseBuilder(context, StationDatabase::class.java, "station_db")

@@ -1,20 +1,14 @@
 package jp.seo.station.ekisagasu.api
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.model.StationData
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
-import okio.Buffer
-import okio.BufferedSource
-import okio.ForwardingSource
-import okio.Okio
-import retrofit2.Retrofit
 import retrofit2.http.GET
+import retrofit2.http.Streaming
 import retrofit2.http.Url
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
 
 /**
@@ -28,76 +22,44 @@ interface APIClient {
     @GET("out/main/data.json")
     suspend fun getLatestData(): StationData
 
+    @Streaming
     @GET
-    suspend fun getData(@Url url: String): StationData
+    suspend fun getData(@Url url: String): ResponseBody
+}
+
+interface DownloadClient {
+    /**
+     * 指定したURLからダウンロードする
+     *
+     * @param url URL文字列
+     * @param callback ダウンロード中に現在までに取得したbyte長を通知する
+     */
+    suspend operator fun invoke(url: String, callback: (Long) -> Unit): String
 }
 
 @ExperimentalSerializationApi
-fun getAPIClient(baseURL: String, json: Json): APIClient {
-    val client = OkHttpClient.Builder().build()
-    val contentType = MediaType.get("application/json")
-    val converter = json.asConverterFactory(contentType)
-    val retrofit = Retrofit.Builder()
-        .baseUrl(baseURL)
-        .client(client)
-        .addConverterFactory(converter)
-        .build()
-    return retrofit.create(APIClient::class.java)
-}
-
-// https://stackoverflow.com/questions/42118924/android-retrofit-download-progress
-class ProgressResponseBody(
-    private val adapt: ResponseBody,
-    private val listener: (Long) -> Unit,
-) : ResponseBody() {
-
-    private var buf: BufferedSource? = null
-
-    override fun contentType(): MediaType? = adapt.contentType()
-
-    override fun contentLength(): Long = adapt.contentLength()
-
-    override fun source(): BufferedSource {
-        return buf ?: kotlin.run {
-            val s = object : ForwardingSource(adapt.source()) {
-                private var totalBytes: Long = 0L
-                override fun read(sink: Buffer, byteCount: Long): Long {
-                    val readBytes = super.read(sink, byteCount)
-                    if (readBytes > 0L) totalBytes += readBytes
-                    listener(totalBytes)
-                    return readBytes
+class DownloadClientImpl @Inject constructor(
+    private val api: APIClient,
+) : DownloadClient {
+    // https://stackoverflow.com/questions/42118924/android-retrofit-download-progress
+    override suspend operator fun invoke(url: String, callback: (Long) -> Unit): String {
+        callback(0L)
+        api.getData(url).also { res ->
+            res.byteStream().use { inputStream ->
+                val outputStream = ByteArrayOutputStream()
+                var bytes = 0L
+                val buf = ByteArray(8192)
+                while (true) {
+                    val read = inputStream.read(buf)
+                    if (read < 0) {
+                        break
+                    }
+                    bytes += read
+                    outputStream.write(buf, 0, read)
+                    callback(bytes)
                 }
+                return String(outputStream.toByteArray())
             }
-            val b = Okio.buffer(s)
-            buf = b
-            b
         }
     }
-
 }
-
-@ExperimentalSerializationApi
-fun getDownloadClient(json: Json, listener: (Long) -> Unit): APIClient {
-
-    val client = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val res = chain.proceed(chain.request())
-            val body = res.body()
-            body?.let {
-                res.newBuilder()
-                    .body(ProgressResponseBody(it, listener))
-                    .build()
-            } ?: res
-        }.build()
-
-    val contentType = MediaType.get("application/json")
-    val converter = json.asConverterFactory(contentType)
-    val retrofit = Retrofit.Builder()
-        .baseUrl("http://hoge.com")
-        .client(client)
-        .addConverterFactory(converter)
-        .build()
-    return retrofit.create(APIClient::class.java)
-}
-
-

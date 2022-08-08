@@ -3,11 +3,11 @@ package jp.seo.station.ekisagasu.database
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -17,11 +17,10 @@ import org.robolectric.annotation.Config
 
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest= Config.NONE)
+@Config(manifest = Config.NONE)
 class UserDatabaseTest {
 
     private lateinit var userDB: UserDatabase
-    private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
@@ -30,7 +29,6 @@ class UserDatabaseTest {
             .databaseBuilder(context, UserDatabase::class.java, "user_db")
             .allowMainThreadQueries()
             .build()
-        Dispatchers.setMain(dispatcher)
     }
 
     @Test
@@ -45,10 +43,10 @@ class UserDatabaseTest {
         // watch flow
         val rebootList = mutableListOf<List<AppRebootLog>>()
         val logList = mutableListOf<List<AppLog>>()
-        val job1 = launch(dispatcher) {
+        val job1 = launch {
             dao.getRebootHistory().toList(rebootList)
         }
-        val job2 = launch(dispatcher) {
+        val job2 = launch {
             dao.getLogs(since).toList(logList)
         }
 
@@ -76,6 +74,5 @@ class UserDatabaseTest {
     @After
     fun teardown() {
         userDB.close()
-        Dispatchers.resetMain()
     }
 }

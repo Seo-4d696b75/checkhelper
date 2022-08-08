@@ -1,16 +1,31 @@
 package jp.seo.station.ekisagasu.api
 
 import com.google.common.truth.Truth.assertThat
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verifyOrder
+import jp.seo.station.ekisagasu.fakeDataString
+import jp.seo.station.ekisagasu.fakeLatestInfoString
 import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.StationData
 import jp.seo.station.ekisagasu.model.convertGeoJsonFeature
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
+import org.junit.After
+import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
-import java.io.BufferedReader
+import retrofit2.Retrofit
 import kotlin.random.Random
 
 
@@ -18,36 +33,68 @@ import kotlin.random.Random
  * @author Seo-4d696b75
  * @version 2020/12/26.
  */
+@Ignore("GithubActionsだとメモリ不足で落ちる")
+@ExperimentalSerializationApi
+@ExperimentalCoroutinesApi
 class APITest {
+
+    private val server = MockWebServer()
+    private val info by fakeLatestInfoString
+    private val data by fakeDataString
+
+    private val serverDispatcher = object : Dispatcher() {
+        override fun dispatch(request: RecordedRequest): MockResponse {
+            return when (request.path) {
+                "/latest_info.json" -> MockResponse().setBody(info).setResponseCode(200)
+                "/out/main/data.json" -> MockResponse().setBody(data).setResponseCode(200)
+                else -> MockResponse().setResponseCode(404)
+            }
+        }
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true
     }
 
-    @Test
-    fun testJsonDecode() {
-        // ローカルのデータでデコード処理
-        val stream = javaClass.classLoader?.getResourceAsStream("data.json")
-        val reader = BufferedReader(stream?.reader(Charsets.UTF_8))
-        val str = reader.readText()
-        val data = json.decodeFromString<StationData>(str)
-        assertThat(data.version).isEqualTo(20220729)
+    private lateinit var retrofit: Retrofit
 
-        assertData(data)
+    @Before
+    fun setup() {
+        server.dispatcher = serverDispatcher
+        server.start()
+        val url = server.url("")
+        val client = OkHttpClient.Builder().build()
+        val contentType = "application/json".toMediaType()
+        val converter = json.asConverterFactory(contentType)
+        retrofit = Retrofit.Builder()
+            .baseUrl(url)
+            .client(client)
+            .addConverterFactory(converter)
+            .build()
     }
 
-    @ExperimentalSerializationApi
+    @After
+    fun teardown() {
+        server.shutdown()
+    }
+
     @Test
-    fun testAPIClient() = runBlocking(Dispatchers.IO) {
-        // 実際にネットワーク上のAPIを呼び出す
-        val client = getAPIClient(
-            "https://raw.githubusercontent.com/Seo-4d696b75/station_database/main/",
-            json,
-        )
-        val info = client.getLatestInfo()
+    fun testAPIClient() = runTest {
+        val api = retrofit.create(APIClient::class.java)
+
+        val info = api.getLatestInfo()
         assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
-        val data = client.getData(info.url)
+
+        val client = DownloadClientImpl(api)
+        val callback = mockk<(Long) -> Unit>()
+        every { callback.invoke(any()) } returns Unit
+
+        val data = client(info.url, callback).let { json.decodeFromString<StationData>(it) }
         assertThat(data.version).isEqualTo(info.version)
+        verifyOrder {
+            callback(0L)
+            callback(info.length)
+        }
 
         assertData(data)
     }
