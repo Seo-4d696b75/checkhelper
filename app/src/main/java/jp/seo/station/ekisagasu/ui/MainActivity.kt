@@ -227,7 +227,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private val requestLogFileUriLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -252,5 +251,4 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
 }

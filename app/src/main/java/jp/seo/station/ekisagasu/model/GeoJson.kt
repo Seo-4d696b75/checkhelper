@@ -8,7 +8,6 @@ import com.google.maps.android.data.geojson.GeoJsonPolygon
 import jp.seo.station.ekisagasu.position.PositionNavigator.NearestPoint
 import org.json.JSONObject
 
-
 /**
  * @author Seo-4d696b75
  * @version 2020/12/17.
@@ -58,7 +57,6 @@ data class StationArea(
                         list.toTypedArray(),
                         true
                     )
-
                 }
                 else -> throw IllegalArgumentException("invalid geometry type")
             }
@@ -79,7 +77,6 @@ data class StationArea(
     override fun hashCode(): Int {
         return station.hashCode()
     }
-
 }
 
 data class PolylineSegment(
@@ -102,7 +99,6 @@ data class PolylineSegment(
                 )
             }
         }
-
     }
 
     override fun equals(other: Any?): Boolean {
@@ -153,5 +149,4 @@ data class PolylineSegment(
             .map { idx -> NearestPoint(points[idx], points[idx + 1], p) }
             .minByOrNull { n -> n.distance } ?: throw NoSuchElementException()
     }
-
 }

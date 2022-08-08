@@ -14,7 +14,7 @@ class AppFinishUseCase @Inject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val logRepository: LogRepository,
     private val appStateRepository: AppStateRepository,
-){
+) {
     suspend operator fun invoke() {
         appStateRepository.isServiceRunning = false
         userSettingRepository.save()

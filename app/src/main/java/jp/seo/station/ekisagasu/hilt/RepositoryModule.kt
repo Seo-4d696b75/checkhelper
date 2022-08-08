@@ -42,7 +42,6 @@ interface LogModule {
     @Binds
     @Singleton
     fun bindsLogEmitter(impl: AppLoggerImpl): AppLogger
-
 }
 
 @Module
@@ -60,7 +59,6 @@ interface SettingModule {
     @Singleton
     @Binds
     fun bindSettingRepository(impl: UserSettingRepositoryImpl): UserSettingRepository
-
 }
 
 @Module

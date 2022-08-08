@@ -51,7 +51,8 @@ class LogViewModel @Inject constructor(
         val list = logs.value
 
         val fileName = String.format(
-            Locale.US, "%s_%sLog_%s.txt", title, type.name, formatTime(
+            Locale.US, "%s_%sLog_%s.txt", title, type.name,
+            formatTime(
                 TIME_PATTERN_DATETIME_FILE, time
             )
         )

@@ -191,8 +191,4 @@ class KdTree @Inject constructor(
             search(if (value < threshold) node.right else node.left, prop)
         }
     }
-
-
 }
-
-

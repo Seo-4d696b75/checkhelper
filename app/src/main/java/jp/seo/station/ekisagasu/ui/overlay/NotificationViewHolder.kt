@@ -120,5 +120,4 @@ class NotificationViewHolder(
             notificationManager.notify(NOTIFICATION_TAG, notification)
         }
     }
-
 }

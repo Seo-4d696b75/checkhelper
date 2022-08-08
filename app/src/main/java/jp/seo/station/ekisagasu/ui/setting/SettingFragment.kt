@@ -142,7 +142,6 @@ class SettingFragment : Fragment() {
         binding.buttonUpdateData.setOnClickListener {
             viewModel.checkLatestData(requireContext())
         }
-
     }
 }
 

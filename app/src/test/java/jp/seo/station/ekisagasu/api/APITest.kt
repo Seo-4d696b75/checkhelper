@@ -28,7 +28,6 @@ import org.junit.Test
 import retrofit2.Retrofit
 import kotlin.random.Random
 
-
 /**
  * @author Seo-4d696b75
  * @version 2020/12/26.
@@ -158,6 +157,5 @@ class APITest {
                 assertThat(seg.size).isGreaterThan(0)
             }
         }
-
     }
 }

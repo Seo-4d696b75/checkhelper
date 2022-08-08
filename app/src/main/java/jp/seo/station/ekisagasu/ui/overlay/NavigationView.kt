@@ -26,7 +26,6 @@ import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.MainActivity
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 
-
 /**
  * @author Seo-4d696b75
  * @version 2021/03/07.
@@ -60,7 +59,7 @@ class NavigationView(
             WindowManager.LayoutParams.WRAP_CONTENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParams.gravity = Gravity.TOP or Gravity.START
@@ -117,12 +116,10 @@ class NavigationView(
             stopNavigationCallback?.invoke()
         }
 
-
         animExpand = AnimationUtils.loadAnimation(ctx, R.anim.anim_expand)
         animShrink = AnimationUtils.loadAnimation(ctx, R.anim.anim_shrink)
         animAppear = AnimationUtils.loadAnimation(ctx, R.anim.anim_appear)
         animDisappear = AnimationUtils.loadAnimation(ctx, R.anim.anim_disappear)
-
     }
 
     var stopNavigationCallback: (() -> Unit)? = null
@@ -208,7 +205,6 @@ class NavigationView(
             animate(result)
         }
         currentStation = result.current
-
     }
 
     private fun invalidate(result: PredictionResult) {
@@ -408,6 +404,5 @@ class NavigationView(
         })
         runningAnimator = animatorSet
         animatorSet.start()
-
     }
 }

@@ -20,7 +20,6 @@ class NodeListConverter {
         return value?.let {
             Json.encodeToString(it)
         }
-
     }
 
     @TypeConverter
@@ -37,7 +36,6 @@ class RegistrationListConverter {
         return value?.let {
             Json.encodeToString(it)
         }
-
     }
 
     @TypeConverter
@@ -55,7 +53,6 @@ class ArrayIntConverter {
         return value?.let {
             Json.encodeToString(it)
         }
-
     }
 
     @TypeConverter
@@ -88,7 +85,6 @@ class JSONRecordConverter {
         return value?.let {
             value.toString()
         }
-
     }
 
     @TypeConverter
