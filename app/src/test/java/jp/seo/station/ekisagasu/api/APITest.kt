@@ -23,6 +23,7 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import retrofit2.Retrofit
 import kotlin.random.Random
@@ -32,6 +33,7 @@ import kotlin.random.Random
  * @author Seo-4d696b75
  * @version 2020/12/26.
  */
+@Ignore("GithubActionsだとメモリ不足で落ちる")
 @ExperimentalSerializationApi
 @ExperimentalCoroutinesApi
 class APITest {
