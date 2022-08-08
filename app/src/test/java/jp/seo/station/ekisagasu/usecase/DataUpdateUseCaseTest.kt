@@ -3,7 +3,11 @@
 package jp.seo.station.ekisagasu.usecase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerifyOrder
+import io.mockk.confirmVerified
+import io.mockk.mockk
+import io.mockk.slot
 import jp.seo.station.ekisagasu.api.DownloadClient
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao

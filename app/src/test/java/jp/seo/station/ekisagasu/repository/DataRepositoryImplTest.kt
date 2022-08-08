@@ -3,7 +3,13 @@
 package jp.seo.station.ekisagasu.repository
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.coVerifyOrder
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
 import jp.seo.station.ekisagasu.api.APIClient
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao
@@ -93,7 +99,6 @@ class DataRepositoryImplTest {
 
         coVerify(exactly = 1) { useCase.invoke(info) }
     }
-
 
     @Test
     fun `データのアップデート - 成功`() = runTest(defaultDispatcher) {

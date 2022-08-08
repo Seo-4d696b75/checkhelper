@@ -14,11 +14,11 @@ import org.junit.runners.JUnit4
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(Enclosed::class)
-open class PrefectureRepositoryImplTestBase {
+open class PrefectureRepositoryImplTest {
     val repository = PrefectureRepositoryImpl()
 
     @RunWith(JUnit4::class)
-    class NotInitTest : PrefectureRepositoryImplTestBase() {
+    class NotInitTest : PrefectureRepositoryImplTest() {
         @Test
         fun `初期化前`() {
             val name = repository.getName(1)
@@ -28,7 +28,7 @@ open class PrefectureRepositoryImplTestBase {
 
     @ExperimentalCoroutinesApi
     @RunWith(RobolectricTestRunner::class)
-    class AlreadyInitTest : PrefectureRepositoryImplTestBase() {
+    class AlreadyInitTest : PrefectureRepositoryImplTest() {
         init {
             runTest {
                 val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -52,5 +52,4 @@ open class PrefectureRepositoryImplTestBase {
             assertThat(name2).isEqualTo("東京都")
         }
     }
-
 }

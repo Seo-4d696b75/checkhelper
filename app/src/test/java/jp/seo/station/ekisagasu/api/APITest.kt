@@ -69,7 +69,6 @@ class APITest {
             .client(client)
             .addConverterFactory(converter)
             .build()
-
     }
 
     @After

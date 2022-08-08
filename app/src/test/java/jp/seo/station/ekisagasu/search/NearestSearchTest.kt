@@ -47,7 +47,6 @@ class NearestSearchTest {
             }
         }
 
-
         // test
         for (sample in samples) {
             val result = search.search(

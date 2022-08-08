@@ -4,7 +4,11 @@ package jp.seo.station.ekisagasu.repository
 
 import android.location.Location
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerifyOrder
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
 import jp.seo.station.ekisagasu.fakeData
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.NearStation
@@ -16,7 +20,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -104,8 +112,13 @@ open class SearchRepositoryImplTest(
 
         val stations = List(k) { data.stations.random() }
 
-        coEvery { search.search(any(), any(), k, 0.0, false) } returns
-                SearchResult(0.0, 0.0, k, 0.0, stations)
+        coEvery { search.search(any(), any(), k, 0.0, false) } returns SearchResult(
+            0.0,
+            0.0,
+            k,
+            0.0,
+            stations
+        )
 
         // test
         repository.setSearchK(k)
