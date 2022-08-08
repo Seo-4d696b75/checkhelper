@@ -17,7 +17,6 @@ import org.robolectric.annotation.Config
 
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
 class UserDatabaseTest {
 
     private lateinit var userDB: UserDatabase

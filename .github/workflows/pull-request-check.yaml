@@ -43,7 +43,7 @@ jobs:
       - name: Run Android Lint
         run: ./gradlew lint
       - name: Run Unit Test
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew testDebugUnitTest --stacktrace
       - name: Run Danger
         uses: MeilCli/danger-action@v5
         if: cancelled() != true # 中断されない限り、エラーでも実行
