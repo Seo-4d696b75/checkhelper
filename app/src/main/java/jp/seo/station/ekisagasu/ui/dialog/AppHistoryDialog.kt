@@ -82,7 +82,6 @@ class AppHistoryDialog : DialogFragment() {
         override fun areContentsTheSame(oldItem: AppRebootLog, newItem: AppRebootLog): Boolean {
             return oldItem == newItem
         }
-
     }
 
     class HistoryAdapter(context: Context) :

@@ -84,7 +84,6 @@ class DataRepositoryImpl @Inject constructor(
                     _currentVersion.value = it.version
                 }
                 is DataUpdateResult.Failure -> {
-
                 }
             }
         }

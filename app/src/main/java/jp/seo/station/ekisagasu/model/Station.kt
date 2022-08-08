@@ -54,7 +54,6 @@ data class Station constructor(
     val attr: String?
 ) {
 
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -76,7 +75,6 @@ data class Station constructor(
     fun isLine(line: Line): Boolean {
         return lines.contains(line.code)
     }
-
 }
 
 @Serializable
@@ -88,10 +86,9 @@ data class StationRegistration(
     fun getNumberingString(): String {
         return numbering?.joinToString(separator = "/", transform = String::toString) ?: ""
     }
-
 }
 
-class JsonObjectAsStringSerializer: KSerializer<String> {
+class JsonObjectAsStringSerializer : KSerializer<String> {
     override fun deserialize(decoder: Decoder): String {
         require(decoder is JsonDecoder)
         val obj = decoder.decodeJsonElement()
@@ -104,5 +101,4 @@ class JsonObjectAsStringSerializer: KSerializer<String> {
     override fun serialize(encoder: Encoder, value: String) {
         throw NotImplementedError()
     }
-
 }

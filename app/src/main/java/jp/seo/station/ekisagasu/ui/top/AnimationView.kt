@@ -120,7 +120,6 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         if (running) invalidate()
     }
 
-
     override fun onRestoreInstanceState(source: Parcelable) {
         val state = source as SavedState
         super.onRestoreInstanceState(state.superState)

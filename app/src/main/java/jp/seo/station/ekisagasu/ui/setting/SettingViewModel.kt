@@ -61,7 +61,6 @@ class SettingViewModel @Inject constructor(
                 appStateRepository.setNightMode(value.isNightMode)
             }
         }
-
 }
 
 data class SettingState(

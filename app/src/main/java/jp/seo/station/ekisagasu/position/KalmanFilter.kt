@@ -3,7 +3,6 @@ package jp.seo.station.ekisagasu.position
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 
-
 /**
  * @author Seo-4d696b75
  * @version 2020/06/28.
@@ -86,11 +85,11 @@ class KalmanFilter {
                 doubleArrayOf(delta)
             )
         )
-        //estimate
+        // estimate
         val estimatedState = f.multiply(latest.state)
         val p = f.multiply(latest.p).multiply(f.transpose())
             .add(g.multiply(g.transpose()).scalarMultiply(SIGMA * SIGMA))
-        //update
+        // update
         val e = pos - mH.multiply(estimatedState).getEntry(0, 0)
         val s = err * err + mH.multiply(p).multiply(mH.transpose()).getEntry(0, 0)
         val k = p.multiply(mH.transpose()).scalarMultiply(1.0 / s)
@@ -105,5 +104,4 @@ class KalmanFilter {
             nextP
         )
     }
-
 }

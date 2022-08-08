@@ -72,6 +72,5 @@ class UserSettingRepositoryImpl @Inject constructor(
         private const val KEY_VIBRATE_APPROACH = "vibrate_approach"
         private const val KEY_NIGHT_TIMEOUT = "night_mode_timeout"
         private const val KEY_TIMER_POSITION = "timer_position_y"
-
     }
 }

@@ -48,7 +48,6 @@ class AnimationHolder<E : View>(
         )
     }
 
-
     fun animate(expand: Boolean, effect: Boolean): ObjectAnimator {
         return if (effect) {
             val scaleFrom = if (expand) 0.1f else 1f
@@ -79,7 +78,6 @@ class AnimationHolder<E : View>(
         set(value) {
             view.visibility = if (value) View.VISIBLE else View.INVISIBLE
         }
-
 }
 
 inline fun Animation.setAnimationListener(

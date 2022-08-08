@@ -71,7 +71,7 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.WRAP_CONTENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
@@ -86,9 +86,9 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.MATCH_PARENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSLUCENT
         )
         keepOnScreen = View(context)
@@ -100,8 +100,8 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.MATCH_PARENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSLUCENT
         )
         darkScreen = View(context)
@@ -113,8 +113,8 @@ class OverlayViewHolder(
             0, 0,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT
         )
         touchScreen = View(context)
@@ -142,7 +142,7 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.WRAP_CONTENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
@@ -365,22 +365,24 @@ class OverlayViewHolder(
         notificationContainer.startAnimation(animAppear)
         elapsedTimer?.cancel()
         elapsedTimer = Timer().apply {
-            schedule(object : TimerTask() {
-                override fun run() {
-                    main.post {
-                        val time = (SystemClock.elapsedRealtime() - detectedTime) / 1000L
-                        val mes = if (time < 10) {
-                            timeNow
-                        } else if (time < 60) {
-                            timeSec
-                        } else {
-                            (time / 60L).toString() + timeMin
+            schedule(
+                object : TimerTask() {
+                    override fun run() {
+                        main.post {
+                            val time = (SystemClock.elapsedRealtime() - detectedTime) / 1000L
+                            val mes = if (time < 10) {
+                                timeNow
+                            } else if (time < 60) {
+                                timeSec
+                            } else {
+                                (time / 60L).toString() + timeMin
+                            }
+                            this@OverlayViewHolder.time.text = mes
                         }
-                        this@OverlayViewHolder.time.text = mes
                     }
-                }
-
-            }, 0, 1000)
+                },
+                0, 1000
+            )
         }
         if (timer) {
             durationCallback?.let { main.removeCallbacks(it) }
@@ -391,7 +393,6 @@ class OverlayViewHolder(
             durationCallback = callback
             main.postDelayed(callback, 5000)
         }
-
     }
 
     private fun onNotificationRemoved(station: Station?) {
@@ -483,7 +484,7 @@ class OverlayViewHolder(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     0, pos, layerType,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT
                 )
                 param.gravity = Gravity.END or Gravity.TOP
@@ -546,7 +547,6 @@ class OverlayViewHolder(
                     timerButton = null
                     timerView = null
                     timerContainer = null
-
                 } else {
                     toggleTimerIcon(false) {
                         setFixedTimer(false, true)
@@ -607,5 +607,4 @@ class OverlayViewHolder(
 
         navigation.release()
     }
-
 }
