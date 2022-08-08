@@ -60,4 +60,3 @@ fun measure(
         sqrt((lat1 - lat2).pow(2) + (lng1 - lng2).pow(2))
     }
 }
-

@@ -53,7 +53,6 @@ class StationService : LifecycleService() {
         return StationServiceBinder()
     }
 
-
     override fun onUnbind(intent: Intent?): Boolean {
         viewModel.log("onUnbind: client unbinds service")
         return true
@@ -93,7 +92,6 @@ class StationService : LifecycleService() {
         }
         return START_STICKY
     }
-
 
     override fun onCreate() {
         super.onCreate()
@@ -179,7 +177,6 @@ class StationService : LifecycleService() {
                 overlayView.isSearchRunning = it
             }
             .launchIn(lifecycleScope)
-
 
         // when navigation changed
         viewModel.isNavigatorRunning
@@ -290,7 +287,6 @@ class StationService : LifecycleService() {
             .flowWithLifecycle(lifecycle)
             .onEach { overlayView.fixTimer(it) }
             .launchIn(lifecycleScope)
-
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -312,7 +308,6 @@ class StationService : LifecycleService() {
                 }
             }
         }
-
     }
 
     @Inject
@@ -405,5 +400,4 @@ class StationService : LifecycleService() {
             viewModel.error("タイマーを設定できませんでした")
         }
     }
-
 }

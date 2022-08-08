@@ -4,17 +4,13 @@ import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import jp.seo.station.ekisagasu.fakeData
-import jp.seo.station.ekisagasu.model.StationData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.BufferedReader
 
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)

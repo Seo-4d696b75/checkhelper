@@ -56,5 +56,4 @@ class DataUpdateUseCase @Inject constructor(
             }
             DataUpdateResult.Failure
         }
-
 }

@@ -118,7 +118,6 @@ class LogFragment : Fragment() {
         override fun areContentsTheSame(oldItem: AppLog, newItem: AppLog): Boolean {
             return oldItem == newItem
         }
-
     }
 
     class LogAdapter(context: Context) :

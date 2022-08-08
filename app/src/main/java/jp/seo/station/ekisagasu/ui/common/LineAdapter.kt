@@ -45,7 +45,6 @@ class LineNameAdapter(context: Context) : ListAdapter<Line, LineNameViewHolder>(
     }
 
     fun getLine(position: Int): Line = getItem(position)
-
 }
 
 class LineAdapter(

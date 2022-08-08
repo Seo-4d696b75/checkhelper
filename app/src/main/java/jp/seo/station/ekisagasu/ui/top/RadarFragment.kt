@@ -86,7 +86,6 @@ class RadarFragment : Fragment() {
         override fun areContentsTheSame(oldItem: NearStation, newItem: NearStation): Boolean {
             return oldItem == newItem
         }
-
     }
 
     private class RadarViewHolder(val binding: CellStationRadarBinding) :

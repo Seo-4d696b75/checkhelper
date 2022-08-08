@@ -10,7 +10,6 @@ import retrofit2.http.Url
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
-
 /**
  * @author Seo-4d696b75
  * @version 2020/12/18.

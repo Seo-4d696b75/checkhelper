@@ -34,11 +34,13 @@ fun NavController.navigateWhenDialogClosed(
                     }
                 }
                 entry.lifecycle.addObserver(observer)
-                lifecycle.addObserver(LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        entry.lifecycle.removeObserver(observer)
+                lifecycle.addObserver(
+                    LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_DESTROY) {
+                            entry.lifecycle.removeObserver(observer)
+                        }
                     }
-                })
+                )
             }
         }
     }

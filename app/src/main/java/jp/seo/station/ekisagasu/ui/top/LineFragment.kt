@@ -12,8 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentLineBinding
 import jp.seo.station.ekisagasu.ui.common.StationAdapter
@@ -77,6 +75,5 @@ class LineFragment : Fragment() {
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-
     }
 }
