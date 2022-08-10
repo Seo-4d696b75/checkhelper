@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.onEach
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -128,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun startService() {
         if (!viewModel.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)

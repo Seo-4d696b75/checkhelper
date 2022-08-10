@@ -1,6 +1,5 @@
 package jp.seo.station.ekisagasu.ui.setting
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,14 +10,12 @@ import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
 
-@ExperimentalCoroutinesApi
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val settingRepository: UserSettingRepository,
@@ -28,23 +25,22 @@ class SettingViewModel @Inject constructor(
 
     val dataVersion = dataRepository.dataVersion
 
-    fun checkLatestData(context: Context) =
-        viewModelScope.launch(Dispatchers.IO) {
-            val latest = try {
-                dataRepository.getLatestDataVersion(true)
-            } catch (e: IOException) {
-                // TODO フィードバックUI
-                return@launch
-            }
-            val current = dataRepository.getDataVersion()
-            if (current == null || latest.version > current.version) {
-                appStateRepository.emitMessage(
-                    AppMessage.RequestDataUpdate(DataUpdateType.Latest, latest)
-                )
-            } else {
-                // TODO フィードバックUI
-            }
+    fun checkLatestData() = viewModelScope.launch(Dispatchers.IO) {
+        val latest = try {
+            dataRepository.getLatestDataVersion(true)
+        } catch (e: IOException) {
+            // TODO フィードバックUI
+            return@launch
         }
+        val current = dataRepository.getDataVersion()
+        if (current == null || latest.version > current.version) {
+            appStateRepository.emitMessage(
+                AppMessage.RequestDataUpdate(DataUpdateType.Latest, latest)
+            )
+        } else {
+            // TODO フィードバックUI
+        }
+    }
 
     private val _setting = MutableStateFlow(
         SettingState.fromUserSetting(settingRepository.setting.value)
