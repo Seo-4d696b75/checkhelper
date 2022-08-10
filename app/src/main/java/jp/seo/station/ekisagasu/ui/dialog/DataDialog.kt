@@ -3,7 +3,6 @@ package jp.seo.station.ekisagasu.ui.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -57,7 +56,6 @@ class ConfirmDataUpdateDialog : DialogFragment() {
             setCanceledOnTouchOutside(false)
         }
     }
-
 }
 
 @AndroidEntryPoint

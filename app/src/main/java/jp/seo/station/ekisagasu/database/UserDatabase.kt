@@ -39,7 +39,6 @@ data class AppLog constructor(
     val message: String
 ) {
 
-
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id", index = true)
     var id: Long = 0
@@ -54,7 +53,6 @@ data class AppLog constructor(
 
         const val FILTER_ALL = 0b111
         const val FILTER_GEO = 0b110
-
     }
 
     override fun toString(): String {
@@ -67,7 +65,8 @@ data class AppLog constructor(
 }
 
 @Entity(
-    tableName = "reboot", foreignKeys = [
+    tableName = "reboot",
+    foreignKeys = [
         ForeignKey(
             entity = AppLog::class,
             parentColumns = ["id"],
@@ -120,5 +119,4 @@ abstract class UserDao {
 
     @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
     abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): Flow<List<AppLog>>
-
 }

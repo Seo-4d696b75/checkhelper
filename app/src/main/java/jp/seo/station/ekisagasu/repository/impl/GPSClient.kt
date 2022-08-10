@@ -103,7 +103,6 @@ class GPSClient @Inject constructor(
         }
     }
 
-
     @SuppressLint("MissingPermission")
     private fun requestGPSUpdate() {
         val request = LocationRequest.create().apply {
@@ -126,7 +125,6 @@ class GPSClient @Inject constructor(
                     launch { _running.emit(true) }
                 } else {
                     error("permission denied: ACCESS_FILE_LOCATION")
-
                 }
             }.addOnFailureListener { e ->
                 if (e is ApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
@@ -152,6 +150,4 @@ class GPSClient @Inject constructor(
         }
         return false
     }
-
 }
-

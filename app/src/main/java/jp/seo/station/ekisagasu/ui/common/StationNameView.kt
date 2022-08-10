@@ -12,7 +12,6 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.Station
 import kotlin.math.max
 
-
 /**
  * @author Seo-4d696b75
  * @version 2019/04/18.
@@ -70,14 +69,12 @@ class StationNameView : LinearLayout {
         kana.setTextColor(kanaTextColor)
         addView(kana, param)
         kanaText = kana
-
     }
 
     fun setStation(station: Station) {
         nameText.text = station.name
         kanaText.text = station.nameKana
     }
-
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         val w1: Int = nameText.measuredWidth

@@ -16,5 +16,4 @@ interface AppStateRepository {
     suspend fun setTimerFixed(fixed: Boolean)
     val nightMode: StateFlow<Boolean>
     suspend fun setNightMode(enabled: Boolean)
-
 }
