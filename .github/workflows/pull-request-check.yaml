@@ -38,6 +38,10 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('.github/workflows/Gemfile') }}
           restore-keys: |
             ${{ runner.os }}-gems-
+      - name: Setup credentials
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.jks
+          echo "${{ secrets.PWD_BASE64 }}" | base64 -d > app/gradle.properties
       - name: Run ktlint
         run: ./gradlew ktlintCheck
       - name: Run Android Lint

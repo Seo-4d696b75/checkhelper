@@ -9,6 +9,8 @@
 
 ## 開発セットアップ
 
+### 依存の追加
+
 [他リポジトリで管理しているソースを利用します](https://github.com/Seo-4d696b75/MyAndroidLibrary/tree/kotlin)
 
 ```bash
@@ -33,4 +35,22 @@ appモジュールの`build.gradle`に対象２モジュールを依存に追加
 ```groovy
     implementation project(':widget')
     implementation project(':diagram')
+```
+
+### Build署名の用意
+
+1. keystoreファイル  
+
+ファイルは`app/release.jks`で保存します.
+key alias は`key0`を指定します.
+
+2. パスワードの指定
+
+`app/gradle.properties`に記述します.
+
+**このファイルは.gitignoreに追加されています**
+
+```shell
+release_keystore_pwd=${keystore_password}
+release_key_pwd=${key_password}
 ```
