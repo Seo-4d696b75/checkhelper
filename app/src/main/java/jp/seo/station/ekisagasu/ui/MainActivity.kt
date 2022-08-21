@@ -25,7 +25,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
-import jp.seo.station.ekisagasu.ui.dialog.*
+import jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.ui.log.LogViewModel
 import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
