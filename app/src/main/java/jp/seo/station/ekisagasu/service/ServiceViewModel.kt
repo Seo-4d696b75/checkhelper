@@ -48,7 +48,8 @@ class ServiceViewModel @Inject constructor(
     val isNavigatorRunning = navigator.running
     val navigationPrediction =
         navigator.predictions.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-    val navigationLine = navigator.line
+    val navigationLine
+        get() = navigator.line
 
     val userSetting = userSettingRepository.setting
     fun saveTimerPosition(position: Int) {
