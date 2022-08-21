@@ -192,120 +192,136 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="0dp"
-            android:layout_marginBottom="15dp"
-            android:onClick="@{() -> viewModel.showMap()}"
-            android:src="@drawable/ic_maps"
-            android:visibility="invisible"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
+
+        <RelativeLayout
+            android:id="@+id/fab_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:padding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_fix_timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="15dp"
-            android:onClick="@{() -> viewModel.fixTimer()}"
-            android:src="@drawable/ic_fixed"
-            android:visibility="invisible"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.showMap()}"
+                android:src="@drawable/ic_maps"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_fix_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.fixTimer()}"
+                android:src="@drawable/ic_fixed"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="15dp"
-            android:onClick="@{() -> viewModel.startTimer()}"
-            android:src="@drawable/ic_timer"
-            android:visibility="invisible"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.startTimer()}"
+                android:src="@drawable/ic_timer"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_predict"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
-            android:onClick="@{() -> viewModel.startNavigation()}"
-            android:src="@drawable/line_position"
-            android:visibility="invisible"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_predict"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:onClick="@{() -> viewModel.startNavigation()}"
+                android:src="@drawable/line_position"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_select_line"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
-            android:onClick="@{() -> viewModel.selectCurrentLine()}"
-            android:src="@drawable/ic_line_selects"
-            android:visibility="invisible"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_select_line"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:onClick="@{() -> viewModel.selectCurrentLine()}"
+                android:src="@drawable/ic_line_selects"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_more"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="65dp"
-            android:layout_marginBottom="0dp"
-            android:onClick="@{() -> viewModel.openMenu()}"
-            android:src="@drawable/ic_expand"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="65dp"
+                android:layout_marginBottom="0dp"
+                android:onClick="@{() -> viewModel.openMenu()}"
+                android:src="@drawable/ic_expand"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_exit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="110dp"
-            android:layout_marginBottom="0dp"
-            android:onClick="@{() -> viewModel.finishApp()}"
-            android:src="@drawable/ic_deletes"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="110dp"
+                android:layout_marginBottom="0dp"
+                android:onClick="@{() -> viewModel.finishApp()}"
+                android:src="@drawable/ic_deletes"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.onSearchStateChanged()}"
-            android:src="@drawable/ic_play"
-            app:backgroundTint="@color/colorPrimary"
-            app:fabSize="normal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:searchRunning="@{viewModel.isRunning}"
-            app:tint="@color/white" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:onClick="@{() -> viewModel.onSearchStateChanged()}"
+                android:src="@drawable/ic_play"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="normal"
+                app:searchRunning="@{viewModel.isRunning}"
+                app:tint="@color/white" />
+
+
+        </RelativeLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
