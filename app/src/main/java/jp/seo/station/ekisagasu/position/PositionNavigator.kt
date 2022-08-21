@@ -20,7 +20,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -502,13 +503,10 @@ class PositionNavigator(
                         // Calc coordinate of another station
                         var index: Double =
                             (
-                                ((current.station.lng - b.longitude) * (a.longitude - b.longitude) + (current.station.lat - b.latitude) * (a.latitude - b.latitude)) /
-                                    (
-                                        (a.longitude - b.longitude).pow(2.0) + (a.latitude - b.latitude).pow(
-                                            2.0
-                                        )
-                                        )
-                                )
+                                (current.station.lng - b.longitude) * (a.longitude - b.longitude) +
+                                    (current.station.lat - b.latitude) * (a.latitude - b.latitude)
+                                ) /
+                                (a.longitude - b.longitude).pow(2.0) + (a.latitude - b.latitude).pow(2.0)
                         val x = (1 - index) * b.longitude + index * a.longitude
                         val y = (1 - index) * b.latitude + index * a.latitude
                         val lng: Double = 2 * x - current.station.lng
@@ -849,17 +847,14 @@ class PositionNavigator(
         }
 
         init {
-            val v1 =
-                (point.longitude - start.longitude) * (end.longitude - start.longitude) + (point.latitude - start.latitude) * (end.latitude - start.latitude)
-            val v2 =
-                (point.longitude - end.longitude) * (start.longitude - end.longitude) + (point.latitude - end.latitude) * (start.latitude - end.latitude)
+            val v1 = (point.longitude - start.longitude) * (end.longitude - start.longitude) +
+                (point.latitude - start.latitude) * (end.latitude - start.latitude)
+            val v2 = (point.longitude - end.longitude) * (start.longitude - end.longitude) +
+                (point.latitude - end.latitude) * (start.latitude - end.latitude)
             if (v1 >= 0 && v2 >= 0) {
                 isOnEdge = true
-                index = v1 / (
-                    Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(
-                        start.latitude - end.latitude, 2.0
-                    )
-                    )
+                index = v1 /
+                    Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
             } else if (v1 < 0) {
                 isOnEdge = false
                 index = 0.0

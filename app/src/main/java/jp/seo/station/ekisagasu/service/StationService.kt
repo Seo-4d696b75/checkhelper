@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 /**
@@ -210,7 +210,9 @@ class StationService : LifecycleService() {
                     if (nextApproachStation == null || nextApproachStation != next) {
                         nextApproachStation = next
                         hasApproach = false
-                    } else if (isVibrateWhenApproach && !hasApproach && result.getDistance(0) < vibrateMeterWhenApproach) {
+                    } else if (
+                        isVibrateWhenApproach && !hasApproach && result.getDistance(0) < vibrateMeterWhenApproach
+                    ) {
                         hasApproach = true
                         vibrate(VIBRATE_PATTERN_APPROACH)
                     }

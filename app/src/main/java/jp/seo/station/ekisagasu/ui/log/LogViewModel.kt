@@ -16,12 +16,21 @@ import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME_FILE
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.BufferedWriter
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel

@@ -4,9 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.*
+import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.repository.NavigationRepository
+import jp.seo.station.ekisagasu.repository.PrefectureRepository
+import jp.seo.station.ekisagasu.repository.SearchRepository
+import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.utils.mapState
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

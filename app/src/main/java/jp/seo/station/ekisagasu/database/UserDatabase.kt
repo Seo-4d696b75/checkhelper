@@ -1,10 +1,21 @@
 package jp.seo.station.ekisagasu.database
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RoomDatabase
+import androidx.room.Transaction
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.flow.Flow
-import java.util.*
+import java.util.Date
 
 /**
  * @author Seo-4d696b75
