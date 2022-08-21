@@ -3,7 +3,8 @@ package jp.seo.station.ekisagasu.utils
 import android.content.Context
 import jp.seo.station.ekisagasu.R
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 /**
  * @author Seo-4d696b75

@@ -42,7 +42,10 @@ class ConfirmDataUpdateDialog : DialogFragment() {
         binding.viewModel = viewModel
 
         return AlertDialog.Builder(context).apply {
-            setTitle(if (args.type == DataUpdateType.Init) R.string.dialog_title_init_data else R.string.dialog_title_latest_data)
+            setTitle(
+                if (args.type == DataUpdateType.Init) R.string.dialog_title_init_data
+                else R.string.dialog_title_latest_data
+            )
             setPositiveButton(R.string.dialog_button_update_positive) { _, _ ->
                 viewModel.onResult(true)
                 dismiss()

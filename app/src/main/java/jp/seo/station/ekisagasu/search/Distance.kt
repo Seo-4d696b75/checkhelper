@@ -2,7 +2,11 @@ package jp.seo.station.ekisagasu.search
 
 import android.location.Location
 import jp.seo.station.ekisagasu.model.Station
-import kotlin.math.*
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * @author Seo-4d696b75

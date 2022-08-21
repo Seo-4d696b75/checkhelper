@@ -25,7 +25,8 @@ import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.setAnimationListener
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.math.roundToInt
 
 /**
@@ -487,7 +488,7 @@ class OverlayViewHolder(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     0, pos, layerType,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT
                 )
                 param.gravity = Gravity.END or Gravity.TOP

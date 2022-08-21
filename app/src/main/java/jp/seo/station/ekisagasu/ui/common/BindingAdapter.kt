@@ -7,15 +7,23 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.database.AppRebootLog
 import jp.seo.station.ekisagasu.database.DataVersion
-import jp.seo.station.ekisagasu.model.*
+import jp.seo.station.ekisagasu.model.DataLatestInfo
+import jp.seo.station.ekisagasu.model.DataUpdateProgress
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.LogTarget
+import jp.seo.station.ekisagasu.model.NearStation
+import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import jp.seo.station.ekisagasu.ui.top.AnimationView
-import jp.seo.station.ekisagasu.utils.*
-import java.util.*
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
+import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
+import jp.seo.station.ekisagasu.utils.formatTime
+import jp.seo.station.ekisagasu.utils.getVFromColorCode
+import jp.seo.station.ekisagasu.utils.parseColorCode
+import java.util.Date
 
 @BindingAdapter("searchRunning")
 fun setSearchState(view: FloatingActionButton, running: Boolean) {
