@@ -19,15 +19,12 @@ import jp.seo.station.ekisagasu.ui.common.LineAdapter
 @AndroidEntryPoint
 class LineDialog : DialogFragment() {
 
-    companion object {
-        fun getInstance(): LineDialog {
-            return LineDialog()
-        }
-    }
-
     private val viewModel: LineSelectionViewModel by viewModels()
 
-    private val type: LineDialogType by navArgs()
+    private val args: LineDialogArgs by navArgs()
+
+    private val type: LineDialogType
+        get() = args.type
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
@@ -44,7 +41,6 @@ class LineDialog : DialogFragment() {
 
         viewModel.setUiState(context, type)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
         builder.setView(binding.root)
 
         when (type) {
