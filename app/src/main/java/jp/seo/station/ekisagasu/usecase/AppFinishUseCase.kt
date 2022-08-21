@@ -5,10 +5,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
-@ExperimentalCoroutinesApi
 class AppFinishUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
     private val userSettingRepository: UserSettingRepository,

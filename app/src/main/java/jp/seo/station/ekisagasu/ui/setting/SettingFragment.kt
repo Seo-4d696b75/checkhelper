@@ -15,7 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentSettingBinding
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -26,7 +25,6 @@ import kotlin.math.roundToInt
  * @author Seo-4d696b75
  * @version 2021/01/20.
  */
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
 
@@ -140,7 +138,7 @@ class SettingFragment : Fragment() {
             .launchIn(lifecycleScope)
 
         binding.buttonUpdateData.setOnClickListener {
-            viewModel.checkLatestData(requireContext())
+            viewModel.checkLatestData()
         }
     }
 }

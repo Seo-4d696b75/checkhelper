@@ -11,7 +11,11 @@ import android.os.Build
 import android.os.Handler
 import android.os.PowerManager
 import android.os.SystemClock
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.core.animation.addListener
@@ -118,7 +122,7 @@ class OverlayViewHolder(
             PixelFormat.TRANSLUCENT
         )
         touchScreen = View(context)
-        touchScreen.setOnTouchListener { v, event ->
+        touchScreen.setOnTouchListener { _, _ ->
             if (keepOnScreen.visibility == View.VISIBLE) {
                 keepOnScreen.visibility = View.GONE
                 if (!keepNotification) {
@@ -329,7 +333,7 @@ class OverlayViewHolder(
             }
         } else if (forceNotify) {
             val wakeLock = powerManager.newWakeLock(
-                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                PowerManager.ACQUIRE_CAUSES_WAKEUP,
                 "station-found:"
             )
             wakeLock.acquire(10)
@@ -459,24 +463,23 @@ class OverlayViewHolder(
         toggleTimerIcon(!running, null)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "Deprecated")
     private fun setFixedTimer(enable: Boolean, immediate: Boolean) {
         if (enable) {
             if (timerView == null) {
-                val layerType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else
-                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                val layerType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 val view = View.inflate(context, R.layout.overlay_timer, null)
                 timerView = view
                 var pos = timerPosition
                 if (pos < 0) {
-                    pos = Point().apply {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            context.display?.getRealSize(this)
-                        } else {
-                            windowManager.defaultDisplay.getRealSize(this)
-                        }
-                    }.y / 2
+                    val height = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        val metric = windowManager.currentWindowMetrics
+                        metric.bounds.height()
+                    } else {
+                        val display = windowManager.defaultDisplay
+                        Point().also { display.getRealSize(it) }.y
+                    }
+                    pos = height / 2
                     timerPosition = pos
                 }
                 val param = WindowManager.LayoutParams(
@@ -484,14 +487,14 @@ class OverlayViewHolder(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     0, pos, layerType,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT
                 )
                 param.gravity = Gravity.END or Gravity.TOP
                 timerContainer = view.findViewById(R.id.container_timer)
                 timerButton = view.findViewById(R.id.fab_timer_fixed)
                 timerButton?.setOnTouchListener { v, event ->
-                    timerButton?.let { button ->
+                    timerButton?.let { _ ->
                         when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
                                 isTimerButtonClicked = false

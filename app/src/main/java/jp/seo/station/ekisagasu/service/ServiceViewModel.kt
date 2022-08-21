@@ -3,12 +3,16 @@ package jp.seo.station.ekisagasu.service
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.*
+import jp.seo.station.ekisagasu.model.Station
+import jp.seo.station.ekisagasu.repository.AppLogger
+import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.repository.NavigationRepository
+import jp.seo.station.ekisagasu.repository.SearchRepository
+import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
 import jp.seo.station.ekisagasu.usecase.BootUseCase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.onEach
@@ -16,7 +20,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@ExperimentalCoroutinesApi
 class ServiceViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val logger: AppLogger,
@@ -45,7 +48,8 @@ class ServiceViewModel @Inject constructor(
     val isNavigatorRunning = navigator.running
     val navigationPrediction =
         navigator.predictions.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-    val navigationLine = navigator.line
+    val navigationLine
+        get() = navigator.line
 
     val userSetting = userSettingRepository.setting
     fun saveTimerPosition(position: Int) {

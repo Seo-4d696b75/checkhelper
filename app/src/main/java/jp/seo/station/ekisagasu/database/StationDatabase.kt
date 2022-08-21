@@ -13,7 +13,7 @@ import java.util.*
  */
 @Database(
     entities = [Station::class, Line::class, TreeSegment::class, DataVersion::class],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(

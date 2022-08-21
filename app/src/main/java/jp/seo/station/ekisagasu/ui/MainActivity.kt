@@ -25,7 +25,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
-import jp.seo.station.ekisagasu.ui.dialog.*
+import jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.ui.log.LogViewModel
 import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,7 +40,6 @@ import kotlinx.coroutines.flow.onEach
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -128,6 +131,7 @@ class MainActivity : AppCompatActivity() {
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun startService() {
         if (!viewModel.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)

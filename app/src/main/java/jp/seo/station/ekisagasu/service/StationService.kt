@@ -6,7 +6,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.*
+import android.os.Binder
+import android.os.Build
+import android.os.IBinder
+import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.provider.AlarmClock
 import android.util.Log
 import android.widget.Toast
@@ -22,7 +28,6 @@ import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.overlay.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -37,7 +42,6 @@ import javax.inject.Inject
  * Main service providing core function in background.
  * This service has to sense GPS location, so must be run as foreground service.
  */
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class StationService : LifecycleService() {
 

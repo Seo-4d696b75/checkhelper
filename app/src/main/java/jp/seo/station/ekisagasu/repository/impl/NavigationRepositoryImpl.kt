@@ -7,6 +7,7 @@ import jp.seo.station.ekisagasu.position.PositionNavigator
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -22,6 +23,8 @@ class NavigationRepositoryImpl @Inject constructor(
     private val _navigator = MutableStateFlow<PositionNavigator?>(null)
 
     override val running: StateFlow<Boolean> = _running
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val predictions = _navigator.flatMapLatest { n ->
         n?.results ?: flowOf(null)
     }

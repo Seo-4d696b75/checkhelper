@@ -5,13 +5,30 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jp.seo.station.ekisagasu.repository.*
-import jp.seo.station.ekisagasu.repository.impl.*
+import jp.seo.station.ekisagasu.repository.AppLogger
+import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.LocationRepository
+import jp.seo.station.ekisagasu.repository.LogRepository
+import jp.seo.station.ekisagasu.repository.NavigationRepository
+import jp.seo.station.ekisagasu.repository.PrefectureRepository
+import jp.seo.station.ekisagasu.repository.SearchRepository
+import jp.seo.station.ekisagasu.repository.UserSettingRepository
+import jp.seo.station.ekisagasu.repository.impl.AppLoggerImpl
+import jp.seo.station.ekisagasu.repository.impl.AppStateRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.DataRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.GPSClient
+import jp.seo.station.ekisagasu.repository.impl.LogRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.NavigationRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.PrefectureRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.SearchRepositoryImpl
+import jp.seo.station.ekisagasu.repository.impl.UserSettingRepositoryImpl
 import jp.seo.station.ekisagasu.search.KdTree
 import jp.seo.station.ekisagasu.search.NearestSearch
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.serialization.ExperimentalSerializationApi
 import javax.inject.Singleton
 
 @Module
@@ -74,6 +91,7 @@ interface SearchModule {
     fun bindNearestSearch(impl: KdTree): NearestSearch
 }
 
+@ExperimentalSerializationApi
 @Module
 @InstallIn(SingletonComponent::class)
 interface DataModule {
