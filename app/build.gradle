@@ -12,7 +12,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(release_keystore_path)
+            storeFile file('release.jks')
             storePassword release_keystore_pwd
             keyAlias 'key0'
             keyPassword release_key_pwd

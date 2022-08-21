@@ -1,4 +1,5 @@
 /build
 
 # release credentials
+/release.jks
 /gradle.properties
