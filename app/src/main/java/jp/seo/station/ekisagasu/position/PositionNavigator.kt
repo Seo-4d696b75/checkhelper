@@ -2,35 +2,33 @@ package jp.seo.station.ekisagasu.position
 
 import android.location.Location
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
-import jp.seo.station.ekisagasu.Line
-import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.StationDao
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.PolylineSegment
+import jp.seo.station.ekisagasu.model.Station
+import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
-import jp.seo.station.ekisagasu.search.KdTree
-import jp.seo.station.ekisagasu.utils.PolylineSegment
-import jp.seo.station.ekisagasu.utils.StationArea
+import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.search.NearestSearch
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.*
-import kotlin.NoSuchElementException
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.pow
-
 
 /**
  * @author Seo-4d696b75
  * @version 2019/02/16.
  */
-
 
 class StationPrediction(
     val station: Station,
@@ -58,15 +56,13 @@ class PredictionResult(
     fun getDistance(index: Int): Float {
         return predictions[index]?.distance ?: throw IllegalStateException("not init yet")
     }
-
 }
 
 class PositionNavigator(
-    private val explorer: KdTree,
-    private val dao: StationDao,
+    private val explorer: NearestSearch,
+    private val repository: DataRepository,
     val line: Line
 ) {
-
 
     companion object {
         private const val DISTANCE_THRESHOLD = 5f
@@ -88,8 +84,8 @@ class PositionNavigator(
         cursors.clear()
     }
 
-    private val _results = MutableLiveData<PredictionResult?>(null)
-    val results: LiveData<PredictionResult?> = _results
+    private val _results = MutableStateFlow<PredictionResult?>(null)
+    val results: StateFlow<PredictionResult?> = _results
 
     private fun setPolylineFragment(tag: String, fragment: PolylineSegment) {
         val list = if (fragmentJunction.containsKey(tag)) {
@@ -133,7 +129,7 @@ class PositionNavigator(
                 if (cursors.isEmpty()) {
                     initialize(location)
                     val result = PredictionResult(0, station)
-                    _results.postValue(result)
+                    _results.value = result
                     return@withContext
                 }
                 if (currentStation?.station != station) {
@@ -154,7 +150,11 @@ class PositionNavigator(
                         list[0].state.speed * 3.6
                     )
                 )
-                if (lastLocation?.distanceTo(location) ?: 100000f < DISTANCE_THRESHOLD) return@withContext
+                if ((
+                    lastLocation?.distanceTo(location)
+                        ?: 100000f
+                    ) < DISTANCE_THRESHOLD
+                ) return@withContext
                 lastLocation = location
 
                 // prediction の集計
@@ -169,7 +169,6 @@ class PositionNavigator(
                         same?.compareDistance(prediction) ?: resolved.add(prediction)
                     }
                 }
-
 
                 // 距離に関して駅をソート
                 resolved.sort()
@@ -193,7 +192,7 @@ class PositionNavigator(
                         )
                     )
                 }
-                _results.postValue(result)
+                _results.value = result
             }
         }
 
@@ -218,7 +217,6 @@ class PositionNavigator(
         }
         return null
     }
-
 
     private fun filterCursors(list: MutableList<PolylineCursor>, threshold: Double): Double {
         val minDistance = list.minOf { cursor -> cursor.nearest.distance }.toDouble()
@@ -504,15 +502,16 @@ class PositionNavigator(
                     ) {
                         // Calc coordinate of another station
                         var index: Double =
-                            (((current.station.lng - b.longitude) * (a.longitude - b.longitude) + (current.station.lat - b.latitude) * (a.latitude - b.latitude))
-                                    / ((a.longitude - b.longitude).pow(2.0) + (a.latitude - b.latitude).pow(
-                                2.0
-                            )))
+                            (
+                                (current.station.lng - b.longitude) * (a.longitude - b.longitude) +
+                                    (current.station.lat - b.latitude) * (a.latitude - b.latitude)
+                                ) /
+                                (a.longitude - b.longitude).pow(2.0) + (a.latitude - b.latitude).pow(2.0)
                         val x = (1 - index) * b.longitude + index * a.longitude
                         val y = (1 - index) * b.latitude + index * a.latitude
                         val lng: Double = 2 * x - current.station.lng
                         val lat: Double = 2 * y - current.station.lat
-                        val neighbors = dao.getStations(current.station.next.toList())
+                        val neighbors = repository.getStations(current.station.next.toList())
                         // Search for which station was detected
                         val next =
                             neighbors.minByOrNull { s -> measureDistance(lat, lng, s.lat, s.lng) }
@@ -572,7 +571,7 @@ class PositionNavigator(
             if (javaClass != other?.javaClass) return false
             other as PolylineCursor
             return (start == other.start && end == other.end) ||
-                    (start == other.end && end == other.start)
+                (start == other.end && end == other.start)
         }
 
         override fun hashCode(): Int {
@@ -688,8 +687,10 @@ class PositionNavigator(
                     val v1 = previous.point
                     val v2 = point
                     val v3 = node!!.point
-                    val v = ((v1.longitude - v2.longitude) * (v3.longitude - v2.longitude)
-                            + (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude))
+                    val v = (
+                        (v1.longitude - v2.longitude) * (v3.longitude - v2.longitude) +
+                            (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude)
+                        )
                     if (node != previous && v < 0) break
                     nextIndex++
                 }
@@ -846,15 +847,14 @@ class PositionNavigator(
         }
 
         init {
-            val v1 =
-                (point.longitude - start.longitude) * (end.longitude - start.longitude) + (point.latitude - start.latitude) * (end.latitude - start.latitude)
-            val v2 =
-                (point.longitude - end.longitude) * (start.longitude - end.longitude) + (point.latitude - end.latitude) * (start.latitude - end.latitude)
+            val v1 = (point.longitude - start.longitude) * (end.longitude - start.longitude) +
+                (point.latitude - start.latitude) * (end.latitude - start.latitude)
+            val v2 = (point.longitude - end.longitude) * (start.longitude - end.longitude) +
+                (point.latitude - end.latitude) * (start.latitude - end.latitude)
             if (v1 >= 0 && v2 >= 0) {
                 isOnEdge = true
-                index = v1 / (Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(
-                    start.latitude - end.latitude, 2.0
-                ))
+                index = v1 /
+                    Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
             } else if (v1 < 0) {
                 isOnEdge = false
                 index = 0.0
@@ -869,6 +869,4 @@ class PositionNavigator(
             edgeDistance = measureDistance(start, end)
         }
     }
-
-
 }

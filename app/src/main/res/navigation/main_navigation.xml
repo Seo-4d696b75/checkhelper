@@ -2,12 +2,12 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/topFragment">
 
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="jp.seo.station.ekisagasu.ui.MainFragment"
-        android:label="MainFragment">
+        android:id="@+id/topFragment"
+        android:name="jp.seo.station.ekisagasu.ui.top.TopFragment"
+        android:label="TopFragment">
         <action
             android:id="@+id/action_mainFragment_to_logFragment"
             app:destination="@id/logFragment" />
@@ -17,13 +17,62 @@
     </fragment>
     <fragment
         android:id="@+id/logFragment"
-        android:name="jp.seo.station.ekisagasu.ui.LogFragment"
+        android:name="jp.seo.station.ekisagasu.ui.log.LogFragment"
         android:label="LogFragment" />
     <action
         android:id="@+id/action_global_mainFragment"
-        app:destination="@id/mainFragment" />
+        app:destination="@id/topFragment" />
     <fragment
         android:id="@+id/settingFragment"
-        android:name="jp.seo.station.ekisagasu.ui.SettingFragment"
+        android:name="jp.seo.station.ekisagasu.ui.setting.SettingFragment"
         android:label="SettingFragment" />
+    <dialog
+        android:id="@+id/lineDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.LineDialog"
+        android:label="LineDialog">
+        <argument
+            android:name="type"
+            android:defaultValue="Current"
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.LineDialogType" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_lineDialog"
+        app:destination="@id/lineDialog" />
+    <dialog
+        android:id="@+id/confirmDataUpdateDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialog"
+        android:label="DataCheckDialog">
+        <argument
+            android:name="type"
+            android:defaultValue="Latest"
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.DataUpdateType" />
+        <argument
+            android:name="info"
+            app:argType="jp.seo.station.ekisagasu.model.DataLatestInfo" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_confirmDataUpdateDialog"
+        app:destination="@id/confirmDataUpdateDialog" />
+    <dialog
+        android:id="@+id/dataUpdateDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialog"
+        android:label="DataUpdateDialog">
+        <argument
+            android:name="info"
+            app:argType="jp.seo.station.ekisagasu.model.DataLatestInfo" />
+        <argument
+            android:name="type"
+            app:argType="jp.seo.station.ekisagasu.ui.dialog.DataUpdateType" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_dataUpdateDialog"
+        app:destination="@id/dataUpdateDialog" />
+    <dialog
+        android:id="@+id/appHistoryDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialog"
+        android:label="DataUpdateDialog">
+    </dialog>
+    <action
+        android:id="@+id/action_global_appHistoryDialog"
+        app:destination="@id/appHistoryDialog" />
 </navigation>

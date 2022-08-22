@@ -1,539 +1,537 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:padding="8dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <GridLayout
+    <data>
+
+        <variable
+            name="viewModel"
+            type="jp.seo.station.ekisagasu.ui.setting.SettingViewModel" />
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="3">
+        android:layout_height="match_parent"
+        android:padding="8dp">
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/interval"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:text="@string/setting_title_freq"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18sp"
-            android:layout_columnWeight="1" />
-
-        <jp.seo.android.widget.CustomNumberPicker
-            android:id="@+id/number_time_interval"
-            android:layout_width="80dp"
-            android:layout_height="120dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="20dp"
-            android:descendantFocusability="blocksDescendants"
-            android:focusable="false"
-            custom:max="60"
-            custom:min="1"
-            custom:speedShiftPoint="1"
-            custom:speedShiftRate="2"
-            custom:step="1"
-            custom:value="5"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorText"
-            android:padding="3dp"
-            android:text="@string/setting_mes_freq"
-            android:textSize="12sp"
-            android:layout_columnWeight="1" />
-
-        <View
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_columnSpan="3" />
-
-        <ImageView
-            android:layout_margin="10dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/radar"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_columnWeight="1"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_radar" />
+            android:columnCount="3">
 
-        <jp.seo.android.widget.CustomNumberPicker
-            android:id="@+id/number_radar"
-            android:focusable="false"
-            custom:max="20"
-            custom:min="12"
-            custom:value="12"
-            custom:step="1"
-            android:descendantFocusability="blocksDescendants"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="10dp"
-            android:layout_width="80dp"
-            android:layout_height="120dp"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_radar" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_columnSpan="3" />
-
-        <ImageView
-            android:layout_margin="10dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_notify"
-            android:layout_rowSpan="11" />
-
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_notification" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_notification"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_notification" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_columnSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="@string/setting_title_force_notify"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18sp" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_force_notify"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_force_notify" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_columnSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_notify_stationary" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_keep_notification"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_notify_stationary" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_columnSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_notify_prefecture" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_display_prefecture"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_notify_prefecture" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_columnSpan="3" />
-
-        <ImageView
-            android:layout_margin="10dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_vibrate"
-            android:layout_rowSpan="5" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_vibe" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_vibrate"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:padding="3dp"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_vibe" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_columnSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="@string/setting_title_meter"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18sp" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_vibrate_approach"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginStart="30dp" />
-
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:padding="3dp"
-            android:text="@string/setting_mes_meter"
-            android:textSize="12sp" />
-
-        <jp.seo.android.widget.CustomNumberPicker
-            android:id="@+id/number_vibrate_meter"
-            android:layout_width="80dp"
-            android:layout_height="120dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="20dp"
-            android:descendantFocusability="blocksDescendants"
-            android:focusable="false"
-            custom:max="1000"
-            custom:min="50"
-            custom:speedShiftPoint="1"
-            custom:speedShiftRate="2"
-            custom:step="10"
-            custom:value="100" />
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_columnSpan="3" />
-
-        <ImageView
-            android:layout_margin="10dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_location"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_accuracy" />
-
-        <ToggleButton
-            android:id="@+id/toggle_accuracy"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="5dp"
-            android:textOn="high"
-            android:textOff="low"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="12sp"
-            android:textColor="@color/colorText"
-            android:text="@string/setting_mes_accuracy" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_columnSpan="3" />
-
-        <ImageView
-            android:layout_margin="10dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/brightness"
-            android:layout_rowSpan="9" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_night" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_night"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowSpan="2" />
-
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_night" />
-
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_columnSpan="2" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_columnSpan="2"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_night_switch" />
-
-        <Spinner
-            android:id="@+id/spinner_night_mode_switch"
-            android:layout_margin="4dp"
-            android:layout_width="260dp"
-            android:layout_height="wrap_content"
-            android:layout_columnSpan="2" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_columnSpan="2" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_brightness" />
-
-        <FrameLayout
-            android:layout_width="80dp"
-            android:layout_height="40dp"
-            android:layout_margin="8dp"
-            android:layout_rowSpan="2">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_rowSpan="2"
+                android:layout_margin="10dp"
+                android:src="@drawable/interval" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="サンプル"
-                android:gravity="center" />
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_freq"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <jp.seo.android.widget.CustomNumberPicker
+                android:id="@+id/number_time_interval"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:descendantFocusability="blocksDescendants"
+                android:focusable="false"
+                app:max="60"
+                app:min="1"
+                app:speedShiftPoint="1"
+                app:speedShiftRate="2"
+                app:step="1"
+                app:value="1" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_freq"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
 
             <View
-                android:id="@+id/view_sample_brightness"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#BB000000" />
-        </FrameLayout>
+                android:layout_height="1dp"
+                android:layout_columnSpan="3"
+                android:layout_margin="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorPrimaryDark" />
 
-        <TextView
-            android:padding="3dp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textColor="@color/colorText"
-            android:textSize="12sp"
-            android:text="@string/setting_mes_brightness" />
-
-
-        <LinearLayout
-            android:padding="5dp"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_columnSpan="2"
-            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_rowSpan="2"
+                android:layout_margin="10dp"
+                android:src="@drawable/radar" />
 
             <TextView
-                android:gravity="center"
-                android:textColor="@color/colorText"
-                android:layout_width="match_parent"
+                android:layout_width="1dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:text="暗" />
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_radar"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
 
-            <SeekBar
-                android:id="@+id/seek_brightness"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
+            <jp.seo.android.widget.CustomNumberPicker
+                android:id="@+id/number_radar"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:descendantFocusability="blocksDescendants"
+                android:focusable="false"
+                app:max="20"
+                app:min="12"
+                app:step="1"
+                app:value="12" />
 
             <TextView
-                android:gravity="center"
-                android:textColor="@color/colorText"
-                android:layout_width="match_parent"
+                android:layout_width="1dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:text="明" />
-        </LinearLayout>
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_radar"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimaryDark"
-            android:layout_columnSpan="3" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_columnSpan="3"
+                android:layout_margin="10dp"
+                android:background="@color/colorPrimaryDark" />
 
-        <ImageView
-            android:layout_margin="10dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_sync"
-            android:layout_rowSpan="3" />
-
-        <TextView
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
-            android:text="@string/setting_title_data" />
-
-        <Button
-            android:id="@+id/button_update_data"
-            android:text="更新"
-            android:layout_rowSpan="3" />
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_rowSpan="11"
+                android:layout_margin="10dp"
+                android:src="@drawable/ic_notify" />
 
 
-        <TextView
-            android:id="@+id/text_data_version"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:padding="3dp"
-            android:text="@string/setting_mes_data_version"
-            android:textColor="@color/colorText"
-            android:textSize="12sp" />
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_notification"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/text_data_timestamp"
-            android:layout_width="1dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:padding="3dp"
-            android:text="@string/setting_mes_data_timestamp"
-            android:textColor="@color/colorText"
-            android:textSize="12sp" />
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:checked="@{viewModel.setting.isPushNotification}" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_notification"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_force_notify"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_force_notify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:checked="@{viewModel.setting.isPushNotificationForce}"
+                android:enabled="@{viewModel.setting.isPushNotification}" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_force_notify"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_notify_stationary"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_keep_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:checked="@{viewModel.setting.isKeepNotification}"
+                android:enabled="@{viewModel.setting.isPushNotification}" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_notify_stationary"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_notify_prefecture"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_display_prefecture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:checked="@{viewModel.setting.isShowPrefectureNotification}"
+                android:enabled="@{viewModel.setting.isPushNotification}" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_notify_prefecture"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_columnSpan="3"
+                android:layout_margin="10dp"
+                android:background="@color/colorPrimaryDark" />
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_rowSpan="5"
+                android:layout_margin="10dp"
+                android:src="@drawable/ic_vibrate" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_vibe"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_vibrate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:checked="@{viewModel.setting.isVibrate}" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_vibe"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_meter"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_vibrate_approach"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="0dp"
+                android:checked="@{viewModel.setting.isVibrateWhenApproach}"
+                android:enabled="@{viewModel.setting.isVibrate}" />
 
 
-    </GridLayout>
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_meter"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
 
-</ScrollView>
+            <jp.seo.android.widget.CustomNumberPicker
+                android:id="@+id/number_vibrate_meter"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:descendantFocusability="blocksDescendants"
+                android:enabled="@{viewModel.setting.isVibrate}"
+                android:focusable="false"
+                app:max="1000"
+                app:min="50"
+                app:speedShiftPoint="1"
+                app:speedShiftRate="2"
+                app:step="10"
+                app:value="100" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_columnSpan="3"
+                android:layout_margin="10dp"
+                android:background="@color/colorPrimaryDark" />
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_rowSpan="9"
+                android:layout_margin="10dp"
+                android:src="@drawable/brightness" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_night"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_night"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_rowSpan="2"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:checked="@{viewModel.setting.isNightMode}" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_night"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:text="@string/setting_title_night_switch"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/text_layout_log_filter"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:layout_marginTop="10dp"
+                android:hint="@string/setting_mes_night_select"
+                app:layout_constraintStart_toEndOf="@id/text_layout_log_since"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_night_timeout"
+                    android:layout_width="240dp"
+                    android:layout_height="50dp"
+                    android:ellipsize="end"
+                    android:inputType="none"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="15dp"
+                android:layout_columnSpan="2" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_brightness"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <FrameLayout
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_rowSpan="2"
+                android:layout_margin="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/setting_mes_brightness_sample" />
+
+                <View
+                    android:id="@+id/view_sample_brightness"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#BB000000" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:text="@string/setting_mes_brightness"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+
+            <LinearLayout
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    android:text="@string/setting_mes_brightness_dart"
+                    android:textColor="@color/colorText" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/seek_brightness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:value="@{viewModel.setting.nightModeBrightness}" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    android:text="@string/setting_mes_brightness_bright"
+                    android:textColor="@color/colorText" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_columnSpan="3"
+                android:layout_margin="10dp"
+                android:background="@color/colorPrimaryDark" />
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_rowSpan="3"
+                android:layout_margin="10dp"
+                android:src="@drawable/ic_sync" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="@string/setting_title_data"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/button_update_data"
+                android:layout_rowSpan="3"
+                android:text="@string/setting_mes_update_data" />
+
+
+            <TextView
+                android:id="@+id/text_data_version"
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:textColor="@color/colorText"
+                android:textSize="12sp"
+                app:dataVersion="@{viewModel.dataVersion}" />
+
+            <TextView
+                android:id="@+id/text_data_timestamp"
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:padding="3dp"
+                android:textColor="@color/colorText"
+                android:textSize="12sp"
+                app:dataUpdatedAt="@{viewModel.dataVersion}" />
+
+
+        </GridLayout>
+
+    </ScrollView>
+</layout>

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="jp.seo.station.ekisagasu.ui.top.SearchState" />
+
+        <variable
+            name="viewModel"
+            type="jp.seo.station.ekisagasu.ui.top.TopViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/text_title_station"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="0dp"
+            android:text="@string/title_nearest_station"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/text_wait_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:padding="5dp"
+            android:text="@string/main_message_wait_search"
+            android:textColor="@color/colorText"
+            android:visibility="@{viewModel.state == SearchState.STOPPED ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_title_station" />
+
+        <LinearLayout
+            android:id="@+id/container_starting_search_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.state == SearchState.STARTING ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_title_station">
+
+            <ProgressBar
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="@string/main_message_starting_search"
+                android:textColor="@color/colorText" />
+        </LinearLayout>
+
+        <GridLayout
+            android:id="@+id/container_station"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:columnCount="3"
+            android:visibility="@{viewModel.state == SearchState.RUNNING ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintEnd_toStartOf="@id/animation_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_title_station">
+
+            <jp.seo.station.ekisagasu.ui.common.StationNameView
+                android:id="@+id/station_name_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="3"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="7dp"
+                app:nearestStationName="@{viewModel.station}"
+                custom:kanaTextColor="@color/colorText"
+                custom:kanaTextSize="12sp"
+                custom:nameTextColor="@color/colorTextDark"
+                custom:nameTextSize="22sp" />
+
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/ic_location" />
+
+            <TextView
+                android:id="@+id/text_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/colorText"
+                app:stationDistance="@{viewModel.nearestStation}"
+                tools:text="108m" />
+
+            <TextView
+                android:id="@+id/text_station_prefecture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@{viewModel.nearestStationPrefecture}"
+                android:textColor="@color/colorText"
+                tools:text="東京都" />
+
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/station" />
+
+            <jp.seo.android.widget.HorizontalListView
+                android:id="@+id/list_line_names"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:paddingStart="4dp"
+                android:paddingEnd="0dp" />
+
+        </GridLayout>
+
+        <jp.seo.android.widget.ExpandableTextView
+            android:id="@+id/text_selected_line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:selectedLineName="@{viewModel.selectedLine}"
+            custom:maxWidth="100dp"
+            tools:text="東海道線" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_line_select"
+            app:layout_constraintEnd_toStartOf="@id/text_selected_line"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <jp.seo.station.ekisagasu.ui.top.AnimationView
+            android:id="@+id/animation_view"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:running="@{viewModel.isRunning}" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/sub_nav_host"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="40dp"
+            app:defaultNavHost="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/container_station"
+            app:navGraph="@navigation/sub_navigation">
+
+        </androidx.fragment.app.FragmentContainerView>
+
+        <View
+            android:id="@+id/float_button_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/menuBack"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <RelativeLayout
+            android:id="@+id/fab_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.showMap()}"
+                android:src="@drawable/ic_maps"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_fix_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.fixTimer()}"
+                android:src="@drawable/ic_fixed"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:onClick="@{() -> viewModel.startTimer()}"
+                android:src="@drawable/ic_timer"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_predict"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:onClick="@{() -> viewModel.startNavigation()}"
+                android:src="@drawable/line_position"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_select_line"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="15dp"
+                android:onClick="@{() -> viewModel.selectCurrentLine()}"
+                android:src="@drawable/ic_line_selects"
+                android:visibility="invisible"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="65dp"
+                android:layout_marginBottom="0dp"
+                android:onClick="@{() -> viewModel.openMenu()}"
+                android:src="@drawable/ic_expand"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="110dp"
+                android:layout_marginBottom="0dp"
+                android:onClick="@{() -> viewModel.finishApp()}"
+                android:src="@drawable/ic_deletes"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:onClick="@{() -> viewModel.onSearchStateChanged()}"
+                android:src="@drawable/ic_play"
+                app:backgroundTint="@color/colorPrimary"
+                app:fabSize="normal"
+                app:searchRunning="@{viewModel.isRunning}"
+                app:tint="@color/white" />
+
+
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -13,19 +13,28 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.core.*
-import jp.seo.station.ekisagasu.viewmodel.ActivityViewModel
-import jp.seo.station.ekisagasu.viewmodel.ApplicationViewModel
-import javax.inject.Inject
+import jp.seo.station.ekisagasu.model.AppMessage
+import jp.seo.station.ekisagasu.service.StationService
+import jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
+import jp.seo.station.ekisagasu.ui.log.LogViewModel
+import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * @author Seo-4d696b75
@@ -34,112 +43,107 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        // TODO activityの再生成が失敗するので暫定的に初期状態から
+        super.onCreate(null)
         setContentView(R.layout.main_activity)
 
-        appViewModel.isActivityAlive = true
-
-        // try to resolve API exception if any
-        appViewModel.apiException.observe(this) {
-            resolvableApiLauncher.launch(
-                IntentSenderRequest.Builder(it.resolution).build()
-            )
-        }
-
-        // finish activity if requested
-        viewModel.requestFinish.observe(this) {
-            appViewModel.finish()
-        }
-        appViewModel.requestFinishActivity.observe(this) {
-            finish()
-        }
-
-        viewModel.requestDialog.observe(this) { type ->
-            ActivityViewModel.getDialog(type)?.show(supportFragmentManager, type)
-        }
-        viewModel.requestToast.observe(this) {
-            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-        }
-
-        appViewModel.onAppReboot(applicationContext)
-
+        // handle message
+        viewModel.message
+            .flowWithLifecycle(lifecycle)
+            .onEach { message ->
+                when (message) {
+                    is AppMessage.ResolvableException -> {
+                        resolvableApiLauncher.launch(
+                            IntentSenderRequest.Builder(message.exception.resolution).build()
+                        )
+                    }
+                    is AppMessage.StartActivityForResult -> {
+                        when (message.code) {
+                            LogViewModel.REQUEST_CODE_LOG_FILE_URI -> {
+                                requestLogFileUriLauncher.launch(message.intent)
+                            }
+                            else -> {
+                                Log.w("MainActivity", "unknown request: $message")
+                            }
+                        }
+                    }
+                    is AppMessage.FinishApp -> {
+                        finish()
+                    }
+                    is AppMessage.RequestDataUpdate -> {
+                        // ユーザの確認を経てから実行
+                        if (message.confirmed) {
+                            val action = DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
+                                info = message.info,
+                                type = message.type,
+                            )
+                            findNavController(R.id.main_nav_host).navigateWhenDialogClosed(
+                                action,
+                                R.id.confirmDataUpdateDialog,
+                                lifecycle,
+                            )
+                        } else {
+                            val action =
+                                ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
+                                    info = message.info,
+                                    type = message.type,
+                                )
+                            findNavController(R.id.main_nav_host).navigate(action)
+                        }
+                    }
+                    is AppMessage.DataUpdateResult -> {
+                        if (message.success) {
+                            // TODO show ui
+                        } else if (message.type == DataUpdateType.Init) {
+                            // データの初期化に失敗・これ以上の続行不可能
+                            // TODO show ui
+                            viewModel.requestAppFinish()
+                        }
+                    }
+                    else -> {}
+                }
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onResume() {
         super.onResume()
         checkPermission()
-        if (appViewModel.hasPermissionChecked) {
+        if (viewModel.hasPermissionChecked) {
             startService()
             viewModel.checkData()
         }
 
-
+        // handle intent
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
                 it.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
-                viewModel.requestDialog(LineDialog.DIALOG_SELECT_NAVIGATION)
+                val action = LineDialogDirections.actionGlobalLineDialog(LineDialogType.Navigation)
+                findNavController(R.id.main_nav_host).navigate(action)
             }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        appViewModel.isActivityAlive = false
-    }
-
-    @Inject
-    lateinit var singletonStore: ViewModelStore
-
-    @Inject
-    lateinit var stationRepository: StationRepository
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
-    @Inject
-    lateinit var gpsClient: GPSClient
-
-    @Inject
-    lateinit var navigator: NavigationRepository
-
-    private val viewModel: ActivityViewModel by lazy {
-        // ActivityScoped
-        ActivityViewModel.getInstance(this, this, stationRepository, userRepository)
-    }
-
-    private val appViewModel: ApplicationViewModel by lazy {
-        // SingletonScoped
-        ApplicationViewModel.getInstance(
-            { singletonStore },
-            stationRepository,
-            userRepository,
-            gpsClient,
-            navigator
-        )
-    }
-
     companion object {
-        const val PERMISSION_REQUEST = 3901
-        const val WRITE_EXTERNAL_FILE = 3903
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun startService() {
-        if (!appViewModel.isServiceAlive) {
+        if (!viewModel.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent)
-            } else {
-                startService(intent)
-            }
-            appViewModel.isServiceAlive = true
+            startForegroundService(intent)
+            viewModel.isServiceRunning = true
         }
     }
 
     private fun checkPermission() {
-        if (appViewModel.hasPermissionChecked) return
+        if (viewModel.hasPermissionChecked) return
         // Runtime Permission required API level >= 23
+        // TODO permissionの必要をユーザ側に説明するUI
         if (!Settings.canDrawOverlays(applicationContext)) {
             Toast.makeText(
                 applicationContext,
@@ -153,27 +157,25 @@ class MainActivity : AppCompatActivity() {
             overlayPermissionLauncher.launch(intent)
             return
         }
-
         if (
             ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
             != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            return
+        }
+
+        if (
+            ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                PERMISSION_REQUEST
-            )
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return
         }
 
@@ -183,7 +185,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        appViewModel.hasPermissionChecked = true
+        viewModel.hasPermissionChecked = true
     }
 
     private val overlayPermissionLauncher = registerForActivityResult(
@@ -216,39 +218,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == WRITE_EXTERNAL_FILE) {
-            if (resultCode == Activity.RESULT_OK) {
-                data?.data?.let { viewModel.writeFile(it, contentResolver) }
-            }
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (!it) {
+            Toast.makeText(
+                applicationContext,
+                "permission not granted",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    applicationContext,
-                    "location permission not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
-            if (grantResults[1] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    applicationContext,
-                    "storage permission not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-            }
-        }
+    private val requestLogFileUriLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.onActivityResultResolved(
+            LogViewModel.REQUEST_CODE_LOG_FILE_URI,
+            result.resultCode,
+            result.data
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -265,5 +255,4 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
 }

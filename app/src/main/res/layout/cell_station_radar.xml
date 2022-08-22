@@ -1,46 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="3dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:layout_width="16dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/text_station_cell_index"
-        android:textSize="14sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:gravity="center_horizontal"
-        android:text="" />
+    <data>
 
-    <TextView
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/text_cell_station_distance"
-        android:textSize="12sp"
-        android:textColor="@color/colorText"
-        android:gravity="center"
-        android:text="" />
+        <variable
+            name="index"
+            type="String" />
 
-    <jp.seo.android.widget.ExpandableTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/text_cell_station_name"
-        android:textSize="14sp"
-        android:textColor="@color/colorTextDark"
-        android:text=""
-        custom:maxWidth="150dp" />
+        <variable
+            name="near"
+            type="jp.seo.station.ekisagasu.model.NearStation" />
+    </data>
 
-    <jp.seo.android.widget.ExpandableTextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="@color/colorTextGray"
-        android:gravity="end"
-        android:layout_marginStart="5dp"
-        android:paddingStart="2dp"
-        android:paddingEnd="4dp"
-        android:id="@+id/text_cell_station_lines" />
-</LinearLayout>
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <TextView
+            android:id="@+id/text_station_cell_index"
+            android:layout_width="16dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@{index}"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/text_cell_station_distance"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/colorText"
+            android:textSize="12sp"
+            app:stationDistance="@{near}" />
+
+        <jp.seo.android.widget.ExpandableTextView
+            android:id="@+id/text_cell_station_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/colorTextDark"
+            android:textSize="14sp"
+            app:maxWidth="150dp"
+            app:stationName="@{near}" />
+
+        <jp.seo.android.widget.ExpandableTextView
+            android:id="@+id/text_cell_station_lines"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:gravity="end"
+            android:paddingStart="2dp"
+            android:paddingEnd="4dp"
+            android:textColor="@color/colorTextGray"
+            android:textSize="12sp"
+            app:linesName="@{near}" />
+    </LinearLayout>
+</layout>

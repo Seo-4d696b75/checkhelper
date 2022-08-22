@@ -1,9 +1,10 @@
 package jp.seo.station.ekisagasu.search
 
-import jp.seo.station.ekisagasu.Station
-import jp.seo.station.ekisagasu.core.StationDao
+import jp.seo.station.ekisagasu.model.StationNode
+import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
@@ -19,9 +20,9 @@ import kotlin.math.sin
  * (1) sphere == false 緯度経度をそのまま直交座標系に投影した平面状でのユークリッド距離
  * (2) sphere == true  地球を完全な球体と仮定して計算した大円距離
  */
-class KdTree(
-    private val database: StationDao,
-) {
+class KdTree @Inject constructor(
+    private val repository: DataRepository
+) : NearestSearch {
 
     private var _root: NodeAdapter? = null
 
@@ -30,7 +31,7 @@ class KdTree(
 
     private suspend fun getRoot(): NodeAdapter = lock.withLock {
         _root ?: run {
-            val data = database.getTreeSegment("root")
+            val data = repository.getTreeSegment("root")
             val map: MutableMap<Int, StationNode> = HashMap()
             for (s in data.nodes) {
                 map[s.code] = s
@@ -82,7 +83,7 @@ class KdTree(
 
         suspend fun node(): Node = lock.withLock {
             _node ?: kotlin.run {
-                val segment = database.getTreeSegment(
+                val segment = repository.getTreeSegment(
                     segmentName ?: throw RuntimeException("segment-name not found")
                 )
                 if (segment.root != this.code) throw RuntimeException("root mismatch name:$segmentName")
@@ -113,25 +114,17 @@ class KdTree(
         val dist: Double
     )
 
-    class SearchResult(
-        val lat: Double,
-        val lng: Double,
-        val k: Int,
-        val r: Double,
-        val stations: List<Station>
-    )
-
-    suspend fun search(
+    override suspend fun search(
         lat: Double,
         lng: Double,
         k: Int,
         r: Double,
-        sphere: Boolean = false
+        sphere: Boolean,
     ): SearchResult {
         val prop = SearchProperties(lat, lng, k, r, sphere)
         search(getRoot(), prop)
         val indices = prop.list.map { n -> n.code }
-        val data = database.getStations(indices)
+        val data = repository.getStations(indices)
         val stations = indices.map { code ->
             data.find { s -> s.code == code } ?: throw NoSuchElementException()
         }
@@ -203,8 +196,4 @@ class KdTree(
             search(if (value < threshold) node.right else node.left, prop)
         }
     }
-
-
 }
-
-

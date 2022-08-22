@@ -1,62 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="10dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <GridLayout
-        android:layout_margin="5dp"
+    <data>
+
+        <variable
+            name="viewModel"
+            type="jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="2">
-
-        <ImageView
-            android:layout_height="80dp"
-            android:layout_width="80dp"
-            android:src="@drawable/ic_download"/>
-
+        android:layout_height="match_parent"
+        android:padding="14dp">
 
         <TextView
             android:id="@+id/text_dialog_message"
-            android:textColor="@color/colorText"
-            android:layout_width="1dp"
-            android:layout_columnWeight="1"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="100dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:gravity="end"
-            android:text="バージョン："
-            android:textColor="@color/colorText"/>
-
-        <TextView
-            android:id="@+id/text_version"
-            android:layout_margin="4dp"
-            android:textColor="@color/colorText"
-            android:layout_width="1dp"
+            android:layout_columnSpan="2"
             android:layout_columnWeight="1"
-            android:layout_height="wrap_content" />
+            android:textColor="@color/colorText"
+            app:confirmDataUpdate="@{viewModel.type}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="ここにデータ更新の詳細なメッセージが表示される" />
 
+        <ImageView
+            android:id="@+id/image_data_download"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_rowSpan="2"
+            android:src="@drawable/ic_download"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_dialog_message" />
 
         <TextView
-            android:layout_width="100dp"
+            android:id="@+id/text_data_version"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:gravity="end"
-            android:text="データサイズ："
-            android:textColor="@color/colorText"/>
+            android:layout_marginStart="20dp"
+            android:padding="2dp"
+            android:textColor="@color/colorText"
+            app:dataVersion="@{viewModel.info}"
+            app:layout_constraintBottom_toTopOf="@id/text_data_size"
+            app:layout_constraintStart_toEndOf="@id/image_data_download"
+            app:layout_constraintTop_toTopOf="@id/image_data_download"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="バージョン： 20202222" />
 
         <TextView
-            android:id="@+id/text_size"
-            android:layout_margin="4dp"
+            android:id="@+id/text_data_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:padding="2dp"
             android:textColor="@color/colorText"
-            android:layout_width="1dp"
-            android:layout_columnWeight="1"
-            android:layout_height="wrap_content" />
+            app:dataSize="@{viewModel.info}"
+            app:layout_constraintBottom_toBottomOf="@id/image_data_download"
+            app:layout_constraintStart_toEndOf="@id/image_data_download"
+            app:layout_constraintTop_toBottomOf="@id/text_data_version"
+            tools:text="サイズ： 100GB" />
 
-    </GridLayout>
-
-</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

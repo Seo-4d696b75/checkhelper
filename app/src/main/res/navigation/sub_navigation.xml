@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/radarFragment"
-        android:name="jp.seo.station.ekisagasu.ui.RadarFragment"
+        android:name="jp.seo.station.ekisagasu.ui.top.RadarFragment"
         android:label="RadarFragment">
         <action
             android:id="@+id/action_radarFragment_to_stationFragment"
@@ -14,8 +14,11 @@
     </fragment>
     <fragment
         android:id="@+id/stationFragment"
-        android:name="jp.seo.station.ekisagasu.ui.StationFragment"
+        android:name="jp.seo.station.ekisagasu.ui.top.StationFragment"
         android:label="StationFragment">
+        <argument
+            android:name="stationCode"
+            app:argType="integer" />
         <action
             android:id="@+id/action_stationFragment_to_lineFragment"
             app:destination="@id/lineFragment" />
@@ -27,11 +30,14 @@
         app:popUpToInclusive="true" />
     <fragment
         android:id="@+id/lineFragment"
-        android:name="jp.seo.station.ekisagasu.ui.LineFragment"
+        android:name="jp.seo.station.ekisagasu.ui.top.LineFragment"
         android:label="LineFragment">
         <action
             android:id="@+id/action_lineFragment_to_stationFragment"
             app:destination="@id/stationFragment" />
+        <argument
+            android:name="lineCode"
+            app:argType="integer" />
     </fragment>
     <action
         android:id="@+id/action_global_lineFragment"

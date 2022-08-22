@@ -1,4 +1,6 @@
-include ':app', ':customview', ':diagram'
+include ':app'
 rootProject.name = "Ekisagasu"
-project(':customview').projectDir = new File(settingsDir, '../MyLibrary/library/widget')
-project(':diagram').projectDir = new File(settingsDir, '../MyLibrary/library/diagram')
+include ':widget'
+include ':diagram'
+project(':widget').projectDir = new File(settingsDir, '../MyAndroidLibrary/library/widget')
+project(':diagram').projectDir = new File(settingsDir, '../MyAndroidLibrary/library/diagram')
