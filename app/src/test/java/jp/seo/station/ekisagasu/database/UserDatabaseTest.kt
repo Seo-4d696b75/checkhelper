@@ -15,7 +15,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@Ignore("GithubActionで何故か通らん")
 @ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
 class UserDatabaseTest {
