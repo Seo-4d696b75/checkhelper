@@ -21,6 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/title_log_since"
+            android:labelFor="@id/text_layout_log_since"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -51,6 +52,7 @@
             android:layout_columnSpan="2"
             android:layout_marginStart="20dp"
             android:hint="@string/title_log_filter"
+            android:labelFor="@id/dropdown_log_filter"
             app:layout_constraintStart_toEndOf="@id/text_layout_log_since"
             app:layout_constraintTop_toTopOf="parent">
 
