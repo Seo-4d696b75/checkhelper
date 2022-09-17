@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.model.AppMessage
+import jp.seo.station.ekisagasu.model.LogTarget
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
@@ -39,6 +40,7 @@ class LogViewModel @Inject constructor(
     private val appStateRepository: AppStateRepository,
 ) : ViewModel() {
     val target = logRepository.logFilter
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList<LogTarget>())
 
     private val _filter = MutableStateFlow(LogFilter(AppLog.FILTER_ALL, "ALL"))
 
