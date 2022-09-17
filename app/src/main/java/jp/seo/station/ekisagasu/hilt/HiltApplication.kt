@@ -2,6 +2,11 @@ package jp.seo.station.ekisagasu.hilt
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import jp.seo.station.ekisagasu.model.AppMessage
+import jp.seo.station.ekisagasu.repository.LogRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 /**
  * このApplication全般の依存をinjectしたcontext
@@ -17,4 +22,28 @@ import dagger.hilt.android.HiltAndroidApp
  * @version 2021/01/13.
  */
 @HiltAndroidApp
-class HiltApplication : Application()
+class HiltApplication : Application() {
+
+    @Inject
+    lateinit var logRepository: LogRepository
+
+    override fun onCreate() {
+        super.onCreate()
+        var crashStarting = false
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+            if (crashStarting) return@setDefaultUncaughtExceptionHandler
+            crashStarting = true
+            try {
+                runBlocking(Dispatchers.Default) {
+                    logRepository.saveMessage(
+                        AppMessage.Error("UnhandledException", e)
+                    )
+                    logRepository.onAppFinish(applicationContext)
+                }
+            } finally {
+                Thread.setDefaultUncaughtExceptionHandler(defaultHandler)
+            }
+        }
+    }
+}
