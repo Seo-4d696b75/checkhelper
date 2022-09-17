@@ -130,4 +130,7 @@ abstract class UserDao {
 
     @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
     abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): Flow<List<AppLog>>
+
+    @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
+    abstract fun getLogsOneshot(sinceID: Long, untilID: Long = Long.MAX_VALUE): List<AppLog>
 }

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -41,6 +42,7 @@ class LogRepositoryImpl @Inject constructor(
 
     override val coroutineContext: CoroutineContext = defaultDispatcher + job
 
+    private lateinit var runningLogTarget: LogTarget
     private val _logFilter = MutableStateFlow(LogTarget(null, Long.MAX_VALUE))
 
     private var _hasError = false
@@ -111,7 +113,9 @@ class LogRepositoryImpl @Inject constructor(
         val log = AppLog(AppLog.TYPE_SYSTEM, mes)
         dao.insertRebootLog(log)
         val current = dao.getCurrentReboot()
-        _logFilter.emit(LogTarget(current, current.id))
+        val target = LogTarget(current, current.id)
+        _logFilter.update { target }
+        runningLogTarget = target
     }
 
     override suspend fun onAppFinish(context: Context) = withContext(Dispatchers.IO) {
@@ -129,7 +133,9 @@ class LogRepositoryImpl @Inject constructor(
     }
 
     private suspend fun writeErrorLog(title: String, dir: File?) {
-        val logs = this.logs.value
+        val logs = runningLogTarget.let {
+            dao.getLogsOneshot(it.since, it.until)
+        }
         withContext(Dispatchers.IO) {
             try {
                 val builder = StringBuilder()
