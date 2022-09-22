@@ -29,10 +29,12 @@
         <entry key="app/src/main/res/layout/fragment_station.xml" value="0.30572916666666666" />
         <entry key="app/src/main/res/layout/fragment_top.xml" value="0.36716665298616413" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.14868287740628167" />
+        <entry key="app/src/main/res/layout/notification_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/overlay_icon.xml" value="0.1" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

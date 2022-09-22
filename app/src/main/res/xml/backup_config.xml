@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content xmlns:tools="http://schemas.android.com/tools">
-    <exclude
-        domain="sharedpref"
-        path="."
-        tools:ignore="FullBackupContent" />
     <include
         domain="sharedpref"
-        path="setting_preference_backup.xml" />
+        path="." />
     <exclude
         domain="external"
         path="."

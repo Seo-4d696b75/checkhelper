@@ -5,6 +5,7 @@ import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LogRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class AppStateRepositoryImpl @Inject constructor(
@@ -23,12 +24,12 @@ class AppStateRepositoryImpl @Inject constructor(
     override val nightMode = _nightMode
     override val message = _message
 
-    override suspend fun setTimerFixed(fixed: Boolean) {
-        _fixTimer.emit(fixed)
+    override fun setTimerFixed(fixed: Boolean) {
+        _fixTimer.update { fixed }
     }
 
-    override suspend fun setNightMode(enabled: Boolean) {
-        _nightMode.emit(enabled)
+    override fun setNightMode(enabled: Boolean) {
+        _nightMode.update { enabled }
     }
 
     override suspend fun emitMessage(message: AppMessage) {

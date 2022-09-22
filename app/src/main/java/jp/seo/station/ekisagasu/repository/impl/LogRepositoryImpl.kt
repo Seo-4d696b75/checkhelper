@@ -12,16 +12,12 @@ import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_ISO8601_EXTEND
 import jp.seo.station.ekisagasu.utils.formatTime
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -29,18 +25,13 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.Date
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
 class LogRepositoryImpl @Inject constructor(
     private val dao: UserDao,
-    defaultDispatcher: CoroutineDispatcher,
-) : LogRepository, CoroutineScope {
+) : LogRepository {
 
-    private val job = Job()
-
-    override val coroutineContext: CoroutineContext = defaultDispatcher + job
-
+    private lateinit var runningLogTarget: LogTarget
     private val _logFilter = MutableStateFlow(LogTarget(null, Long.MAX_VALUE))
 
     private var _hasError = false
@@ -89,8 +80,7 @@ class LogRepositoryImpl @Inject constructor(
         }
     }
 
-    override val history: StateFlow<List<AppRebootLog>>
-        get() = dao.getRebootHistory().stateIn(this, SharingStarted.Eagerly, emptyList())
+    override val history = dao.getRebootHistory()
 
     override val logFilter: StateFlow<LogTarget>
         get() = _logFilter
@@ -100,10 +90,9 @@ class LogRepositoryImpl @Inject constructor(
         _logFilter.emit(LogTarget(since, since.id, until ?: Long.MAX_VALUE))
     }
 
-    override val logs: StateFlow<List<AppLog>>
-        get() = _logFilter.flatMapLatest {
-            dao.getLogs(it.since, it.until)
-        }.stateIn(this, SharingStarted.Eagerly, emptyList())
+    override val logs = _logFilter.flatMapLatest {
+        dao.getLogs(it.since, it.until)
+    }
 
     override suspend fun onAppBoot(context: Context) = withContext(Dispatchers.IO) {
         val mes =
@@ -111,7 +100,9 @@ class LogRepositoryImpl @Inject constructor(
         val log = AppLog(AppLog.TYPE_SYSTEM, mes)
         dao.insertRebootLog(log)
         val current = dao.getCurrentReboot()
-        _logFilter.emit(LogTarget(current, current.id))
+        val target = LogTarget(current, current.id)
+        _logFilter.update { target }
+        runningLogTarget = target
     }
 
     override suspend fun onAppFinish(context: Context) = withContext(Dispatchers.IO) {
@@ -124,12 +115,12 @@ class LogRepositoryImpl @Inject constructor(
         val log = AppLog(AppLog.TYPE_SYSTEM, "finish app")
         dao.insertLog(log)
         dao.writeFinish(log.timestamp, _hasError)
-
-        job.cancel()
     }
 
     private suspend fun writeErrorLog(title: String, dir: File?) {
-        val logs = this.logs.value
+        val logs = runningLogTarget.let {
+            dao.getLogsOneshot(it.since, it.until)
+        }
         withContext(Dispatchers.IO) {
             try {
                 val builder = StringBuilder()

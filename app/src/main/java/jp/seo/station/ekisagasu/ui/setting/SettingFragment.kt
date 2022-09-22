@@ -50,42 +50,39 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        binding.numberTimeInterval.value = viewModel.state.locationUpdateInterval
         binding.numberTimeInterval.setOnValueChangedListener { _, _, value ->
-            viewModel.state = viewModel.state.copy(locationUpdateInterval = value)
+            viewModel.updateState { it.copy(locationUpdateInterval = value) }
         }
-        binding.numberRadar.value = viewModel.state.searchK
         binding.numberRadar.setOnValueChangedListener { _, _, value ->
-            viewModel.state = viewModel.state.copy(searchK = value)
+            viewModel.updateState { it.copy(searchK = value) }
         }
 
         binding.switchNotification.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isPushNotification = checked)
+            viewModel.updateState { it.copy(isPushNotification = checked) }
         }
         binding.switchForceNotify.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isPushNotificationForce = checked)
+            viewModel.updateState { it.copy(isPushNotificationForce = checked) }
         }
         binding.switchKeepNotification.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isKeepNotification = checked)
+            viewModel.updateState { it.copy(isKeepNotification = checked) }
         }
         binding.switchDisplayPrefecture.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isShowPrefectureNotification = checked)
+            viewModel.updateState { it.copy(isShowPrefectureNotification = checked) }
         }
 
         binding.switchVibrate.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isVibrate = checked)
+            viewModel.updateState { it.copy(isVibrate = checked) }
         }
         binding.switchVibrateApproach.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isVibrateWhenApproach = checked)
+            viewModel.updateState { it.copy(isVibrateWhenApproach = checked) }
         }
 
-        binding.numberVibrateMeter.value = viewModel.state.vibrateDistance
         binding.numberVibrateMeter.setOnValueChangedListener { _, _, value ->
-            viewModel.state = viewModel.state.copy(vibrateDistance = value)
+            viewModel.updateState { it.copy(vibrateDistance = value) }
         }
 
         binding.switchNight.setOnCheckedChangeListener { _, checked ->
-            viewModel.state = viewModel.state.copy(isNightMode = checked)
+            viewModel.updateState { it.copy(isNightMode = checked) }
         }
 
         binding.dropdownNightTimeout.apply {
@@ -106,14 +103,20 @@ class SettingFragment : Fragment() {
             val text = values.map { it.text }
             val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, text)
             setAdapter(adapter)
-            val timeout = viewModel.state.nightModeTimeout
-            values.find { it.timeout == timeout }?.let {
-                setText(it.text, false)
-            }
             setOnItemClickListener { _, _, position, _ ->
                 val value = values[position].timeout
-                viewModel.state = viewModel.state.copy(nightModeTimeout = value)
+                viewModel.updateState { it.copy(nightModeTimeout = value) }
             }
+            viewModel.state
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .map { it.nightModeTimeout }
+                .distinctUntilChanged()
+                .onEach { timeout ->
+                    values.find { it.timeout == timeout }?.let {
+                        setText(it.text, false)
+                    }
+                }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
         }
 
         binding.seekBrightness.also {
@@ -121,21 +124,20 @@ class SettingFragment : Fragment() {
             it.valueTo = 255f
             it.addOnChangeListener { _, value, fromUser ->
                 if (fromUser) {
-                    viewModel.state =
-                        viewModel.state.copy(nightModeBrightness = value)
+                    viewModel.updateState { it.copy(nightModeBrightness = value) }
                 }
             }
         }
 
-        viewModel.setting
-            .flowWithLifecycle(lifecycle)
+        viewModel.state
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .map { it.nightModeBrightness }
             .distinctUntilChanged()
             .onEach {
                 binding.viewSampleBrightness.background =
                     ColorDrawable((255 - it.roundToInt()).shl(24))
             }
-            .launchIn(lifecycleScope)
+            .launchIn(viewLifecycleOwner.lifecycleScope)
 
         binding.buttonUpdateData.setOnClickListener {
             viewModel.checkLatestData()

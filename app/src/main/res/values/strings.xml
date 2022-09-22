@@ -16,13 +16,16 @@
     <string name="message_stop_search">探索を終了しました</string>
     <string name="update_state_download">データをダウンロード&#8230; %1$d%%</string>
     <string name="update_state_save">データを保存しています&#8230;</string>
+    <string name="notification_channel_name">メイン通知</string>
+    <string name="notification_channel_description">現在地から最も近い駅の情報など探索の状況を表示します. この通知はバックグラウンドで探索処理が走っている間は常に表示されます.</string>
+    <string name="notification_action_exit">探索の終了</string>
+    <string name="notification_action_timer">5分タイマー</string>
     <string name="notification_title_wait">検索の開始を待っています</string>
     <string name="notification_message_wait">タップして検索を開始します</string>
     <string name="notification_title_start">検索を開始しています</string>
     <string name="notification_message_start">付近の駅を探しています&#8230;</string>
     <string name="main_message_wait_search">検索を待機しています</string>
     <string name="main_message_starting_search">周辺の駅を探してます</string>
-    <string name="line_none">なし</string>
     <string name="no_selected_line">選択なし</string>
     <string name="notification_time_now">数秒前</string>
     <string name="notification_time_sec">数十秒前</string>
@@ -37,8 +40,6 @@
     <string name="setting_mes_force_notify">スリープ中でも画面を点灯して表示します. ただしロックスクリーンが有効な場合はユーザによる解除操作が必要です.</string>
     <string name="setting_title_vibe">バイブレータ</string>
     <string name="setting_mes_vibe">最寄り駅の変更を検知するとバイブレータで知らせます.</string>
-    <string name="setting_title_accuracy">距離計算の精度</string>
-    <string name="setting_mes_accuracy">高精度では球面を考慮して計算します. 駅メモ！仕様の低精度では平面を仮定して三平方の定理で計算します. この場合表示される距離と内部で処理される距離の大小に不整合が生じることがあります.</string>
     <string name="setting_title_data">駅データ</string>
     <string name="setting_title_notify_stationary">常駐モード</string>
     <string name="setting_mes_notify_stationary">通知を常時画面上部に表示させます. </string>
@@ -59,10 +60,8 @@
     <string name="setting_mes_brightness_bright">明</string>
     <string name="setting_mes_update_data">更新</string>
     <string name="preference_setting_backup">setting_preference_backup</string>
-    <string name="preference_setting">setting_preference</string>
     <string name="title_log_since">表示期間</string>
     <string name="title_log_filter">フィルター</string>
-    <string name="log_save_success" formatted="false">"ダウンロード"に保存しました\nファイル：%s</string>
     <string name="log_save_fail">ログの書き出しに失敗しました</string>
     <string name="dialog_title_select_line">路線選択</string>
     <string name="dialog_message_select_line">現在乗車中の路線を選択します.</string>
