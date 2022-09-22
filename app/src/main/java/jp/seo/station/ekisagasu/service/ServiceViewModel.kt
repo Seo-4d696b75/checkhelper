@@ -52,10 +52,8 @@ class ServiceViewModel @Inject constructor(
         get() = navigator.line
 
     val userSetting = userSettingRepository.setting
-    fun saveTimerPosition(position: Int) {
-        userSettingRepository.setting.value = userSettingRepository.setting.value.copy(
-            timerPosition = position
-        )
+    fun saveTimerPosition(position: Int) = userSettingRepository.update(viewModelScope) {
+        it.copy(timerPosition = position)
     }
 
     val selectedLine = searchRepository.selectedLine

@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.repository.SearchRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
-import jp.seo.station.ekisagasu.utils.mapState
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,5 +18,7 @@ class RadarViewModel @Inject constructor(
 
     val radarList = searchRepository.nearestStations
 
-    val radarK = userSettingRepository.setting.mapState(viewModelScope) { it.searchK }
+    val radarK = userSettingRepository.setting
+        .map { it.searchK }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 12)
 }
