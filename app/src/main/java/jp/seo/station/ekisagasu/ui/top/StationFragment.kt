@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -16,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.FragmentStationBinding
 import jp.seo.station.ekisagasu.ui.common.LineAdapter
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -28,10 +28,6 @@ class StationFragment : Fragment() {
 
     private val viewModel: StationViewModel by viewModels()
 
-    private val stationCode: Int by lazy {
-        requireArguments().getInt("stationCode")
-    }
-
     private lateinit var binding: FragmentStationBinding
 
     override fun onCreateView(
@@ -39,29 +35,29 @@ class StationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_station,
-            container,
-            false
-        )
-        viewModel.setUiState(stationCode)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding = FragmentStationBinding.inflate(inflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val context = requireContext()
 
-        LineAdapter(context, viewModel.lines).let {
-            binding.listStationDetailLines.adapter = it
-            binding.listStationDetailLines.setOnItemClickListener { _, _, position, _ ->
-                val line = it.getItem(position)!!
-                val action = LineFragmentDirections.actionGlobalLineFragment(line.code)
-                findNavController().navigate(action)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        viewModel.lines
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .filter { it.isNotEmpty() }
+            .onEach {
+                val adapter = LineAdapter(context, it)
+                binding.listStationDetailLines.adapter = adapter
+                binding.listStationDetailLines.setOnItemClickListener { _, _, position, _ ->
+                    val line = adapter.getItem(position)!!
+                    val action = StationFragmentDirections.actionStationFragmentToLineFragment(line.code)
+                    findNavController().navigate(action)
+                }
             }
-        }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.event
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
@@ -73,7 +69,7 @@ class StationFragment : Fragment() {
                     is StationFragmentEvent.ShowMap -> {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.map_url) + "?station=${viewModel.station?.id}")
+                            Uri.parse(getString(R.string.map_url) + "?station=${viewModel.arg.stationCode}")
                         )
                         startActivity(intent)
                     }
