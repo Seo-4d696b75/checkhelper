@@ -58,25 +58,38 @@ class NotificationViewHolder(
         // set custom view
         builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
         builder.setSmallIcon(R.drawable.notification_icon)
+
+        // action button
+        val exit = Intent(context, StationService::class.java)
+            .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_EXIT_SERVICE)
+        val timer = Intent(context, StationService::class.java)
+            .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
+        builder.addAction(
+            R.drawable.notification_exit,
+            context.getString(R.string.notification_action_exit),
+            PendingIntent.getService(
+                context,
+                1,
+                exit,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+        )
+        builder.addAction(
+            R.drawable.notification_timer,
+            context.getString(R.string.notification_action_timer),
+            PendingIntent.getService(
+                context,
+                2,
+                timer,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+        )
+
         createNotificationView()
     }
 
     val notification: Notification
         get() = builder.build()
-
-    val needNotificationSetting: Boolean by lazy {
-        val channel = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID)
-        val vibrate = channel.shouldVibrate()
-        val sound = channel.sound
-        if (vibrate || sound != null) {
-            // user must edit notification channel setting
-            channel.enableVibration(false)
-            channel.enableLights(false)
-            channel.setSound(null, null)
-            return@lazy true
-        }
-        false
-    }
 
     private fun createNotificationView() {
         val view = RemoteViews(ctx.packageName, R.layout.notification_main)
