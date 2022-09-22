@@ -2,14 +2,12 @@ package jp.seo.station.ekisagasu.ui.overlay
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.KeyguardManager
 import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Handler
-import android.os.PowerManager
 import android.os.SystemClock
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -41,7 +39,7 @@ class OverlayViewHolder(
     wakeupCallback: () -> Unit
 ) {
 
-    private var wakeupCallback : (() -> Unit)? = wakeupCallback
+    private var wakeupCallback: (() -> Unit)? = wakeupCallback
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -76,7 +74,7 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.WRAP_CONTENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
@@ -91,9 +89,9 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.MATCH_PARENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSLUCENT
         )
         keepOnScreen = View(context)
@@ -105,8 +103,8 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.MATCH_PARENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSLUCENT
         )
         darkScreen = View(context)
@@ -118,8 +116,8 @@ class OverlayViewHolder(
             0, 0,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT
         )
         touchScreen = View(context)
@@ -147,7 +145,7 @@ class OverlayViewHolder(
             WindowManager.LayoutParams.WRAP_CONTENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
@@ -484,7 +482,7 @@ class OverlayViewHolder(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     0, pos, layerType,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT
                 )
                 param.gravity = Gravity.END or Gravity.TOP
