@@ -10,8 +10,9 @@ import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
@@ -42,21 +43,23 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    private val _setting = MutableStateFlow(
-        SettingState.fromUserSetting(settingRepository.setting.value)
+    val state = combine(
+        settingRepository.setting,
+        appStateRepository.nightMode,
+    ) { setting, night ->
+        SettingState.fromUserSetting(setting, night)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        SettingState.fromUserSetting(UserSetting(), false)
     )
 
-    val setting: StateFlow<SettingState> = _setting
-
-    var state: SettingState
-        get() = _setting.value
-        set(value) {
-            _setting.value = value
-            settingRepository.setting.value = value.toUserSetting()
-            viewModelScope.launch {
-                appStateRepository.setNightMode(value.isNightMode)
-            }
-        }
+    fun updateState(producer: (SettingState) -> SettingState) = settingRepository.update(viewModelScope) {
+        val old = SettingState.fromUserSetting(it, appStateRepository.nightMode.value)
+        val value = producer(old)
+        appStateRepository.setNightMode(value.isNightMode)
+        value.toUserSetting()
+    }
 }
 
 data class SettingState(
@@ -75,7 +78,7 @@ data class SettingState(
     val timerPosition: Int,
 ) {
     companion object {
-        fun fromUserSetting(setting: UserSetting) = SettingState(
+        fun fromUserSetting(setting: UserSetting, isNightMode: Boolean) = SettingState(
             locationUpdateInterval = setting.locationUpdateInterval,
             searchK = setting.searchK,
             isPushNotification = setting.isPushNotification,
@@ -85,7 +88,7 @@ data class SettingState(
             isVibrate = setting.isVibrate,
             isVibrateWhenApproach = setting.isVibrateWhenApproach,
             vibrateDistance = setting.vibrateDistance,
-            isNightMode = false,
+            isNightMode = isNightMode,
             nightModeTimeout = setting.nightModeTimeout,
             nightModeBrightness = setting.nightModeBrightness,
             timerPosition = setting.timerPosition,
