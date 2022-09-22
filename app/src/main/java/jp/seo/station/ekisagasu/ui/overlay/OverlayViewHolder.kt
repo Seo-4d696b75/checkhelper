@@ -37,13 +37,13 @@ import kotlin.math.roundToInt
 class OverlayViewHolder(
     private val context: Context,
     private val prefectureRepository: PrefectureRepository,
-    private val main: Handler
+    private val main: Handler,
+    wakeupCallback: () -> Unit
 ) {
 
+    private var wakeupCallback : (() -> Unit)? = wakeupCallback
+
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-    private val keyguardManager =
-        context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
     private val animAppear = AnimationUtils.loadAnimation(context, R.anim.anim_appear)
     private val animDisappear = AnimationUtils.loadAnimation(context, R.anim.anim_disappear)
@@ -333,11 +333,7 @@ class OverlayViewHolder(
                 onNotifyStation(station, !keepNotification)
             }
         } else if (forceNotify) {
-            val wakeLock = powerManager.newWakeLock(
-                PowerManager.ACQUIRE_CAUSES_WAKEUP,
-                "station-found:"
-            )
-            wakeLock.acquire(10)
+            wakeupCallback?.invoke()
             keepOnScreen.visibility = View.VISIBLE
             darkScreen.visibility = View.VISIBLE
             onNotifyStation(station, false)
@@ -610,5 +606,6 @@ class OverlayViewHolder(
         timerListener = null
 
         navigation.release()
+        wakeupCallback = null
     }
 }

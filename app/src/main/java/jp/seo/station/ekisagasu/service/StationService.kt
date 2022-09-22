@@ -28,6 +28,7 @@ import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.overlay.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
+import jp.seo.station.ekisagasu.ui.overlay.WakeupActivity
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -301,13 +302,8 @@ class StationService : LifecycleService() {
                 when (it) {
                     Intent.ACTION_SCREEN_OFF -> {
                         overlayView.screen = false
-                        viewModel.log("screen off")
-                    }
-                    Intent.ACTION_SCREEN_ON -> {
-                        viewModel.log("screen on")
                     }
                     Intent.ACTION_USER_PRESENT -> {
-                        viewModel.log("user present")
                         overlayView.screen = true
                     }
                     else -> {}
@@ -328,7 +324,12 @@ class StationService : LifecycleService() {
 
     private val overlayView: OverlayViewHolder by lazy {
         val handler = HandlerCompat.createAsync(Looper.getMainLooper())
-        OverlayViewHolder(this, prefectureRepository, handler)
+        OverlayViewHolder(this, prefectureRepository, handler) {
+            val intent = Intent(this, WakeupActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            startActivity(intent)
+        }
     }
 
     private fun stopService() {
