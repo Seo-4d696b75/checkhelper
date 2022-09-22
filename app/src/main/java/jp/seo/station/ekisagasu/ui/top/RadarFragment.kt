@@ -42,19 +42,15 @@ class RadarFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_radar,
-            container,
-            false,
-        )
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding = FragmentRadarBinding.inflate(inflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val context = requireContext()
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
         val adapter = RadarAdapter(context).apply {
             onItemClickListener = { data ->
                 val action =

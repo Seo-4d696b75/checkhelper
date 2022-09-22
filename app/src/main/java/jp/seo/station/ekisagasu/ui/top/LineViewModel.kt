@@ -1,5 +1,6 @@
 package jp.seo.station.ekisagasu.ui.top
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,33 +9,38 @@ import jp.seo.station.ekisagasu.model.StationRegister
 import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LineViewModel @Inject constructor(
     private val dataRepository: DataRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private var _line: Line? = null
-    private var _stations: List<StationRegister> = emptyList()
-
-    fun setUiState(lineCode: Int) = viewModelScope.launch {
-        val line = dataRepository.getLine(code = lineCode)
-        _line = line
-        val indices = line.stationList.map { it.code }
-        val list = dataRepository.getStations(indices)
-        _stations = line.stationList.map { r ->
-            val s = list.find { it.code == r.code } ?: throw NoSuchElementException()
-            StationRegister(r.code, s, r.getNumberingString())
-        }
+    val arg by lazy {
+        LineFragmentArgs.fromSavedStateHandle(savedStateHandle)
     }
 
-    val line: Line?
-        get() = _line
+    val line = flow {
+        val line = dataRepository.getLine(arg.lineCode)
+        emit(line)
+    }.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    val stations: List<StationRegister>
-        get() = _stations
+    val stations = line.map {
+        if (it == null) emptyList() else {
+            val indices = it.stationList.map { it.code }
+            val list = dataRepository.getStations(indices)
+            it.stationList.map { r ->
+                val s = list.find { it.code == r.code } ?: throw NoSuchElementException()
+                StationRegister(r.code, s, r.getNumberingString())
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val _event = MutableSharedFlow<LineFragmentEvent>()
     val event: SharedFlow<LineFragmentEvent> = _event
@@ -44,7 +50,7 @@ class LineViewModel @Inject constructor(
     }
 
     fun showMap() = viewModelScope.launch {
-        _line?.let {
+        line.value?.let {
             _event.emit(LineFragmentEvent.ShowMap(it))
         }
     }
