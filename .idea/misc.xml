@@ -12,6 +12,7 @@
         <entry key="app/src/main/res/drawable/ic_pause.xml" value="0.347" />
         <entry key="app/src/main/res/drawable/ic_play.xml" value="0.2365" />
         <entry key="app/src/main/res/drawable/ic_save.xml" value="0.2365" />
+        <entry key="app/src/main/res/layout/activity_wakeup.xml" value="0.1" />
         <entry key="app/src/main/res/layout/cell_line.xml" value="0.1" />
         <entry key="app/src/main/res/layout/cell_line_small.xml" value="0.1" />
         <entry key="app/src/main/res/layout/cell_list_history.xml" value="0.317481884057971" />
@@ -29,6 +30,8 @@
         <entry key="app/src/main/res/layout/fragment_station.xml" value="0.30572916666666666" />
         <entry key="app/src/main/res/layout/fragment_top.xml" value="0.36716665298616413" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.14868287740628167" />
+        <entry key="app/src/main/res/layout/notification_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/overlay_icon.xml" value="0.1" />
       </map>
     </option>
   </component>
