@@ -48,7 +48,7 @@
                 app:speedShiftPoint="1"
                 app:speedShiftRate="2"
                 app:step="1"
-                app:value="1" />
+                app:value="@{viewModel.state.locationUpdateInterval}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -95,7 +95,7 @@
                 app:max="20"
                 app:min="12"
                 app:step="1"
-                app:value="12" />
+                app:value="@{viewModel.state.searchK}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -136,7 +136,7 @@
                 android:layout_rowSpan="2"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
-                android:checked="@{viewModel.setting.isPushNotification}" />
+                android:checked="@{viewModel.state.isPushNotification}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -167,8 +167,8 @@
                 android:layout_rowSpan="2"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
-                android:checked="@{viewModel.setting.isPushNotificationForce}"
-                android:enabled="@{viewModel.setting.isPushNotification}" />
+                android:checked="@{viewModel.state.isPushNotificationForce}"
+                android:enabled="@{viewModel.state.isPushNotification}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -199,8 +199,8 @@
                 android:layout_rowSpan="2"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
-                android:checked="@{viewModel.setting.isKeepNotification}"
-                android:enabled="@{viewModel.setting.isPushNotification}" />
+                android:checked="@{viewModel.state.isKeepNotification}"
+                android:enabled="@{viewModel.state.isPushNotification}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -231,8 +231,8 @@
                 android:layout_rowSpan="2"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
-                android:checked="@{viewModel.setting.isShowPrefectureNotification}"
-                android:enabled="@{viewModel.setting.isPushNotification}" />
+                android:checked="@{viewModel.state.isShowPrefectureNotification}"
+                android:enabled="@{viewModel.state.isPushNotification}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -272,7 +272,7 @@
                 android:layout_rowSpan="2"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
-                android:checked="@{viewModel.setting.isVibrate}" />
+                android:checked="@{viewModel.state.isVibrate}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -302,8 +302,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="0dp"
-                android:checked="@{viewModel.setting.isVibrateWhenApproach}"
-                android:enabled="@{viewModel.setting.isVibrate}" />
+                android:checked="@{viewModel.state.isVibrateWhenApproach}"
+                android:enabled="@{viewModel.state.isVibrate}" />
 
 
             <TextView
@@ -322,14 +322,14 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="20dp"
                 android:descendantFocusability="blocksDescendants"
-                android:enabled="@{viewModel.setting.isVibrate}"
+                android:enabled="@{viewModel.state.isVibrate}"
                 android:focusable="false"
                 app:max="1000"
                 app:min="50"
                 app:speedShiftPoint="1"
                 app:speedShiftRate="2"
                 app:step="10"
-                app:value="100" />
+                app:value="@{viewModel.state.vibrateDistance}" />
 
             <View
                 android:layout_width="match_parent"
@@ -360,7 +360,7 @@
                 android:layout_rowSpan="2"
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
-                android:checked="@{viewModel.setting.isNightMode}" />
+                android:checked="@{viewModel.state.isNightMode}" />
 
             <TextView
                 android:layout_width="1dp"
@@ -471,7 +471,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:value="@{viewModel.setting.nightModeBrightness}" />
+                    android:value="@{viewModel.state.nightModeBrightness}" />
 
                 <TextView
                     android:layout_width="match_parent"
