@@ -278,11 +278,6 @@ class StationService : LifecycleService() {
             .onEach { overlayView.nightMode = it }
             .launchIn(lifecycleScope)
 
-        // check notification channel setting
-        if (notificationHolder.needNotificationSetting) {
-            Log.d("Notification", "needs setting")
-        }
-
         // set timer
         overlayView.timerListener =
             { setTimer() }

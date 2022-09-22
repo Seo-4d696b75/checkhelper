@@ -18,35 +18,43 @@ import jp.seo.station.ekisagasu.ui.MainActivity
  * @version 2020/12/24.
  */
 class NotificationViewHolder(
-    private val ctx: Context
+    private val context: Context
 ) {
 
     companion object {
-        const val NOTIFICATION_CHANNEL_ID = "jp.seo.station.ekisagasu.notification_main"
+        const val NOTIFICATION_CHANNEL_ID = "jp.seo.station.ekisagasu.notification_main_silent"
         const val NOTIFICATION_TAG = 3910
     }
 
     private val notificationManager =
-        ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val builder: NotificationCompat.Builder
     private var remoteView: RemoteViews? = null
     private var updateCnt = 0
 
     init {
+        // TODO 削除予定
+        // delete old channel if any
+        notificationManager.deleteNotificationChannel("jp.seo.station.ekisagasu.notification_main")
+
         // init notification channel
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
-            "MainNotification",
+            context.getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT
-        )
-        channel.description = "This is main notification"
+        ).apply {
+            description = context.getString(R.string.notification_channel_description)
+            enableVibration(false)
+            enableLights(false)
+            setSound(null, null)
+        }
         notificationManager.createNotificationChannel(channel)
 
-        builder = NotificationCompat.Builder(ctx, NOTIFICATION_CHANNEL_ID)
+        builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
 
         // pending intent to MainActivity
-        val intent = Intent(ctx, MainActivity::class.java)
-        val stackBuilder = TaskStackBuilder.create(ctx)
+        val intent = Intent(context, MainActivity::class.java)
+        val stackBuilder = TaskStackBuilder.create(context)
         stackBuilder.addNextIntentWithParentStack(intent)
         builder.setContentIntent(
             stackBuilder.getPendingIntent(
@@ -92,29 +100,7 @@ class NotificationViewHolder(
         get() = builder.build()
 
     private fun createNotificationView() {
-        val view = RemoteViews(ctx.packageName, R.layout.notification_main)
-        val exit = Intent(ctx, StationService::class.java)
-            .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_EXIT_SERVICE)
-        view.setOnClickPendingIntent(
-            R.id.notificationButton1,
-            PendingIntent.getService(
-                ctx,
-                1,
-                exit,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        )
-        val timer = Intent(ctx, StationService::class.java)
-            .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
-        view.setOnClickPendingIntent(
-            R.id.notificationButton2,
-            PendingIntent.getService(
-                ctx,
-                2,
-                timer,
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        )
+        val view = RemoteViews(context.packageName, R.layout.notification_main)
         builder.setCustomContentView(view)
         remoteView = view
     }
@@ -122,7 +108,7 @@ class NotificationViewHolder(
     fun update(title: String, message: String) {
         synchronized(this) {
             if (updateCnt++ > 100) {
-                // refresh view
+                // RemoteViewを一定回数以上更新すると不具合が発生する場合があるので作り直す
                 updateCnt = 0
                 createNotificationView()
             }
