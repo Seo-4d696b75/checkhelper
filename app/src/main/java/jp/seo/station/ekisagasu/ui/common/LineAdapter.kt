@@ -56,16 +56,12 @@ class LineAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val binding = if (convertView == null) {
-            DataBindingUtil.inflate<CellLineBinding>(
-                inflater,
-                R.layout.cell_line,
-                parent,
-                false
-            )
+            CellLineBinding.inflate(inflater)
         } else {
             convertView.tag as CellLineBinding
         }
         binding.line = getItem(position)
+        binding.root.tag = binding
         return binding.root
     }
 }
