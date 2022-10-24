@@ -4,6 +4,7 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.LogRepository
+import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -27,6 +28,9 @@ class HiltApplication : Application() {
     @Inject
     lateinit var logRepository: LogRepository
 
+    @Inject
+    lateinit var appFinishUseCase: AppFinishUseCase
+
     override fun onCreate() {
         super.onCreate()
         var crashStarting = false
@@ -36,10 +40,12 @@ class HiltApplication : Application() {
             crashStarting = true
             try {
                 runBlocking(Dispatchers.Default) {
+                    // ログ出力
                     logRepository.saveMessage(
                         AppMessage.Error("UnhandledException", e)
                     )
-                    logRepository.onAppFinish(applicationContext)
+                    // 終了処理
+                    appFinishUseCase()
                 }
             } finally {
                 Thread.setDefaultUncaughtExceptionHandler(defaultHandler)
