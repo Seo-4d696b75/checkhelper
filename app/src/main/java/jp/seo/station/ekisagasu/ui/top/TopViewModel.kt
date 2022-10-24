@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,15 +25,11 @@ class TopViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val searchRepository: SearchRepository,
     private val dataRepository: DataRepository,
-    settingRepository: UserSettingRepository,
+    private val settingRepository: UserSettingRepository,
     private val navigationRepository: NavigationRepository,
     private val prefectureRepository: PrefectureRepository,
     private val appStateRepository: AppStateRepository,
 ) : ViewModel() {
-
-    private val interval = settingRepository.setting
-        .map { it.locationUpdateInterval }
-        .stateIn(viewModelScope, SharingStarted.Lazily, 5)
 
     val isRunning = locationRepository.isRunning
 
@@ -65,7 +60,7 @@ class TopViewModel @Inject constructor(
             navigationRepository.stop()
         } else {
             if (dataRepository.dataInitialized) {
-                locationRepository.startWatchCurrentLocation(interval.value)
+                locationRepository.startWatchCurrentLocation(settingRepository.setting.value.locationUpdateInterval)
             }
         }
     }

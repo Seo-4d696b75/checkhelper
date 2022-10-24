@@ -52,7 +52,7 @@ class ServiceViewModel @Inject constructor(
         get() = navigator.line
 
     val userSetting = userSettingRepository.setting
-    fun saveTimerPosition(position: Int) = userSettingRepository.update(viewModelScope) {
+    fun saveTimerPosition(position: Int) = userSettingRepository.update {
         it.copy(timerPosition = position)
     }
 
