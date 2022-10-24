@@ -168,17 +168,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            return
-        }
-
         val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         if (code != ConnectionResult.SUCCESS) {
             GoogleApiAvailability.getInstance().getErrorDialog(this, code, 0)?.show()
@@ -220,16 +209,7 @@ class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) {
-        if (!it) {
-            Toast.makeText(
-                applicationContext,
-                "permission not granted",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
-        }
-    }
+    ) { }
 
     private val requestLogFileUriLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
