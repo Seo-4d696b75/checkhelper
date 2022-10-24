@@ -37,7 +37,11 @@ class LogRepositoryImpl @Inject constructor(
     private var _hasError = false
 
     private suspend fun saveLog(type: Int, message: String) = withContext(Dispatchers.IO) {
-        val log = AppLog(type, message)
+        val str = if (message.length > LogRepository.MAX_MESSAGE_LENGTH) {
+            message.substring(0, LogRepository.MAX_MESSAGE_LENGTH) +
+                    " ...(and ${message.length - LogRepository.MAX_MESSAGE_LENGTH}letters)"
+        } else message
+        val log = AppLog(type, str)
         dao.insertLog(log)
     }
 
