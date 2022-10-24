@@ -6,7 +6,6 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -14,13 +13,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.UserSetting
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import java.io.IOException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UserSettingRepositoryImpl @Inject constructor(
@@ -56,38 +53,35 @@ class UserSettingRepositoryImpl @Inject constructor(
             timerPosition = this[keyTimerPosition] ?: 0,
         )
 
-    override val setting = context.dataStore.data
-        .catch { exception ->
-            if (exception is IOException) {
-                emit(emptyPreferences())
-            } else {
-                throw exception
-            }
-        }
-        .map { it.userSetting }
+    private val _setting = MutableStateFlow(UserSetting())
 
-    private var updateJob: Job? = null
+    override val setting = _setting
 
-    override fun update(coroutineScope: CoroutineScope, producer: (UserSetting) -> UserSetting) {
-        updateJob?.cancel()
-        updateJob = coroutineScope.launch(Dispatchers.Default) {
-            context.dataStore.edit {
-                val old = it.userSetting
-                val value = producer(old)
-                it[keyInterval] = value.locationUpdateInterval
-                it[keyRadar] = value.searchK
-                it[keyNotify] = value.isPushNotification
-                it[keyForceNotify] = value.isPushNotificationForce
-                it[keyKeepNotification] = value.isKeepNotification
-                it[keyNotifyPrefecture] = value.isShowPrefectureNotification
-                it[keyVibrate] = value.isVibrate
-                it[keyVibrateApproach] = value.isVibrateWhenApproach
-                it[keyVibrateMeter] = value.vibrateDistance
-                it[keyNightTimeout] = value.nightModeTimeout
-                it[keyBrightness] = value.nightModeBrightness
-                it[keyTimerPosition] = value.timerPosition
-            }
+    override suspend fun load(): Unit = withContext(Dispatchers.IO) {
+        val preference = context.dataStore.data.first()
+        _setting.update { preference.userSetting }
+    }
+
+    override suspend fun save(): Unit = withContext(Dispatchers.IO) {
+        context.dataStore.edit {
+            val value = _setting.value
+            it[keyInterval] = value.locationUpdateInterval
+            it[keyRadar] = value.searchK
+            it[keyNotify] = value.isPushNotification
+            it[keyForceNotify] = value.isPushNotificationForce
+            it[keyKeepNotification] = value.isKeepNotification
+            it[keyNotifyPrefecture] = value.isShowPrefectureNotification
+            it[keyVibrate] = value.isVibrate
+            it[keyVibrateApproach] = value.isVibrateWhenApproach
+            it[keyVibrateMeter] = value.vibrateDistance
+            it[keyNightTimeout] = value.nightModeTimeout
+            it[keyBrightness] = value.nightModeBrightness
+            it[keyTimerPosition] = value.timerPosition
         }
+    }
+
+    override fun update(producer: (UserSetting) -> UserSetting) {
+        _setting.update(producer)
     }
 
     companion object {
