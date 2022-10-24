@@ -23,7 +23,6 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
-import kotlin.math.pow
 
 /**
  * @author Seo-4d696b75
@@ -151,9 +150,9 @@ class PositionNavigator(
                     )
                 )
                 if ((
-                    lastLocation?.distanceTo(location)
-                        ?: 100000f
-                    ) < DISTANCE_THRESHOLD
+                            lastLocation?.distanceTo(location)
+                                ?: 100000f
+                            ) < DISTANCE_THRESHOLD
                 ) return@withContext
                 lastLocation = location
 
@@ -489,35 +488,48 @@ class PositionNavigator(
                 )
                 while (i < current.points.size) {
                     val b: LatLng = current.points[i]
-                    // 1. Check whether edge start-end goes over boundary a-b
+                    // 1. ポリラインの一部の線分start-endと境界線の一部の線分abが交わるか確認
                     val e2 = Edge(
                         BasePoint(a.longitude, a.latitude),
                         BasePoint(b.longitude, b.latitude)
                     )
                     val intersection = e1.getIntersection(e2)
-                    // 2. If so, detect the intersection and add to prediction list
+                    // 2. 交点を持つ場合は予測座標として追加＆次の探索駅を決定
                     if (intersection != null &&
                         (intersection.x - start.longitude) * (end.point.longitude - start.longitude) +
                         (intersection.y - start.latitude) * (end.point.latitude - start.latitude) > 0
                     ) {
-                        // Calc coordinate of another station
-                        var index: Double =
-                            (
+                        /*
+                          点c（駅currentの座標）から線分abに下ろした垂線の足hを計算
+                          v = a - b, 0 <= k <= 1 として h = kv + b
+                          直交するので
+                          v・(h - c) = 0
+                          v・(kv + b - c) = 0
+                          k = v・(c - b) / |v|^2
+                         */
+                        val k = (
                                 (current.station.lng - b.longitude) * (a.longitude - b.longitude) +
-                                    (current.station.lat - b.latitude) * (a.latitude - b.latitude)
-                                ) /
-                                (a.longitude - b.longitude).pow(2.0) + (a.latitude - b.latitude).pow(2.0)
-                        val x = (1 - index) * b.longitude + index * a.longitude
-                        val y = (1 - index) * b.latitude + index * a.latitude
-                        val lng: Double = 2 * x - current.station.lng
-                        val lat: Double = 2 * y - current.station.lat
+                                        (current.station.lat - b.latitude) * (a.latitude - b.latitude)
+                                ) / (
+                                (a.longitude - b.longitude) * (a.longitude - b.longitude) +
+                                        (a.latitude - b.latitude) * (a.latitude - b.latitude)
+                                )
+                        assert(k in 0.0..1.0)
+                        val hx = (1 - k) * b.longitude + k * a.longitude
+                        val hy = (1 - k) * b.latitude + k * a.latitude
+                        /*
+                           目的の点pは 線分cpの中点が点hなので、
+                           p = 2h - c
+                         */
+                        val px = 2 * hx - current.station.lng
+                        val py = 2 * hy - current.station.lat
                         val neighbors = repository.getStations(current.station.next.toList())
-                        // Search for which station was detected
+                        // 計算した点pの座標と駅座標が完全に一致しない場合を考慮して最小誤差のものを選択
                         val next =
-                            neighbors.minByOrNull { s -> measureDistance(lat, lng, s.lat, s.lng) }
+                            neighbors.minByOrNull { s -> measureDistance(py, px, s.lat, s.lng) }
                                 ?.let { s -> StationArea.parseArea(s) }
                                 ?: throw RuntimeException("no neighbor found")
-                        // Update for next station
+                        // 予測を追加
                         val dist = measureDistance(
                             start.latitude,
                             start.longitude,
@@ -528,18 +540,30 @@ class PositionNavigator(
                         result.add(prediction)
                         if (--cnt <= 0) return
                         pathLength += dist
-                        index = 1.0 / measureDistance(
-                            intersection.y,
-                            intersection.x,
-                            start.latitude,
-                            start.longitude
-                        )
+                        /*
+                           次に探索するポイラインの一部の線分start-endを更新する
+                           start <- 交点i とすると境界線上に位置するので不都合
+                           start --> end 方向に見て1mだけ先の点を選ぶ
+                           線分i-startを(-1) : (1 + dist)の内分点
+                         */
+                        val m = 1.0 / dist
                         start = LatLng(
-                            (1 + index) * intersection.y - index * start.latitude,
-                            (1 + index) * intersection.x - index * start.longitude
+                            (1 + m) * intersection.y - m * start.latitude,
+                            (1 + m) * intersection.x - m * start.longitude
                         )
                         current = next
                         loop = true
+
+                        // 一応確認
+                        val list = explorer.search(
+                            start.latitude,
+                            start.longitude,
+                            1, 0.0,
+                        )
+                        assert(
+                            list.stations.isNotEmpty()
+                                    && next.station == list.stations.first()
+                        )
                         break
                     }
                     a = b
@@ -571,7 +595,7 @@ class PositionNavigator(
             if (javaClass != other?.javaClass) return false
             other as PolylineCursor
             return (start == other.start && end == other.end) ||
-                (start == other.end && end == other.start)
+                    (start == other.end && end == other.start)
         }
 
         override fun hashCode(): Int {
@@ -688,9 +712,9 @@ class PositionNavigator(
                     val v2 = point
                     val v3 = node!!.point
                     val v = (
-                        (v1.longitude - v2.longitude) * (v3.longitude - v2.longitude) +
-                            (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude)
-                        )
+                            (v1.longitude - v2.longitude) * (v3.longitude - v2.longitude) +
+                                    (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude)
+                            )
                     if (node != previous && v < 0) break
                     nextIndex++
                 }
@@ -848,13 +872,13 @@ class PositionNavigator(
 
         init {
             val v1 = (point.longitude - start.longitude) * (end.longitude - start.longitude) +
-                (point.latitude - start.latitude) * (end.latitude - start.latitude)
+                    (point.latitude - start.latitude) * (end.latitude - start.latitude)
             val v2 = (point.longitude - end.longitude) * (start.longitude - end.longitude) +
-                (point.latitude - end.latitude) * (start.latitude - end.latitude)
+                    (point.latitude - end.latitude) * (start.latitude - end.latitude)
             if (v1 >= 0 && v2 >= 0) {
                 isOnEdge = true
                 index = v1 /
-                    Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
+                        Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
             } else if (v1 < 0) {
                 isOnEdge = false
                 index = 0.0
