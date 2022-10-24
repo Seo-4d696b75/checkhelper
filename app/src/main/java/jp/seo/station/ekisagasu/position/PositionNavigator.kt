@@ -472,26 +472,18 @@ class PositionNavigator(
             var current = currentStation
             var pathLength = length
             var cnt = remains
-            var loop = true
-            while (loop) {
-                // check start < end
-                if (start == end.point) {
-                    break
-                }
-                var a: LatLng =
-                    current.points[if (current.enclosed) current.points.size - 1 else 0]
-                var i = if (current.enclosed) 0 else 1
-                loop = false
+
+            suspend fun search() {
+                if (start == end.point) return
                 val e1 = Edge(
                     BasePoint(start.longitude, start.latitude),
                     BasePoint(end.point.longitude, end.point.latitude)
                 )
-                while (i < current.points.size) {
-                    val b: LatLng = current.points[i]
+                current.forEachEdge { a, b ->
                     // 1. ポリラインの一部の線分start-endと境界線の一部の線分abが交わるか確認
                     val e2 = Edge(
                         BasePoint(a.longitude, a.latitude),
-                        BasePoint(b.longitude, b.latitude)
+                        BasePoint(b.longitude, b.latitude),
                     )
                     val intersection = e1.getIntersection(e2)
                     // 2. 交点を持つ場合は予測座標として追加＆次の探索駅を決定
@@ -499,6 +491,7 @@ class PositionNavigator(
                         (intersection.x - start.longitude) * (end.point.longitude - start.longitude) +
                         (intersection.y - start.latitude) * (end.point.latitude - start.latitude) > 0
                     ) {
+
                         /*
                           点c（駅currentの座標）から線分abに下ろした垂線の足hを計算
                           v = a - b, 0 <= k <= 1 として h = kv + b
@@ -538,7 +531,7 @@ class PositionNavigator(
                         )
                         val prediction = StationPrediction(next.station, pathLength + dist)
                         result.add(prediction)
-                        if (--cnt <= 0) return
+                        if (--cnt <= 0) return@forEachEdge
                         pathLength += dist
                         /*
                            次に探索するポイラインの一部の線分start-endを更新する
@@ -552,7 +545,6 @@ class PositionNavigator(
                             (1 + m) * intersection.x - m * start.longitude
                         )
                         current = next
-                        loop = true
 
                         // 一応確認
                         val list = explorer.search(
@@ -564,12 +556,15 @@ class PositionNavigator(
                             list.stations.isNotEmpty()
                                     && next.station == list.stations.first()
                         )
-                        break
+                        search()
+                        return@forEachEdge
                     }
-                    a = b
-                    i++
                 }
             }
+            // ポリライン線分上を探索
+            search()
+            // cntが0になるまで次のポリライン線分を探索
+            if (cnt == 0) return
             val iterator = end.iterator(previous)
             while (iterator.hasNext()) {
                 val next = iterator.next()
