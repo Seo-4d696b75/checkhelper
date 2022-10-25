@@ -141,7 +141,7 @@ class GPSClient @Inject constructor(
                         )
                     }
                 } else {
-                    Timber.tag("GPS").e("GPSを開始できません", e)
+                    Timber.tag("GPS").e(e, "GPSを開始できません")
                 }
             }
     }
