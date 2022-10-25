@@ -8,6 +8,7 @@ import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.slot
 import jp.seo.station.ekisagasu.fakeData
 import jp.seo.station.ekisagasu.model.Line
@@ -16,6 +17,7 @@ import jp.seo.station.ekisagasu.repository.impl.SearchRepositoryImpl
 import jp.seo.station.ekisagasu.search.NearestSearch
 import jp.seo.station.ekisagasu.search.SearchResult
 import jp.seo.station.ekisagasu.search.measureDistance
+import jp.seo.station.ekisagasu.search.measureSphere
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -61,6 +63,20 @@ open class SearchRepositoryImplTest(
             codes.map { code ->
                 data.lines.find { it.code == code } ?: throw NoSuchElementException()
             }
+        }
+
+        // Android SDK使ってる関数はモック必要
+        mockkStatic(::measureDistance)
+        val lat1Slot = slot<Double>()
+        val lng1Slot = slot<Double>()
+        val lat2Slot = slot<Double>()
+        val lng2Slot = slot<Double>()
+        every { measureDistance(capture(lat1Slot), capture(lng1Slot), capture(lat2Slot), capture(lng2Slot)) } answers {
+            val lat1 = lat1Slot.captured
+            val lng1 = lng1Slot.captured
+            val lat2 = lat2Slot.captured
+            val lng2 = lng2Slot.captured
+            measureSphere(lat1, lng1, lat2, lng2).toFloat()
         }
     }
 
