@@ -9,7 +9,7 @@ data class NearStation(
     /**
      * distance from the current position to this station
      */
-    val distance: Double,
+    val distance: Float,
     /**
      * Time when this near station detected
      */

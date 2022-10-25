@@ -148,7 +148,7 @@ open class SearchRepositoryImplTest(
             assertThat(it).isNotNull()
             assertThat(it?.station).isEqualTo(nearest)
             assertThat(it?.time).isEqualTo(time)
-            assertThat(it?.distance).isEqualTo(measureDistance(nearest, location1))
+            assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
             val lines = nearest.lines.map { code ->
                 data.lines.find { line -> line.code == code }
             }
@@ -181,7 +181,7 @@ open class SearchRepositoryImplTest(
             assertThat(it).isNotNull()
             assertThat(it?.station).isEqualTo(nearest)
             assertThat(it?.time).isEqualTo(time)
-            assertThat(it?.distance).isEqualTo(measureDistance(nearest, location1))
+            assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
         }
         assertThat(detectList[2]).isNull()
 

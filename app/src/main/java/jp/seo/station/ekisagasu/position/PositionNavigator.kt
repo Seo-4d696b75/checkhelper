@@ -66,16 +66,6 @@ class PositionNavigator(
 
     companion object {
         private const val DISTANCE_THRESHOLD = 5f
-
-        private fun measureDistance(p1: LatLng, p2: LatLng): Float {
-            return measureDistance(p1.latitude, p1.longitude, p2.latitude, p2.longitude)
-        }
-
-        private fun measureDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
-            val result = FloatArray(1)
-            Location.distanceBetween(lat1, lon1, lat2, lon2, result)
-            return result[0]
-        }
     }
 
     fun release() {
@@ -528,7 +518,7 @@ class PositionNavigator(
                     val next = StationArea.parseArea(station)
                     // 表示用の距離
                     val nextPathLength =
-                        pathLength + start.measureDistance(nextStart).toFloat()
+                        pathLength + start.measureDistance(nextStart)
                     // 予測を追加
                     val prediction = StationPrediction(station, nextPathLength)
                     result.add(prediction)
@@ -565,7 +555,7 @@ class PositionNavigator(
                     end.point,
                     next,
                     current,
-                    pathLength + measureDistance(start, end.point),
+                    pathLength + start.measureDistance(end.point),
                     cnt,
                     result,
                     depth + 1,
@@ -659,7 +649,7 @@ class PositionNavigator(
                     segment,
                     if (forward) segment.end else segment.start
                 ) else MiddleNode(segment.points[i], index++)
-                val distance = measureDistance(previous.point, node.point)
+                val distance = previous.point.measureDistance(node.point)
                 previous.setNext(node, distance)
                 node.setNext(previous, distance)
                 if (cursor != null) {
@@ -877,8 +867,8 @@ class PositionNavigator(
             val lon = (1 - index) * start.longitude + index * end.longitude
             val lat = (1 - index) * start.latitude + index * end.latitude
             closedPoint = LatLng(lat, lon)
-            distance = measureDistance(closedPoint, point)
-            edgeDistance = measureDistance(start, end)
+            distance = closedPoint.measureDistance(point)
+            edgeDistance = start.measureDistance(end)
         }
     }
 }

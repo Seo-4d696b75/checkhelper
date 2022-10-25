@@ -70,7 +70,7 @@ class SearchRepositoryImpl @Inject constructor(
         val time = Date(location.time)
         val list = result.stations.map { s ->
             val lines = dataRepository.getLines(s.lines)
-            NearStation(s, measureDistance(s, location), time, lines)
+            NearStation(s, s.measureDistance(location), time, lines)
         }
         _nearestStations.value = list
         _nearestStation.value = list[0]
