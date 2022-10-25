@@ -1,7 +1,6 @@
 package jp.seo.station.ekisagasu.repository.impl
 
 import android.content.Context
-import android.util.Log
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.database.AppRebootLog
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import java.io.PrintWriter
@@ -48,7 +48,6 @@ class LogRepositoryImpl @Inject constructor(
     override suspend fun saveMessage(message: AppMessage) {
         when (message) {
             is AppMessage.Log -> {
-                Log.i("AppMessage.Log", message.message)
                 saveLog(AppLog.TYPE_SYSTEM, message.message)
             }
             is AppMessage.Error -> {
@@ -59,27 +58,26 @@ class LogRepositoryImpl @Inject constructor(
                     cause.printStackTrace(pw)
                     String.format("%s caused by;\n%s", message.message, sw.toString())
                 } else message.message
-                Log.e("AppMessage.Error", str)
                 saveLog(AppLog.TYPE_SYSTEM, str)
                 _hasError = true
             }
             is AppMessage.ResolvableException -> {
-                Log.w("AppMessage.ResolvableException", "${message.message}: ${message.exception}")
+                Timber.tag("ResolvableException").d("${message.message}: ${message.exception}")
                 saveLog(AppLog.TYPE_SYSTEM, message.message)
             }
             is AppMessage.Location -> {
                 val mes = String.format("(%.6f,%.6f)", message.lat, message.lng)
-                Log.i("Location", mes)
+                Timber.tag("Location").d(mes)
                 saveLog(AppLog.TYPE_LOCATION, mes)
             }
             is AppMessage.Station -> {
                 val station = message.station
                 val mes = String.format("%s(%d)", station.name, station.code)
-                Log.i("Station", mes)
+                Timber.tag("Station").d(mes)
                 saveLog(AppLog.TYPE_STATION, mes)
             }
             else -> {
-                Log.i("AppMessage", message.toString())
+                Timber.tag("AppMessage").d(message.toString())
             }
         }
     }

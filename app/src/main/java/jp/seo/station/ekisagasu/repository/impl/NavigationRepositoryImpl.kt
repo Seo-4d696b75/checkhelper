@@ -4,7 +4,6 @@ import android.location.Location
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.position.PositionNavigator
-import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +15,6 @@ import javax.inject.Inject
 
 class NavigationRepositoryImpl @Inject constructor(
     private val search: NearestSearch,
-    private val repository: DataRepository,
 ) : NavigationRepository {
     private val _running = MutableStateFlow(false)
     private var navigator: PositionNavigator? = null
@@ -34,7 +32,7 @@ class NavigationRepositoryImpl @Inject constructor(
 
     override fun start(line: Line) {
         navigator?.release()
-        navigator = PositionNavigator(search, repository, line)
+        navigator = PositionNavigator(search, line)
         _navigator.value = navigator
         _running.value = true
     }

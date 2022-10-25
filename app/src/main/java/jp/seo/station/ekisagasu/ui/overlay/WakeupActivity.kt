@@ -3,10 +3,10 @@ package jp.seo.station.ekisagasu.ui.overlay
 import android.app.KeyguardManager
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import jp.seo.station.ekisagasu.databinding.ActivityWakeupBinding
+import timber.log.Timber
 
 class WakeupActivity : AppCompatActivity() {
 
@@ -16,7 +16,7 @@ class WakeupActivity : AppCompatActivity() {
         val manager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         val locked = manager.isKeyguardLocked
 
-        Log.d("Wakeup", "locked: $locked")
+        Timber.tag("Wakeup").d("locked: $locked")
         if (locked) {
             // SecureなLockScreenが存在する場合
             // ユーザ操作でないと解除できない 適当な画面を表示し続けて解除を促す

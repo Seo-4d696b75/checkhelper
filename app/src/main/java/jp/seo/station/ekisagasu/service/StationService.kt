@@ -14,7 +14,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.AlarmClock
-import android.util.Log
 import android.widget.Toast
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleService
@@ -33,6 +32,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -54,23 +54,23 @@ class StationService : LifecycleService() {
 
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
-        viewModel.log("onBind: client requests to bind service")
+        Timber.tag("Service").d("onBind: client requests to bind service")
         return StationServiceBinder()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        viewModel.log("onUnbind: client unbinds service")
+        Timber.tag("Service").d("onUnbind: client unbinds service")
         return true
     }
 
     override fun onRebind(intent: Intent?) {
-        viewModel.log("onRebind: client binds service again")
+        Timber.tag("Service").d("onRebind: client binds service again")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        viewModel.log("service received start-command")
+        Timber.tag("Service").d("service received start-command")
 
         intent?.let {
             if (it.hasExtra(KEY_REQUEST)) {
@@ -86,10 +86,8 @@ class StationService : LifecycleService() {
                         overlayView.setTimerState(false)
                     }
                     else -> {
-                        error(
-                            "unknown intent extra. key:KEY_REQUEST value:" + it.getStringExtra(
-                                KEY_REQUEST
-                            )
+                        Timber.tag("Service").w(
+                            "unknown intent extra received:" + it.getStringExtra(KEY_REQUEST)
                         )
                     }
                 }
@@ -149,7 +147,7 @@ class StationService : LifecycleService() {
             .onEach { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
-                    String.format("%s   %s", formatDistance(s.distance), s.getLinesName())
+                    String.format("%s   %s", s.distance.formatDistance, s.getLinesName())
                 )
                 overlayView.onLocationChanged(s)
             }
@@ -161,7 +159,6 @@ class StationService : LifecycleService() {
             .drop(1)
             .onEach {
                 if (it) {
-                    viewModel.log("start: try to getting GPS ready")
                     notificationHolder.update(
                         getString(R.string.notification_title_start),
                         getString(R.string.notification_message_start)
@@ -171,9 +168,7 @@ class StationService : LifecycleService() {
                         this@StationService,
                         getString(R.string.message_stop_search),
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
-                    viewModel.log("GPS search stopped")
+                    ).show()
                     notificationHolder.update(
                         getString(R.string.notification_title_wait),
                         getString(R.string.notification_message_wait)
@@ -399,7 +394,7 @@ class StationService : LifecycleService() {
             timerRunning = true
             Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()
         } else {
-            viewModel.error("タイマーを設定できませんでした")
+            Timber.tag("Service").e("タイマーを設定できませんでした")
         }
     }
 }

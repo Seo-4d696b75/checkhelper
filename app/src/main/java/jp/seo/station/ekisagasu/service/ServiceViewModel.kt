@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.repository.NavigationRepository
@@ -18,29 +17,24 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class ServiceViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
-    private val logger: AppLogger,
     private val userSettingRepository: UserSettingRepository,
     private val searchRepository: SearchRepository,
     private val navigator: NavigationRepository,
     private val appStateRepository: AppStateRepository,
     private val bootUseCase: BootUseCase,
     private val appFinishUseCase: AppFinishUseCase,
-) : ViewModel(), AppLogger by logger {
+) : ViewModel() {
     /**
      * 現在の探索・待機状態の変更を通知する
      */
     val isRunning = locationRepository.isRunning
 
     val currentLocation = locationRepository.currentLocation
-
-    fun log(message: String) = viewModelScope.log(message)
-    fun error(message: String) = viewModelScope.error(message)
-
-    val message = appStateRepository.message
 
     val detectedStation = searchRepository.detectedStation
     val nearestStation = searchRepository.nearestStation
@@ -98,7 +92,7 @@ class ServiceViewModel @Inject constructor(
         .filterIsInstance<AppMessage.FinishApp>()
         .onEach {
             stopStationSearch()
-            log("service terminated")
+            Timber.tag("Service").d("service terminated")
             appFinishUseCase()
         }
 

@@ -59,7 +59,7 @@ class NavigationView(
             WindowManager.LayoutParams.WRAP_CONTENT,
             0, 0, layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParams.gravity = Gravity.TOP or Gravity.START
@@ -211,14 +211,14 @@ class NavigationView(
         stations[0].text = result.current.name
         if (result.size > 0) {
             stations[1].text = result.getStation(0).name
-            distances[0].text = formatDistance(result.getDistance(0).toDouble())
+            distances[0].text = result.getDistance(0).formatDistance
         } else {
             stations[1].text = ""
             distances[0].text = ""
         }
         if (result.size > 1) {
             stations[2].text = result.getStation(1).name
-            distances[1].text = formatDistance(result.getDistance(1).toDouble())
+            distances[1].text = result.getDistance(1).formatDistance
         } else {
             stations[2].text = ""
             distances[1].text = ""
@@ -287,7 +287,7 @@ class NavigationView(
         }
         val animatorSet = AnimatorSet()
         if (result.size > 1) {
-            distances[2].text = formatDistance(result.getDistance(1).toDouble())
+            distances[2].text = result.getDistance(1).formatDistance
             stations[3].text = result.getStation(1).name
         }
         animatorSet.playTogether(

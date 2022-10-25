@@ -5,7 +5,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jp.seo.station.ekisagasu.repository.AppLogger
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
@@ -14,7 +13,6 @@ import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.repository.SearchRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
-import jp.seo.station.ekisagasu.repository.impl.AppLoggerImpl
 import jp.seo.station.ekisagasu.repository.impl.AppStateRepositoryImpl
 import jp.seo.station.ekisagasu.repository.impl.DataRepositoryImpl
 import jp.seo.station.ekisagasu.repository.impl.GPSClient
@@ -55,10 +53,6 @@ interface LogModule {
     @Binds
     @Singleton
     fun bindsLogRepository(impl: LogRepositoryImpl): LogRepository
-
-    @Binds
-    @Singleton
-    fun bindsLogEmitter(impl: AppLoggerImpl): AppLogger
 }
 
 @Module
