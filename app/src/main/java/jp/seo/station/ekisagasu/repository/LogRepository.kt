@@ -15,4 +15,8 @@ interface LogRepository {
     val logs: Flow<List<AppLog>>
     suspend fun onAppBoot(context: Context)
     suspend fun onAppFinish(context: Context)
+
+    companion object {
+        const val MAX_MESSAGE_LENGTH = 500
+    }
 }

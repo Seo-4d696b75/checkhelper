@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
@@ -18,7 +16,8 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
-import jp.seo.station.ekisagasu.repository.AppLogger
+import jp.seo.station.ekisagasu.model.AppMessage
+import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -34,9 +34,9 @@ import javax.inject.Inject
  */
 class GPSClient @Inject constructor(
     @ApplicationContext private val context: Context,
-    logger: AppLogger,
     private val defaultDispatcher: CoroutineDispatcher,
-) : LocationCallback(), LocationRepository, CoroutineScope, AppLogger by logger {
+    private val appStateRepository: AppStateRepository,
+) : LocationCallback(), LocationRepository, CoroutineScope {
 
     private var job = Job()
 
@@ -64,7 +64,7 @@ class GPSClient @Inject constructor(
     }
 
     override fun onLocationAvailability(p: LocationAvailability) {
-        Log.d("GPS", "isLocationAvailable: ${p.isLocationAvailable}")
+        Timber.tag("GPS").d("isLocationAvailable: ${p.isLocationAvailable}")
     }
 
     /**
@@ -80,12 +80,10 @@ class GPSClient @Inject constructor(
         try {
             if (running) {
                 if (interval != minInterval) {
-                    log(
-                        String.format(
-                            "GPS > min interval %d>%d sec",
-                            minInterval,
-                            interval
-                        )
+                    Timber.tag("GPS").i(
+                        "GPS最短更新間隔を変更 %d > %d [sec]",
+                        minInterval,
+                        interval
                     )
                     minInterval = interval
                     locationClient.removeLocationUpdates(this)
@@ -98,15 +96,17 @@ class GPSClient @Inject constructor(
                 minInterval = interval
                 requestGPSUpdate()
 
-                log(
-                    String.format(
-                        "GPS > min interval: %d sec",
-                        minInterval
-                    )
+                Timber.tag("GPS").i(
+                    "GPS開始 > 最短更新間隔: %d [sec]",
+                    minInterval
                 )
             }
         } catch (e: ResolvableApiException) {
-            requestExceptionResolved("GPSによる現在値取得に追加の操作が必要です", e)
+            launch {
+                appStateRepository.emitMessage(
+                    AppMessage.ResolvableException("GPSによる現在値取得に追加の操作が必要です", e)
+                )
+            }
         }
     }
 
@@ -131,14 +131,17 @@ class GPSClient @Inject constructor(
                     running = true
                     launch { _running.emit(true) }
                 } else {
-                    error("permission denied: ACCESS_FILE_LOCATION")
+                    Timber.tag("GPS").w("権限が許可されていません：ACCESS_FILE_LOCATION")
                 }
             }.addOnFailureListener { e ->
-                if (e is ApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
-                    error("resolution required", e)
-                    throw e as ResolvableApiException
+                if (e is ResolvableApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
+                    launch {
+                        appStateRepository.emitMessage(
+                            AppMessage.ResolvableException("GPSによる現在値取得に追加の操作が必要です", e)
+                        )
+                    }
                 } else {
-                    error("Fail to start GPS update", e)
+                    Timber.tag("GPS").e(e, "GPSを開始できません")
                 }
             }
     }
@@ -152,7 +155,7 @@ class GPSClient @Inject constructor(
                     job = Job()
                 }
             _running.value = false
-            log("GPS has stopped")
+            Timber.tag("GPS").i("GPSを停止しました")
             return true
         }
         return false

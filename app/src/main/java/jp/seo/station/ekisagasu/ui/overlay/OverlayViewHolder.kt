@@ -344,7 +344,7 @@ class OverlayViewHolder(
         if (requestedStation?.station == station.station) {
             requestedStation = station
         }
-        distance.text = formatDistance(station.distance)
+        distance.text = station.distance.formatDistance
     }
 
     private var elapsedTimer: Timer? = null

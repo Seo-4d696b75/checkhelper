@@ -23,8 +23,8 @@ android {
         applicationId "jp.seo.station.ekisagasu"
         minSdkVersion 27
         targetSdkVersion 32
-        versionCode 202
-        versionName '2.2.1'
+        versionCode 203
+        versionName '2.2.2'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
@@ -129,6 +129,9 @@ dependencies {
 
     // data store
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    // logger
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 
     //include other module
     implementation project(':widget')

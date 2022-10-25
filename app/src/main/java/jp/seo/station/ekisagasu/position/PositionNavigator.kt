@@ -1,17 +1,16 @@
 package jp.seo.station.ekisagasu.position
 
 import android.location.Location
-import android.util.Log
 import com.google.android.gms.maps.model.LatLng
-import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
-import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
+import jp.seo.station.ekisagasu.search.measureDistance
+import jp.seo.station.ekisagasu.search.measureEuclid
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
@@ -20,10 +19,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
-import kotlin.math.pow
 
 /**
  * @author Seo-4d696b75
@@ -60,22 +59,11 @@ class PredictionResult(
 
 class PositionNavigator(
     private val explorer: NearestSearch,
-    private val repository: DataRepository,
     val line: Line
 ) {
 
     companion object {
         private const val DISTANCE_THRESHOLD = 5f
-
-        private fun measureDistance(p1: LatLng, p2: LatLng): Float {
-            return measureDistance(p1.latitude, p1.longitude, p2.latitude, p2.longitude)
-        }
-
-        private fun measureDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
-            val result = FloatArray(1)
-            Location.distanceBetween(lat1, lon1, lat2, lon2, result)
-            return result[0]
-        }
     }
 
     fun release() {
@@ -140,21 +128,17 @@ class PositionNavigator(
                 for (p in cursors) p.update(location, list)
 
                 // Filter cursors
-                if (cursors.size > 1) filterCursors(list, 2.0)
+                if (cursors.size > 1) filterCursors(list)
                 cursors = list
-                Log.d(
-                    "update",
-                    String.format(
-                        "cursor size: %d, speed: %.0fkm/h",
-                        list.size,
-                        list[0].state.speed * 3.6
-                    )
+                Timber.tag("Navigator").d(
+                    "cursor size: %d, speed: %.0fkm/h",
+                    list.size,
+                    list[0].state.speed * 3.6,
                 )
-                if ((
-                    lastLocation?.distanceTo(location)
-                        ?: 100000f
-                    ) < DISTANCE_THRESHOLD
-                ) return@withContext
+                if ((lastLocation?.distanceTo(location) ?: 100000f) < DISTANCE_THRESHOLD) {
+                    Timber.tag("Navigator").d("location diff too small, skipped")
+                    return@withContext
+                }
                 lastLocation = location
 
                 // prediction の集計
@@ -177,19 +161,15 @@ class PositionNavigator(
                 // 結果オブジェクトにまとめる
                 val result = PredictionResult(size, station)
                 val date: String = formatTime(TIME_PATTERN_MILLI_SEC, Date(updateTime))
-                Log.d("predict", date + " station size: " + prediction.size)
+                Timber.tag("Navigator").d("predict date: $date, station size: ${prediction.size}")
                 for (i in 0 until size) {
                     val s = prediction[i]
                     result.predictions[i] = s
-                    Log.d(
-                        "predict",
-                        java.lang.String.format(
-                            Locale.US,
-                            "[%d] %.0fm %s",
-                            i,
-                            s.distance,
-                            s.station.name
-                        )
+                    Timber.tag("Navigator").d(
+                        "[%d] %.0fm %s",
+                        i,
+                        s.distance,
+                        s.station.name,
                     )
                 }
                 _results.value = result
@@ -198,7 +178,7 @@ class PositionNavigator(
 
     private fun initialize(location: Location) {
         polylineFragments.map { f ->
-            Pair<PolylineSegment, NearestPoint>(
+            Pair(
                 f,
                 f.findNearestPoint(location.latitude, location.longitude)
             )
@@ -218,11 +198,11 @@ class PositionNavigator(
         return null
     }
 
-    private fun filterCursors(list: MutableList<PolylineCursor>, threshold: Double): Double {
+    private fun filterCursors(list: MutableList<PolylineCursor>): Double {
         val minDistance = list.minOf { cursor -> cursor.nearest.distance }.toDouble()
         val iterator = list.iterator()
         while (iterator.hasNext()) {
-            if (iterator.next().nearest.distance > minDistance * threshold) {
+            if (iterator.next().nearest.distance > minDistance * 2) {
                 iterator.remove()
             }
         }
@@ -379,7 +359,7 @@ class PositionNavigator(
                         NearestPoint(cursor.start.point, cursor.end.point, location)
                 }
                 if (cursor.pathLengthSign * pathLengthSign < 0) {
-                    Log.d("predict", "direction changed")
+                    Timber.tag("Navigator").d("cursor direction changed")
                 }
                 cursor.state = next
             }
@@ -441,16 +421,11 @@ class PositionNavigator(
         }
 
         suspend fun predict(result: MutableCollection<StationPrediction>) {
-            val list = explorer.search(
-                nearest.closedPoint.latitude,
-                nearest.closedPoint.longitude,
-                1,
-                0.0
-            )
-            if (list.stations.isEmpty()) return
-            val s = list.stations[0]
+            // ポリライン上の現在位置の近傍駅
+            val s = explorer.searchEuclid(nearest.closedPoint) ?: return
             var cnt = maxPrediction
             val current = if (s != currentStation?.station) {
+                // 現在位置からの近傍駅と異なる場合もある
                 result.add(StationPrediction(s, 0f))
                 cnt--
                 StationArea.parseArea(s)
@@ -460,103 +435,132 @@ class PositionNavigator(
             searchForStation(start, nearest.closedPoint, end, current, 0f, cnt, result)
         }
 
+        /**
+         * 線分start-end上の駅境界を調べて駅の予測を追加する
+         * @param start
+         * @param end
+         * @param current 探索中の現在の近傍駅
+         * @param pathLength ポリライン上の現在位置から起算した探索点の距離（予測の表示用）
+         * @param cnt あと何個予測を追加するか
+         */
         private suspend fun searchForStation(
             previous: PolylineNode,
-            startPoint: LatLng,
+            start: LatLng,
             end: PolylineNode,
-            currentStation: StationArea,
-            length: Float,
-            remains: Int,
-            result: MutableCollection<StationPrediction>
+            current: StationArea,
+            pathLength: Float,
+            cnt: Int,
+            result: MutableCollection<StationPrediction>,
+            depth: Int = 0,
         ) {
-            var start = startPoint
-            var current = currentStation
-            var pathLength = length
-            var cnt = remains
-            var loop = true
-            while (loop) {
-                // check start < end
-                if (start == end.point) {
-                    break
-                }
-                var a: LatLng =
-                    current.points[if (current.enclosed) current.points.size - 1 else 0]
-                var i = if (current.enclosed) 0 else 1
-                loop = false
-                val e1 = Edge(
-                    BasePoint(start.longitude, start.latitude),
-                    BasePoint(end.point.longitude, end.point.latitude)
-                )
-                while (i < current.points.size) {
-                    val b: LatLng = current.points[i]
-                    // 1. Check whether edge start-end goes over boundary a-b
-                    val e2 = Edge(
-                        BasePoint(a.longitude, a.latitude),
-                        BasePoint(b.longitude, b.latitude)
+            // TODO 無限ループ回避策（消極的）
+            if (depth > 1000) {
+                Timber.tag("Navigator").w("searchForStation 呼び出し回数が深すぎます！探索を強制終了します")
+                return
+            }
+
+            assert {
+                val s = explorer.searchEuclid(start)
+                if (s != current.station) {
+                    Timber.tag("Navigator").w(
+                        "station mismatch! current: ${current.station.name}, start: ${s?.name}",
                     )
-                    val intersection = e1.getIntersection(e2)
-                    // 2. If so, detect the intersection and add to prediction list
-                    if (intersection != null &&
-                        (intersection.x - start.longitude) * (end.point.longitude - start.longitude) +
-                        (intersection.y - start.latitude) * (end.point.latitude - start.latitude) > 0
-                    ) {
-                        // Calc coordinate of another station
-                        var index: Double =
-                            (
-                                (current.station.lng - b.longitude) * (a.longitude - b.longitude) +
-                                    (current.station.lat - b.latitude) * (a.latitude - b.latitude)
-                                ) /
-                                (a.longitude - b.longitude).pow(2.0) + (a.latitude - b.latitude).pow(2.0)
-                        val x = (1 - index) * b.longitude + index * a.longitude
-                        val y = (1 - index) * b.latitude + index * a.latitude
-                        val lng: Double = 2 * x - current.station.lng
-                        val lat: Double = 2 * y - current.station.lat
-                        val neighbors = repository.getStations(current.station.next.toList())
-                        // Search for which station was detected
-                        val next =
-                            neighbors.minByOrNull { s -> measureDistance(lat, lng, s.lat, s.lng) }
-                                ?.let { s -> StationArea.parseArea(s) }
-                                ?: throw RuntimeException("no neighbor found")
-                        // Update for next station
-                        val dist = measureDistance(
-                            start.latitude,
-                            start.longitude,
-                            intersection.y,
-                            intersection.x
-                        )
-                        val prediction = StationPrediction(next.station, pathLength + dist)
-                        result.add(prediction)
-                        if (--cnt <= 0) return
-                        pathLength += dist
-                        index = 1.0 / measureDistance(
-                            intersection.y,
-                            intersection.x,
-                            start.latitude,
-                            start.longitude
-                        )
-                        start = LatLng(
-                            (1 + index) * intersection.y - index * start.latitude,
-                            (1 + index) * intersection.x - index * start.longitude
-                        )
-                        current = next
-                        loop = true
-                        break
+                }
+                true
+            }
+
+            var intersectionFound = false
+            if (start != end.point) {
+                val stationAtEnd = requireNotNull(explorer.searchEuclid(end.point))
+                // ボロノイ領域は凸なので線分の両端で同じ駅なら線分上どこでも同じ駅
+                // 逆に両端で異なるなら線分上に１つ以上の境界線との交点がある
+                if (stationAtEnd != current.station) {
+                    intersectionFound = true
+                    val edge = Edge(start.point2D, end.point.point2D)
+                    val intersection = current.getIntersection(edge)?.latLng ?: kotlin.run {
+                        // TODO 端点が境界に非常に近い場合、見つからない場合あがある？
+                        val middle = edge.middlePoint
+                        val stationAtMiddle = explorer.searchEuclid(middle.latLng)
+                        if (stationAtEnd == stationAtMiddle) {
+                            start
+                        } else if (current.station == stationAtMiddle) {
+                            end.point
+                        } else {
+                            throw RuntimeException("intersection with station voronoi not found")
+                        }
                     }
-                    a = b
-                    i++
+                    /*
+                       次の探索開始点＆隣接駅を決定
+                       交点だと現在の駅と隣接駅から距離が同じで不都合
+                       start --> end 方向に見てdelta[m]だけ先の点を選ぶ
+                       線分i-startを(-delta) : (delta + distFromStart)の内分点
+                     */
+                    val distToEnd = end.point.measureEuclid(intersection)
+                    val distFromStart = start.measureEuclid(intersection)
+                    val delta = 0.00001
+                    val nextStart = if (intersection != end.point && delta < distToEnd) {
+                        val m = delta / distFromStart
+                        LatLng(
+                            (1 + m) * intersection.latitude - m * start.latitude,
+                            (1 + m) * intersection.longitude - m * start.longitude
+                        )
+                    } else {
+                        // 終点endが近すぎる場合
+                        end.point
+                    }
+                    // 隣接駅
+                    val station = requireNotNull(explorer.searchEuclid(nextStart))
+                    // 次の探索駅
+                    val next = StationArea.parseArea(station)
+                    // 表示用の距離
+                    val nextPathLength =
+                        pathLength + start.measureDistance(nextStart)
+                    // 予測を追加
+                    val prediction = StationPrediction(station, nextPathLength)
+                    result.add(prediction)
+
+                    if (cnt - 1 > 0) {
+                        // まだ必要なら残りの線分上を探索続ける
+                        searchForStation(
+                            previous,
+                            nextStart,
+                            end,
+                            next,
+                            nextPathLength,
+                            cnt - 1,
+                            result,
+                            depth + 1,
+                        )
+                    }
                 }
             }
+
+            // 線分上に駅境界を発見しているなら探索済み
+            if (intersectionFound) return
+
+            // 線分上に駅境界が見つからなかった場合は、次のポリライン線分を探索
+            assert(cnt > 0)
             val iterator = end.iterator(previous)
             while (iterator.hasNext()) {
                 val next = iterator.next()
+                assert {
+                    val s = explorer.searchEuclid(end.point)
+                    if (s != current.station) {
+                        Timber.tag("Navigator").w(
+                            "station mismatch! current: ${current.station.name}, end: ${s?.name}",
+                        )
+                    }
+                    true
+                }
                 searchForStation(
                     end,
                     end.point,
                     next,
                     current,
-                    pathLength + measureDistance(start, end.point),
+                    pathLength + start.measureDistance(end.point),
                     cnt,
-                    result
+                    result,
+                    depth + 1,
                 )
             }
         }
@@ -571,7 +575,7 @@ class PositionNavigator(
             if (javaClass != other?.javaClass) return false
             other as PolylineCursor
             return (start == other.start && end == other.end) ||
-                (start == other.end && end == other.start)
+                    (start == other.end && end == other.start)
         }
 
         override fun hashCode(): Int {
@@ -647,7 +651,7 @@ class PositionNavigator(
                     segment,
                     if (forward) segment.end else segment.start
                 ) else MiddleNode(segment.points[i], index++)
-                val distance = measureDistance(previous.point, node.point)
+                val distance = previous.point.measureDistance(node.point)
                 previous.setNext(node, distance)
                 node.setNext(previous, distance)
                 if (cursor != null) {
@@ -688,9 +692,9 @@ class PositionNavigator(
                     val v2 = point
                     val v3 = node!!.point
                     val v = (
-                        (v1.longitude - v2.longitude) * (v3.longitude - v2.longitude) +
-                            (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude)
-                        )
+                            (v1.longitude - v2.longitude) * (v3.longitude - v2.longitude) +
+                                    (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude)
+                            )
                     if (node != previous && v < 0) break
                     nextIndex++
                 }
@@ -733,8 +737,8 @@ class PositionNavigator(
         }
 
         override fun toString(): String {
-            return java.lang.String.format(
-                Locale.US, "EndNode{lat/lon:(%.6f,%.6f), tag:%s, size:%s}",
+            return String.format(
+                Locale.US, "EndNode(lat/lon:(%.6f,%.6f), tag:%s, size:%s)",
                 point.latitude, point.longitude,
                 tag,
                 if (hasChecked) size.toString() else "??"
@@ -806,8 +810,8 @@ class PositionNavigator(
         }
 
         override fun toString(): String {
-            return java.lang.String.format(
-                Locale.US, "MiddleNode{lat/lon:(%.6f,%.6f), index:%d}",
+            return String.format(
+                Locale.US, "MiddleNode(lat/lon:(%.6f,%.6f), index:%d)",
                 point.latitude, point.longitude, index
             )
         }
@@ -839,22 +843,22 @@ class PositionNavigator(
         }
 
         override fun toString(): String {
-            return java.lang.String.format(
+            return String.format(
                 Locale.US,
-                "lat/lon:(%.6f,%.6f) - %.2fm",
+                "NearestPoint(lat/lon:(%.6f,%.6f) - %.2fm)",
                 closedPoint.latitude, closedPoint.longitude, distance
             )
         }
 
         init {
             val v1 = (point.longitude - start.longitude) * (end.longitude - start.longitude) +
-                (point.latitude - start.latitude) * (end.latitude - start.latitude)
+                    (point.latitude - start.latitude) * (end.latitude - start.latitude)
             val v2 = (point.longitude - end.longitude) * (start.longitude - end.longitude) +
-                (point.latitude - end.latitude) * (start.latitude - end.latitude)
+                    (point.latitude - end.latitude) * (start.latitude - end.latitude)
             if (v1 >= 0 && v2 >= 0) {
                 isOnEdge = true
                 index = v1 /
-                    Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
+                        Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
             } else if (v1 < 0) {
                 isOnEdge = false
                 index = 0.0
@@ -865,8 +869,8 @@ class PositionNavigator(
             val lon = (1 - index) * start.longitude + index * end.longitude
             val lat = (1 - index) * start.latitude + index * end.latitude
             closedPoint = LatLng(lat, lon)
-            distance = measureDistance(closedPoint, point)
-            edgeDistance = measureDistance(start, end)
+            distance = closedPoint.measureDistance(point)
+            edgeDistance = start.measureDistance(end)
         }
     }
 }

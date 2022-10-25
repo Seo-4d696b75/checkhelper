@@ -35,6 +35,7 @@ import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 
 /**
  * @author Seo-4d696b75
@@ -168,17 +169,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            return
-        }
-
         val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
         if (code != ConnectionResult.SUCCESS) {
             GoogleApiAvailability.getInstance().getErrorDialog(this, code, 0)?.show()
@@ -192,15 +182,16 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-            Log.d("Overlay", "permission_request_overlay")
+            Timber.tag("Permission").i("許可：権限「アプリに重ねて表示する」")
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                Toast.makeText(applicationContext, "Please reboot app", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "アプリを再起動してください", Toast.LENGTH_SHORT).show()
             }
         } else {
+            Timber.tag("Permission").i("拒否：権限「アプリに重ねて表示する」")
             if (!Settings.canDrawOverlays(this)) {
                 Toast.makeText(
                     applicationContext,
-                    "overlay permission not granted",
+                    "権限が許可されませんでした",
                     Toast.LENGTH_SHORT
                 ).show()
                 finish()
@@ -212,24 +203,15 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartIntentSenderForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-            Log.d("ResolvableAPI", "resolved")
+            Timber.tag("ResolvableAPIException").i("許可：$it")
         } else {
-            Log.d("ResolvableAPI", "fail")
+            Timber.tag("ResolvableAPIException").i("拒否：$it")
         }
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) {
-        if (!it) {
-            Toast.makeText(
-                applicationContext,
-                "permission not granted",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
-        }
-    }
+    ) { }
 
     private val requestLogFileUriLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -250,7 +232,7 @@ class MainActivity : AppCompatActivity() {
                 findNavController(R.id.main_nav_host).navigate(R.id.action_mainFragment_to_logFragment)
             }
             else -> {
-                Log.e("Menu", "unknown id:${item.itemId}")
+                Timber.tag("Menu").w("unknown id:${item.itemId}")
             }
         }
         return super.onOptionsItemSelected(item)
