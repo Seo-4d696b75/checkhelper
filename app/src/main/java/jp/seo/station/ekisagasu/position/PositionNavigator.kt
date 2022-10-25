@@ -1,7 +1,6 @@
 package jp.seo.station.ekisagasu.position
 
 import android.location.Location
-import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.Edge
 import jp.seo.station.ekisagasu.model.Line
@@ -9,7 +8,6 @@ import jp.seo.station.ekisagasu.model.PolylineSegment
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
-import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
 import jp.seo.station.ekisagasu.search.measureDistance
 import jp.seo.station.ekisagasu.search.measureEuclid
@@ -21,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
@@ -60,7 +59,6 @@ class PredictionResult(
 
 class PositionNavigator(
     private val explorer: NearestSearch,
-    private val repository: DataRepository,
     val line: Line
 ) {
 
@@ -130,21 +128,17 @@ class PositionNavigator(
                 for (p in cursors) p.update(location, list)
 
                 // Filter cursors
-                if (cursors.size > 1) filterCursors(list, 2.0)
+                if (cursors.size > 1) filterCursors(list)
                 cursors = list
-                Log.d(
-                    "update",
-                    String.format(
-                        "cursor size: %d, speed: %.0fkm/h",
-                        list.size,
-                        list[0].state.speed * 3.6
-                    )
+                Timber.tag("Navigator").d(
+                    "cursor size: %d, speed: %.0fkm/h",
+                    list.size,
+                    list[0].state.speed * 3.6,
                 )
-                if ((
-                            lastLocation?.distanceTo(location)
-                                ?: 100000f
-                            ) < DISTANCE_THRESHOLD
-                ) return@withContext
+                if ((lastLocation?.distanceTo(location) ?: 100000f) < DISTANCE_THRESHOLD) {
+                    Timber.tag("Navigator").d("location diff too small, skipped")
+                    return@withContext
+                }
                 lastLocation = location
 
                 // prediction の集計
@@ -167,19 +161,15 @@ class PositionNavigator(
                 // 結果オブジェクトにまとめる
                 val result = PredictionResult(size, station)
                 val date: String = formatTime(TIME_PATTERN_MILLI_SEC, Date(updateTime))
-                Log.d("predict", date + " station size: " + prediction.size)
+                Timber.tag("Navigator").d("predict date: $date, station size: ${prediction.size}")
                 for (i in 0 until size) {
                     val s = prediction[i]
                     result.predictions[i] = s
-                    Log.d(
-                        "predict",
-                        java.lang.String.format(
-                            Locale.US,
-                            "[%d] %.0fm %s",
-                            i,
-                            s.distance,
-                            s.station.name
-                        )
+                    Timber.tag("Navigator").d(
+                        "[%d] %.0fm %s",
+                        i,
+                        s.distance,
+                        s.station.name,
                     )
                 }
                 _results.value = result
@@ -188,7 +178,7 @@ class PositionNavigator(
 
     private fun initialize(location: Location) {
         polylineFragments.map { f ->
-            Pair<PolylineSegment, NearestPoint>(
+            Pair(
                 f,
                 f.findNearestPoint(location.latitude, location.longitude)
             )
@@ -208,11 +198,11 @@ class PositionNavigator(
         return null
     }
 
-    private fun filterCursors(list: MutableList<PolylineCursor>, threshold: Double): Double {
+    private fun filterCursors(list: MutableList<PolylineCursor>): Double {
         val minDistance = list.minOf { cursor -> cursor.nearest.distance }.toDouble()
         val iterator = list.iterator()
         while (iterator.hasNext()) {
-            if (iterator.next().nearest.distance > minDistance * threshold) {
+            if (iterator.next().nearest.distance > minDistance * 2) {
                 iterator.remove()
             }
         }
@@ -369,7 +359,7 @@ class PositionNavigator(
                         NearestPoint(cursor.start.point, cursor.end.point, location)
                 }
                 if (cursor.pathLengthSign * pathLengthSign < 0) {
-                    Log.d("predict", "direction changed")
+                    Timber.tag("Navigator").d("cursor direction changed")
                 }
                 cursor.state = next
             }
@@ -465,12 +455,18 @@ class PositionNavigator(
         ) {
             // TODO 無限ループ回避策（消極的）
             if (depth > 1000) {
-
+                Timber.tag("Navigator").w("searchForStation 呼び出し回数が深すぎます！探索を強制終了します")
                 return
             }
 
             assert {
-                explorer.searchEuclid(start) != current.station
+                val s = explorer.searchEuclid(start)
+                if (s != current.station) {
+                    Timber.tag("Navigator").w(
+                        "station mismatch! current: ${current.station.name}, start: ${s?.name}",
+                    )
+                }
+                true
             }
 
             var intersectionFound = false
@@ -548,7 +544,13 @@ class PositionNavigator(
             while (iterator.hasNext()) {
                 val next = iterator.next()
                 assert {
-                    explorer.searchEuclid(end.point) != current.station
+                    val s = explorer.searchEuclid(end.point)
+                    if (s != current.station) {
+                        Timber.tag("Navigator").w(
+                            "station mismatch! current: ${current.station.name}, end: ${s?.name}",
+                        )
+                    }
+                    true
                 }
                 searchForStation(
                     end,
@@ -735,8 +737,8 @@ class PositionNavigator(
         }
 
         override fun toString(): String {
-            return java.lang.String.format(
-                Locale.US, "EndNode{lat/lon:(%.6f,%.6f), tag:%s, size:%s}",
+            return String.format(
+                Locale.US, "EndNode(lat/lon:(%.6f,%.6f), tag:%s, size:%s)",
                 point.latitude, point.longitude,
                 tag,
                 if (hasChecked) size.toString() else "??"
@@ -808,8 +810,8 @@ class PositionNavigator(
         }
 
         override fun toString(): String {
-            return java.lang.String.format(
-                Locale.US, "MiddleNode{lat/lon:(%.6f,%.6f), index:%d}",
+            return String.format(
+                Locale.US, "MiddleNode(lat/lon:(%.6f,%.6f), index:%d)",
                 point.latitude, point.longitude, index
             )
         }
@@ -841,9 +843,9 @@ class PositionNavigator(
         }
 
         override fun toString(): String {
-            return java.lang.String.format(
+            return String.format(
                 Locale.US,
-                "lat/lon:(%.6f,%.6f) - %.2fm",
+                "NearestPoint(lat/lon:(%.6f,%.6f) - %.2fm)",
                 closedPoint.latitude, closedPoint.longitude, distance
             )
         }
