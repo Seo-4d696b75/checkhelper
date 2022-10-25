@@ -3,7 +3,6 @@ package jp.seo.station.ekisagasu.position
 import android.location.Location
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
-import jp.seo.android.diagram.BasePoint
 import jp.seo.android.diagram.Edge
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.PolylineSegment
@@ -12,6 +11,8 @@ import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.position.KalmanFilter.Sample
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
+import jp.seo.station.ekisagasu.search.measureDistance
+import jp.seo.station.ekisagasu.search.measureEuclid
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
 import jp.seo.station.ekisagasu.utils.formatTime
 import kotlinx.coroutines.Dispatchers
@@ -440,16 +441,11 @@ class PositionNavigator(
         }
 
         suspend fun predict(result: MutableCollection<StationPrediction>) {
-            val list = explorer.search(
-                nearest.closedPoint.latitude,
-                nearest.closedPoint.longitude,
-                1,
-                0.0
-            )
-            if (list.stations.isEmpty()) return
-            val s = list.stations[0]
+            // ポリライン上の現在位置の近傍駅
+            val s = explorer.searchEuclid(nearest.closedPoint) ?: return
             var cnt = maxPrediction
             val current = if (s != currentStation?.station) {
+                // 現在位置からの近傍駅と異なる場合もある
                 result.add(StationPrediction(s, 0f))
                 cnt--
                 StationArea.parseArea(s)
@@ -459,115 +455,111 @@ class PositionNavigator(
             searchForStation(start, nearest.closedPoint, end, current, 0f, cnt, result)
         }
 
+        /**
+         * 線分start-end上の駅境界を調べて駅の予測を追加する
+         * @param start
+         * @param end
+         * @param current 探索中の現在の近傍駅
+         * @param pathLength ポリライン上の現在位置から起算した探索点の距離（予測の表示用）
+         * @param cnt あと何個予測を追加するか
+         */
         private suspend fun searchForStation(
             previous: PolylineNode,
-            startPoint: LatLng,
+            start: LatLng,
             end: PolylineNode,
-            currentStation: StationArea,
-            length: Float,
-            remains: Int,
-            result: MutableCollection<StationPrediction>
+            current: StationArea,
+            pathLength: Float,
+            cnt: Int,
+            result: MutableCollection<StationPrediction>,
+            depth: Int = 0,
         ) {
-            var start = startPoint
-            var current = currentStation
-            var pathLength = length
-            var cnt = remains
+            // TODO 無限ループ回避策（消極的）
+            if (depth > 1000) {
 
-            suspend fun search() {
-                if (start == end.point) return
-                val e1 = Edge(
-                    BasePoint(start.longitude, start.latitude),
-                    BasePoint(end.point.longitude, end.point.latitude)
-                )
-                current.forEachEdge { a, b ->
-                    // 1. ポリラインの一部の線分start-endと境界線の一部の線分abが交わるか確認
-                    val e2 = Edge(
-                        BasePoint(a.longitude, a.latitude),
-                        BasePoint(b.longitude, b.latitude),
-                    )
-                    val intersection = e1.getIntersection(e2)
-                    // 2. 交点を持つ場合は予測座標として追加＆次の探索駅を決定
-                    if (intersection != null &&
-                        (intersection.x - start.longitude) * (end.point.longitude - start.longitude) +
-                        (intersection.y - start.latitude) * (end.point.latitude - start.latitude) > 0
-                    ) {
+                return
+            }
 
-                        /*
-                          点c（駅currentの座標）から線分abに下ろした垂線の足hを計算
-                          v = a - b, 0 <= k <= 1 として h = kv + b
-                          直交するので
-                          v・(h - c) = 0
-                          v・(kv + b - c) = 0
-                          k = v・(c - b) / |v|^2
-                         */
-                        val k = (
-                                (current.station.lng - b.longitude) * (a.longitude - b.longitude) +
-                                        (current.station.lat - b.latitude) * (a.latitude - b.latitude)
-                                ) / (
-                                (a.longitude - b.longitude) * (a.longitude - b.longitude) +
-                                        (a.latitude - b.latitude) * (a.latitude - b.latitude)
-                                )
-                        assert(k in 0.0..1.0)
-                        val hx = (1 - k) * b.longitude + k * a.longitude
-                        val hy = (1 - k) * b.latitude + k * a.latitude
-                        /*
-                           目的の点pは 線分cpの中点が点hなので、
-                           p = 2h - c
-                         */
-                        val px = 2 * hx - current.station.lng
-                        val py = 2 * hy - current.station.lat
-                        val neighbors = repository.getStations(current.station.next.toList())
-                        // 計算した点pの座標と駅座標が完全に一致しない場合を考慮して最小誤差のものを選択
-                        val next =
-                            neighbors.minByOrNull { s -> measureDistance(py, px, s.lat, s.lng) }
-                                ?.let { s -> StationArea.parseArea(s) }
-                                ?: throw RuntimeException("no neighbor found")
-                        // 予測を追加
-                        val dist = measureDistance(
-                            start.latitude,
-                            start.longitude,
-                            intersection.y,
-                            intersection.x
-                        )
-                        val prediction = StationPrediction(next.station, pathLength + dist)
-                        result.add(prediction)
-                        if (--cnt <= 0) return@forEachEdge
-                        pathLength += dist
-                        /*
-                           次に探索するポイラインの一部の線分start-endを更新する
-                           start <- 交点i とすると境界線上に位置するので不都合
-                           start --> end 方向に見て1mだけ先の点を選ぶ
-                           線分i-startを(-1) : (1 + dist)の内分点
-                         */
-                        val m = 1.0 / dist
-                        start = LatLng(
-                            (1 + m) * intersection.y - m * start.latitude,
-                            (1 + m) * intersection.x - m * start.longitude
-                        )
-                        current = next
+            assert {
+                explorer.searchEuclid(start) != current.station
+            }
 
-                        // 一応確認
-                        val list = explorer.search(
-                            start.latitude,
-                            start.longitude,
-                            1, 0.0,
+            var intersectionFound = false
+            if (start != end.point) {
+                val stationAtEnd = requireNotNull(explorer.searchEuclid(end.point))
+                // ボロノイ領域は凸なので線分の両端で同じ駅なら線分上どこでも同じ駅
+                // 逆に両端で異なるなら線分上に１つ以上の境界線との交点がある
+                if (stationAtEnd != current.station) {
+                    intersectionFound = true
+                    val edge = Edge(start.point2D, end.point.point2D)
+                    val intersection = current.getIntersection(edge)?.latLng ?: kotlin.run {
+                        // TODO 端点が境界に非常に近い場合、見つからない場合あがある？
+                        val middle = edge.middlePoint
+                        val stationAtMiddle = explorer.searchEuclid(middle.latLng)
+                        if (stationAtEnd == stationAtMiddle) {
+                            start
+                        } else if (current.station == stationAtMiddle) {
+                            end.point
+                        } else {
+                            throw RuntimeException("intersection with station voronoi not found")
+                        }
+                    }
+                    /*
+                       次の探索開始点＆隣接駅を決定
+                       交点だと現在の駅と隣接駅から距離が同じで不都合
+                       start --> end 方向に見てdelta[m]だけ先の点を選ぶ
+                       線分i-startを(-delta) : (delta + distFromStart)の内分点
+                     */
+                    val distToEnd = end.point.measureEuclid(intersection)
+                    val distFromStart = start.measureEuclid(intersection)
+                    val delta = 0.00001
+                    val nextStart = if (intersection != end.point && delta < distToEnd) {
+                        val m = delta / distFromStart
+                        LatLng(
+                            (1 + m) * intersection.latitude - m * start.latitude,
+                            (1 + m) * intersection.longitude - m * start.longitude
                         )
-                        assert(
-                            list.stations.isNotEmpty()
-                                    && next.station == list.stations.first()
+                    } else {
+                        // 終点endが近すぎる場合
+                        end.point
+                    }
+                    // 隣接駅
+                    val station = requireNotNull(explorer.searchEuclid(nextStart))
+                    // 次の探索駅
+                    val next = StationArea.parseArea(station)
+                    // 表示用の距離
+                    val nextPathLength =
+                        pathLength + start.measureDistance(nextStart).toFloat()
+                    // 予測を追加
+                    val prediction = StationPrediction(station, nextPathLength)
+                    result.add(prediction)
+
+                    if (cnt - 1 > 0) {
+                        // まだ必要なら残りの線分上を探索続ける
+                        searchForStation(
+                            previous,
+                            nextStart,
+                            end,
+                            next,
+                            nextPathLength,
+                            cnt - 1,
+                            result,
+                            depth + 1,
                         )
-                        search()
-                        return@forEachEdge
                     }
                 }
             }
-            // ポリライン線分上を探索
-            search()
-            // cntが0になるまで次のポリライン線分を探索
-            if (cnt == 0) return
+
+            // 線分上に駅境界を発見しているなら探索済み
+            if (intersectionFound) return
+
+            // 線分上に駅境界が見つからなかった場合は、次のポリライン線分を探索
+            assert(cnt > 0)
             val iterator = end.iterator(previous)
             while (iterator.hasNext()) {
                 val next = iterator.next()
+                assert {
+                    explorer.searchEuclid(end.point) != current.station
+                }
                 searchForStation(
                     end,
                     end.point,
@@ -575,7 +567,8 @@ class PositionNavigator(
                     current,
                     pathLength + measureDistance(start, end.point),
                     cnt,
-                    result
+                    result,
+                    depth + 1,
                 )
             }
         }

@@ -1,6 +1,8 @@
 package jp.seo.station.ekisagasu.search
 
 import android.location.Location
+import com.google.android.gms.maps.model.LatLng
+import jp.seo.android.diagram.Point
 import jp.seo.station.ekisagasu.model.Station
 import kotlin.math.asin
 import kotlin.math.cos
@@ -63,4 +65,20 @@ fun measure(
     } else {
         sqrt((lat1 - lat2).pow(2) + (lng1 - lng2).pow(2))
     }
+}
+
+fun LatLng.measureEuclid(other: LatLng): Double {
+    return measure(latitude, longitude, other.latitude, other.longitude, false)
+}
+
+fun LatLng.measureEuclid(other: Point): Double {
+    return measure(latitude, longitude, other.y, other.x, false)
+}
+
+fun LatLng.measureDistance(other: Point): Double {
+    return measure(latitude, longitude, other.y, other.x, true)
+}
+
+fun LatLng.measureDistance(other: LatLng): Double {
+    return measure(latitude, longitude, other.latitude, other.longitude, true)
 }
