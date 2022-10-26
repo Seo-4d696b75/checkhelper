@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.database.AppLog
+import jp.seo.station.ekisagasu.gpx.serializeGPX
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.model.LogTarget
 import jp.seo.station.ekisagasu.repository.AppStateRepository
+import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
 import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME_FILE
@@ -38,6 +40,7 @@ import javax.inject.Inject
 class LogViewModel @Inject constructor(
     logRepository: LogRepository,
     private val appStateRepository: AppStateRepository,
+    private val dataRepository: DataRepository,
 ) : ViewModel() {
     val target = logRepository.logFilter
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList<LogTarget>())
@@ -55,33 +58,44 @@ class LogViewModel @Inject constructor(
         logs.filter { (it.type and filter.filter) > 0 }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    fun requestWriteLog(title: String) = viewModelScope.launch {
-        val builder = StringBuilder()
+    fun requestWriteLog(appName: String) = viewModelScope.launch {
         val time = Date()
         val type = _filter.value
         val list = logs.value
 
+        val fileExtension = if (type.filter == AppLog.FILTER_GEO) "gpx" else "txt"
+
         val fileName = String.format(
-            Locale.US, "%s_%sLog_%s.txt", title, type.name,
-            formatTime(
-                TIME_PATTERN_DATETIME_FILE, time
-            )
+            Locale.US, "%s_%sLog_%s.%s",
+            appName,
+            type.name,
+            formatTime(TIME_PATTERN_DATETIME_FILE, time),
+            fileExtension,
         )
-        builder.append(title)
-        builder.append("\nlog type : ")
-        builder.append(type.name)
-        builder.append("\nwritten time : ")
-        builder.append(formatTime(TIME_PATTERN_DATETIME, time))
-        for (log in list) {
-            builder.append("\n")
-            builder.append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))
-            builder.append(" ")
-            builder.append(log.message)
+        fileContext = if (type.filter == AppLog.FILTER_GEO) {
+            serializeGPX(
+                log = list,
+                appName = appName,
+                dataVersion = dataRepository.dataVersion.value?.version ?: throw RuntimeException(),
+            )
+        } else {
+            StringBuilder().apply {
+                append(appName)
+                append("\nlog type : ")
+                append(type.name)
+                append("\nwritten time : ")
+                append(formatTime(TIME_PATTERN_DATETIME, time))
+                for (log in list) {
+                    append("\n")
+                    append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))
+                    append(" ")
+                    append(log.message)
+                }
+            }.toString()
         }
-        fileContext = builder.toString()
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            this.type = "text/plain"
+            this.type = "text/*"
             putExtra(Intent.EXTRA_TITLE, fileName)
         }
         appStateRepository.emitMessage(
