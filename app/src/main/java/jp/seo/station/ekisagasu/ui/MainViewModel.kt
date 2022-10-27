@@ -1,9 +1,12 @@
 package jp.seo.station.ekisagasu.ui
 
+import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.DataRepository
@@ -15,6 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val appStateRepository: AppStateRepository,
     private val dataRepository: DataRepository,
 ) : ViewModel() {
@@ -67,7 +71,9 @@ class MainViewModel @Inject constructor(
                 }
 
                 if (info == null) {
-                    Timber.tag("MainViewModel").i("データのダウンロードが必要です version:${latest.version}")
+                    Timber.tag("MainViewModel").i(
+                        context.getString(R.string.message_need_data_download, latest.version),
+                    )
                     appStateRepository.emitMessage(
                         AppMessage.RequestDataUpdate(
                             type = DataUpdateType.Init,
@@ -75,9 +81,13 @@ class MainViewModel @Inject constructor(
                         )
                     )
                 } else {
-                    Timber.tag("MainViewModel").i("保存されたデータがあります version:${info.version}")
+                    Timber.tag("MainViewModel").i(
+                        context.getString(R.string.message_saved_data_found, info.version)
+                    )
                     if (info.version < latest.version) {
-                        Timber.tag("MainViewModel").i("新しいデータが見つかりました version:${latest.version}")
+                        Timber.tag("MainViewModel").i(
+                            context.getString(R.string.message_latest_data_found, latest.version)
+                        )
                         appStateRepository.emitMessage(
                             AppMessage.RequestDataUpdate(
                                 type = DataUpdateType.Latest,

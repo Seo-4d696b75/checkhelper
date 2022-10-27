@@ -114,7 +114,7 @@ class LogRepositoryImpl @Inject constructor(
                 context.getExternalFilesDir(null)
             )
         }
-        val log = AppLog(AppLog.TYPE_SYSTEM, "finish app")
+        val log = AppLog(AppLog.TYPE_SYSTEM, context.getString(R.string.message_fin_app))
         dao.insertLog(log)
         dao.writeFinish(log.timestamp, _hasError)
     }
