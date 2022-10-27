@@ -58,21 +58,42 @@ class LogViewModel @Inject constructor(
         logs.filter { (it.type and filter.filter) > 0 }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    fun requestWriteLog(appName: String) = viewModelScope.launch {
+    fun requestWriteLog(appName: String, onConfigRequested: (defaultConfig: LogOutputConfig) -> Unit) {
+        when (_filter.value) {
+            LogFilter.all -> {
+                requestLogOutput(appName, LogOutputConfig.All)
+            }
+            LogFilter.system -> {
+                requestLogOutput(appName, LogOutputConfig.System)
+
+            }
+            LogFilter.station -> {
+                requestLogOutput(appName, LogOutputConfig.Station)
+
+            }
+            LogFilter.geo -> {
+                onConfigRequested(LogOutputConfig.Geo(LogOutputExtension.txt))
+            }
+        }
+    }
+
+    val onLogConfigResolved = appStateRepository.message
+        .filterIsInstance<AppMessage.LogOutputConfigResolved>()
+
+    fun requestLogOutput(appName: String, config: LogOutputConfig) = viewModelScope.launch {
         val time = Date()
         val type = _filter.value
+        assert(config.filter == type)
         val list = logs.value
-
-        val fileExtension = if (type.filter == AppLog.FILTER_GEO) "gpx" else "txt"
 
         val fileName = String.format(
             Locale.US, "%s_%sLog_%s.%s",
             appName,
             type.name,
             formatTime(TIME_PATTERN_DATETIME_FILE, time),
-            fileExtension,
+            config.extension.name.lowercase(),
         )
-        fileContext = if (type.filter == AppLog.FILTER_GEO) {
+        fileContext = if (config.extension == LogOutputExtension.gpx) {
             serializeGPX(
                 log = list,
                 appName = appName,
@@ -137,11 +158,16 @@ data class LogFilter(
     val name: String,
 ) {
     companion object {
-        val all = arrayOf(
-            LogFilter(AppLog.FILTER_ALL, "ALL"),
-            LogFilter(AppLog.TYPE_SYSTEM, "System"),
-            LogFilter(AppLog.FILTER_GEO, "Geo"),
-            LogFilter(AppLog.TYPE_STATION, "Station")
+        val all = LogFilter(AppLog.FILTER_ALL, "ALL")
+        val system = LogFilter(AppLog.TYPE_SYSTEM, "System")
+        val geo = LogFilter(AppLog.FILTER_GEO, "Geo")
+        val station = LogFilter(AppLog.TYPE_STATION, "Station")
+
+        val list = arrayOf(
+            all,
+            system,
+            geo,
+            station
         )
     }
 }

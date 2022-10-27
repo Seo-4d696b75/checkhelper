@@ -110,6 +110,16 @@ class LogFragment : Fragment() {
                 viewModel.writeLog(it, context.contentResolver)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        viewModel.onLogConfigResolved
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .onEach {
+                viewModel.requestLogOutput(
+                    getString(R.string.app_name),
+                    it.config,
+                )
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     class LogViewHolder(val binding: CellListLogBinding) : RecyclerView.ViewHolder(binding.root)
