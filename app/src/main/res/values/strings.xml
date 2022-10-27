@@ -6,8 +6,8 @@
     <string name="dialog_message_init_data">このアプリには駅データが必要です.データをダウンロードしてアプリを利用しますか？</string>
     <string name="dialog_title_update_data">駅データの更新</string>
     <string name="dialog_title_latest_data">駅データの更新</string>
-    <string name="dialog_button_update_positive">OK</string>
-    <string name="dialog_button_update_negative">キャンセル</string>
+    <string name="dialog_button_positive">OK</string>
+    <string name="dialog_button_negative">キャンセル</string>
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
     <string name="message_network_failure">ネットワークから情報を利用できません</string>
@@ -92,4 +92,10 @@
     <string name="text_data_version">バージョン: %1$d</string>
     <string name="text_data_updated_at">更新日時: %1$s</string>
     <string name="text_data_size">データ: %1$s</string>
+    <string name="dialog_log_output_config_title">ログ出力</string>
+    <string name="dialog_log_output_config_message">出力するファイル形式を指定できます</string>
+    <string name="dialog_log_output_config_txt_description">1行ごとにログを出力します</string>
+    <string name="dialog_log_output_config_gpx_description">GPSデータ専用のXML Schemaです</string>
+    <string name="file_extension_txt">.txt</string>
+    <string name="file_extension_gpx">.gpx</string>
 </resources>

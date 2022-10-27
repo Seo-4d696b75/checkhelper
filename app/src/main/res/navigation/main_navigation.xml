@@ -70,9 +70,19 @@
     <dialog
         android:id="@+id/appHistoryDialog"
         android:name="jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialog"
-        android:label="DataUpdateDialog">
-    </dialog>
+        android:label="DataUpdateDialog" />
     <action
         android:id="@+id/action_global_appHistoryDialog"
         app:destination="@id/appHistoryDialog" />
+    <dialog
+        android:id="@+id/logOutputConfDialog"
+        android:name="jp.seo.station.ekisagasu.ui.dialog.LogOutputConfDialog"
+        android:label="LogOutputConfDialog">
+        <argument
+            android:name="config"
+            app:argType="jp.seo.station.ekisagasu.ui.log.LogOutputConfig" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_logOutputConfDialog"
+        app:destination="@id/logOutputConfDialog" />
 </navigation>

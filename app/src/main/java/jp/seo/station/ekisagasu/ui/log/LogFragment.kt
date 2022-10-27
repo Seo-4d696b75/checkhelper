@@ -23,6 +23,7 @@ import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.databinding.CellListLogBinding
 import jp.seo.station.ekisagasu.databinding.FragmentLogBinding
 import jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialogDirections
+import jp.seo.station.ekisagasu.ui.dialog.LogOutputConfDialogDirections
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -59,14 +60,14 @@ class LogFragment : Fragment() {
         val context = requireContext()
 
         binding.dropdownLogFilter.apply {
-            val values = LogFilter.all.map { it.name }
+            val values = LogFilter.list.map { it.name }
             val adapter =
                 ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, values)
             setAdapter(adapter)
             setOnItemClickListener { _, _, position, _ ->
                 val name = adapter.getItem(position)!!
                 val filter =
-                    LogFilter.all.find { it.name == name } ?: throw NoSuchElementException()
+                    LogFilter.list.find { it.name == name } ?: throw NoSuchElementException()
                 viewModel.setLogFilter(filter)
             }
             setSelection(0)
@@ -96,7 +97,10 @@ class LogFragment : Fragment() {
         }
 
         binding.buttonWriteLog.setOnClickListener {
-            viewModel.requestWriteLog(getString(R.string.app_name))
+            viewModel.requestWriteLog(getString(R.string.app_name)) {
+                val action = LogOutputConfDialogDirections.actionGlobalLogOutputConfDialog(it)
+                findNavController().navigate(action)
+            }
         }
 
         binding.textLogFilterSince.setOnClickListener {
