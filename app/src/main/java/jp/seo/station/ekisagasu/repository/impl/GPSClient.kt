@@ -16,6 +16,7 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.LocationRepository
@@ -80,11 +81,7 @@ class GPSClient @Inject constructor(
         try {
             if (running) {
                 if (interval != minInterval) {
-                    Timber.tag("GPS").i(
-                        "GPS最短更新間隔を変更 %d > %d [sec]",
-                        minInterval,
-                        interval
-                    )
+                    Timber.tag("GPS").i(context.getString(R.string.message_gps_min_interval, minInterval, interval))
                     minInterval = interval
                     locationClient.removeLocationUpdates(this)
                         .addOnCompleteListener {
@@ -96,15 +93,12 @@ class GPSClient @Inject constructor(
                 minInterval = interval
                 requestGPSUpdate()
 
-                Timber.tag("GPS").i(
-                    "GPS開始 > 最短更新間隔: %d [sec]",
-                    minInterval
-                )
+                Timber.tag("GPS").i(context.getString(R.string.message_gps_start, minInterval))
             }
         } catch (e: ResolvableApiException) {
             launch {
                 appStateRepository.emitMessage(
-                    AppMessage.ResolvableException("GPSによる現在値取得に追加の操作が必要です", e)
+                    AppMessage.ResolvableException(context.getString(R.string.message_gps_resolvable_exception), e)
                 )
             }
         }
@@ -131,17 +125,20 @@ class GPSClient @Inject constructor(
                     running = true
                     launch { _running.emit(true) }
                 } else {
-                    Timber.tag("GPS").w("権限が許可されていません：ACCESS_FILE_LOCATION")
+                    Timber.tag("GPS").w(context.getString(R.string.message_gps_permission_not_granted))
                 }
             }.addOnFailureListener { e ->
                 if (e is ResolvableApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
                     launch {
                         appStateRepository.emitMessage(
-                            AppMessage.ResolvableException("GPSによる現在値取得に追加の操作が必要です", e)
+                            AppMessage.ResolvableException(
+                                context.getString(R.string.message_gps_resolvable_exception),
+                                e
+                            )
                         )
                     }
                 } else {
-                    Timber.tag("GPS").e(e, "GPSを開始できません")
+                    Timber.tag("GPS").e(e, context.getString(R.string.message_gps_start_failure))
                 }
             }
     }
@@ -155,7 +152,7 @@ class GPSClient @Inject constructor(
                     job = Job()
                 }
             _running.value = false
-            Timber.tag("GPS").i("GPSを停止しました")
+            Timber.tag("GPS").i(context.getString(R.string.message_gps_end))
             return true
         }
         return false

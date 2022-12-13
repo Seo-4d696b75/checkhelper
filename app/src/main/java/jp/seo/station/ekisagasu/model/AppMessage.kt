@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.model
 import android.content.Intent
 import com.google.android.gms.common.api.ResolvableApiException
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
+import jp.seo.station.ekisagasu.ui.log.LogOutputConfig
 
 sealed interface AppMessage {
     data class Log(val message: String) : AppMessage
@@ -36,6 +37,10 @@ sealed interface AppMessage {
         val code: Int,
         val result: Int,
         val data: Intent?,
+    ) : AppMessage
+
+    data class LogOutputConfigResolved(
+        val config: LogOutputConfig
     ) : AppMessage
 
     data class RequestDataUpdate(

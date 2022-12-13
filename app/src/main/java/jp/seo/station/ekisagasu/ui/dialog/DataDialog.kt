@@ -46,11 +46,11 @@ class ConfirmDataUpdateDialog : DialogFragment() {
                 if (args.type == DataUpdateType.Init) R.string.dialog_title_init_data
                 else R.string.dialog_title_latest_data
             )
-            setPositiveButton(R.string.dialog_button_update_positive) { _, _ ->
+            setPositiveButton(R.string.dialog_button_positive) { _, _ ->
                 viewModel.onResult(true)
                 dismiss()
             }
-            setNegativeButton(R.string.dialog_button_update_negative) { _, _ ->
+            setNegativeButton(R.string.dialog_button_negative) { _, _ ->
                 viewModel.onResult(false)
                 dismiss()
             }
@@ -98,7 +98,7 @@ class DataUpdateDialog : DialogFragment() {
 
         return AlertDialog.Builder(context).apply {
             setTitle(R.string.dialog_title_update_data)
-            setNegativeButton(R.string.dialog_button_update_negative) { _, _ ->
+            setNegativeButton(R.string.dialog_button_negative) { _, _ ->
                 viewModel.viewModelScope.coroutineContext.cancel()
                 viewModel.onResult(false)
                 dismiss()

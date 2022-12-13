@@ -182,16 +182,20 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-            Timber.tag("Permission").i("許可：権限「アプリに重ねて表示する」")
+            Timber.tag("Permission").i(getString(R.string.message_permission_overlay_granted))
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                Toast.makeText(applicationContext, "アプリを再起動してください", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    getString(R.string.message_need_app_reboot),
+                    Toast.LENGTH_SHORT,
+                ).show()
             }
         } else {
-            Timber.tag("Permission").i("拒否：権限「アプリに重ねて表示する」")
+            Timber.tag("Permission").i(getString(R.string.message_permission_overlay_denied))
             if (!Settings.canDrawOverlays(this)) {
                 Toast.makeText(
                     applicationContext,
-                    "権限が許可されませんでした",
+                    getString(R.string.message_permission_denied),
                     Toast.LENGTH_SHORT
                 ).show()
                 finish()
@@ -203,9 +207,13 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartIntentSenderForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-            Timber.tag("ResolvableAPIException").i("許可：$it")
+            Timber.tag("ResolvableAPIException").i(
+                getString(R.string.message_resolvable_exception_success, it.toString()),
+            )
         } else {
-            Timber.tag("ResolvableAPIException").i("拒否：$it")
+            Timber.tag("ResolvableAPIException").i(
+                getString(R.string.message_resolvable_exception_failure, it.toString()),
+            )
         }
     }
 

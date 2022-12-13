@@ -6,8 +6,8 @@
     <string name="dialog_message_init_data">このアプリには駅データが必要です.データをダウンロードしてアプリを利用しますか？</string>
     <string name="dialog_title_update_data">駅データの更新</string>
     <string name="dialog_title_latest_data">駅データの更新</string>
-    <string name="dialog_button_update_positive">OK</string>
-    <string name="dialog_button_update_negative">キャンセル</string>
+    <string name="dialog_button_positive">OK</string>
+    <string name="dialog_button_negative">キャンセル</string>
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
     <string name="message_network_failure">ネットワークから情報を利用できません</string>
@@ -92,4 +92,26 @@
     <string name="text_data_version">バージョン: %1$d</string>
     <string name="text_data_updated_at">更新日時: %1$s</string>
     <string name="text_data_size">データ: %1$s</string>
+    <string name="dialog_log_output_config_title">ログ出力</string>
+    <string name="dialog_log_output_config_message">出力するファイル形式を指定できます</string>
+    <string name="dialog_log_output_config_txt_description">1行ごとにログを出力します</string>
+    <string name="dialog_log_output_config_gpx_description">GPSデータ専用のXML Schemaです</string>
+    <string name="file_extension_txt">.txt</string>
+    <string name="file_extension_gpx">.gpx</string>
+    <string name="message_gps_permission_not_granted">権限が許可されていません：ACCESS_FILE_LOCATION</string>
+    <string name="message_gps_resolvable_exception">GPSによる現在値取得に追加の操作が必要です</string>
+    <string name="message_gps_start_failure">GPSを開始できません</string>
+    <string name="message_fin_app">アプリを終了します</string>
+    <string name="message_gps_start">GPSを開始 > 最短更新間隔: %1$d 秒</string>
+    <string name="message_gps_min_interval">GPSの最短更新間隔を変更 %1$d > %2$d 秒</string>
+    <string name="message_gps_end">GPSを停止しました</string>
+    <string name="message_permission_denied">権限が許可されませんでした</string>
+    <string name="message_permission_overlay_denied">拒否：権限「アプリに重ねて表示する」</string>
+    <string name="message_permission_overlay_granted">許可：権限「アプリに重ねて表示する」</string>
+    <string name="message_need_app_reboot">アプリを再起動してください</string>
+    <string name="message_resolvable_exception_success">成功：%1$s</string>
+    <string name="message_resolvable_exception_failure">失敗：%1$s</string>
+    <string name="message_need_data_download">データのダウンロードが必要です version:%1$d</string>
+    <string name="message_saved_data_found">保存されたデータがあります version:%1$d</string>
+    <string name="message_latest_data_found">新しいデータが見つかりました version:%1$d</string>
 </resources>
