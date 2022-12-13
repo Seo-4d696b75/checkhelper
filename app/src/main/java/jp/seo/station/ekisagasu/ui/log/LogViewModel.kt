@@ -65,11 +65,9 @@ class LogViewModel @Inject constructor(
             }
             LogFilter.system -> {
                 requestLogOutput(appName, LogOutputConfig.System)
-
             }
             LogFilter.station -> {
                 requestLogOutput(appName, LogOutputConfig.Station)
-
             }
             LogFilter.geo -> {
                 onConfigRequested(LogOutputConfig.Geo(LogOutputExtension.txt))

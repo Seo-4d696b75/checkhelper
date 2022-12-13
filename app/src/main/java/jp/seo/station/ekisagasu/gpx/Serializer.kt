@@ -28,8 +28,7 @@ fun serializeGPX(
             "creator" to appName,
             "version" to "1.1",
             "xmlns:xsi" to "http://www.w3.org/2001/XMLSchema-instance",
-            "xsi:schemaLocation" to
-                    "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd",
+            "xsi:schemaLocation" to "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd",
         )
 
         tag("metadata") {
@@ -117,7 +116,6 @@ private fun List<AppLog>.toTrackSegment(): List<TrackPoint> {
         }
     }
     return points
-
 }
 
 private data class TrackPoint(
