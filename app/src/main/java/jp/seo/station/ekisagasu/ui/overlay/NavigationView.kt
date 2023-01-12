@@ -5,7 +5,6 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.content.Context
-import android.content.Intent
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -23,7 +22,6 @@ import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.position.PredictionResult
 import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.ui.MainActivity
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 
 /**
@@ -35,6 +33,8 @@ class NavigationView(
     layerType: Int,
     private val windowManager: WindowManager,
     private val icon: View,
+    private val onSelectLine: () -> Unit,
+    private val onStopNavigation: () -> Unit,
 ) {
 
     private val view: View
@@ -106,14 +106,10 @@ class NavigationView(
             toggleNavigation()
         }
         view.findViewById<Button>(R.id.button_navigation_select_line).setOnClickListener {
-            val intent = Intent(ctx, MainActivity::class.java).apply {
-                putExtra(MainActivity.INTENT_KEY_SELECT_NAVIGATION, true)
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            ctx.startActivity(intent)
+            onSelectLine.invoke()
         }
         view.findViewById<Button>(R.id.button_navigation_stop).setOnClickListener {
-            stopNavigationCallback?.invoke()
+            onStopNavigation.invoke()
         }
 
         animExpand = AnimationUtils.loadAnimation(ctx, R.anim.anim_expand)
@@ -122,17 +118,14 @@ class NavigationView(
         animDisappear = AnimationUtils.loadAnimation(ctx, R.anim.anim_disappear)
     }
 
-    var stopNavigationCallback: (() -> Unit)? = null
     private var currentStation: Station? = null
     private var runningAnimation = false
     private var runningAnimator: Animator? = null
     private var _show = false
-    val show: Boolean = _show
 
     fun release() {
         windowManager.removeView(view)
         view.setOnClickListener(null)
-        stopNavigationCallback = null
     }
 
     fun toggleNavigation() {

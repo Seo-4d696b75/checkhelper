@@ -36,7 +36,9 @@ class OverlayViewHolder(
     private val context: Context,
     private val prefectureRepository: PrefectureRepository,
     private val main: Handler,
-    wakeupCallback: () -> Unit
+    wakeupCallback: () -> Unit,
+    selectLineCallback: () -> Unit,
+    stopNavigationCallback: () -> Unit,
 ) {
 
     private var wakeupCallback: (() -> Unit)? = wakeupCallback
@@ -169,7 +171,14 @@ class OverlayViewHolder(
         notificationContainer = notification.findViewById(R.id.container_notification)
         notificationContent = notification.findViewById(R.id.container_notification_detail)
 
-        navigation = NavigationView(context, layerType, windowManager, icon)
+        navigation = NavigationView(
+            context,
+            layerType,
+            windowManager,
+            icon,
+            selectLineCallback,
+            stopNavigationCallback,
+        )
 
         icon.setOnClickListener {
             if (isNavigationRunning) {

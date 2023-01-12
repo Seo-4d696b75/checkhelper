@@ -25,6 +25,7 @@ import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
 import jp.seo.station.ekisagasu.repository.PrefectureRepository
 import jp.seo.station.ekisagasu.search.formatDistance
+import jp.seo.station.ekisagasu.ui.MainActivity
 import jp.seo.station.ekisagasu.ui.overlay.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.WakeupActivity
@@ -217,10 +218,6 @@ class StationService : LifecycleService() {
             }
             .launchIn(lifecycleScope)
 
-        overlayView.navigation.stopNavigationCallback = {
-            viewModel.clearNavigationLine()
-        }
-
         // when finish requested
         viewModel.appFinish
             .flowWithLifecycle(lifecycle)
@@ -314,12 +311,27 @@ class StationService : LifecycleService() {
 
     private val overlayView: OverlayViewHolder by lazy {
         val handler = HandlerCompat.createAsync(Looper.getMainLooper())
-        OverlayViewHolder(this, prefectureRepository, handler) {
-            val intent = Intent(this, WakeupActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        OverlayViewHolder(
+            this,
+            prefectureRepository,
+            handler,
+            wakeupCallback = {
+                val intent = Intent(this, WakeupActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(intent)
+            },
+            selectLineCallback = {
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    putExtra(MainActivity.INTENT_KEY_SELECT_NAVIGATION, true)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                startActivity(intent)
+            },
+            stopNavigationCallback = {
+                viewModel.clearNavigationLine()
             }
-            startActivity(intent)
-        }
+        )
     }
 
     private fun stopService() {
