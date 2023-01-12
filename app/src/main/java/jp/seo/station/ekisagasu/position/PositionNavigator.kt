@@ -1,6 +1,7 @@
 package jp.seo.station.ekisagasu.position
 
 import android.location.Location
+import android.os.SystemClock
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.Edge
 import jp.seo.station.ekisagasu.model.Line
@@ -112,7 +113,13 @@ class PositionNavigator(
 
     suspend fun onLocationUpdate(location: Location, station: Station) =
         withContext(Dispatchers.IO) {
+            if (!location.latitude.isFinite() || !location.longitude.isFinite()) return@withContext
+            assert {
+                location.latitude in -90.0..90.0
+                        && location.longitude in -180.0..180.0
+            }
             lock.withLock {
+                val start = SystemClock.uptimeMillis()
                 updateTime = location.elapsedRealtimeNanos / 1000000L
                 if (cursors.isEmpty()) {
                     initialize(location)
@@ -173,6 +180,9 @@ class PositionNavigator(
                     )
                 }
                 _results.value = result
+
+                val duration = SystemClock.uptimeMillis() - start
+                Timber.tag("Navigator").d("update $duration [ms]")
             }
         }
 
