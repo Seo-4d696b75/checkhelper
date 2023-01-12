@@ -324,7 +324,7 @@ class StationService : LifecycleService() {
             selectLineCallback = {
                 val intent = Intent(this, MainActivity::class.java).apply {
                     putExtra(MainActivity.INTENT_KEY_SELECT_NAVIGATION, true)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 }
                 startActivity(intent)
             },
