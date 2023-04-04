@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.position
+package jp.seo.station.ekisagasu.polyline
 
 import com.google.android.gms.maps.model.LatLng
 import jp.seo.android.diagram.BasePoint

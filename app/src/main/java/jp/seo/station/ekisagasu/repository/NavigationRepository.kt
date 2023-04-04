@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.repository
 import android.location.Location
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.position.PredictionResult
+import jp.seo.station.ekisagasu.polyline.PredictionResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 

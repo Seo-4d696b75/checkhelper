@@ -3,7 +3,7 @@ package jp.seo.station.ekisagasu.repository.impl
 import android.location.Location
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.position.PositionNavigator
+import jp.seo.station.ekisagasu.polyline.PolylineNavigator
 import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.search.NearestSearch
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,8 +17,8 @@ class NavigationRepositoryImpl @Inject constructor(
     private val search: NearestSearch,
 ) : NavigationRepository {
     private val _running = MutableStateFlow(false)
-    private var navigator: PositionNavigator? = null
-    private val _navigator = MutableStateFlow<PositionNavigator?>(null)
+    private var navigator: PolylineNavigator? = null
+    private val _navigator = MutableStateFlow<PolylineNavigator?>(null)
 
     override val running: StateFlow<Boolean> = _running
 
@@ -32,7 +32,7 @@ class NavigationRepositoryImpl @Inject constructor(
 
     override fun start(line: Line) {
         navigator?.release()
-        navigator = PositionNavigator(search, line)
+        navigator = PolylineNavigator(search, line)
         _navigator.value = navigator
         _running.value = true
     }
