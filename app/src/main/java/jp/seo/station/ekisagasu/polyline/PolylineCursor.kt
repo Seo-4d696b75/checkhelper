@@ -9,7 +9,8 @@ import jp.seo.station.ekisagasu.search.NearestSearch
 import jp.seo.station.ekisagasu.search.measureDistance
 import jp.seo.station.ekisagasu.search.measureEuclid
 import timber.log.Timber
-import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 class PolylineCursor {
     /**
@@ -133,7 +134,8 @@ class PolylineCursor {
             PolylineCursor(this, false, location), list2,
             pathPosAtStart
         )
-        val found: List<PolylineCursor> = if (abs(v1 - v2) > 30) {
+        Timber.tag("PolylineCursor").d("updated v1:$v1 v2:$v2")
+        val found: List<PolylineCursor> = if (max(v1, v2) / min(v1, v2) >= 2.0) {
             if (v1 < v2) list1 else list2
         } else list1
 
