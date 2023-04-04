@@ -1,13 +1,18 @@
 package jp.seo.station.ekisagasu.ui.dialog
 
-import android.content.Context
+import androidx.annotation.StringRes
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.R
+import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.repository.LocationRepository
 import jp.seo.station.ekisagasu.repository.NavigationRepository
 import jp.seo.station.ekisagasu.repository.SearchRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,20 +20,26 @@ class LineSelectionViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val searchRepository: SearchRepository,
     private val navigationRepository: NavigationRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private var _type = LineDialogType.Current
-    private var _message = ""
-    val message: String
-        get() = _message
-
-    fun setUiState(context: Context, type: LineDialogType) {
-        _type = type
-        _message = when (type) {
-            LineDialogType.Current -> context.getString(R.string.dialog_message_select_line)
-            LineDialogType.Navigation -> context.getString(R.string.dialog_message_select_navigation)
-        }
+    sealed interface Event {
+        data class Error(@StringRes val message: Int) : Event
     }
+
+    private val _event = MutableSharedFlow<Event>()
+    val event = _event.asSharedFlow()
+
+    private val args: LineDialogArgs by lazy {
+        LineDialogArgs.fromSavedStateHandle(savedStateHandle)
+    }
+
+    @get:StringRes
+    val message: Int
+        get() = when (args.type) {
+            LineDialogType.Current -> R.string.dialog_message_select_line
+            LineDialogType.Navigation -> R.string.dialog_message_select_navigation
+        }
 
     val currentLine: Line?
         get() = searchRepository.selectedLine.value
@@ -45,13 +56,12 @@ class LineSelectionViewModel @Inject constructor(
             set.toList()
         }
 
-    fun onLineSelected(line: Line) {
-        when (_type) {
+    fun onLineSelected(line: Line) = viewModelScope.launch {
+        when (args.type) {
             LineDialogType.Current -> selectCurrentLine(line)
             LineDialogType.Navigation -> {
                 if (line.polyline == null) {
-                    // TODO
-                    // viewModel.requestToast.call(getString(R.string.navigation_unsupported))
+                    _event.emit(Event.Error(R.string.navigation_unsupported))
                 } else {
                     selectNavigationLine(line)
                 }

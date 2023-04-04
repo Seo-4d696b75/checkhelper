@@ -3,14 +3,19 @@ package jp.seo.station.ekisagasu.ui.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.DialogSelectLineBinding
 import jp.seo.station.ekisagasu.ui.common.LineAdapter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * @author Seo-4d696b75
@@ -22,9 +27,6 @@ class LineDialog : DialogFragment() {
     private val viewModel: LineSelectionViewModel by viewModels()
 
     private val args: LineDialogArgs by navArgs()
-
-    private val type: LineDialogType
-        get() = args.type
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
@@ -39,11 +41,10 @@ class LineDialog : DialogFragment() {
             false,
         )
 
-        viewModel.setUiState(context, type)
         binding.viewModel = viewModel
         builder.setView(binding.root)
 
-        when (type) {
+        when (args.type) {
             LineDialogType.Current -> {
                 if (viewModel.currentLine != null) {
                     builder.setPositiveButton(R.string.dialog_button_unregister) { _, _ ->
@@ -72,6 +73,22 @@ class LineDialog : DialogFragment() {
                 dismiss()
             }
         }
+
+        viewModel
+            .event
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                when (it) {
+                    is LineSelectionViewModel.Event.Error -> {
+                        Toast.makeText(
+                            requireActivity(),
+                            requireContext().getString(it.message),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            .launchIn(lifecycleScope)
 
         return builder.create()
     }
