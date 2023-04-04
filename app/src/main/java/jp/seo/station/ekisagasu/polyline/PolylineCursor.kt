@@ -199,14 +199,13 @@ class PolylineCursor {
     suspend fun predict(result: MutableCollection<StationPrediction>, maxPrediction: Int, current: StationArea?) {
         // ポリライン上の現在位置の近傍駅
         val s = explorer.searchEuclid(nearest.closedPoint) ?: return
-        var cnt = maxPrediction
         val area = if (s != current?.station) {
             // 現在位置からの近傍駅と異なる場合もある
-            result.add(StationPrediction(s, 0f))
-            cnt--
+            // result.add(StationPrediction(s, 0f))
+            // cnt--
             StationArea.parseArea(s)
         } else current
-        searchForStation(start, nearest.closedPoint, end, area, 0f, cnt, result)
+        searchForStation(start, nearest.closedPoint, end, area, 0f, maxPrediction, result)
     }
 
     /**
