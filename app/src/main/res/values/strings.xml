@@ -114,4 +114,6 @@
     <string name="message_need_data_download">データのダウンロードが必要です version:%1$d</string>
     <string name="message_saved_data_found">保存されたデータがあります version:%1$d</string>
     <string name="message_latest_data_found">新しいデータが見つかりました version:%1$d</string>
+    <string name="message_failed_to_fetch_latest_version">最新バージョンが取得できません</string>
+    <string name="message_version_up_to_date">既に最新バージョンです</string>
 </resources>

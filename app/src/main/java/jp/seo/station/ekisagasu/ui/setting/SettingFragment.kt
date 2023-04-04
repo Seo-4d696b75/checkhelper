@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -142,6 +143,21 @@ class SettingFragment : Fragment() {
         binding.buttonUpdateData.setOnClickListener {
             viewModel.checkLatestData()
         }
+
+        viewModel.event
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .onEach {
+                val resId = when (it) {
+                    is SettingViewModel.Event.VersionUpToDate -> R.string.message_version_up_to_date
+                    is SettingViewModel.Event.FetchLatestVersionFailure -> R.string.message_failed_to_fetch_latest_version
+                }
+                Toast.makeText(
+                    requireActivity(),
+                    requireContext().getString(resId),
+                    Toast.LENGTH_LONG,
+                ).show()
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 }
 
