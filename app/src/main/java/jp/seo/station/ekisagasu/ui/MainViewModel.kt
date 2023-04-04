@@ -65,7 +65,7 @@ class MainViewModel @Inject constructor(
                 val latest = try {
                     dataRepository.getLatestDataVersion(false)
                 } catch (e: IOException) {
-                    // TODO toast表示
+                    appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
                     appStateRepository.hasDataVersionChecked = false
                     return@launch
                 }

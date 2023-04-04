@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                                 requestLogFileUriLauncher.launch(message.intent)
                             }
                             else -> {
-                                Log.w("MainActivity", "unknown request: $message")
+                                Timber.tag("MainActivity").w("unknown request: $message")
                             }
                         }
                     }
@@ -96,13 +95,30 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     is AppMessage.DataUpdateResult -> {
-                        if (message.success) {
-                            // TODO show ui
+                        val resId = if (message.success) {
+                            R.string.message_success_data_update
                         } else if (message.type == DataUpdateType.Init) {
                             // データの初期化に失敗・これ以上の続行不可能
-                            // TODO show ui
                             viewModel.requestAppFinish()
+                            R.string.message_fail_data_initialize
+                        } else {
+                            R.string.message_fail_data_update
                         }
+                        Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
+                    }
+                    is AppMessage.CheckLatestVersionFailure -> {
+                        Toast.makeText(
+                            this,
+                            R.string.message_network_failure,
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                    is AppMessage.VersionUpToDate -> {
+                        Toast.makeText(
+                            this,
+                            R.string.message_version_up_to_date,
+                            Toast.LENGTH_LONG,
+                        ).show()
                     }
                     else -> {}
                 }

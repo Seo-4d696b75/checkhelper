@@ -10,9 +10,7 @@ import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,21 +24,13 @@ class SettingViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
 
-    sealed interface Event {
-        data class FetchLatestVersionFailure(val error: Throwable) : Event
-        object VersionUpToDate : Event
-    }
-
-    private val _event = MutableSharedFlow<Event>()
-    val event = _event.asSharedFlow()
-
     val dataVersion = dataRepository.dataVersion
 
     fun checkLatestData() = viewModelScope.launch(Dispatchers.IO) {
         val latest = try {
             dataRepository.getLatestDataVersion(true)
         } catch (e: IOException) {
-            _event.emit(Event.FetchLatestVersionFailure(e))
+            appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
             return@launch
         }
         val current = dataRepository.getDataVersion()
@@ -49,7 +39,7 @@ class SettingViewModel @Inject constructor(
                 AppMessage.RequestDataUpdate(DataUpdateType.Latest, latest)
             )
         } else {
-            _event.emit(Event.VersionUpToDate)
+            appStateRepository.emitMessage(AppMessage.VersionUpToDate)
         }
     }
 

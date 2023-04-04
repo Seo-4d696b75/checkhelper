@@ -53,4 +53,10 @@ sealed interface AppMessage {
         val type: DataUpdateType,
         val success: Boolean,
     ) : AppMessage
+
+    data class CheckLatestVersionFailure(
+        val error: Throwable
+    ) : AppMessage
+
+    object VersionUpToDate : AppMessage
 }

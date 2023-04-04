@@ -13,6 +13,8 @@
     <string name="message_network_failure">ネットワークから情報を利用できません</string>
     <string name="message_success_data_update">データの更新が完了しました</string>
     <string name="message_fail_data_update">データの更新に失敗しました</string>
+    <string name="message_fail_data_initialize">データの初期化に失敗しました</string>
+    <string name="message_version_up_to_date">既に最新バージョンです</string>
     <string name="message_stop_search">探索を終了しました</string>
     <string name="update_state_download">データをダウンロード&#8230; %1$d%%</string>
     <string name="update_state_save">データを保存しています&#8230;</string>
@@ -114,6 +116,4 @@
     <string name="message_need_data_download">データのダウンロードが必要です version:%1$d</string>
     <string name="message_saved_data_found">保存されたデータがあります version:%1$d</string>
     <string name="message_latest_data_found">新しいデータが見つかりました version:%1$d</string>
-    <string name="message_failed_to_fetch_latest_version">最新バージョンが取得できません</string>
-    <string name="message_version_up_to_date">既に最新バージョンです</string>
 </resources>
