@@ -8,12 +8,11 @@ import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.slot
-import jp.seo.station.ekisagasu.api.DownloadClient
 import jp.seo.station.ekisagasu.database.DataVersion
-import jp.seo.station.ekisagasu.database.StationDao
-import jp.seo.station.ekisagasu.fakeDataString
 import jp.seo.station.ekisagasu.fakeLatestInfo
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
+import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.RemoteDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -22,24 +21,25 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.IOException
 import kotlin.math.ceil
 
-@ExperimentalSerializationApi
 @ExperimentalCoroutinesApi
 class DataUpdateUseCaseTest {
+
+    @get:Rule
+    val tempFolder = TemporaryFolder()
+
     private val defaultDispatcher = UnconfinedTestDispatcher()
 
-    private val dao = mockk<StationDao>(relaxUnitFun = true)
-    private val downloadClient = mockk<DownloadClient>()
-    private val json = Json { ignoreUnknownKeys = true }
+    private val repository = mockk<DataRepository>()
+    private val remoteRepository = mockk<RemoteDataRepository>()
 
-    private val dataStr by fakeDataString
     private val info by fakeLatestInfo
 
     private lateinit var useCase: DataUpdateUseCase
@@ -47,8 +47,7 @@ class DataUpdateUseCaseTest {
     @Before
     fun setup() {
         Dispatchers.setMain(defaultDispatcher)
-
-        useCase = DataUpdateUseCase(dao, downloadClient, json)
+        useCase = DataUpdateUseCase(repository, remoteRepository)
     }
 
     @After
@@ -60,13 +59,12 @@ class DataUpdateUseCaseTest {
     fun `成功`() = runTest(defaultDispatcher) {
         // prepare
         val callbackSlot = slot<(Long) -> Unit>()
-        coEvery { downloadClient.invoke(any(), capture(callbackSlot)) } coAnswers {
+        coEvery { remoteRepository.download(any(), any(), capture(callbackSlot)) } coAnswers {
             val callback = callbackSlot.captured
             callback(0L)
             callback(info.length)
-            dataStr
         }
-        coEvery { dao.getCurrentDataVersion() } returns DataVersion(version = info.version)
+        coEvery { repository.updateData(any(), any()) } returns DataVersion(version = info.version)
 
         // watch progress flow
         val progressList = mutableListOf<DataUpdateProgress>()
@@ -75,30 +73,29 @@ class DataUpdateUseCaseTest {
         }
 
         // test
-        val result = useCase(info)
+        val result = useCase(info, tempFolder.newFolder())
 
         // verify
-        assertThat(result).isEqualTo(DataUpdateResult.Success(DataVersion(info.version)))
+        assertThat(result.getOrNull()).isEqualTo(DataVersion(info.version))
         coVerifyOrder {
-            downloadClient.invoke(info.url, any())
-            dao.updateData(any())
-            dao.getCurrentDataVersion()
+            remoteRepository.download(info.version, any(), any())
+            repository.updateData(info, any())
         }
         assertThat(progressList).containsExactly(
             DataUpdateProgress.Download(0),
             DataUpdateProgress.Download(100),
-            DataUpdateProgress.Save
+            DataUpdateProgress.Save,
         ).inOrder()
 
         job.cancel()
-        confirmVerified(downloadClient, dao)
+        confirmVerified(remoteRepository, repository)
     }
 
     @Test
     fun `ダウンロード失敗`() = runTest {
         // prepare
         val callbackSlot = slot<(Long) -> Unit>()
-        coEvery { downloadClient.invoke(any(), capture(callbackSlot)) } coAnswers {
+        coEvery { remoteRepository.download(any(), any(), capture(callbackSlot)) } coAnswers {
             val callback = callbackSlot.captured
             callback(0L)
             callback(ceil(info.length / 2.0).toLong())
@@ -112,12 +109,12 @@ class DataUpdateUseCaseTest {
         }
 
         // test
-        val result = useCase(info)
+        val result = useCase(info, tempFolder.newFolder())
 
         // verify
-        assertThat(result).isEqualTo(DataUpdateResult.Failure)
+        assertThat(result.isSuccess).isFalse()
         coVerifyOrder {
-            downloadClient.invoke(info.url, any())
+            remoteRepository.download(info.version, any(), any())
         }
         assertThat(progressList).containsExactly(
             DataUpdateProgress.Download(0),
@@ -125,6 +122,6 @@ class DataUpdateUseCaseTest {
         ).inOrder()
 
         job.cancel()
-        confirmVerified(downloadClient, dao)
+        confirmVerified(repository, remoteRepository)
     }
 }

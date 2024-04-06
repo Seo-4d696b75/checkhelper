@@ -10,7 +10,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
-import jp.seo.station.ekisagasu.fakeData
+import jp.seo.station.ekisagasu.fakeLines
+import jp.seo.station.ekisagasu.fakeStations
 import jp.seo.station.ekisagasu.model.Line
 import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.repository.impl.SearchRepositoryImpl
@@ -49,7 +50,8 @@ open class SearchRepositoryImplTest(
 
     private val defaultDispatcher = UnconfinedTestDispatcher()
 
-    private val data by fakeData
+    private val lines by fakeLines
+    private val stations by fakeStations
 
     @Before
     fun setup() {
@@ -61,7 +63,7 @@ open class SearchRepositoryImplTest(
         coEvery { dataRepository.getLines(capture(codesSlot)) } answers {
             val codes = codesSlot.captured
             codes.map { code ->
-                data.lines.find { it.code == code } ?: throw NoSuchElementException()
+                lines.find { it.code == code } ?: throw NoSuchElementException()
             }
         }
 
@@ -92,7 +94,7 @@ open class SearchRepositoryImplTest(
         val job = launch(defaultDispatcher) {
             repository.selectedLine.toList(lineList)
         }
-        val line = data.lines.random()
+        val line = lines.random()
 
         // test
         repository.selectLine(line)
@@ -126,7 +128,7 @@ open class SearchRepositoryImplTest(
             launch { repository.detectedStation.toList(detectList) }
         }
 
-        val stations = List(k) { data.stations.random() }
+        val stations = List(k) { stations.random() }
 
         coEvery { search.search(any(), any(), k, 0.0, false) } returns SearchResult(
             0.0,
@@ -166,7 +168,7 @@ open class SearchRepositoryImplTest(
             assertThat(it?.time).isEqualTo(time)
             assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
             val lines = nearest.lines.map { code ->
-                data.lines.find { line -> line.code == code }
+                lines.find { line -> line.code == code }
             }
             assertThat(it?.lines).isEqualTo(lines)
         }

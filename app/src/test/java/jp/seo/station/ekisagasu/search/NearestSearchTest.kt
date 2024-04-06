@@ -4,7 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
-import jp.seo.station.ekisagasu.fakeData
+import jp.seo.station.ekisagasu.fakeStations
+import jp.seo.station.ekisagasu.fakeTree
 import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -29,21 +30,18 @@ class NearestSearchTest {
         LocationTestCase(33.589109, 130.423454, "博多")
     )
 
-    private val data by fakeData
+    private val stations by fakeStations
+    private val tree by fakeTree
 
     @Test
     fun testNearestTest() = runTest {
         // prepare
-        val nameSlot = slot<String>()
-        coEvery { repository.getTreeSegment(capture(nameSlot)) } answers {
-            val name = nameSlot.captured
-            data.trees.find { it.name == name } ?: throw NoSuchElementException()
-        }
+        coEvery { repository.getStationKdTree() } answers { tree }
         val codesSlot = slot<List<Int>>()
         coEvery { repository.getStations(capture(codesSlot)) } answers {
             val codes = codesSlot.captured
             codes.map { code ->
-                data.stations.find { it.code == code } ?: throw NoSuchElementException()
+                stations.find { it.code == code } ?: throw NoSuchElementException()
             }
         }
 
