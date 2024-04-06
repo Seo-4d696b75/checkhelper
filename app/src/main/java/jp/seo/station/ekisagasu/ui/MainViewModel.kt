@@ -10,6 +10,7 @@ import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.RemoteDataRepository
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -21,6 +22,7 @@ class MainViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appStateRepository: AppStateRepository,
     private val dataRepository: DataRepository,
+    private val remoteDataRepository: RemoteDataRepository,
 ) : ViewModel() {
     val message = appStateRepository.message
 
@@ -63,7 +65,7 @@ class MainViewModel @Inject constructor(
                 val info = dataRepository.getDataVersion()
 
                 val latest = try {
-                    dataRepository.getLatestDataVersion(false)
+                    remoteDataRepository.getLatestDataVersion(true)
                 } catch (e: IOException) {
                     appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
                     appStateRepository.hasDataVersionChecked = false

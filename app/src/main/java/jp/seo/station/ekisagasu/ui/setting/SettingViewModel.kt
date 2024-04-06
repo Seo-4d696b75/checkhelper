@@ -7,6 +7,7 @@ import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.model.UserSetting
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.RemoteDataRepository
 import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +23,14 @@ class SettingViewModel @Inject constructor(
     private val settingRepository: UserSettingRepository,
     private val appStateRepository: AppStateRepository,
     private val dataRepository: DataRepository,
+    private val remoteDataRepository: RemoteDataRepository,
 ) : ViewModel() {
 
     val dataVersion = dataRepository.dataVersion
 
     fun checkLatestData() = viewModelScope.launch(Dispatchers.IO) {
         val latest = try {
-            dataRepository.getLatestDataVersion(true)
+            remoteDataRepository.getLatestDataVersion(false)
         } catch (e: IOException) {
             appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
             return@launch
