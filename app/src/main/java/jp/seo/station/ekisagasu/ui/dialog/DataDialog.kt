@@ -14,7 +14,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.DialogDataCheckBinding
 import jp.seo.station.ekisagasu.databinding.DialogDataUpdateBinding
-import jp.seo.station.ekisagasu.usecase.DataUpdateResult
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -81,14 +80,7 @@ class DataUpdateDialog : DialogFragment() {
         viewModel.result
             .flowWithLifecycle(lifecycle)
             .onEach {
-                when (it) {
-                    is DataUpdateResult.Success -> {
-                        viewModel.onResult(true)
-                    }
-                    is DataUpdateResult.Failure -> {
-                        viewModel.onResult(false)
-                    }
-                }
+                viewModel.onResult(it.isSuccess)
                 dismiss()
             }
             .launchIn(lifecycleScope)

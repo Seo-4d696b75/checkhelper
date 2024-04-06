@@ -1,59 +1,47 @@
 package jp.seo.station.ekisagasu.usecase
 
-import jp.seo.station.ekisagasu.api.DownloadClient
-import jp.seo.station.ekisagasu.database.StationDao
+import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.model.DataLatestInfo
 import jp.seo.station.ekisagasu.model.DataUpdateProgress
-import jp.seo.station.ekisagasu.model.StationData
+import jp.seo.station.ekisagasu.repository.DataRepository
+import jp.seo.station.ekisagasu.repository.RemoteDataRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
-@ExperimentalSerializationApi
 class DataUpdateUseCase @Inject constructor(
-    private val dao: StationDao,
-    private val downloadClient: DownloadClient,
-    private val json: Json,
+    private val repository: DataRepository,
+    private val remoteRepository: RemoteDataRepository,
 ) {
 
-    private val _progress = MutableSharedFlow<DataUpdateProgress>()
-    val progress: SharedFlow<DataUpdateProgress> = _progress
+    private val _progress = MutableStateFlow<DataUpdateProgress>(DataUpdateProgress.Download(0))
+    val progress = _progress.asStateFlow()
 
-    suspend operator fun invoke(info: DataLatestInfo): DataUpdateResult =
+    suspend operator fun invoke(info: DataLatestInfo, dir: File): Result<DataVersion> =
         withContext(Dispatchers.IO) {
-            _progress.emit(DataUpdateProgress.Download(0))
-            try {
+            if (!dir.exists() || !dir.isDirectory) {
+                require(dir.mkdir())
+            }
+            _progress.value = DataUpdateProgress.Download(0)
+            runCatching {
                 var percent = 0
-                val data = downloadClient(info.url) {
+                remoteRepository.download(info.version, dir) {
                     val p = (it * 100 / info.length).toInt()
                     if (p in 1..100 && p > percent) {
-                        launch(Dispatchers.Main) {
-                            _progress.emit(DataUpdateProgress.Download(p))
-                        }
+                        _progress.value = DataUpdateProgress.Download(p)
                         percent = p
                     }
-                }.let { str ->
-                    json.decodeFromString<StationData>(str)
                 }
-                withContext(Dispatchers.Main) {
-                    _progress.emit(DataUpdateProgress.Save)
-                }
-                if (data.version == info.version) {
-                    dao.updateData(data)
-                    val current = dao.getCurrentDataVersion()
-                    if (info.version == current?.version) {
-                        return@withContext DataUpdateResult.Success(current)
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                _progress.value = DataUpdateProgress.Save
+                repository.updateData(info, dir)
+            }.onFailure {
+                Timber.w(it)
+            }.also {
+                dir.deleteRecursively()
             }
-            DataUpdateResult.Failure
         }
 }
