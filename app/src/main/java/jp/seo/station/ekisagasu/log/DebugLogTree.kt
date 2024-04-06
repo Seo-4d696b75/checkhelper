@@ -1,5 +1,6 @@
 package jp.seo.station.ekisagasu.log
 
+import android.annotation.SuppressLint
 import android.util.Log
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -7,6 +8,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 /**
  * Logcatにも出力する
  */
+@SuppressLint("LogNotTimber")
 class DebugLogTree(
     defaultDispatcher: CoroutineDispatcher,
     appStateRepository: AppStateRepository,

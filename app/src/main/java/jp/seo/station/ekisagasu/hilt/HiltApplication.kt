@@ -57,7 +57,7 @@ class HiltApplication : Application() {
             crashStarting = true
             try {
                 runBlocking(Dispatchers.Default) {
-                    // ログ出力
+                    // ログ記録
                     logRepository.saveMessage(
                         AppMessage.Error("UnhandledException", e)
                     )
@@ -66,6 +66,7 @@ class HiltApplication : Application() {
                 }
             } finally {
                 Thread.setDefaultUncaughtExceptionHandler(defaultHandler)
+                throw e
             }
         }
     }
