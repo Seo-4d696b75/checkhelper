@@ -9,7 +9,6 @@ data class DataLatestInfo(
     val version: Long,
     @SerialName("size")
     val length: Long,
-    val url: String,
 ) : java.io.Serializable {
     fun fileSize(): String {
         var bytes = length

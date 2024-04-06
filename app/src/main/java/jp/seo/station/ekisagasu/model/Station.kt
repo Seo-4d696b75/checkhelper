@@ -45,8 +45,6 @@ data class Station constructor(
     val lines: List<Int>,
     @ColumnInfo(name = "closed")
     val closed: Boolean,
-    @ColumnInfo(name = "next")
-    val next: List<Int>,
     @Serializable(with = JsonObjectAsStringSerializer::class)
     @ColumnInfo(name = "voronoi")
     val voronoi: String,

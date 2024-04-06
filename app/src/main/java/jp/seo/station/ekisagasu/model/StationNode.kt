@@ -1,6 +1,5 @@
 package jp.seo.station.ekisagasu.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
@@ -11,24 +10,26 @@ import kotlinx.serialization.Serializable
  * @version 2020/12/18.
  */
 @Serializable
+@Entity(tableName = "node")
 data class StationNode(
+    @PrimaryKey
     val code: Int,
-    val lat: Double? = null,
-    val lng: Double? = null,
+    val lat: Double,
+    val lng: Double,
     val left: Int? = null,
     val right: Int? = null,
-    val segment: String? = null,
 )
 
 @Serializable
-@Entity(tableName = "tree")
-data class TreeSegment(
+@Entity(tableName = "root_node")
+data class RootStationNode(
     @PrimaryKey
-    @ColumnInfo(name = "name", index = true)
-    val name: String,
-    @ColumnInfo(name = "root")
+    val code: Int,
+)
+
+@Serializable
+data class StationKdTree(
     val root: Int,
-    @ColumnInfo(name = "node_list")
     @SerialName("node_list")
-    val nodes: List<StationNode>
+    val nodes: List<StationNode>,
 )
