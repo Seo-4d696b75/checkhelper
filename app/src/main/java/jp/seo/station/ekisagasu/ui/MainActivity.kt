@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
@@ -199,13 +198,6 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
             Timber.tag("Permission").i(getString(R.string.message_permission_overlay_granted))
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                Toast.makeText(
-                    applicationContext,
-                    getString(R.string.message_need_app_reboot),
-                    Toast.LENGTH_SHORT,
-                ).show()
-            }
         } else {
             Timber.tag("Permission").i(getString(R.string.message_permission_overlay_denied))
             if (!Settings.canDrawOverlays(this)) {
