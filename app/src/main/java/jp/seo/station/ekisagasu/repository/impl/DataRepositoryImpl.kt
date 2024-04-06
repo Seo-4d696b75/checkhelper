@@ -1,24 +1,24 @@
 package jp.seo.station.ekisagasu.repository.impl
 
-import jp.seo.station.ekisagasu.api.APIClient
 import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.model.DataLatestInfo
+import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.Station
+import jp.seo.station.ekisagasu.model.StationKdTree
 import jp.seo.station.ekisagasu.repository.DataRepository
-import jp.seo.station.ekisagasu.usecase.DataUpdateResult
-import jp.seo.station.ekisagasu.usecase.DataUpdateUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.io.File
 import javax.inject.Inject
 
-@ExperimentalSerializationApi
 class DataRepositoryImpl @Inject constructor(
     private val dao: StationDao,
-    private val api: APIClient,
-    private val updateUseCase: DataUpdateUseCase,
+    private val json: Json,
 ) : DataRepository {
 
     override suspend fun getLine(code: Int) = withContext(Dispatchers.IO) {
@@ -37,21 +37,20 @@ class DataRepositoryImpl @Inject constructor(
         dao.getStations(codes)
     }
 
-    override suspend fun getTreeSegment(name: String) = withContext(Dispatchers.IO) {
-        dao.getTreeSegment(name)
+    override suspend fun getStationKdTree() = withContext(Dispatchers.IO) {
+        StationKdTree(
+            root = dao.getRootStationNode().code,
+            nodes = dao.getStationNodes(),
+        )
     }
 
     private val _currentVersion = MutableStateFlow<DataVersion?>(null)
     private var _dataInitialized: Boolean = false
-    private var _lastCheckedVersion: DataLatestInfo? = null
 
     override val dataInitialized: Boolean
         get() = _dataInitialized
 
     override val dataVersion: StateFlow<DataVersion?> = _currentVersion
-
-    override val lastCheckedVersion: DataLatestInfo?
-        get() = _lastCheckedVersion
 
     override suspend fun getDataVersion(): DataVersion? = withContext(Dispatchers.IO) {
         val version = dao.getCurrentDataVersion()
@@ -60,32 +59,38 @@ class DataRepositoryImpl @Inject constructor(
         version
     }
 
-    override suspend fun getLatestDataVersion(forceRefresh: Boolean): DataLatestInfo =
-        withContext(Dispatchers.IO) {
-            val last = _lastCheckedVersion
-            if (last != null && !forceRefresh) {
-                last
-            } else {
-                val info = api.getLatestInfo()
-                _lastCheckedVersion = info
-                info
-            }
-        }
-
     override suspend fun getDataVersionHistory() = dao.getDataVersionHistory()
 
-    override val dataUpdateProgress = updateUseCase.progress
+    override suspend fun updateData(info: DataLatestInfo, dir: File) = withContext(Dispatchers.IO) {
+        val stations = dir.stations()
+        val lines = dir.lines()
+        val tree = dir.kdTree()
+        val version = dao.updateData(info.version, stations, lines, tree)
+        _dataInitialized = true
+        _currentVersion.value = version
+        version
+    }
 
-    override suspend fun updateData(info: DataLatestInfo): DataUpdateResult {
-        return updateUseCase(info).also {
-            when (it) {
-                is DataUpdateResult.Success -> {
-                    _dataInitialized = true
-                    _currentVersion.value = it.version
-                }
-                is DataUpdateResult.Failure -> {
-                }
+    private fun File.stations() = json.decodeFromString<List<Station>>(
+        File(this, "json/station.json").readText(Charsets.UTF_8),
+    )
+
+    private fun File.lines(): List<Line> {
+        val dir = File(this, "json/line")
+        require(dir.exists() && dir.isDirectory)
+        return requireNotNull(dir.listFiles()).map {
+            val line = json.decodeFromString<Line>(it.readText(Charsets.UTF_8))
+            // load polyline from different file
+            val file = File(this, "json/polyline/${line.code}.json")
+            if (file.exists()) {
+                line.copy(polyline = file.readText(Charsets.UTF_8))
+            } else {
+                line
             }
         }
     }
+
+    private fun File.kdTree() = json.decodeFromString<StationKdTree>(
+        File(this, "json/tree.json").readText(Charsets.UTF_8),
+    )
 }
