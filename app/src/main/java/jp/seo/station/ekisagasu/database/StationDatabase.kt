@@ -12,18 +12,19 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import jp.seo.station.ekisagasu.model.Line
+import jp.seo.station.ekisagasu.model.RootStationNode
 import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.model.StationData
-import jp.seo.station.ekisagasu.model.TreeSegment
-import java.util.*
+import jp.seo.station.ekisagasu.model.StationKdTree
+import jp.seo.station.ekisagasu.model.StationNode
+import java.util.Date
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/16.
  */
 @Database(
-    entities = [Station::class, Line::class, TreeSegment::class, DataVersion::class],
-    version = 7,
+    entities = [Station::class, Line::class, StationNode::class, RootStationNode::class, DataVersion::class],
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(
@@ -49,7 +50,7 @@ abstract class StationDao {
     @Query("DELETE FROM station")
     abstract suspend fun clearStations()
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun addStations(stations: List<Station>)
 
     @Query("SELECT * FROM line WHERE code == :code")
@@ -61,17 +62,26 @@ abstract class StationDao {
     @Query("DELETE FROM line")
     abstract suspend fun clearLines()
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun addLines(lines: List<Line>)
 
-    @Query("SELECT * FROM tree  WHERE name == :name")
-    abstract suspend fun getTreeSegment(name: String): TreeSegment
+    @Query("SELECT * FROM node")
+    abstract suspend fun getStationNodes(): List<StationNode>
 
-    @Query("DELETE FROM tree")
-    abstract suspend fun clearTreeSegments()
+    @Query("DELETE FROM node")
+    abstract suspend fun clearStationNodes()
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    abstract suspend fun addTreeSegments(trees: List<TreeSegment>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun addStationNodes(nodes: List<StationNode>)
+
+    @Query("SELECT * FROM root_node LIMIT 1")
+    abstract suspend fun getRootStationNode(): RootStationNode
+
+    @Query("DELETE FROM root_node")
+    abstract suspend fun clearRootStationNode()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun addRootStationNode(root: RootStationNode)
 
     @Query("SELECT * FROM version_history")
     abstract suspend fun getDataVersionHistory(): List<DataVersion>
@@ -83,21 +93,29 @@ abstract class StationDao {
     abstract suspend fun setCurrentDataVersion(version: DataVersion)
 
     @Transaction
-    open suspend fun updateData(data: StationData) {
+    open suspend fun updateData(
+        version: Long,
+        stations: List<Station>,
+        lines: List<Line>,
+        tree: StationKdTree,
+    ): DataVersion {
         // abort and rollback if any error while this transaction, or data integrity lost!
         // delete old data
         clearStations()
         clearLines()
-
-        clearTreeSegments()
+        clearStationNodes()
+        clearRootStationNode()
 
         // add new data
-        addStations(data.stations)
-        addLines(data.lines)
-        addTreeSegments(data.trees)
+        addStations(stations)
+        addLines(lines)
+        addStationNodes(tree.nodes)
+        addRootStationNode(RootStationNode(tree.root))
 
         // update version
-        setCurrentDataVersion(DataVersion(data.version))
+        return DataVersion(version).also {
+            setCurrentDataVersion(it)
+        }
     }
 }
 
