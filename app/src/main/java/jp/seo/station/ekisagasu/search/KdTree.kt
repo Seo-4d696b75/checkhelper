@@ -24,19 +24,16 @@ class KdTree @Inject constructor(
     private val repository: DataRepository
 ) : NearestSearch {
 
-    private var _root: NodeAdapter? = null
+    private var _root: Node? = null
 
     // mutex lock obj when checking and loading tree-segment data, in order to avoid duplicated operations
     private val lock = Mutex()
 
-    private suspend fun getRoot(): NodeAdapter = lock.withLock {
+    private suspend fun getRoot(): Node = lock.withLock {
         _root ?: run {
-            val data = repository.getTreeSegment("root")
-            val map: MutableMap<Int, StationNode> = HashMap()
-            for (s in data.nodes) {
-                map[s.code] = s
-            }
-            val node = NodeAdapter(0, data.root, map)
+            val data = repository.getStationKdTree()
+            val map = data.nodes.associateBy { it.code }
+            val node = Node.build(0, data.root, map)
             _root = node
             node
         }
@@ -47,54 +44,15 @@ class KdTree @Inject constructor(
         val lat: Double,
         val lng: Double,
         val code: Int,
-        val left: NodeAdapter?,
-        val right: NodeAdapter?
-    )
-
-    private inner class NodeAdapter(
-        val depth: Int,
-        val code: Int,
-        nodes: Map<Int, StationNode>
+        val left: Node?,
+        val right: Node?
     ) {
-
-        private var _node: Node? = null
-        private var segmentName: String? = null
-
-        init {
-            build(nodes)
-        }
-
-        private fun build(nodes: Map<Int, StationNode>) {
-            val data = nodes.getValue(code)
-            if (data.segment != null) {
-                segmentName = data.segment
-            } else {
-                val left = data.left?.let {
-                    NodeAdapter(depth + 1, it, nodes)
-                }
-                val right = data.right?.let {
-                    NodeAdapter(depth + 1, it, nodes)
-                }
-                val lat = data.lat ?: throw RuntimeException("lat not found")
-                val lng = data.lng ?: throw RuntimeException("lng not found")
-                this._node = Node(depth, lat, lng, code, left, right)
-            }
-        }
-
-        suspend fun node(): Node = lock.withLock {
-            _node ?: kotlin.run {
-                val segment = repository.getTreeSegment(
-                    segmentName ?: throw RuntimeException("segment-name not found")
-                )
-                if (segment.root != this.code) throw RuntimeException("root mismatch name:$segmentName")
-                val map: MutableMap<Int, StationNode> = HashMap<Int, StationNode>()
-                for (s in segment.nodes) {
-                    map[s.code] = s
-                }
-                build(map)
-                val node = _node ?: throw RuntimeException("node not initialized")
-                segmentName = null
-                node
+        companion object {
+            fun build(depth: Int, code: Int, map: Map<Int, StationNode>): Node {
+                val n = map.getValue(code)
+                val left = n.left?.let { build(depth + 1, it, map) }
+                val right = n.right?.let { build(depth + 1, it, map) }
+                return Node(depth, n.lat, n.lng, n.code, left, right)
             }
         }
     }
@@ -131,9 +89,8 @@ class KdTree @Inject constructor(
         return SearchResult(lat, lng, k, r, stations)
     }
 
-    private suspend fun search(adapter: NodeAdapter?, prop: SearchProperties) {
-        if (adapter == null) return
-        val node = adapter.node()
+    private fun search(node: Node?, prop: SearchProperties) {
+        node ?: return
         val d = measure(prop.lat, prop.lng, node.lat, node.lng, prop.sphere)
         var index = -1
         val size = prop.list.size
