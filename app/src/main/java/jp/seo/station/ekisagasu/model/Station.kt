@@ -49,9 +49,8 @@ data class Station constructor(
     @ColumnInfo(name = "voronoi")
     val voronoi: String,
     @ColumnInfo(name = "attr")
-    val attr: String?
+    val attr: String?,
 ) {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -80,7 +79,6 @@ data class StationRegistration(
     val code: Int,
     val numbering: List<String>? = null,
 ) {
-
     fun getNumberingString(): String {
         return numbering?.joinToString(separator = "/", transform = String::toString) ?: ""
     }
@@ -96,7 +94,10 @@ class JsonObjectAsStringSerializer : KSerializer<String> {
 
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("voronoi", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: String) {
+    override fun serialize(
+        encoder: Encoder,
+        value: String,
+    ) {
         throw NotImplementedError()
     }
 }

@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 interface LocationRepository {
     val currentLocation: SharedFlow<Location>
     val isRunning: StateFlow<Boolean>
+
     fun startWatchCurrentLocation(interval: Int)
+
     fun stopWatchCurrentLocation(): Boolean
 }

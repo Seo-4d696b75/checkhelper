@@ -58,7 +58,7 @@ fun serializeGPX(
             }
             tag("link") {
                 attribute(
-                    "href" to "https://developers.google.com/location-context/fused-location-provider"
+                    "href" to "https://developers.google.com/location-context/fused-location-provider",
                 )
             }
             tag("extensions") {
@@ -105,12 +105,12 @@ private fun List<AppLog>.toTrackSegment(): List<TrackPoint> {
                 TrackPoint.fromLocationWithStation(
                     location = list[i],
                     station = list[i + 1],
-                )
+                ),
             )
             i += 2
         } else {
             points.add(
-                TrackPoint.fromLocation(list[i])
+                TrackPoint.fromLocation(list[i]),
             )
             i += 1
         }
@@ -125,13 +125,13 @@ private data class TrackPoint(
     val station: StationExtension? = null,
 ) {
     companion object {
-
         val LOCATION_REGEX = Regex("\\((?<lat>[0-9\\.]+),(?<lng>[0-9\\.]+)\\)")
         val STATION_REGEX = Regex("(?<name>.+)\\((?<code>[0-9]+)\\)")
 
         fun fromLocation(log: AppLog): TrackPoint {
-            val m = LOCATION_REGEX.matchEntire(log.message)
-                ?: throw RuntimeException("can not parse location log: $log")
+            val m =
+                LOCATION_REGEX.matchEntire(log.message)
+                    ?: throw RuntimeException("can not parse location log: $log")
             return TrackPoint(
                 time = formatTime(TIME_PATTERN_ISO8601_EXTEND, log.timestamp),
                 lat = m.groups["lat"]!!.value,
@@ -139,13 +139,18 @@ private data class TrackPoint(
             )
         }
 
-        fun fromLocationWithStation(location: AppLog, station: AppLog): TrackPoint {
-            val m = STATION_REGEX.matchEntire(station.message)
-                ?: throw RuntimeException("can not parse station log: $station")
-            val s = StationExtension(
-                name = m.groups["name"]!!.value,
-                code = m.groups["code"]!!.value,
-            )
+        fun fromLocationWithStation(
+            location: AppLog,
+            station: AppLog,
+        ): TrackPoint {
+            val m =
+                STATION_REGEX.matchEntire(station.message)
+                    ?: throw RuntimeException("can not parse station log: $station")
+            val s =
+                StationExtension(
+                    name = m.groups["name"]!!.value,
+                    code = m.groups["code"]!!.value,
+                )
             return fromLocation(location).copy(station = s)
         }
     }
@@ -155,4 +160,3 @@ private data class StationExtension(
     val name: String,
     val code: String,
 )
-

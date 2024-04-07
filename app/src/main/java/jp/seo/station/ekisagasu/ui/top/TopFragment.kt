@@ -37,7 +37,6 @@ import java.util.LinkedList
  */
 @AndroidEntryPoint
 class TopFragment : Fragment() {
-
     private val viewModel: TopViewModel by viewModels()
 
     private lateinit var binding: FragmentTopBinding
@@ -50,22 +49,25 @@ class TopFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_top,
-            container,
-            false,
-        )
+        binding =
+            DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_top,
+                container,
+                false,
+            )
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
     @SuppressWarnings("ClickableViewAccessibility")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         val ctx = requireContext()
         val navigationHost = binding.subNavHost
 
@@ -105,41 +107,48 @@ class TopFragment : Fragment() {
 
         // animated floating buttons
         val res = ctx.resources
-        val fabMenu = AnimationHolder<FloatingActionButton>(
-            binding.fabMore,
-            res.getDimensionPixelSize(R.dimen.fab_menu_x),
-            res.getDimensionPixelSize(R.dimen.fab_menu_y)
-        )
-        val fabExit = AnimationHolder<FloatingActionButton>(
-            binding.fabExit,
-            res.getDimensionPixelSize(R.dimen.fab_exit_x),
-            res.getDimensionPixelSize(R.dimen.fab_exit_y)
-        )
-        val fabSelectLine = AnimationHolder<FloatingActionButton>(
-            binding.fabSelectLine,
-            res.getDimensionPixelSize(R.dimen.fab_select_line_x),
-            res.getDimensionPixelSize(R.dimen.fab_select_line_y)
-        )
-        val fabPredict = AnimationHolder<FloatingActionButton>(
-            binding.fabPredict,
-            res.getDimensionPixelSize(R.dimen.fab_predict_x),
-            res.getDimensionPixelSize(R.dimen.fab_predict_y)
-        )
-        val fabTimer = AnimationHolder<FloatingActionButton>(
-            binding.fabTimer,
-            res.getDimensionPixelSize(R.dimen.fab_timer_x),
-            res.getDimensionPixelSize(R.dimen.fab_timer_y)
-        )
-        val fabFixTimer = AnimationHolder<FloatingActionButton>(
-            binding.fabFixTimer,
-            res.getDimensionPixelSize(R.dimen.fab_fix_timer_x),
-            res.getDimensionPixelSize(R.dimen.fab_fix_timer_y)
-        )
-        val fabMap = AnimationHolder<FloatingActionButton>(
-            binding.fabMap,
-            res.getDimensionPixelSize(R.dimen.fab_map_x),
-            res.getDimensionPixelSize(R.dimen.fab_map_y)
-        )
+        val fabMenu =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabMore,
+                res.getDimensionPixelSize(R.dimen.fab_menu_x),
+                res.getDimensionPixelSize(R.dimen.fab_menu_y),
+            )
+        val fabExit =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabExit,
+                res.getDimensionPixelSize(R.dimen.fab_exit_x),
+                res.getDimensionPixelSize(R.dimen.fab_exit_y),
+            )
+        val fabSelectLine =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabSelectLine,
+                res.getDimensionPixelSize(R.dimen.fab_select_line_x),
+                res.getDimensionPixelSize(R.dimen.fab_select_line_y),
+            )
+        val fabPredict =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabPredict,
+                res.getDimensionPixelSize(R.dimen.fab_predict_x),
+                res.getDimensionPixelSize(R.dimen.fab_predict_y),
+            )
+        val fabTimer =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabTimer,
+                res.getDimensionPixelSize(R.dimen.fab_timer_x),
+                res.getDimensionPixelSize(R.dimen.fab_timer_y),
+            )
+        val fabFixTimer =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabFixTimer,
+                res.getDimensionPixelSize(R.dimen.fab_fix_timer_x),
+                res.getDimensionPixelSize(R.dimen.fab_fix_timer_y),
+            )
+        val fabMap =
+            AnimationHolder<FloatingActionButton>(
+                binding.fabMap,
+                res.getDimensionPixelSize(R.dimen.fab_map_x),
+                res.getDimensionPixelSize(R.dimen.fab_map_y),
+            )
         val animateFab: (Boolean) -> Unit = { expand ->
             if (fabMap.visibility != expand) {
                 val list: MutableList<Animator> = LinkedList()
@@ -149,16 +158,20 @@ class TopFragment : Fragment() {
                 list.add(fabExit.animate(expand, false))
                 list.add(fabMenu.animate(!expand, true))
                 val running = viewModel.isRunning.value
-                if ((expand && running) || (!expand && fabSelectLine.visibility)) list.add(
-                    fabSelectLine.animate(
-                        expand
+                if ((expand && running) || (!expand && fabSelectLine.visibility)) {
+                    list.add(
+                        fabSelectLine.animate(
+                            expand,
+                        ),
                     )
-                )
-                if ((expand && running) || (!expand && fabPredict.visibility)) list.add(
-                    fabPredict.animate(
-                        expand
+                }
+                if ((expand && running) || (!expand && fabPredict.visibility)) {
+                    list.add(
+                        fabPredict.animate(
+                            expand,
+                        ),
                     )
-                )
+                }
                 AnimatorSet().apply {
                     playTogether(list)
                     duration = 300L
@@ -184,7 +197,7 @@ class TopFragment : Fragment() {
                             } else {
                                 fabMenu.visibility = false
                             }
-                        }
+                        },
                     )
                     start()
                 }
@@ -198,10 +211,11 @@ class TopFragment : Fragment() {
                 when (it) {
                     is TopFragmentEvent.ToggleMenu -> animateFab(it.open)
                     is TopFragmentEvent.ShowMap -> {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.map_url))
-                        )
+                        val intent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(getString(R.string.map_url)),
+                            )
                         startActivity(intent)
                     }
                     is TopFragmentEvent.SelectLine -> {
@@ -225,7 +239,10 @@ class TopFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(
+        menu: Menu,
+        inflater: MenuInflater,
+    ) {
         inflater.inflate(R.menu.menu_main, menu)
     }
 }

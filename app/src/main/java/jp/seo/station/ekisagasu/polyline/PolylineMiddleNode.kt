@@ -5,16 +5,18 @@ import java.util.Locale
 
 class PolylineMiddleNode(
     point: LatLng,
-    val index: Int
+    val index: Int,
 ) : PolylineNode(point) {
-
     private var next1: PolylineNode? = null
     private var next2: PolylineNode? = null
     private var distance1 = 0f
     private var distance2 = 0f
     private var hasReleased = false
 
-    override fun setNext(next: PolylineNode, distance: Float) {
+    override fun setNext(
+        next: PolylineNode,
+        distance: Float,
+    ) {
         if (next1 == null) {
             next1 = next
             distance1 = distance
@@ -33,6 +35,7 @@ class PolylineMiddleNode(
         }
         return object : NeighborIterator {
             private var hasIterated = false
+
             override fun hasNext(): Boolean {
                 return !hasIterated
             }
@@ -68,8 +71,11 @@ class PolylineMiddleNode(
 
     override fun toString(): String {
         return String.format(
-            Locale.US, "MiddleNode(lat/lon:(%.6f,%.6f), index:%d)",
-            point.latitude, point.longitude, index
+            Locale.US,
+            "MiddleNode(lat/lon:(%.6f,%.6f), index:%d)",
+            point.latitude,
+            point.longitude,
+            index,
         )
     }
 }

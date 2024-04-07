@@ -14,23 +14,31 @@ open class ReleaseLogTree(
     defaultDispatcher: CoroutineDispatcher,
     private val appStateRepository: AppStateRepository,
 ) : LogTree(), CoroutineScope {
-
-    override fun onDebugMessage(tag: String?, message: String) {
+    override fun onDebugMessage(
+        tag: String?,
+        message: String,
+    ) {
         // no output
     }
 
-    override fun onLogMessage(tag: String?, message: String) {
+    override fun onLogMessage(
+        tag: String?,
+        message: String,
+    ) {
         launch {
             appStateRepository.emitMessage(
-                AppMessage.Log(message)
+                AppMessage.Log(message),
             )
         }
     }
 
-    override fun onErrorMessage(tag: String?, message: String) {
+    override fun onErrorMessage(
+        tag: String?,
+        message: String,
+    ) {
         launch {
             appStateRepository.emitMessage(
-                AppMessage.Error(message)
+                AppMessage.Error(message),
             )
         }
     }

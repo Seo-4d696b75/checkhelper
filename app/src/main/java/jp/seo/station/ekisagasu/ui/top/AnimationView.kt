@@ -21,7 +21,6 @@ import kotlin.math.ceil
  * @version 2021/01/10.
  */
 class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
-
     constructor(context: Context) : this(context, null)
 
     constructor(context: Context, set: AttributeSet?) : this(context, set, 0)
@@ -29,7 +28,7 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
     constructor(context: Context, set: AttributeSet?, defaultAttr: Int) : super(
         context,
         set,
-        defaultAttr
+        defaultAttr,
     ) {
 
         viewTreeObserver.addOnGlobalLayoutListener(this)
@@ -63,12 +62,13 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         _width = super.getWidth()
         _height = super.getHeight()
         src = Rect(0, 0, foreground.width, foreground.height)
-        dst = Rect(
-            (_width * 0.1f).toInt(),
-            (_height * 0.13f).toInt(),
-            (_width * 0.8).toInt(),
-            (_height * 0.83f).toInt()
-        )
+        dst =
+            Rect(
+                (_width * 0.1f).toInt(),
+                (_height * 0.13f).toInt(),
+                (_width * 0.8).toInt(),
+                (_height * 0.83f).toInt(),
+            )
         if (requestRun) runAnimation(true)
     }
 
@@ -117,7 +117,7 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         _matrix.postRotate(_degree, background.width / 2f, background.height / 2f)
         _matrix.postScale(
             _width.toFloat() / background.width,
-            _height.toFloat() / background.height
+            _height.toFloat() / background.height,
         )
         canvas.drawBitmap(background, _matrix, paint)
         canvas.drawBitmap(foreground, src, dst, paint)
@@ -148,7 +148,10 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
             mRunning = array[0]
         }
 
-        override fun writeToParcel(out: Parcel, flags: Int) {
+        override fun writeToParcel(
+            out: Parcel,
+            flags: Int,
+        ) {
             super.writeToParcel(out, flags)
             val array = booleanArrayOf(mRunning)
             out.writeBooleanArray(array)

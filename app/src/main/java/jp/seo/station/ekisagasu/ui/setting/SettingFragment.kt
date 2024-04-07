@@ -27,7 +27,6 @@ import kotlin.math.roundToInt
  */
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
-
     private val viewModel: SettingViewModel by viewModels()
 
     private lateinit var binding: FragmentSettingBinding
@@ -35,21 +34,24 @@ class SettingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_setting,
-            container,
-            false
-        )
+        binding =
+            DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_setting,
+                container,
+                false,
+            )
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         binding.numberTimeInterval.setOnValueChangedListener { _, _, value ->
             viewModel.updateState { it.copy(locationUpdateInterval = value) }
         }
@@ -87,19 +89,21 @@ class SettingFragment : Fragment() {
 
         binding.dropdownNightTimeout.apply {
             val context = requireContext()
-            val values = context.resources
-                .getIntArray(R.array.night_mode_switch_timeout)
-                .toTypedArray()
-                .map { timeout ->
-                    NightModeTimeout(
-                        timeout = timeout,
-                        text = if (timeout == 0) {
-                            context.getString(R.string.setting_mes_night_switch_always)
-                        } else {
-                            context.getString(R.string.setting_mes_night_switch, timeout)
-                        }
-                    )
-                }
+            val values =
+                context.resources
+                    .getIntArray(R.array.night_mode_switch_timeout)
+                    .toTypedArray()
+                    .map { timeout ->
+                        NightModeTimeout(
+                            timeout = timeout,
+                            text =
+                                if (timeout == 0) {
+                                    context.getString(R.string.setting_mes_night_switch_always)
+                                } else {
+                                    context.getString(R.string.setting_mes_night_switch, timeout)
+                                },
+                        )
+                    }
             val text = values.map { it.text }
             val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, text)
             setAdapter(adapter)

@@ -7,6 +7,7 @@ import jp.seo.station.ekisagasu.ui.log.LogOutputConfig
 
 sealed interface AppMessage {
     data class Log(val message: String) : AppMessage
+
     data class Error(
         val message: String,
         val cause: Throwable? = null,
@@ -23,11 +24,13 @@ sealed interface AppMessage {
     ) : AppMessage
 
     data class Station(
-        val station: jp.seo.station.ekisagasu.model.Station
+        val station: jp.seo.station.ekisagasu.model.Station,
     ) : AppMessage
 
     object FinishApp : AppMessage
+
     object StartTimer : AppMessage
+
     data class StartActivityForResult(
         val code: Int,
         val intent: Intent,
@@ -40,7 +43,7 @@ sealed interface AppMessage {
     ) : AppMessage
 
     data class LogOutputConfigResolved(
-        val config: LogOutputConfig
+        val config: LogOutputConfig,
     ) : AppMessage
 
     data class RequestDataUpdate(
@@ -55,7 +58,7 @@ sealed interface AppMessage {
     ) : AppMessage
 
     data class CheckLatestVersionFailure(
-        val error: Throwable
+        val error: Throwable,
     ) : AppMessage
 
     object VersionUpToDate : AppMessage

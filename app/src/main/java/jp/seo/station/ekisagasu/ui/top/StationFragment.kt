@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.onEach
  */
 @AndroidEntryPoint
 class StationFragment : Fragment() {
-
     private val viewModel: StationViewModel by viewModels()
 
     private lateinit var binding: FragmentStationBinding
@@ -33,13 +32,16 @@ class StationFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentStationBinding.inflate(inflater)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         val context = requireContext()
 
         binding.viewModel = viewModel
@@ -67,10 +69,11 @@ class StationFragment : Fragment() {
                         findNavController().navigate(R.id.action_global_to_radarFragment)
                     }
                     is StationFragmentEvent.ShowMap -> {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.map_url) + "?station=${viewModel.arg.stationCode}")
-                        )
+                        val intent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(getString(R.string.map_url) + "?station=${viewModel.arg.stationCode}"),
+                            )
                         startActivity(intent)
                     }
                 }

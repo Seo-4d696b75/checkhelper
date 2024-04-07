@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.stateIn
 
 fun <T, R> StateFlow<T>.mapState(
     scope: CoroutineScope,
-    convert: (T) -> R
+    convert: (T) -> R,
 ) = map { convert(it) }.stateIn(
     scope,
     SharingStarted.Eagerly,

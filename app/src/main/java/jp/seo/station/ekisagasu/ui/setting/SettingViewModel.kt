@@ -19,50 +19,55 @@ import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingViewModel @Inject constructor(
-    private val settingRepository: UserSettingRepository,
-    private val appStateRepository: AppStateRepository,
-    private val dataRepository: DataRepository,
-    private val remoteDataRepository: RemoteDataRepository,
-) : ViewModel() {
+class SettingViewModel
+    @Inject
+    constructor(
+        private val settingRepository: UserSettingRepository,
+        private val appStateRepository: AppStateRepository,
+        private val dataRepository: DataRepository,
+        private val remoteDataRepository: RemoteDataRepository,
+    ) : ViewModel() {
+        val dataVersion = dataRepository.dataVersion
 
-    val dataVersion = dataRepository.dataVersion
+        fun checkLatestData() =
+            viewModelScope.launch(Dispatchers.IO) {
+                val latest =
+                    try {
+                        remoteDataRepository.getLatestDataVersion(false)
+                    } catch (e: IOException) {
+                        appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
+                        return@launch
+                    }
+                val current = dataRepository.getDataVersion()
+                if (current == null || latest.version > current.version) {
+                    appStateRepository.emitMessage(
+                        AppMessage.RequestDataUpdate(DataUpdateType.Latest, latest),
+                    )
+                } else {
+                    appStateRepository.emitMessage(AppMessage.VersionUpToDate)
+                }
+            }
 
-    fun checkLatestData() = viewModelScope.launch(Dispatchers.IO) {
-        val latest = try {
-            remoteDataRepository.getLatestDataVersion(false)
-        } catch (e: IOException) {
-            appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
-            return@launch
-        }
-        val current = dataRepository.getDataVersion()
-        if (current == null || latest.version > current.version) {
-            appStateRepository.emitMessage(
-                AppMessage.RequestDataUpdate(DataUpdateType.Latest, latest)
+        val state =
+            combine(
+                settingRepository.setting,
+                appStateRepository.nightMode,
+            ) { setting, night ->
+                SettingState.fromUserSetting(setting, night)
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.Eagerly,
+                SettingState.fromUserSetting(UserSetting(), false),
             )
-        } else {
-            appStateRepository.emitMessage(AppMessage.VersionUpToDate)
-        }
-    }
 
-    val state = combine(
-        settingRepository.setting,
-        appStateRepository.nightMode,
-    ) { setting, night ->
-        SettingState.fromUserSetting(setting, night)
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        SettingState.fromUserSetting(UserSetting(), false)
-    )
-
-    fun updateState(producer: (SettingState) -> SettingState) = settingRepository.update {
-        val old = SettingState.fromUserSetting(it, appStateRepository.nightMode.value)
-        val value = producer(old)
-        appStateRepository.setNightMode(value.isNightMode)
-        value.toUserSetting()
+        fun updateState(producer: (SettingState) -> SettingState) =
+            settingRepository.update {
+                val old = SettingState.fromUserSetting(it, appStateRepository.nightMode.value)
+                val value = producer(old)
+                appStateRepository.setNightMode(value.isNightMode)
+                value.toUserSetting()
+            }
     }
-}
 
 data class SettingState(
     val locationUpdateInterval: Int,
@@ -80,7 +85,10 @@ data class SettingState(
     val timerPosition: Int,
 ) {
     companion object {
-        fun fromUserSetting(setting: UserSetting, isNightMode: Boolean) = SettingState(
+        fun fromUserSetting(
+            setting: UserSetting,
+            isNightMode: Boolean,
+        ) = SettingState(
             locationUpdateInterval = setting.locationUpdateInterval,
             searchK = setting.searchK,
             isPushNotification = setting.isPushNotification,
@@ -97,18 +105,19 @@ data class SettingState(
         )
     }
 
-    fun toUserSetting() = UserSetting(
-        locationUpdateInterval = locationUpdateInterval,
-        searchK = searchK,
-        isPushNotification = isPushNotification,
-        isPushNotificationForce = isPushNotificationForce,
-        isKeepNotification = isKeepNotification,
-        isShowPrefectureNotification = isShowPrefectureNotification,
-        isVibrate = isVibrate,
-        isVibrateWhenApproach = isVibrateWhenApproach,
-        vibrateDistance = vibrateDistance,
-        nightModeTimeout = nightModeTimeout,
-        nightModeBrightness = nightModeBrightness,
-        timerPosition = timerPosition,
-    )
+    fun toUserSetting() =
+        UserSetting(
+            locationUpdateInterval = locationUpdateInterval,
+            searchK = searchK,
+            isPushNotification = isPushNotification,
+            isPushNotificationForce = isPushNotificationForce,
+            isKeepNotification = isKeepNotification,
+            isShowPrefectureNotification = isShowPrefectureNotification,
+            isVibrate = isVibrate,
+            isVibrateWhenApproach = isVibrateWhenApproach,
+            vibrateDistance = vibrateDistance,
+            nightModeTimeout = nightModeTimeout,
+            nightModeBrightness = nightModeBrightness,
+            timerPosition = timerPosition,
+        )
 }

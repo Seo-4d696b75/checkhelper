@@ -36,7 +36,6 @@ class NavigationView(
     private val onSelectLine: () -> Unit,
     private val onStopNavigation: () -> Unit,
 ) {
-
     private val view: View
     private val line: TextView
     private val distances: Array<TextView>
@@ -54,14 +53,17 @@ class NavigationView(
 
     init {
         val inflater = LayoutInflater.from(ctx)
-        val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            0, 0, layerType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        val layoutParams =
+            WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                0,
+                0,
+                layerType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
-        )
+                PixelFormat.TRANSLUCENT,
+            )
         layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.screenBrightness = -1f
         view = inflater.inflate(R.layout.overlay_navigation, null, false)
@@ -72,35 +74,38 @@ class NavigationView(
         stationContainer = view.findViewById(R.id.container_navigation_stations)
         waitContainer = view.findViewById(R.id.container_navigation_wait)
         line = view.findViewById(R.id.text_navigation_line)
-        distances = arrayOf(
-            view.findViewById(R.id.text_distance1),
-            view.findViewById(R.id.text_distance2),
-            view.findViewById(R.id.text_distance_fade)
-        )
-        stations = arrayOf(
-            view.findViewById(R.id.text_station_current),
-            view.findViewById(R.id.text_station_next1),
-            view.findViewById(R.id.text_station_next2),
-            view.findViewById(R.id.text_station_fade)
-        )
-        markers = arrayOf(
-            view.findViewById<View>(R.id.station_marker_current).also {
-                it.pivotX = 0f
-                it.pivotY = 0f
-            },
-            view.findViewById<View>(R.id.station_marker_next1).also {
-                it.pivotX = 0f
-                it.pivotY = 0f
-            },
-            view.findViewById<View>(R.id.station_marker_next2).also {
-                it.pivotX = 0f
-                it.pivotY = 0f
-            },
-            view.findViewById<View>(R.id.station_marker_fade).also {
-                it.pivotX = 0f
-                it.pivotY = 0f
-            }
-        )
+        distances =
+            arrayOf(
+                view.findViewById(R.id.text_distance1),
+                view.findViewById(R.id.text_distance2),
+                view.findViewById(R.id.text_distance_fade),
+            )
+        stations =
+            arrayOf(
+                view.findViewById(R.id.text_station_current),
+                view.findViewById(R.id.text_station_next1),
+                view.findViewById(R.id.text_station_next2),
+                view.findViewById(R.id.text_station_fade),
+            )
+        markers =
+            arrayOf(
+                view.findViewById<View>(R.id.station_marker_current).also {
+                    it.pivotX = 0f
+                    it.pivotY = 0f
+                },
+                view.findViewById<View>(R.id.station_marker_next1).also {
+                    it.pivotX = 0f
+                    it.pivotY = 0f
+                },
+                view.findViewById<View>(R.id.station_marker_next2).also {
+                    it.pivotX = 0f
+                    it.pivotY = 0f
+                },
+                view.findViewById<View>(R.id.station_marker_fade).also {
+                    it.pivotX = 0f
+                    it.pivotY = 0f
+                },
+            )
 
         view.setOnClickListener {
             toggleNavigation()
@@ -149,7 +154,10 @@ class NavigationView(
         }
     }
 
-    fun startNavigation(line: Line, current: Station) {
+    fun startNavigation(
+        line: Line,
+        current: Station,
+    ) {
         if (runningAnimation || _show) return
         this.line.text = line.name
         distances.forEach { it.text = "" }
@@ -221,46 +229,53 @@ class NavigationView(
     private fun animate(result: PredictionResult) {
         runningAnimator?.cancel()
         runningAnimator = null
-        val distanceX = floatArrayOf(
-            distances[0].x,
-            distances[1].x,
-            distances[2].x
-        )
-        val distanceY = floatArrayOf(
-            distances[0].y,
-            distances[1].y,
-            distances[2].y
-        )
-        val nameX = floatArrayOf(
-            stations[0].x,
-            stations[1].x,
-            stations[2].x,
-            stations[3].x
-        )
-        val nameY = floatArrayOf(
-            stations[0].y,
-            stations[1].y,
-            stations[2].y,
-            stations[3].y
-        )
-        val markerX = floatArrayOf(
-            markers[0].x,
-            markers[1].x,
-            markers[2].x,
-            markers[3].x
-        )
-        val markerY = floatArrayOf(
-            markers[0].y,
-            markers[1].y,
-            markers[2].y,
-            markers[3].y
-        )
-        val scale = floatArrayOf(
-            1f,
-            markers[0].width.toFloat() / markers[1].width,
-            markers[1].width.toFloat() / markers[2].width,
-            markers[2].width.toFloat() / markers[3].width
-        )
+        val distanceX =
+            floatArrayOf(
+                distances[0].x,
+                distances[1].x,
+                distances[2].x,
+            )
+        val distanceY =
+            floatArrayOf(
+                distances[0].y,
+                distances[1].y,
+                distances[2].y,
+            )
+        val nameX =
+            floatArrayOf(
+                stations[0].x,
+                stations[1].x,
+                stations[2].x,
+                stations[3].x,
+            )
+        val nameY =
+            floatArrayOf(
+                stations[0].y,
+                stations[1].y,
+                stations[2].y,
+                stations[3].y,
+            )
+        val markerX =
+            floatArrayOf(
+                markers[0].x,
+                markers[1].x,
+                markers[2].x,
+                markers[3].x,
+            )
+        val markerY =
+            floatArrayOf(
+                markers[0].y,
+                markers[1].y,
+                markers[2].y,
+                markers[3].y,
+            )
+        val scale =
+            floatArrayOf(
+                1f,
+                markers[0].width.toFloat() / markers[1].width,
+                markers[1].width.toFloat() / markers[2].width,
+                markers[2].width.toFloat() / markers[3].width,
+            )
         // setting pivots for scaling
         distances[0].also {
             it.pivotX = 0f
@@ -288,20 +303,20 @@ class NavigationView(
                 distances[0],
                 PropertyValuesHolder.ofFloat("scaleY", 1f, 0.5f),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, 0.5f),
-                PropertyValuesHolder.ofFloat("alpha", 1f, 0.2f)
+                PropertyValuesHolder.ofFloat("alpha", 1f, 0.2f),
             ).also {
                 it.interpolator = DecelerateInterpolator()
             },
             ObjectAnimator.ofPropertyValuesHolder(
                 distances[1],
                 PropertyValuesHolder.ofFloat("translationX", 0f, distanceX[0] - distanceX[1]),
-                PropertyValuesHolder.ofFloat("translationY", 0f, distanceY[0] - distanceY[1])
+                PropertyValuesHolder.ofFloat("translationY", 0f, distanceY[0] - distanceY[1]),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 distances[2],
                 PropertyValuesHolder.ofFloat("scaleY", 0.5f, 1f),
                 PropertyValuesHolder.ofFloat("scaleX", 0.5f, 1f),
-                PropertyValuesHolder.ofFloat("alpha", 0.2f, 1f)
+                PropertyValuesHolder.ofFloat("alpha", 0.2f, 1f),
             ).also {
                 it.interpolator = AccelerateInterpolator()
             },
@@ -309,25 +324,25 @@ class NavigationView(
                 stations[0],
                 PropertyValuesHolder.ofFloat("scaleY", 1f, 0.5f),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, 0.5f),
-                PropertyValuesHolder.ofFloat("alpha", 1f, 0.2f)
+                PropertyValuesHolder.ofFloat("alpha", 1f, 0.2f),
             ).also {
                 it.interpolator = DecelerateInterpolator()
             },
             ObjectAnimator.ofPropertyValuesHolder(
                 stations[1],
                 PropertyValuesHolder.ofFloat("translationX", 0f, nameX[0] - nameX[1]),
-                PropertyValuesHolder.ofFloat("translationY", 0f, nameY[0] - nameY[1])
+                PropertyValuesHolder.ofFloat("translationY", 0f, nameY[0] - nameY[1]),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 stations[2],
                 PropertyValuesHolder.ofFloat("translationX", 0f, nameX[1] - nameX[2]),
-                PropertyValuesHolder.ofFloat("translationY", 0f, nameY[1] - nameY[2])
+                PropertyValuesHolder.ofFloat("translationY", 0f, nameY[1] - nameY[2]),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 stations[3],
                 PropertyValuesHolder.ofFloat("scaleY", 0.5f, 1f),
                 PropertyValuesHolder.ofFloat("scaleX", 0.5f, 1f),
-                PropertyValuesHolder.ofFloat("alpha", 0.2f, 1f)
+                PropertyValuesHolder.ofFloat("alpha", 0.2f, 1f),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 markers[3],
@@ -335,27 +350,27 @@ class NavigationView(
                 PropertyValuesHolder.ofFloat("translationY", 0f, markerY[2] - markerY[3]),
                 PropertyValuesHolder.ofFloat("scaleX", 0.1f, scale[3]),
                 PropertyValuesHolder.ofFloat("scaleY", 0.1f, scale[3]),
-                PropertyValuesHolder.ofFloat("alpha", 0f, 1f)
+                PropertyValuesHolder.ofFloat("alpha", 0f, 1f),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 markers[2],
                 PropertyValuesHolder.ofFloat("translationX", 0f, markerX[1] - markerX[2]),
                 PropertyValuesHolder.ofFloat("translationY", 0f, markerY[1] - markerY[2]),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, scale[2]),
-                PropertyValuesHolder.ofFloat("scaleY", 1f, scale[2])
+                PropertyValuesHolder.ofFloat("scaleY", 1f, scale[2]),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 markers[1],
                 PropertyValuesHolder.ofFloat("translationX", 0f, markerX[0] - markerX[1]),
                 PropertyValuesHolder.ofFloat("translationY", 0f, markerY[0] - markerY[1]),
                 PropertyValuesHolder.ofFloat("scaleX", 1f, scale[1]),
-                PropertyValuesHolder.ofFloat("scaleY", 1f, scale[1])
+                PropertyValuesHolder.ofFloat("scaleY", 1f, scale[1]),
             ),
             ObjectAnimator.ofPropertyValuesHolder(
                 markers[0],
                 PropertyValuesHolder.ofFloat("translationX", 0f, markerX[0] - markerX[1]),
-                PropertyValuesHolder.ofFloat("translationY", 0f, markerY[0] - markerY[1])
-            )
+                PropertyValuesHolder.ofFloat("translationY", 0f, markerY[0] - markerY[1]),
+            ),
         )
         animatorSet.duration = 500L
         animatorSet.addListener(onStart = {

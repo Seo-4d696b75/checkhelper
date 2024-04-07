@@ -30,29 +30,30 @@ import kotlinx.coroutines.flow.onEach
  */
 @AndroidEntryPoint
 class AppHistoryDialog : DialogFragment() {
-
     private val viewModel: AppHistoryViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
-        val binding = DataBindingUtil.inflate<DialogHistoryBinding>(
-            layoutInflater,
-            R.layout.dialog_history,
-            null,
-            false,
-        )
-        val adapter = HistoryAdapter(context).apply {
-            onItemSelectedListener = {
-                viewModel.setLogTarget(it)
-                dismiss()
+        val binding =
+            DataBindingUtil.inflate<DialogHistoryBinding>(
+                layoutInflater,
+                R.layout.dialog_history,
+                null,
+                false,
+            )
+        val adapter =
+            HistoryAdapter(context).apply {
+                onItemSelectedListener = {
+                    viewModel.setLogTarget(it)
+                    dismiss()
+                }
             }
-        }
         binding.listRebootHistory.also {
             it.addItemDecoration(
                 DividerItemDecoration(
                     context,
                     LinearLayoutManager.VERTICAL,
-                )
+                ),
             )
             it.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             it.adapter = adapter
@@ -79,33 +80,45 @@ class AppHistoryDialog : DialogFragment() {
         RecyclerView.ViewHolder(binding.root)
 
     class AppRebootLogComparator : DiffUtil.ItemCallback<AppRebootLog>() {
-        override fun areItemsTheSame(oldItem: AppRebootLog, newItem: AppRebootLog): Boolean {
+        override fun areItemsTheSame(
+            oldItem: AppRebootLog,
+            newItem: AppRebootLog,
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: AppRebootLog, newItem: AppRebootLog): Boolean {
+        override fun areContentsTheSame(
+            oldItem: AppRebootLog,
+            newItem: AppRebootLog,
+        ): Boolean {
             return oldItem == newItem
         }
     }
 
     class HistoryAdapter(context: Context) :
         ListAdapter<AppRebootLog, AppHistoryViewHolder>(AppRebootLogComparator()) {
-
         var onItemSelectedListener: ((AppRebootLog) -> Unit)? = null
 
         private val inflater = LayoutInflater.from(context)
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppHistoryViewHolder {
-            val binding = DataBindingUtil.inflate<CellListHistoryBinding>(
-                inflater,
-                R.layout.cell_list_history,
-                parent,
-                false,
-            )
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int,
+        ): AppHistoryViewHolder {
+            val binding =
+                DataBindingUtil.inflate<CellListHistoryBinding>(
+                    inflater,
+                    R.layout.cell_list_history,
+                    parent,
+                    false,
+                )
             return AppHistoryViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: AppHistoryViewHolder, position: Int) {
+        override fun onBindViewHolder(
+            holder: AppHistoryViewHolder,
+            position: Int,
+        ) {
             val log = getItem(position)
             holder.binding.data = log
             holder.binding.running = (position == 0)

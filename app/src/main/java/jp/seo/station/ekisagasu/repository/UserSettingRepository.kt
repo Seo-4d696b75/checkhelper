@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface UserSettingRepository {
     val setting: StateFlow<UserSetting>
+
     fun update(producer: (UserSetting) -> UserSetting)
+
     suspend fun load()
+
     suspend fun save()
 }

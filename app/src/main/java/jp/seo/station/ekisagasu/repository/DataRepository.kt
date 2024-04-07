@@ -13,13 +13,24 @@ import java.io.File
  */
 interface DataRepository {
     suspend fun getLine(code: Int): Line
+
     suspend fun getLines(codes: List<Int>): List<Line>
+
     suspend fun getStation(code: Int): Station
+
     suspend fun getStations(codes: List<Int>): List<Station>
+
     suspend fun getStationKdTree(): StationKdTree
+
     val dataInitialized: Boolean
     val dataVersion: StateFlow<DataVersion?>
+
     suspend fun getDataVersion(): DataVersion?
+
     suspend fun getDataVersionHistory(): List<DataVersion>
-    suspend fun updateData(info: DataLatestInfo, dir: File): DataVersion
+
+    suspend fun updateData(
+        info: DataLatestInfo,
+        dir: File,
+    ): DataVersion
 }

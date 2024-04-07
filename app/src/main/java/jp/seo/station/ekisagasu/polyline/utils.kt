@@ -11,9 +11,7 @@ import jp.seo.station.ekisagasu.search.NearestSearch
 /**
  * 境界線をなす各辺に繰り返し処理を実行
  */
-suspend fun StationArea.forEachEdge(
-    process: suspend ((a: LatLng, b: LatLng) -> Unit),
-) {
+suspend fun StationArea.forEachEdge(process: suspend ((a: LatLng, b: LatLng) -> Unit)) {
     var a = points[if (enclosed) points.size - 1 else 0]
     var i = if (enclosed) 0 else 1
 
@@ -43,9 +41,14 @@ val LatLng.point2D: Point
 val Point.latLng: LatLng
     get() = LatLng(y, x)
 
-suspend fun NearestSearch.searchEuclid(pos: LatLng) = search(
-    pos.latitude, pos.longitude, 1, 0.0, false,
-).stations.firstOrNull()
+suspend fun NearestSearch.searchEuclid(pos: LatLng) =
+    search(
+        pos.latitude,
+        pos.longitude,
+        1,
+        0.0,
+        false,
+    ).stations.firstOrNull()
 
 suspend inline fun assert(check: suspend () -> Boolean) {
     if (BuildConfig.DEBUG && !check()) {

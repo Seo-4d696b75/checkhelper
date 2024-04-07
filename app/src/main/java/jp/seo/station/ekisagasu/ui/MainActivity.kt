@@ -41,7 +41,6 @@ import timber.log.Timber
  */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 when (message) {
                     is AppMessage.ResolvableException -> {
                         resolvableApiLauncher.launch(
-                            IntentSenderRequest.Builder(message.exception.resolution).build()
+                            IntentSenderRequest.Builder(message.exception.resolution).build(),
                         )
                     }
                     is AppMessage.StartActivityForResult -> {
@@ -75,10 +74,11 @@ class MainActivity : AppCompatActivity() {
                     is AppMessage.RequestDataUpdate -> {
                         // ユーザの確認を経てから実行
                         if (message.confirmed) {
-                            val action = DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
-                                info = message.info,
-                                type = message.type,
-                            )
+                            val action =
+                                DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
+                                    info = message.info,
+                                    type = message.type,
+                                )
                             findNavController(R.id.main_nav_host).navigateWhenDialogClosed(
                                 action,
                                 R.id.confirmDataUpdateDialog,
@@ -94,15 +94,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     is AppMessage.DataUpdateResult -> {
-                        val resId = if (message.success) {
-                            R.string.message_success_data_update
-                        } else if (message.type == DataUpdateType.Init) {
-                            // データの初期化に失敗・これ以上の続行不可能
-                            viewModel.requestAppFinish()
-                            R.string.message_fail_data_initialize
-                        } else {
-                            R.string.message_fail_data_update
-                        }
+                        val resId =
+                            if (message.success) {
+                                R.string.message_success_data_update
+                            } else if (message.type == DataUpdateType.Init) {
+                                // データの初期化に失敗・これ以上の続行不可能
+                                viewModel.requestAppFinish()
+                                R.string.message_fail_data_initialize
+                            } else {
+                                R.string.message_fail_data_update
+                            }
                         Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
                     }
                     is AppMessage.CheckLatestVersionFailure -> {
@@ -164,19 +165,20 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(
                 applicationContext,
                 "Need \"DrawOverlay\" Permission",
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT,
             ).show()
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${applicationContext.packageName}")
-            )
+            val intent =
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${applicationContext.packageName}"),
+                )
             overlayPermissionLauncher.launch(intent)
             return
         }
         if (
             ContextCompat.checkSelfPermission(
                 applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION,
             )
             != PackageManager.PERMISSION_GRANTED
         ) {
@@ -193,51 +195,55 @@ class MainActivity : AppCompatActivity() {
         viewModel.hasPermissionChecked = true
     }
 
-    private val overlayPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            Timber.tag("Permission").i(getString(R.string.message_permission_overlay_granted))
-        } else {
-            Timber.tag("Permission").i(getString(R.string.message_permission_overlay_denied))
-            if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(
-                    applicationContext,
-                    getString(R.string.message_permission_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
+    private val overlayPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+        ) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                Timber.tag("Permission").i(getString(R.string.message_permission_overlay_granted))
+            } else {
+                Timber.tag("Permission").i(getString(R.string.message_permission_overlay_denied))
+                if (!Settings.canDrawOverlays(this)) {
+                    Toast.makeText(
+                        applicationContext,
+                        getString(R.string.message_permission_denied),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    finish()
+                }
             }
         }
-    }
 
-    private val resolvableApiLauncher = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            Timber.tag("ResolvableAPIException").i(
-                getString(R.string.message_resolvable_exception_success, it.toString()),
-            )
-        } else {
-            Timber.tag("ResolvableAPIException").i(
-                getString(R.string.message_resolvable_exception_failure, it.toString()),
+    private val resolvableApiLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult(),
+        ) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                Timber.tag("ResolvableAPIException").i(
+                    getString(R.string.message_resolvable_exception_success, it.toString()),
+                )
+            } else {
+                Timber.tag("ResolvableAPIException").i(
+                    getString(R.string.message_resolvable_exception_failure, it.toString()),
+                )
+            }
+        }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { }
+
+    private val requestLogFileUriLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+        ) { result ->
+            viewModel.onActivityResultResolved(
+                LogViewModel.REQUEST_CODE_LOG_FILE_URI,
+                result.resultCode,
+                result.data,
             )
         }
-    }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { }
-
-    private val requestLogFileUriLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        viewModel.onActivityResultResolved(
-            LogViewModel.REQUEST_CODE_LOG_FILE_URI,
-            result.resultCode,
-            result.data
-        )
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

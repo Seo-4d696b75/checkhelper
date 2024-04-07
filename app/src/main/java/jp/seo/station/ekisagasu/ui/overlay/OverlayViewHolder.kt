@@ -40,7 +40,6 @@ class OverlayViewHolder(
     selectLineCallback: () -> Unit,
     stopNavigationCallback: () -> Unit,
 ) {
-
     private var wakeupCallback: (() -> Unit)? = wakeupCallback
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -71,14 +70,17 @@ class OverlayViewHolder(
         val inflater = LayoutInflater.from(context)
         val layerType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
 
-        var layoutParam = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            0, 0, layerType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        var layoutParam =
+            WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                0,
+                0,
+                layerType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
-        )
+                PixelFormat.TRANSLUCENT,
+            )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
         layoutParam.screenBrightness = -1.0f
         icon = inflater.inflate(R.layout.overlay_icon, null, false)
@@ -86,42 +88,45 @@ class OverlayViewHolder(
         windowManager.addView(icon, layoutParam)
 
         // transparent & not touchable view so that screen kept turn on
-        layoutParam = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            0, 0, layerType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        layoutParam =
+            WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                0, 0, layerType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            PixelFormat.TRANSLUCENT
-        )
+                PixelFormat.TRANSLUCENT,
+            )
         keepOnScreen = View(context)
         keepOnScreen.visibility = View.GONE
         windowManager.addView(keepOnScreen, layoutParam)
 
-        layoutParam = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            0, 0, layerType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        layoutParam =
+            WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                0, 0, layerType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            PixelFormat.TRANSLUCENT
-        )
+                PixelFormat.TRANSLUCENT,
+            )
         darkScreen = View(context)
         darkScreen.visibility = View.GONE
         windowManager.addView(darkScreen, layoutParam)
 
         // zero size view to watch any touch event and not consume any touch event
-        layoutParam = WindowManager.LayoutParams(
-            0, 0,
-            0, 0, layerType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        layoutParam =
+            WindowManager.LayoutParams(
+                0, 0,
+                0, 0, layerType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-            PixelFormat.TRANSLUCENT
-        )
+                PixelFormat.TRANSLUCENT,
+            )
         touchScreen = View(context)
         touchScreen.setOnTouchListener { _, _ ->
             if (keepOnScreen.visibility == View.VISIBLE) {
@@ -142,14 +147,15 @@ class OverlayViewHolder(
         touchScreen.isLongClickable = false
         windowManager.addView(touchScreen, layoutParam)
 
-        layoutParam = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            0, 0, layerType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        layoutParam =
+            WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                0, 0, layerType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
-        )
+                PixelFormat.TRANSLUCENT,
+            )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
         layoutParam.screenBrightness = -1f
         notification = inflater.inflate(R.layout.overlay_notification, null, false)
@@ -171,14 +177,15 @@ class OverlayViewHolder(
         notificationContainer = notification.findViewById(R.id.container_notification)
         notificationContent = notification.findViewById(R.id.container_notification_detail)
 
-        navigation = NavigationView(
-            context,
-            layerType,
-            windowManager,
-            icon,
-            selectLineCallback,
-            stopNavigationCallback,
-        )
+        navigation =
+            NavigationView(
+                context,
+                layerType,
+                windowManager,
+                icon,
+                selectLineCallback,
+                stopNavigationCallback,
+            )
 
         icon.setOnClickListener {
             if (isNavigationRunning) {
@@ -247,23 +254,24 @@ class OverlayViewHolder(
     }
 
     var screen: Boolean = true
-        set(value) = synchronized(this) {
-            if (value != field) {
-                field = value
-                if (value) {
-                    requestedStation?.let { request ->
-                        requestedStation = null
-                        onNotifyStation(request, !keepNotification)
+        set(value) =
+            synchronized(this) {
+                if (value != field) {
+                    field = value
+                    if (value) {
+                        requestedStation?.let { request ->
+                            requestedStation = null
+                            onNotifyStation(request, !keepNotification)
+                        }
+                    }
+                    if (!value && nightMode && nightModeTimeout > 0) {
+                        darkScreen.visibility = View.GONE
+                    }
+                    if (nightMode) {
+                        setNightModeTimeout(value)
                     }
                 }
-                if (!value && nightMode && nightModeTimeout > 0) {
-                    darkScreen.visibility = View.GONE
-                }
-                if (nightMode) {
-                    setNightModeTimeout(value)
-                }
             }
-        }
 
     companion object {
         const val MIN_BRIGHTNESS = 20f
@@ -294,7 +302,10 @@ class OverlayViewHolder(
 
     private var timeoutCallback: Runnable? = null
 
-    private fun setNightMode(enable: Boolean, timeout: Int) {
+    private fun setNightMode(
+        enable: Boolean,
+        timeout: Int,
+    ) {
         if (enable) {
             if (timeout == 0) {
                 darkScreen.visibility = View.VISIBLE
@@ -312,10 +323,11 @@ class OverlayViewHolder(
         if (set) {
             if (nightModeTimeout > 0 && nightMode) {
                 timeoutCallback?.let { main.removeCallbacks(it) }
-                val callback = Runnable {
-                    timeoutCallback = null
-                    darkScreen.visibility = View.VISIBLE
-                }
+                val callback =
+                    Runnable {
+                        timeoutCallback = null
+                        darkScreen.visibility = View.VISIBLE
+                    }
                 timeoutCallback = callback
                 main.postDelayed(callback, 1000L * nightModeTimeout)
             }
@@ -327,27 +339,28 @@ class OverlayViewHolder(
         }
     }
 
-    fun onStationChanged(station: NearStation) = synchronized(this) {
-        detectedTime = SystemClock.elapsedRealtime()
-        nearestStation = station
-        if (!notify) return@synchronized
-        if (isNavigationRunning) return@synchronized
-        if (screen) {
-            if (nightMode && nightModeTimeout > 0 && darkScreen.visibility == View.VISIBLE) {
+    fun onStationChanged(station: NearStation) =
+        synchronized(this) {
+            detectedTime = SystemClock.elapsedRealtime()
+            nearestStation = station
+            if (!notify) return@synchronized
+            if (isNavigationRunning) return@synchronized
+            if (screen) {
+                if (nightMode && nightModeTimeout > 0 && darkScreen.visibility == View.VISIBLE) {
+                    keepOnScreen.visibility = View.VISIBLE
+                    onNotifyStation(station, false)
+                } else {
+                    onNotifyStation(station, !keepNotification)
+                }
+            } else if (forceNotify) {
+                wakeupCallback?.invoke()
                 keepOnScreen.visibility = View.VISIBLE
+                darkScreen.visibility = View.VISIBLE
                 onNotifyStation(station, false)
             } else {
-                onNotifyStation(station, !keepNotification)
+                requestedStation = station
             }
-        } else if (forceNotify) {
-            wakeupCallback?.invoke()
-            keepOnScreen.visibility = View.VISIBLE
-            darkScreen.visibility = View.VISIBLE
-            onNotifyStation(station, false)
-        } else {
-            requestedStation = station
         }
-    }
 
     fun onLocationChanged(station: NearStation) {
         if (requestedStation?.station == station.station) {
@@ -359,7 +372,10 @@ class OverlayViewHolder(
     private var elapsedTimer: Timer? = null
     private var durationCallback: Runnable? = null
 
-    private fun onNotifyStation(station: NearStation, timer: Boolean) {
+    private fun onNotifyStation(
+        station: NearStation,
+        timer: Boolean,
+    ) {
         displayedStation = station
         invalidatePrefecture(station)
         name.text = station.station.name
@@ -372,32 +388,35 @@ class OverlayViewHolder(
         notificationContent.visibility = View.VISIBLE
         notificationContainer.startAnimation(animAppear)
         elapsedTimer?.cancel()
-        elapsedTimer = Timer().apply {
-            schedule(
-                object : TimerTask() {
-                    override fun run() {
-                        main.post {
-                            val time = (SystemClock.elapsedRealtime() - detectedTime) / 1000L
-                            val mes = if (time < 10) {
-                                timeNow
-                            } else if (time < 60) {
-                                timeSec
-                            } else {
-                                (time / 60L).toString() + timeMin
+        elapsedTimer =
+            Timer().apply {
+                schedule(
+                    object : TimerTask() {
+                        override fun run() {
+                            main.post {
+                                val time = (SystemClock.elapsedRealtime() - detectedTime) / 1000L
+                                val mes =
+                                    if (time < 10) {
+                                        timeNow
+                                    } else if (time < 60) {
+                                        timeSec
+                                    } else {
+                                        (time / 60L).toString() + timeMin
+                                    }
+                                this@OverlayViewHolder.time.text = mes
                             }
-                            this@OverlayViewHolder.time.text = mes
                         }
-                    }
-                },
-                0, 1000
-            )
-        }
+                    },
+                    0, 1000,
+                )
+            }
         if (timer) {
             durationCallback?.let { main.removeCallbacks(it) }
-            val callback = Runnable {
-                durationCallback = null
-                onNotificationRemoved(station.station)
-            }
+            val callback =
+                Runnable {
+                    durationCallback = null
+                    onNotificationRemoved(station.station)
+                }
             durationCallback = callback
             main.postDelayed(callback, 5000)
         }
@@ -468,7 +487,10 @@ class OverlayViewHolder(
     }
 
     @SuppressLint("ClickableViewAccessibility", "Deprecated")
-    private fun setFixedTimer(enable: Boolean, immediate: Boolean) {
+    private fun setFixedTimer(
+        enable: Boolean,
+        immediate: Boolean,
+    ) {
         if (enable) {
             if (timerView == null) {
                 val layerType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -476,24 +498,28 @@ class OverlayViewHolder(
                 timerView = view
                 var pos = timerPosition
                 if (pos < 0) {
-                    val height = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        val metric = windowManager.currentWindowMetrics
-                        metric.bounds.height()
-                    } else {
-                        val display = windowManager.defaultDisplay
-                        Point().also { display.getRealSize(it) }.y
-                    }
+                    val height =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            val metric = windowManager.currentWindowMetrics
+                            metric.bounds.height()
+                        } else {
+                            val display = windowManager.defaultDisplay
+                            Point().also { display.getRealSize(it) }.y
+                        }
                     pos = height / 2
                     timerPosition = pos
                 }
-                val param = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    0, pos, layerType,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                val param =
+                    WindowManager.LayoutParams(
+                        WindowManager.LayoutParams.WRAP_CONTENT,
+                        WindowManager.LayoutParams.WRAP_CONTENT,
+                        0,
+                        pos,
+                        layerType,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                    PixelFormat.TRANSLUCENT
-                )
+                        PixelFormat.TRANSLUCENT,
+                    )
                 param.gravity = Gravity.END or Gravity.TOP
                 timerContainer = view.findViewById(R.id.container_timer)
                 timerButton = view.findViewById(R.id.fab_timer_fixed)
@@ -511,7 +537,8 @@ class OverlayViewHolder(
                                         param.y = (timerPosition + (y - touchY)).toInt()
                                         timerView?.let {
                                             windowManager.updateViewLayout(
-                                                it, param
+                                                it,
+                                                param,
                                             )
                                         }
                                     }
@@ -563,7 +590,10 @@ class OverlayViewHolder(
         }
     }
 
-    private fun toggleTimerIcon(show: Boolean, callback: (() -> Unit)?) {
+    private fun toggleTimerIcon(
+        show: Boolean,
+        callback: (() -> Unit)?,
+    ) {
         timerContainer?.let { container ->
             if (show == (container.visibility == View.VISIBLE)) return@let
             val width = container.width
@@ -572,7 +602,7 @@ class OverlayViewHolder(
                 container,
                 "translationX",
                 if (show) width else 0,
-                if (show) 0 else width
+                if (show) 0 else width,
             ).apply {
                 duration = 300
                 addListener(onEnd = {

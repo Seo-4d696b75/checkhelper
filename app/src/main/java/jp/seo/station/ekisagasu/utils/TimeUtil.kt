@@ -17,13 +17,19 @@ const val TIME_PATTERN_ISO8601_EXTEND = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 const val TIME_PATTERN_DATETIME = "yyyy-MM-dd HH:mm"
 const val TIME_PATTERN_DATETIME_FILE = "yyyyMMdd_HHmm"
 
-fun formatTime(pattern: String, time: Date?): String {
+fun formatTime(
+    pattern: String,
+    time: Date?,
+): String {
     return time?.let {
         SimpleDateFormat(pattern, Locale.US).format(it)
     } ?: ""
 }
 
-fun formatTime(ctx: Context, sec: Int): String {
+fun formatTime(
+    ctx: Context,
+    sec: Int,
+): String {
     return if (sec < 60) {
         sec.toString() + ctx.getString(R.string.time_unit_sec)
     } else if (sec < 3600) {

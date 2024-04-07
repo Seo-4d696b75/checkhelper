@@ -3,11 +3,16 @@ package jp.seo.station.ekisagasu.polyline
 import com.google.android.gms.maps.model.LatLng
 
 abstract class PolylineNode(
-    val point: LatLng
+    val point: LatLng,
 ) {
     abstract fun iterator(previous: PolylineNode): NeighborIterator
+
     abstract fun release()
-    abstract fun setNext(next: PolylineNode, distance: Float)
+
+    abstract fun setNext(
+        next: PolylineNode,
+        distance: Float,
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

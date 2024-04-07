@@ -28,7 +28,6 @@ abstract class UserDatabase : RoomDatabase() {
 }
 
 class TimestampConverter {
-
     @TypeConverter
     fun convertDatetime(value: Date?): Long? {
         return value?.time
@@ -47,9 +46,8 @@ data class AppLog constructor(
     @ColumnInfo(name = "type")
     val type: Int,
     @ColumnInfo(name = "message")
-    val message: String
+    val message: String,
 ) {
-
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id", index = true)
     var id: Long = 0
@@ -70,7 +68,7 @@ data class AppLog constructor(
         return String.format(
             "%s %s",
             formatTime(TIME_PATTERN_MILLI_SEC, timestamp),
-            message
+            message,
         )
     }
 }
@@ -81,9 +79,9 @@ data class AppLog constructor(
         ForeignKey(
             entity = AppLog::class,
             parentColumns = ["id"],
-            childColumns = ["id"]
-        )
-    ]
+            childColumns = ["id"],
+        ),
+    ],
 )
 data class AppRebootLog constructor(
     @PrimaryKey
@@ -94,12 +92,11 @@ data class AppRebootLog constructor(
     @ColumnInfo(name = "finish")
     val finish: Date? = null,
     @ColumnInfo(name = "has_error")
-    val error: Boolean = false
+    val error: Boolean = false,
 )
 
 @Dao
 abstract class UserDao {
-
     @Insert
     abstract suspend fun insertLog(log: AppLog)
 
@@ -111,7 +108,10 @@ abstract class UserDao {
     }
 
     @Query("UPDATE reboot SET finish = :finish, has_error = :error WHERE id = (SELECT MAX(id) FROM reboot)")
-    abstract suspend fun writeFinish(finish: Date, error: Boolean)
+    abstract suspend fun writeFinish(
+        finish: Date,
+        error: Boolean,
+    )
 
     @Query("SELECT MAX(id) FROM log")
     abstract suspend fun getLatestID(): Long
@@ -129,8 +129,14 @@ abstract class UserDao {
     abstract fun getRebootHistory(): Flow<List<AppRebootLog>>
 
     @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
-    abstract fun getLogs(sinceID: Long, untilID: Long = Long.MAX_VALUE): Flow<List<AppLog>>
+    abstract fun getLogs(
+        sinceID: Long,
+        untilID: Long = Long.MAX_VALUE,
+    ): Flow<List<AppLog>>
 
     @Query("SELECT * FROM log WHERE :sinceID <= id AND id < :untilID")
-    abstract fun getLogsOneshot(sinceID: Long, untilID: Long = Long.MAX_VALUE): List<AppLog>
+    abstract fun getLogsOneshot(
+        sinceID: Long,
+        untilID: Long = Long.MAX_VALUE,
+    ): List<AppLog>
 }

@@ -7,7 +7,7 @@ import java.util.Locale
 class NearestPoint(
     val start: LatLng,
     val end: LatLng,
-    point: LatLng
+    point: LatLng,
 ) {
     var index = 0.0
     val distance: Float
@@ -27,19 +27,23 @@ class NearestPoint(
         return String.format(
             Locale.US,
             "NearestPoint(lat/lon:(%.6f,%.6f) - %.2fm)",
-            closedPoint.latitude, closedPoint.longitude, distance
+            closedPoint.latitude,
+            closedPoint.longitude,
+            distance,
         )
     }
 
     init {
-        val v1 = (point.longitude - start.longitude) * (end.longitude - start.longitude) +
+        val v1 =
+            (point.longitude - start.longitude) * (end.longitude - start.longitude) +
                 (point.latitude - start.latitude) * (end.latitude - start.latitude)
-        val v2 = (point.longitude - end.longitude) * (start.longitude - end.longitude) +
+        val v2 =
+            (point.longitude - end.longitude) * (start.longitude - end.longitude) +
                 (point.latitude - end.latitude) * (start.latitude - end.latitude)
         if (v1 >= 0 && v2 >= 0) {
             isOnEdge = true
             index = v1 /
-                    Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
+                Math.pow(start.longitude - end.longitude, 2.0) + Math.pow(start.latitude - end.latitude, 2.0)
         } else if (v1 < 0) {
             isOnEdge = false
             index = 0.0

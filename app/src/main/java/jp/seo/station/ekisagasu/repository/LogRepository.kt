@@ -9,11 +9,16 @@ import kotlinx.coroutines.flow.Flow
 
 interface LogRepository {
     suspend fun saveMessage(message: AppMessage)
+
     val history: Flow<List<AppRebootLog>>
     val logFilter: Flow<LogTarget>
+
     suspend fun filterLogSince(since: AppRebootLog)
+
     val logs: Flow<List<AppLog>>
+
     suspend fun onAppBoot(context: Context)
+
     suspend fun onAppFinish(context: Context)
 
     companion object {

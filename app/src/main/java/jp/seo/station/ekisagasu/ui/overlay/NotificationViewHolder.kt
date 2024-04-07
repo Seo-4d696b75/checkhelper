@@ -18,9 +18,8 @@ import jp.seo.station.ekisagasu.ui.MainActivity
  * @version 2020/12/24.
  */
 class NotificationViewHolder(
-    private val context: Context
+    private val context: Context,
 ) {
-
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "jp.seo.station.ekisagasu.notification_main_silent"
         const val NOTIFICATION_TAG = 3910
@@ -38,16 +37,17 @@ class NotificationViewHolder(
         notificationManager.deleteNotificationChannel("jp.seo.station.ekisagasu.notification_main")
 
         // init notification channel
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            context.getString(R.string.notification_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT
-        ).apply {
-            description = context.getString(R.string.notification_channel_description)
-            enableVibration(false)
-            enableLights(false)
-            setSound(null, null)
-        }
+        val channel =
+            NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                context.getString(R.string.notification_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply {
+                description = context.getString(R.string.notification_channel_description)
+                enableVibration(false)
+                enableLights(false)
+                setSound(null, null)
+            }
         notificationManager.createNotificationChannel(channel)
 
         builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
@@ -59,8 +59,8 @@ class NotificationViewHolder(
         builder.setContentIntent(
             stackBuilder.getPendingIntent(
                 3902,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
         )
 
         // set custom view
@@ -68,10 +68,12 @@ class NotificationViewHolder(
         builder.setSmallIcon(R.drawable.notification_icon)
 
         // action button
-        val exit = Intent(context, StationService::class.java)
-            .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_EXIT_SERVICE)
-        val timer = Intent(context, StationService::class.java)
-            .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
+        val exit =
+            Intent(context, StationService::class.java)
+                .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_EXIT_SERVICE)
+        val timer =
+            Intent(context, StationService::class.java)
+                .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
         builder.addAction(
             R.drawable.notification_exit,
             context.getString(R.string.notification_action_exit),
@@ -105,7 +107,10 @@ class NotificationViewHolder(
         remoteView = view
     }
 
-    fun update(title: String, message: String) {
+    fun update(
+        title: String,
+        message: String,
+    ) {
         synchronized(this) {
             if (updateCnt++ > 100) {
                 // RemoteViewを一定回数以上更新すると不具合が発生する場合があるので作り直す

@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.onEach
  */
 @AndroidEntryPoint
 class LineDialog : DialogFragment() {
-
     private val viewModel: LineSelectionViewModel by viewModels()
 
     private val args: LineDialogArgs by navArgs()
@@ -34,12 +33,13 @@ class LineDialog : DialogFragment() {
 
         builder.setTitle(context.getString(R.string.dialog_title_select_line))
 
-        val binding = DataBindingUtil.inflate<DialogSelectLineBinding>(
-            layoutInflater,
-            R.layout.dialog_select_line,
-            null,
-            false,
-        )
+        val binding =
+            DataBindingUtil.inflate<DialogSelectLineBinding>(
+                layoutInflater,
+                R.layout.dialog_select_line,
+                null,
+                false,
+            )
 
         binding.viewModel = viewModel
         builder.setView(binding.root)
@@ -83,7 +83,7 @@ class LineDialog : DialogFragment() {
                         Toast.makeText(
                             requireActivity(),
                             requireContext().getString(it.message),
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         ).show()
                     }
                 }

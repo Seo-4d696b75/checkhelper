@@ -14,10 +14,8 @@ data class NearStation(
      * Time when this near station detected
      */
     val time: Date,
-
-    val lines: List<Line>
+    val lines: List<Line>,
 ) {
-
     fun getDetectedTime(): String {
         return formatTime(TIME_PATTERN_SIMPLE, time)
     }

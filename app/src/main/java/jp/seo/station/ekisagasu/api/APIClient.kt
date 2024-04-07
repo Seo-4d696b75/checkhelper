@@ -16,5 +16,7 @@ interface APIClient {
 
     @Streaming
     @GET("station_database@{version}/out/main/json.zip")
-    suspend fun getLatestData(@Path("version") version: Long): ResponseBody
+    suspend fun getLatestData(
+        @Path("version") version: Long,
+    ): ResponseBody
 }

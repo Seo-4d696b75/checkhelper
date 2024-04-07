@@ -17,7 +17,13 @@ interface NavigationRepository {
     val running: StateFlow<Boolean>
     val predictions: Flow<PredictionResult?>
     val line: Line?
+
     fun start(line: Line)
+
     fun stop()
-    suspend fun updateLocation(location: Location, station: Station)
+
+    suspend fun updateLocation(
+        location: Location,
+        station: Station,
+    )
 }

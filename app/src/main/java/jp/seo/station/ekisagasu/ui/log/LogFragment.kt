@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.onEach
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class LogFragment : Fragment() {
-
     private val viewModel: LogViewModel by viewModels()
 
     private lateinit var binding: FragmentLogBinding
@@ -43,20 +42,24 @@ class LogFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
-        binding = DataBindingUtil.inflate(
-            layoutInflater,
-            R.layout.fragment_log,
-            container,
-            false,
-        )
+        binding =
+            DataBindingUtil.inflate(
+                layoutInflater,
+                R.layout.fragment_log,
+                container,
+                false,
+            )
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         val context = requireContext()
 
         binding.dropdownLogFilter.apply {
@@ -78,11 +81,12 @@ class LogFragment : Fragment() {
                 DividerItemDecoration(
                     context,
                     LinearLayoutManager.VERTICAL,
-                )
+                ),
             )
-            val adapter = LogAdapter(context).apply {
-                setHasStableIds(true)
-            }
+            val adapter =
+                LogAdapter(context).apply {
+                    setHasStableIds(true)
+                }
             it.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false).apply {
                     stackFromEnd = true
@@ -129,31 +133,43 @@ class LogFragment : Fragment() {
     class LogViewHolder(val binding: CellListLogBinding) : RecyclerView.ViewHolder(binding.root)
 
     class AppLogComparator : DiffUtil.ItemCallback<AppLog>() {
-        override fun areItemsTheSame(oldItem: AppLog, newItem: AppLog): Boolean {
+        override fun areItemsTheSame(
+            oldItem: AppLog,
+            newItem: AppLog,
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: AppLog, newItem: AppLog): Boolean {
+        override fun areContentsTheSame(
+            oldItem: AppLog,
+            newItem: AppLog,
+        ): Boolean {
             return oldItem == newItem
         }
     }
 
     class LogAdapter(context: Context) :
         ListAdapter<AppLog, LogViewHolder>(AppLogComparator()) {
-
         private val inflater = LayoutInflater.from(context)
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
-            val binding = DataBindingUtil.inflate<CellListLogBinding>(
-                inflater,
-                R.layout.cell_list_log,
-                parent,
-                false,
-            )
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int,
+        ): LogViewHolder {
+            val binding =
+                DataBindingUtil.inflate<CellListLogBinding>(
+                    inflater,
+                    R.layout.cell_list_log,
+                    parent,
+                    false,
+                )
             return LogViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
+        override fun onBindViewHolder(
+            holder: LogViewHolder,
+            position: Int,
+        ) {
             val log = getItem(position)
             holder.binding.data = log
         }

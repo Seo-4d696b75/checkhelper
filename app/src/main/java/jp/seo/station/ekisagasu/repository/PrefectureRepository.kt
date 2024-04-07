@@ -8,5 +8,6 @@ import android.content.Context
  */
 interface PrefectureRepository {
     suspend fun setData(context: Context)
+
     fun getName(code: Int): String
 }

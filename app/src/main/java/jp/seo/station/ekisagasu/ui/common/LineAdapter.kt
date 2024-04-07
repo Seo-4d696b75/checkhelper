@@ -13,11 +13,17 @@ import jp.seo.station.ekisagasu.databinding.CellLineSmallBinding
 import jp.seo.station.ekisagasu.model.Line
 
 class LineComparator : DiffUtil.ItemCallback<Line>() {
-    override fun areItemsTheSame(oldItem: Line, newItem: Line): Boolean {
+    override fun areItemsTheSame(
+        oldItem: Line,
+        newItem: Line,
+    ): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Line, newItem: Line): Boolean {
+    override fun areContentsTheSame(
+        oldItem: Line,
+        newItem: Line,
+    ): Boolean {
         return oldItem == newItem
     }
 }
@@ -27,12 +33,18 @@ class LineNameViewHolder(val binding: CellLineSmallBinding) : RecyclerView.ViewH
 class LineNameAdapter(context: Context) : ListAdapter<Line, LineNameViewHolder>(LineComparator()) {
     private val inflater = LayoutInflater.from(context)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LineNameViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): LineNameViewHolder {
         val binding = CellLineSmallBinding.inflate(inflater)
         return LineNameViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: LineNameViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: LineNameViewHolder,
+        position: Int,
+    ) {
         val line = getItem(position)
         holder.binding.line = line
     }
@@ -42,17 +54,21 @@ class LineNameAdapter(context: Context) : ListAdapter<Line, LineNameViewHolder>(
 
 class LineAdapter(
     context: Context,
-    lines: List<Line>
+    lines: List<Line>,
 ) : ArrayAdapter<Line>(context, 0, lines) {
-
     private val inflater = LayoutInflater.from(context)
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val binding = if (convertView == null) {
-            CellLineBinding.inflate(inflater)
-        } else {
-            convertView.tag as CellLineBinding
-        }
+    override fun getView(
+        position: Int,
+        convertView: View?,
+        parent: ViewGroup,
+    ): View {
+        val binding =
+            if (convertView == null) {
+                CellLineBinding.inflate(inflater)
+            } else {
+                convertView.tag as CellLineBinding
+            }
         binding.line = getItem(position)
         binding.root.tag = binding
         return binding.root

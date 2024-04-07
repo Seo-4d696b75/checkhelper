@@ -46,7 +46,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class StationService : LifecycleService() {
-
     inner class StationServiceBinder : Binder() {
         fun bind(): StationService {
             return this@StationService
@@ -68,7 +67,11 @@ class StationService : LifecycleService() {
         Timber.tag("Service").d("onRebind: client binds service again")
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         super.onStartCommand(intent, flags, startId)
 
         Timber.tag("Service").d("service received start-command")
@@ -88,7 +91,7 @@ class StationService : LifecycleService() {
                     }
                     else -> {
                         Timber.tag("Service").w(
-                            "unknown intent extra received:" + it.getStringExtra(KEY_REQUEST)
+                            "unknown intent extra received:" + it.getStringExtra(KEY_REQUEST),
                         )
                     }
                 }
@@ -107,15 +110,16 @@ class StationService : LifecycleService() {
         notificationHolder.update("init", "initializing app")
 
         // init vibrator
-        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
-                val manager = it as VibratorManager
-                manager.defaultVibrator
+        vibrator =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
+                    val manager = it as VibratorManager
+                    manager.defaultVibrator
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(VIBRATOR_SERVICE) as Vibrator
             }
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(VIBRATOR_SERVICE) as Vibrator
-        }
 
         // when current location changed
         viewModel
@@ -148,7 +152,7 @@ class StationService : LifecycleService() {
             .onEach { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
-                    String.format("%s   %s", s.distance.formatDistance, s.getLinesName())
+                    String.format("%s   %s", s.distance.formatDistance, s.getLinesName()),
                 )
                 overlayView.onLocationChanged(s)
             }
@@ -162,17 +166,17 @@ class StationService : LifecycleService() {
                 if (it) {
                     notificationHolder.update(
                         getString(R.string.notification_title_start),
-                        getString(R.string.notification_message_start)
+                        getString(R.string.notification_message_start),
                     )
                 } else {
                     Toast.makeText(
                         this@StationService,
                         getString(R.string.message_stop_search),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
                     notificationHolder.update(
                         getString(R.string.notification_title_wait),
-                        getString(R.string.notification_message_wait)
+                        getString(R.string.notification_message_wait),
                     )
                 }
                 overlayView.isSearchRunning = it
@@ -229,15 +233,16 @@ class StationService : LifecycleService() {
         // init notification
         notificationHolder.update(
             getString(R.string.notification_title_wait),
-            getString(R.string.notification_message_wait)
+            getString(R.string.notification_message_wait),
         )
 
         // register broadcast receiver
-        val filter = IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_SCREEN_ON)
-            addAction(Intent.ACTION_USER_PRESENT)
-        }
+        val filter =
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_USER_PRESENT)
+            }
         registerReceiver(receiver, filter)
 
         // when user setting changed
@@ -283,21 +288,25 @@ class StationService : LifecycleService() {
             .launchIn(lifecycleScope)
     }
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.action?.let {
-                when (it) {
-                    Intent.ACTION_SCREEN_OFF -> {
-                        overlayView.screen = false
+    private val receiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?,
+            ) {
+                intent?.action?.let {
+                    when (it) {
+                        Intent.ACTION_SCREEN_OFF -> {
+                            overlayView.screen = false
+                        }
+                        Intent.ACTION_USER_PRESENT -> {
+                            overlayView.screen = true
+                        }
+                        else -> {}
                     }
-                    Intent.ACTION_USER_PRESENT -> {
-                        overlayView.screen = true
-                    }
-                    else -> {}
                 }
             }
         }
-    }
 
     @Inject
     lateinit var prefectureRepository: PrefectureRepository
@@ -316,21 +325,23 @@ class StationService : LifecycleService() {
             prefectureRepository,
             handler,
             wakeupCallback = {
-                val intent = Intent(this, WakeupActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
+                val intent =
+                    Intent(this, WakeupActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
                 startActivity(intent)
             },
             selectLineCallback = {
-                val intent = Intent(this, MainActivity::class.java).apply {
-                    putExtra(MainActivity.INTENT_KEY_SELECT_NAVIGATION, true)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                }
+                val intent =
+                    Intent(this, MainActivity::class.java).apply {
+                        putExtra(MainActivity.INTENT_KEY_SELECT_NAVIGATION, true)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }
                 startActivity(intent)
             },
             stopNavigationCallback = {
                 viewModel.clearNavigationLine()
-            }
+            },
         )
     }
 
@@ -382,26 +393,30 @@ class StationService : LifecycleService() {
             Toast.makeText(this, getString(R.string.timer_wait_message), Toast.LENGTH_SHORT).show()
             return
         }
-        val intent = Intent(AlarmClock.ACTION_SET_TIMER)
-            .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
-            .putExtra(AlarmClock.EXTRA_LENGTH, 300)
-            .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent =
+            Intent(AlarmClock.ACTION_SET_TIMER)
+                .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
+                .putExtra(AlarmClock.EXTRA_LENGTH, 300)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val manager = getSystemService(ALARM_SERVICE)
         if (manager is AlarmManager && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
             overlayView.setTimerState(true)
-            val calendar = Calendar.getInstance().apply {
-                add(Calendar.MINUTE, 5)
-            }
-            val pending = PendingIntent.getService(
-                applicationContext, 5,
-                Intent(applicationContext, StationService::class.java).putExtra(
-                    KEY_REQUEST,
-                    REQUEST_FINISH_TIMER
-                ),
-                PendingIntent.FLAG_CANCEL_CURRENT
-            )
+            val calendar =
+                Calendar.getInstance().apply {
+                    add(Calendar.MINUTE, 5)
+                }
+            val pending =
+                PendingIntent.getService(
+                    applicationContext,
+                    5,
+                    Intent(applicationContext, StationService::class.java).putExtra(
+                        KEY_REQUEST,
+                        REQUEST_FINISH_TIMER,
+                    ),
+                    PendingIntent.FLAG_CANCEL_CURRENT,
+                )
             manager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pending)
             timerRunning = true
             Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()

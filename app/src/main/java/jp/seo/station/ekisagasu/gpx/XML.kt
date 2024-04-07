@@ -8,7 +8,7 @@ fun serializeXML(
     encoding: String,
     standalone: Boolean,
     rootTagName: String,
-    content: TagScope.() -> Unit
+    content: TagScope.() -> Unit,
 ): String {
     val writer = StringWriter()
     val serializer = Xml.newSerializer()
@@ -35,7 +35,10 @@ class TagScope internal constructor(
         serializer.text(text)
     }
 
-    fun tag(name: String, content: TagScope.() -> Unit) {
+    fun tag(
+        name: String,
+        content: TagScope.() -> Unit,
+    ) {
         serializer.startTag("", name)
         TagScope(serializer).content()
         serializer.endTag("", name)

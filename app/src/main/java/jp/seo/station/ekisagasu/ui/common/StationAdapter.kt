@@ -10,15 +10,19 @@ import jp.seo.station.ekisagasu.model.StationRegister
 
 class StationAdapter(context: Context, stations: List<StationRegister>) :
     ArrayAdapter<StationRegister>(context, 0, stations) {
-
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val binding = if (convertView == null) {
-            CellStationBinding.inflate(inflater)
-        } else {
-            convertView.tag as CellStationBinding
-        }
+    override fun getView(
+        position: Int,
+        convertView: View?,
+        parent: ViewGroup,
+    ): View {
+        val binding =
+            if (convertView == null) {
+                CellStationBinding.inflate(inflater)
+            } else {
+                convertView.tag as CellStationBinding
+            }
         getItem(position)?.let { r ->
             binding.numbering = r.numbering
             binding.stationName = r.station.name

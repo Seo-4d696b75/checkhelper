@@ -1,7 +1,8 @@
 package jp.seo.station.ekisagasu.ui.log
 
 enum class LogOutputExtension {
-    txt, gpx
+    txt,
+    gpx,
 }
 
 sealed interface LogOutputConfig : java.io.Serializable {
@@ -19,7 +20,7 @@ sealed interface LogOutputConfig : java.io.Serializable {
     }
 
     data class Geo(
-        override val extension: LogOutputExtension
+        override val extension: LogOutputExtension,
     ) : LogOutputConfig {
         override val filter = LogFilter.geo
     }

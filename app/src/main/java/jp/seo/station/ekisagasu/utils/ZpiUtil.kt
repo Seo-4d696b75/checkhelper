@@ -3,7 +3,10 @@ package jp.seo.station.ekisagasu.utils
 import java.io.File
 import java.util.zip.ZipFile
 
-fun unzip(src: File, dstDir: File) {
+fun unzip(
+    src: File,
+    dstDir: File,
+) {
     val zipFile = ZipFile(src)
     val entries = zipFile.entries()
     while (entries.hasMoreElements()) {

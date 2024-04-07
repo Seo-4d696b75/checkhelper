@@ -36,7 +36,6 @@ import java.io.IOException
 
 @ExperimentalCoroutinesApi
 class DataRepositoryImplTest {
-
     @get:Rule
     val tempFolder = TemporaryFolder()
 
@@ -58,118 +57,126 @@ class DataRepositoryImplTest {
         Dispatchers.resetMain()
     }
 
-    private val info = DataLatestInfo(
-        version = 1,
-        length = 1024,
-    )
-
-    @Test
-    fun `データが初期化前`() = runTest {
-
-        // before update (no data)
-        coEvery { dao.getCurrentDataVersion() } returns null
-        repository.getDataVersion()
-        assertThat(repository.dataInitialized).isFalse()
-
-        // after update
-        val version = DataVersion(info.version)
-        coEvery { dao.getCurrentDataVersion() } returns version
-        repository.getDataVersion()
-        assertThat(repository.dataInitialized).isTrue()
-    }
-
-    @Test
-    fun `データのアップデート - 失敗`() = runTest {
-        // watch flow
-        val dataVersionList = mutableListOf<DataVersion?>()
-        val job = launch {
-            repository.dataVersion.toList(dataVersionList)
-        }
-
-        // update
-        val result = runCatching {
-            repository.updateData(info, tempFolder.newFolder())
-        }
-        assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
-
-        // verify data version flow
-        assertThat(dataVersionList.last()).isNull()
-        job.cancel()
-    }
-
-    @Test
-    fun `データのアップデート - 成功`() = runTest {
-        // watch flow
-        val dataVersionList = mutableListOf<DataVersion?>()
-        val job = launch {
-            repository.dataVersion.toList(dataVersionList)
-        }
-
-        val dir = tempFolder.newFolder()
-        val zip = File(dir, "json.zip")
-        // copy json.zip
-        fakeData().use { input ->
-            zip.outputStream().use { output ->
-                input.copyTo(output)
-            }
-        }
-        // unzip
-        unzip(zip, dir)
-
-        // test
-        coEvery { dao.updateData(any(), any(), any(), any()) } returns DataVersion(info.version)
-        val result = repository.updateData(info, dir)
-        assertThat(result.version).isEqualTo(info.version)
-
-        // verify data version flow
-        assertThat(dataVersionList.size).isGreaterThan(1)
-        assertThat(dataVersionList[0]).isNull()
-        assertThat(dataVersionList.last()?.version).isEqualTo(info.version)
-        job.cancel()
-
-        coVerify { dao.updateData(info.version, any(), any(), any()) }
-    }
-
-    @Test
-    fun `Daoの呼び出し`() = runTest {
-        // prepare data
-
-        // mock dao operation
-        val stationCodeSlot = slot<Int>()
-        coEvery { dao.getStation(capture(stationCodeSlot)) } answers {
-            val code = stationCodeSlot.captured
-            stations.find { it.code == code } ?: throw NoSuchElementException()
-        }
-        val lineCodeSlot = slot<Int>()
-        coEvery { dao.getLine(capture(lineCodeSlot)) } answers {
-            val code = lineCodeSlot.captured
-            lines.find { it.code == code } ?: throw NoSuchElementException()
-        }
-        coEvery { dao.getRootStationNode() }.answers { RootStationNode(tree.root) }
-        coEvery { dao.getStationNodes() } answers { tree.nodes }
-        coEvery { dao.getDataVersionHistory() } returns listOf(
-            DataVersion(0),
-            DataVersion(1),
+    private val info =
+        DataLatestInfo(
+            version = 1,
+            length = 1024,
         )
 
-        // test
-        val station = stations.random()
-        assertThat(repository.getStation(station.code)).isEqualTo(station)
-        val line = lines.random()
-        assertThat(repository.getLine(line.code)).isEqualTo(line)
-        val history = repository.getDataVersionHistory()
-        assertThat(history.size).isEqualTo(2)
-        val root = repository.getStationKdTree().root
-        assertThat(root).isEqualTo(tree.root)
+    @Test
+    fun `データが初期化前`() =
+        runTest {
+            // before update (no data)
+            coEvery { dao.getCurrentDataVersion() } returns null
+            repository.getDataVersion()
+            assertThat(repository.dataInitialized).isFalse()
 
-        // verify
-        coVerifyOrder {
-            dao.getStation(station.code)
-            dao.getLine(line.code)
-            dao.getDataVersionHistory()
-            dao.getRootStationNode()
-            dao.getStationNodes()
+            // after update
+            val version = DataVersion(info.version)
+            coEvery { dao.getCurrentDataVersion() } returns version
+            repository.getDataVersion()
+            assertThat(repository.dataInitialized).isTrue()
         }
-        confirmVerified(dao)
-    }
+
+    @Test
+    fun `データのアップデート - 失敗`() =
+        runTest {
+            // watch flow
+            val dataVersionList = mutableListOf<DataVersion?>()
+            val job =
+                launch {
+                    repository.dataVersion.toList(dataVersionList)
+                }
+
+            // update
+            val result =
+                runCatching {
+                    repository.updateData(info, tempFolder.newFolder())
+                }
+            assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
+
+            // verify data version flow
+            assertThat(dataVersionList.last()).isNull()
+            job.cancel()
+        }
+
+    @Test
+    fun `データのアップデート - 成功`() =
+        runTest {
+            // watch flow
+            val dataVersionList = mutableListOf<DataVersion?>()
+            val job =
+                launch {
+                    repository.dataVersion.toList(dataVersionList)
+                }
+
+            val dir = tempFolder.newFolder()
+            val zip = File(dir, "json.zip")
+            // copy json.zip
+            fakeData().use { input ->
+                zip.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            // unzip
+            unzip(zip, dir)
+
+            // test
+            coEvery { dao.updateData(any(), any(), any(), any()) } returns DataVersion(info.version)
+            val result = repository.updateData(info, dir)
+            assertThat(result.version).isEqualTo(info.version)
+
+            // verify data version flow
+            assertThat(dataVersionList.size).isGreaterThan(1)
+            assertThat(dataVersionList[0]).isNull()
+            assertThat(dataVersionList.last()?.version).isEqualTo(info.version)
+            job.cancel()
+
+            coVerify { dao.updateData(info.version, any(), any(), any()) }
+        }
+
+    @Test
+    fun `Daoの呼び出し`() =
+        runTest {
+            // prepare data
+
+            // mock dao operation
+            val stationCodeSlot = slot<Int>()
+            coEvery { dao.getStation(capture(stationCodeSlot)) } answers {
+                val code = stationCodeSlot.captured
+                stations.find { it.code == code } ?: throw NoSuchElementException()
+            }
+            val lineCodeSlot = slot<Int>()
+            coEvery { dao.getLine(capture(lineCodeSlot)) } answers {
+                val code = lineCodeSlot.captured
+                lines.find { it.code == code } ?: throw NoSuchElementException()
+            }
+            coEvery { dao.getRootStationNode() }.answers { RootStationNode(tree.root) }
+            coEvery { dao.getStationNodes() } answers { tree.nodes }
+            coEvery { dao.getDataVersionHistory() } returns
+                listOf(
+                    DataVersion(0),
+                    DataVersion(1),
+                )
+
+            // test
+            val station = stations.random()
+            assertThat(repository.getStation(station.code)).isEqualTo(station)
+            val line = lines.random()
+            assertThat(repository.getLine(line.code)).isEqualTo(line)
+            val history = repository.getDataVersionHistory()
+            assertThat(history.size).isEqualTo(2)
+            val root = repository.getStationKdTree().root
+            assertThat(root).isEqualTo(tree.root)
+
+            // verify
+            coVerifyOrder {
+                dao.getStation(station.code)
+                dao.getLine(line.code)
+                dao.getDataVersionHistory()
+                dao.getRootStationNode()
+                dao.getStationNodes()
+            }
+            confirmVerified(dao)
+        }
 }

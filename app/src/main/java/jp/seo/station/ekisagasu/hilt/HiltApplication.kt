@@ -29,7 +29,6 @@ import javax.inject.Inject
  */
 @HiltAndroidApp
 class HiltApplication : Application() {
-
     @Inject
     lateinit var appStateRepository: AppStateRepository
 
@@ -59,7 +58,7 @@ class HiltApplication : Application() {
                 runBlocking(Dispatchers.Default) {
                     // ログ記録
                     logRepository.saveMessage(
-                        AppMessage.Error("UnhandledException", e)
+                        AppMessage.Error("UnhandledException", e),
                     )
                     // 終了処理
                     appFinishUseCase()

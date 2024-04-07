@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface SearchRepository {
     suspend fun setSearchK(value: Int)
+
     suspend fun updateNearestStations(location: Location)
+
     fun selectLine(line: Line?)
+
     fun onStopSearch()
 
     /**

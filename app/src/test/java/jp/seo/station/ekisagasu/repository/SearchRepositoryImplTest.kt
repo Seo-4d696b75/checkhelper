@@ -40,13 +40,14 @@ import java.util.Date
 open class SearchRepositoryImplTest(
     private val k: Int,
 ) {
-
     private val dataRepository = mockk<DataRepository>()
     private val search = mockk<NearestSearch>()
 
-    private val repository: SearchRepository = SearchRepositoryImpl(
-        dataRepository, search
-    )
+    private val repository: SearchRepository =
+        SearchRepositoryImpl(
+            dataRepository,
+            search,
+        )
 
     private val defaultDispatcher = UnconfinedTestDispatcher()
 
@@ -88,27 +89,29 @@ open class SearchRepositoryImplTest(
     }
 
     @Test
-    fun `Line選択`() = runTest {
-        // prepare
-        val lineList = mutableListOf<Line?>()
-        val job = launch(defaultDispatcher) {
-            repository.selectedLine.toList(lineList)
+    fun `Line選択`() =
+        runTest {
+            // prepare
+            val lineList = mutableListOf<Line?>()
+            val job =
+                launch(defaultDispatcher) {
+                    repository.selectedLine.toList(lineList)
+                }
+            val line = lines.random()
+
+            // test
+            repository.selectLine(line)
+            repository.onStopSearch()
+            advanceUntilIdle()
+
+            // verify
+            assertThat(lineList).containsExactly(
+                null,
+                line,
+                null,
+            ).inOrder()
+            job.cancel()
         }
-        val line = lines.random()
-
-        // test
-        repository.selectLine(line)
-        repository.onStopSearch()
-        advanceUntilIdle()
-
-        // verify
-        assertThat(lineList).containsExactly(
-            null,
-            line,
-            null,
-        ).inOrder()
-        job.cancel()
-    }
 
     companion object {
         @JvmStatic
@@ -117,97 +120,103 @@ open class SearchRepositoryImplTest(
     }
 
     @Test
-    fun `近傍駅の探索`() = runTest {
-        // prepare
-        val nearStationList = mutableListOf<NearStation?>()
-        val nearStationsList = mutableListOf<List<NearStation>>()
-        val detectList = mutableListOf<NearStation?>()
-        val job = launch(defaultDispatcher) {
-            launch { repository.nearestStation.toList(nearStationList) }
-            launch { repository.nearestStations.toList(nearStationsList) }
-            launch { repository.detectedStation.toList(detectList) }
-        }
+    fun `近傍駅の探索`() =
+        runTest {
+            // prepare
+            val nearStationList = mutableListOf<NearStation?>()
+            val nearStationsList = mutableListOf<List<NearStation>>()
+            val detectList = mutableListOf<NearStation?>()
+            val job =
+                launch(defaultDispatcher) {
+                    launch { repository.nearestStation.toList(nearStationList) }
+                    launch { repository.nearestStations.toList(nearStationsList) }
+                    launch { repository.detectedStation.toList(detectList) }
+                }
 
-        val stations = List(k) { stations.random() }
+            val stations = List(k) { stations.random() }
 
-        coEvery { search.search(any(), any(), k, 0.0, false) } returns SearchResult(
-            0.0,
-            0.0,
-            k,
-            0.0,
-            stations
-        )
+            coEvery { search.search(any(), any(), k, 0.0, false) } returns
+                SearchResult(
+                    0.0,
+                    0.0,
+                    k,
+                    0.0,
+                    stations,
+                )
 
-        // test
-        repository.setSearchK(k)
-        val time = Date()
-        val nearest = stations[0]
-        val location1 = mockk<Location>().also {
-            every { it.latitude } returns nearest.lat + 0.001
-            every { it.longitude } returns nearest.lng
-            every { it.time } returns time.time
-        }
-        val location2 = mockk<Location>().also {
-            every { it.latitude } returns nearest.lat - 0.00001
-            every { it.longitude } returns nearest.lng
-            every { it.time } returns time.time
-        }
-        repository.updateNearestStations(location1)
-        repository.updateNearestStations(location2)
-        repository.onStopSearch()
+            // test
+            repository.setSearchK(k)
+            val time = Date()
+            val nearest = stations[0]
+            val location1 =
+                mockk<Location>().also {
+                    every { it.latitude } returns nearest.lat + 0.001
+                    every { it.longitude } returns nearest.lng
+                    every { it.time } returns time.time
+                }
+            val location2 =
+                mockk<Location>().also {
+                    every { it.latitude } returns nearest.lat - 0.00001
+                    every { it.longitude } returns nearest.lng
+                    every { it.time } returns time.time
+                }
+            repository.updateNearestStations(location1)
+            repository.updateNearestStations(location2)
+            repository.onStopSearch()
 
-        advanceUntilIdle()
+            advanceUntilIdle()
 
-        // verify
-        // 近傍駅情報の変化
-        assertThat(nearStationList.size).isEqualTo(4)
-        assertThat(nearStationList[0]).isNull()
-        nearStationList[1].also {
-            assertThat(it).isNotNull()
-            assertThat(it?.station).isEqualTo(nearest)
-            assertThat(it?.time).isEqualTo(time)
-            assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
-            val lines = nearest.lines.map { code ->
-                lines.find { line -> line.code == code }
+            // verify
+            // 近傍駅情報の変化
+            assertThat(nearStationList.size).isEqualTo(4)
+            assertThat(nearStationList[0]).isNull()
+            nearStationList[1].also {
+                assertThat(it).isNotNull()
+                assertThat(it?.station).isEqualTo(nearest)
+                assertThat(it?.time).isEqualTo(time)
+                assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
+                val lines =
+                    nearest.lines.map { code ->
+                        lines.find { line -> line.code == code }
+                    }
+                assertThat(it?.lines).isEqualTo(lines)
             }
-            assertThat(it?.lines).isEqualTo(lines)
-        }
-        nearStationList[2].also {
-            assertThat(it).isNotNull()
-            assertThat(it?.station).isEqualTo(nearest)
-            assertThat(it?.time).isEqualTo(time)
-        }
-        assertThat(nearStationList[3]).isNull()
+            nearStationList[2].also {
+                assertThat(it).isNotNull()
+                assertThat(it?.station).isEqualTo(nearest)
+                assertThat(it?.time).isEqualTo(time)
+            }
+            assertThat(nearStationList[3]).isNull()
 
-        // 近傍駅リストの変化
-        assertThat(nearStationsList.size).isEqualTo(4)
-        assertThat(nearStationsList[0]).isEmpty()
-        nearStationsList[1].also {
-            assertThat(it.size).isEqualTo(stations.size)
-            assertThat(it.map { it.station }).isEqualTo(stations)
-        }
-        nearStationsList[2].also {
-            assertThat(it.size).isEqualTo(stations.size)
-            assertThat(it.map { it.station }).isEqualTo(stations)
-        }
-        assertThat(nearStationsList[3]).isEmpty()
+            // 近傍駅リストの変化
+            assertThat(nearStationsList.size).isEqualTo(4)
+            assertThat(nearStationsList[0]).isEmpty()
+            nearStationsList[1].also {
+                assertThat(it.size).isEqualTo(stations.size)
+                assertThat(it.map { it.station }).isEqualTo(stations)
+            }
+            nearStationsList[2].also {
+                assertThat(it.size).isEqualTo(stations.size)
+                assertThat(it.map { it.station }).isEqualTo(stations)
+            }
+            assertThat(nearStationsList[3]).isEmpty()
 
-        // 近傍駅の変化
-        assertThat(detectList.size).isEqualTo(3)
-        assertThat(detectList[0]).isNull()
-        detectList[1].also {
-            assertThat(it).isNotNull()
-            assertThat(it?.station).isEqualTo(nearest)
-            assertThat(it?.time).isEqualTo(time)
-            assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
-        }
-        assertThat(detectList[2]).isNull()
+            // 近傍駅の変化
+            assertThat(detectList.size).isEqualTo(3)
+            assertThat(detectList[0]).isNull()
+            detectList[1].also {
+                assertThat(it).isNotNull()
+                assertThat(it?.station).isEqualTo(nearest)
+                assertThat(it?.time).isEqualTo(time)
+                assertThat(it?.distance).isEqualTo(nearest.measureDistance(location1))
+            }
+            assertThat(detectList[2]).isNull()
 
-        coVerifyOrder {
-            search.search(nearest.lat + 0.001, nearest.lng, k, 0.0, false)
-            search.search(nearest.lat - 0.00001, nearest.lng, k, 0.0, false)
-        }
+            coVerifyOrder {
+                search.search(nearest.lat + 0.001, nearest.lng, k, 0.0, false)
+                search.search(nearest.lat - 0.00001, nearest.lng, k, 0.0, false)
+            }
 
-        job.cancel()
-    }
+            job.cancel()
+        }
 }

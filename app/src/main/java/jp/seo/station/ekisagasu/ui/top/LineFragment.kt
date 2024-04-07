@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.onEach
  */
 @AndroidEntryPoint
 class LineFragment : Fragment() {
-
     private val viewModel: LineViewModel by viewModels()
 
     private lateinit var binding: FragmentLineBinding
@@ -33,13 +32,16 @@ class LineFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentLineBinding.inflate(inflater)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -65,10 +67,11 @@ class LineFragment : Fragment() {
                         findNavController().navigate(R.id.action_global_to_radarFragment)
                     }
                     is LineFragmentEvent.ShowMap -> {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.map_url) + "?line=${viewModel.arg.lineCode}")
-                        )
+                        val intent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(getString(R.string.map_url) + "?line=${viewModel.arg.lineCode}"),
+                            )
                         startActivity(intent)
                     }
                 }

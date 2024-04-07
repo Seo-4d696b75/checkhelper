@@ -9,7 +9,6 @@ import jp.seo.station.ekisagasu.databinding.ActivityWakeupBinding
 import timber.log.Timber
 
 class WakeupActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

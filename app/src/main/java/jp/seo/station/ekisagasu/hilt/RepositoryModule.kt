@@ -39,7 +39,6 @@ object DispatcherModule {
 @Module
 @InstallIn(SingletonComponent::class)
 interface LocationModule {
-
     @Binds
     @Singleton
     fun bindLocationRepository(impl: GPSClient): LocationRepository
@@ -49,7 +48,6 @@ interface LocationModule {
 @Module
 @InstallIn(SingletonComponent::class)
 interface LogModule {
-
     @Binds
     @Singleton
     fun bindsLogRepository(impl: LogRepositoryImpl): LogRepository
@@ -66,7 +64,6 @@ interface AppStateModule {
 @Module
 @InstallIn(SingletonComponent::class)
 interface SettingModule {
-
     @Singleton
     @Binds
     fun bindSettingRepository(impl: UserSettingRepositoryImpl): UserSettingRepository
@@ -75,7 +72,6 @@ interface SettingModule {
 @Module
 @InstallIn(SingletonComponent::class)
 interface SearchModule {
-
     @Singleton
     @Binds
     fun bindSearchRepository(impl: SearchRepositoryImpl): SearchRepository
@@ -97,7 +93,6 @@ interface DataModule {
 @Module
 @InstallIn(SingletonComponent::class)
 interface NavigationModule {
-
     @Singleton
     @Binds
     fun bindNavigation(impl: NavigationRepositoryImpl): NavigationRepository
@@ -106,7 +101,6 @@ interface NavigationModule {
 @Module
 @InstallIn(SingletonComponent::class)
 interface PrefectureModule {
-
     @Singleton
     @Binds
     fun bindPrefectureRepository(impl: PrefectureRepositoryImpl): PrefectureRepository

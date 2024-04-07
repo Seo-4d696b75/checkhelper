@@ -33,9 +33,8 @@ fun convertGeoJsonFeatureCollections(value: String): List<GeoJsonFeature> {
 data class StationArea(
     val station: Station,
     val points: Array<LatLng>,
-    val enclosed: Boolean
+    val enclosed: Boolean,
 ) {
-
     companion object {
         fun parseArea(station: Station): StationArea {
             val feature = convertGeoJsonFeature(station.voronoi)
@@ -45,9 +44,10 @@ data class StationArea(
                     StationArea(
                         station,
                         geo.coordinates.toTypedArray(),
-                        false
+                        false,
                     )
                 }
+
                 "Polygon" -> {
                     val geo = feature.geometry as GeoJsonPolygon
                     val list = geo.coordinates[0]
@@ -55,9 +55,10 @@ data class StationArea(
                     StationArea(
                         station,
                         list.toTypedArray(),
-                        true
+                        true,
                     )
                 }
+
                 else -> throw IllegalArgumentException("invalid geometry type")
             }
         }
@@ -82,20 +83,20 @@ data class StationArea(
 data class PolylineSegment(
     val points: Array<LatLng>,
     val start: String,
-    val end: String
+    val end: String,
 ) {
-
     companion object {
-
         fun parseSegments(data: String): List<PolylineSegment> {
             return convertGeoJsonFeatureCollections(data).map {
-                if (it.geometry.geometryType != "LineString") throw RuntimeException("not LineString. type:" + it.geometry.geometryType)
+                if (it.geometry.geometryType != "LineString") {
+                    throw RuntimeException("not LineString. type:" + it.geometry.geometryType)
+                }
                 val geo = it.geometry as GeoJsonLineString
                 val points = geo.coordinates.toTypedArray()
                 PolylineSegment(
                     points,
                     it.getProperty("start"),
-                    it.getProperty("end")
+                    it.getProperty("end"),
                 )
             }
         }
@@ -124,7 +125,10 @@ data class PolylineSegment(
         return result
     }
 
-    fun findNearestPoint(lat: Double, lng: Double): NearestPoint {
+    fun findNearestPoint(
+        lat: Double,
+        lng: Double,
+    ): NearestPoint {
         val step = 50
         val p = LatLng(lat, lng)
         var minValue = Double.MAX_VALUE

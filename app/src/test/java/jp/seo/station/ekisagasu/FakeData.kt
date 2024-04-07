@@ -10,40 +10,45 @@ import kotlinx.serialization.json.Json
 import okio.Buffer
 import java.io.BufferedReader
 
-fun <T : Any> T.fakeData() = requireNotNull(
-    this.javaClass.classLoader?.getResourceAsStream("json.zip")
-)
+fun <T : Any> T.fakeData() =
+    requireNotNull(
+        this.javaClass.classLoader?.getResourceAsStream("json.zip"),
+    )
 
-fun <T : Any> T.fakeDataBuffer() = requireNotNull(
-    this.javaClass.classLoader?.getResourceAsStream("json.zip")
-).let {
-    Buffer().apply { write(it.readBytes()) }
-}
+fun <T : Any> T.fakeDataBuffer() =
+    requireNotNull(
+        this.javaClass.classLoader?.getResourceAsStream("json.zip"),
+    ).let {
+        Buffer().apply { write(it.readBytes()) }
+    }
 
 val <T : Any> T.fakeLatestInfoString: Lazy<String>
-    get() = lazy {
-        val stream = this.javaClass.classLoader?.getResourceAsStream("latest_info.json")
-        val reader = BufferedReader(stream?.reader(Charsets.UTF_8))
-        reader.readText()
-    }
+    get() =
+        lazy {
+            val stream = this.javaClass.classLoader?.getResourceAsStream("latest_info.json")
+            val reader = BufferedReader(stream?.reader(Charsets.UTF_8))
+            reader.readText()
+        }
 
 private val json = Json { ignoreUnknownKeys = true }
 
 val <T : Any> T.fakeStations: Lazy<List<Station>>
-    get() = lazy {
-        val stream = this.javaClass.classLoader?.getResourceAsStream("json/station.json")
-        val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
-        json.decodeFromString<List<Station>>(str)
-    }
+    get() =
+        lazy {
+            val stream = this.javaClass.classLoader?.getResourceAsStream("json/station.json")
+            val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
+            json.decodeFromString<List<Station>>(str)
+        }
 
 val <T : Any> T.fakeLines: Lazy<List<Line>>
-    get() = lazy {
-        fakeLineCodes.value.map {
-            val stream = this.javaClass.classLoader?.getResourceAsStream("json/line/$it.json")
-            val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
-            json.decodeFromString<Line>(str)
+    get() =
+        lazy {
+            fakeLineCodes.value.map {
+                val stream = this.javaClass.classLoader?.getResourceAsStream("json/line/$it.json")
+                val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
+                json.decodeFromString<Line>(str)
+            }
         }
-    }
 
 @Serializable
 private data class LineCode(
@@ -51,21 +56,24 @@ private data class LineCode(
 )
 
 val <T : Any> T.fakeLineCodes: Lazy<List<Int>>
-    get() = lazy {
-        val stream = this.javaClass.classLoader?.getResourceAsStream("json/line.json")
-        val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
-        json.decodeFromString<List<LineCode>>(str).map { it.code }
-    }
+    get() =
+        lazy {
+            val stream = this.javaClass.classLoader?.getResourceAsStream("json/line.json")
+            val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
+            json.decodeFromString<List<LineCode>>(str).map { it.code }
+        }
 
 val <T : Any> T.fakeTree: Lazy<StationKdTree>
-    get() = lazy {
-        val stream = this.javaClass.classLoader?.getResourceAsStream("json/tree.json")
-        val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
-        json.decodeFromString<StationKdTree>(str)
-    }
+    get() =
+        lazy {
+            val stream = this.javaClass.classLoader?.getResourceAsStream("json/tree.json")
+            val str = BufferedReader(stream?.reader(Charsets.UTF_8)).readText()
+            json.decodeFromString<StationKdTree>(str)
+        }
 
 val <T : Any> T.fakeLatestInfo: Lazy<DataLatestInfo>
-    get() = lazy {
-        val str by this.fakeLatestInfoString
-        json.decodeFromString(str)
-    }
+    get() =
+        lazy {
+            val str by this.fakeLatestInfoString
+            json.decodeFromString(str)
+        }

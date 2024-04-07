@@ -17,38 +17,41 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class DataUpdateViewModel @Inject constructor(
-    private val updateData: DataUpdateUseCase,
-    private val appStateRepository: AppStateRepository,
-    private val savedStateHandle: SavedStateHandle,
-    @ApplicationContext private val context: Context,
-) : ViewModel() {
+class DataUpdateViewModel
+    @Inject
+    constructor(
+        private val updateData: DataUpdateUseCase,
+        private val appStateRepository: AppStateRepository,
+        private val savedStateHandle: SavedStateHandle,
+        @ApplicationContext private val context: Context,
+    ) : ViewModel() {
+        private val args by lazy {
+            ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
+        }
 
-    private val args by lazy {
-        ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
+        val info by lazy { args.info }
+
+        val type by lazy { args.type }
+
+        val progress = updateData.progress
+
+        private val _result = MutableSharedFlow<Result<DataVersion>>()
+
+        val result: SharedFlow<Result<DataVersion>> = _result
+
+        fun update() =
+            viewModelScope.launch {
+                val result = updateData(info, File(context.filesDir, "tmp"))
+                _result.emit(result)
+            }
+
+        fun onResult(success: Boolean) =
+            viewModelScope.launch {
+                appStateRepository.emitMessage(
+                    AppMessage.DataUpdateResult(
+                        type = type,
+                        success = success,
+                    ),
+                )
+            }
     }
-
-    val info by lazy { args.info }
-
-    val type by lazy { args.type }
-
-    val progress = updateData.progress
-
-    private val _result = MutableSharedFlow<Result<DataVersion>>()
-
-    val result: SharedFlow<Result<DataVersion>> = _result
-
-    fun update() = viewModelScope.launch {
-        val result = updateData(info, File(context.filesDir, "tmp"))
-        _result.emit(result)
-    }
-
-    fun onResult(success: Boolean) = viewModelScope.launch {
-        appStateRepository.emitMessage(
-            AppMessage.DataUpdateResult(
-                type = type,
-                success = success,
-            )
-        )
-    }
-}

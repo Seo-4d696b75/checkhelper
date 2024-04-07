@@ -18,93 +18,98 @@ import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val appStateRepository: AppStateRepository,
-    private val dataRepository: DataRepository,
-    private val remoteDataRepository: RemoteDataRepository,
-) : ViewModel() {
-    val message = appStateRepository.message
+class MainViewModel
+    @Inject
+    constructor(
+        @ApplicationContext private val context: Context,
+        private val appStateRepository: AppStateRepository,
+        private val dataRepository: DataRepository,
+        private val remoteDataRepository: RemoteDataRepository,
+    ) : ViewModel() {
+        val message = appStateRepository.message
 
-    var hasPermissionChecked: Boolean
-        get() = appStateRepository.hasPermissionChecked
-        set(value) {
-            appStateRepository.hasPermissionChecked = value
-        }
+        var hasPermissionChecked: Boolean
+            get() = appStateRepository.hasPermissionChecked
+            set(value) {
+                appStateRepository.hasPermissionChecked = value
+            }
 
-    var isServiceRunning: Boolean
-        get() = appStateRepository.isServiceRunning
-        set(value) {
-            appStateRepository.isServiceRunning = value
-        }
+        var isServiceRunning: Boolean
+            get() = appStateRepository.isServiceRunning
+            set(value) {
+                appStateRepository.isServiceRunning = value
+            }
 
-    fun onActivityResultResolved(requestCode: Int, resultCode: Int, data: Intent?) =
-        viewModelScope.launch {
+        fun onActivityResultResolved(
+            requestCode: Int,
+            resultCode: Int,
+            data: Intent?,
+        ) = viewModelScope.launch {
             appStateRepository.emitMessage(
                 AppMessage.ReceiveActivityResult(
                     requestCode,
                     resultCode,
-                    data
-                )
+                    data,
+                ),
             )
         }
 
-    /**
-     * アプリに必要なデータを確認
-     * (1) check data version
-     * (2) check data initialized
-     */
-    fun checkData() {
+        /**
+         * アプリに必要なデータを確認
+         * (1) check data version
+         * (2) check data initialized
+         */
+        fun checkData() {
+            // check data version
+            if (!appStateRepository.hasDataVersionChecked) {
+                appStateRepository.hasDataVersionChecked = true
 
-        // check data version
-        if (!appStateRepository.hasDataVersionChecked) {
-            appStateRepository.hasDataVersionChecked = true
+                viewModelScope.launch {
+                    val info = dataRepository.getDataVersion()
 
-            viewModelScope.launch {
+                    val latest =
+                        try {
+                            remoteDataRepository.getLatestDataVersion(true)
+                        } catch (e: IOException) {
+                            appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
+                            appStateRepository.hasDataVersionChecked = false
+                            return@launch
+                        }
 
-                val info = dataRepository.getDataVersion()
-
-                val latest = try {
-                    remoteDataRepository.getLatestDataVersion(true)
-                } catch (e: IOException) {
-                    appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
-                    appStateRepository.hasDataVersionChecked = false
-                    return@launch
-                }
-
-                if (info == null) {
-                    Timber.tag("MainViewModel").i(
-                        context.getString(R.string.message_need_data_download, latest.version),
-                    )
-                    appStateRepository.emitMessage(
-                        AppMessage.RequestDataUpdate(
-                            type = DataUpdateType.Init,
-                            info = latest,
-                        )
-                    )
-                } else {
-                    Timber.tag("MainViewModel").i(
-                        context.getString(R.string.message_saved_data_found, info.version)
-                    )
-                    if (info.version < latest.version) {
+                    if (info == null) {
                         Timber.tag("MainViewModel").i(
-                            context.getString(R.string.message_latest_data_found, latest.version)
+                            context.getString(R.string.message_need_data_download, latest.version),
                         )
                         appStateRepository.emitMessage(
                             AppMessage.RequestDataUpdate(
-                                type = DataUpdateType.Latest,
+                                type = DataUpdateType.Init,
                                 info = latest,
-                            )
+                            ),
                         )
+                    } else {
+                        Timber.tag("MainViewModel").i(
+                            context.getString(R.string.message_saved_data_found, info.version),
+                        )
+                        if (info.version < latest.version) {
+                            Timber.tag("MainViewModel").i(
+                                context.getString(R.string.message_latest_data_found, latest.version),
+                            )
+                            appStateRepository.emitMessage(
+                                AppMessage.RequestDataUpdate(
+                                    type = DataUpdateType.Latest,
+                                    info = latest,
+                                ),
+                            )
+                        }
                     }
                 }
             }
         }
-    }
 
-    fun requestAppFinish() = viewModelScope.launch {
-        appStateRepository.emitMessage(
-            AppMessage.FinishApp
-        )
+        fun requestAppFinish() =
+            viewModelScope.launch {
+                appStateRepository.emitMessage(
+                    AppMessage.FinishApp,
+                )
+            }
     }
-}

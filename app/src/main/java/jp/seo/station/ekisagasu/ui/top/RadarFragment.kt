@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.onEach
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class RadarFragment : Fragment() {
-
     private val viewModel: RadarViewModel by viewModels()
 
     private lateinit var binding: FragmentRadarBinding
@@ -40,35 +39,40 @@ class RadarFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentRadarBinding.inflate(inflater)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         val context = requireContext()
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val adapter = RadarAdapter(context).apply {
-            onItemClickListener = { data ->
-                val action =
-                    StationFragmentDirections.actionGlobalStationFragment(data.station.code)
-                findNavController().navigate(action)
+        val adapter =
+            RadarAdapter(context).apply {
+                onItemClickListener = { data ->
+                    val action =
+                        StationFragmentDirections.actionGlobalStationFragment(data.station.code)
+                    findNavController().navigate(action)
+                }
+                setHasStableIds(true)
             }
-            setHasStableIds(true)
-        }
         binding.listRadar.also {
             it.addItemDecoration(
                 DividerItemDecoration(
                     context,
-                    LinearLayoutManager.VERTICAL
-                )
+                    LinearLayoutManager.VERTICAL,
+                ),
             )
-            it.layoutManager = LinearLayoutManager(context).apply {
-                orientation = LinearLayoutManager.VERTICAL
-            }
+            it.layoutManager =
+                LinearLayoutManager(context).apply {
+                    orientation = LinearLayoutManager.VERTICAL
+                }
             it.adapter = adapter
         }
 
@@ -79,11 +83,17 @@ class RadarFragment : Fragment() {
     }
 
     private class NearStationComparator : DiffUtil.ItemCallback<NearStation>() {
-        override fun areItemsTheSame(oldItem: NearStation, newItem: NearStation): Boolean {
+        override fun areItemsTheSame(
+            oldItem: NearStation,
+            newItem: NearStation,
+        ): Boolean {
             return oldItem.station.id == newItem.station.id && oldItem.distance == newItem.distance
         }
 
-        override fun areContentsTheSame(oldItem: NearStation, newItem: NearStation): Boolean {
+        override fun areContentsTheSame(
+            oldItem: NearStation,
+            newItem: NearStation,
+        ): Boolean {
             return oldItem == newItem
         }
     }
@@ -96,17 +106,24 @@ class RadarFragment : Fragment() {
         private val inflater = LayoutInflater.from(context)
         var onItemClickListener: ((NearStation) -> Unit)? = null
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RadarViewHolder {
-            val binding = DataBindingUtil.inflate<CellStationRadarBinding>(
-                inflater,
-                R.layout.cell_station_radar,
-                parent,
-                false
-            )
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int,
+        ): RadarViewHolder {
+            val binding =
+                DataBindingUtil.inflate<CellStationRadarBinding>(
+                    inflater,
+                    R.layout.cell_station_radar,
+                    parent,
+                    false,
+                )
             return RadarViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: RadarViewHolder, position: Int) {
+        override fun onBindViewHolder(
+            holder: RadarViewHolder,
+            position: Int,
+        ) {
             val near = getItem(position)
             holder.binding.index = (position + 1).toString()
             holder.binding.near = near

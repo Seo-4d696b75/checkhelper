@@ -10,10 +10,14 @@ interface AppStateRepository {
     var hasDataVersionChecked: Boolean
 
     val message: SharedFlow<AppMessage>
+
     suspend fun emitMessage(message: AppMessage)
 
     val fixTimer: StateFlow<Boolean>
+
     fun setTimerFixed(fixed: Boolean)
+
     val nightMode: StateFlow<Boolean>
+
     fun setNightMode(enabled: Boolean)
 }

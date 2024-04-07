@@ -17,7 +17,6 @@ import kotlin.math.max
  * @version 2019/04/18.
  */
 class StationNameView : LinearLayout {
-
     constructor(context: Context) : super(context) {
         init(context, null, 0)
     }
@@ -29,7 +28,7 @@ class StationNameView : LinearLayout {
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
         context,
         attrs,
-        defStyle
+        defStyle,
     ) {
         init(context, attrs, defStyle)
     }
@@ -37,11 +36,19 @@ class StationNameView : LinearLayout {
     private lateinit var nameText: TextView
     private lateinit var kanaText: TextView
 
-    private fun init(context: Context, attrs: AttributeSet?, defStyle: Int) {
+    private fun init(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyle: Int,
+    ) {
         // Load attributes
-        val array = context.obtainStyledAttributes(
-            attrs, R.styleable.StationNameView, defStyle, 0
-        )
+        val array =
+            context.obtainStyledAttributes(
+                attrs,
+                R.styleable.StationNameView,
+                defStyle,
+                0,
+            )
         val nameTextSize =
             array.getDimensionPixelSize(R.styleable.StationNameView_nameTextSize, 20).toFloat()
         val kanaTextSize =
@@ -53,10 +60,11 @@ class StationNameView : LinearLayout {
 
         orientation = VERTICAL
 
-        val param = LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        val param =
+            LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
 
         val name = ExpandableTextView(context)
         name.setTextSize(TypedValue.COMPLEX_UNIT_PX, nameTextSize)
@@ -76,7 +84,13 @@ class StationNameView : LinearLayout {
         kanaText.text = station.nameKana
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+    override fun onLayout(
+        changed: Boolean,
+        l: Int,
+        t: Int,
+        r: Int,
+        b: Int,
+    ) {
         val w1: Int = nameText.measuredWidth
         val w2: Int = kanaText.measuredWidth
         val h1: Int = nameText.measuredHeight
@@ -86,13 +100,13 @@ class StationNameView : LinearLayout {
             (w - w1) / 2,
             0,
             (w - w1) / 2 + w1,
-            h1
+            h1,
         )
         kanaText.layout(
             (w - w2) / 2,
             h1,
             w2 + (w - w2) / 2,
-            h1 + h2
+            h1 + h2,
         )
     }
 }

@@ -12,9 +12,8 @@ import android.view.animation.Animation
 class AnimationHolder<E : View>(
     val view: E,
     pixelX: Int,
-    pixelY: Int
+    pixelY: Int,
 ) {
-
     private val x: Float = pixelX.toFloat()
     private val y: Float = pixelY.toFloat()
 
@@ -28,8 +27,11 @@ class AnimationHolder<E : View>(
 
     fun animate(expand: Boolean): ObjectAnimator = animate(expand, this.x, this.y)
 
-    private fun animate(expand: Boolean, x: Float, y: Float): ObjectAnimator {
-
+    private fun animate(
+        expand: Boolean,
+        x: Float,
+        y: Float,
+    ): ObjectAnimator {
         val scaleFrom = if (expand) 0.1f else 1f
         val scaleTo = if (expand) 1f else 0.1f
         val alphaFrom = if (expand) 0f else 1f
@@ -44,11 +46,14 @@ class AnimationHolder<E : View>(
             PropertyValuesHolder.ofFloat("translationX", srcX, desX),
             PropertyValuesHolder.ofFloat("translationY", srcY, desY),
             PropertyValuesHolder.ofFloat("scaleX", scaleFrom, scaleTo),
-            PropertyValuesHolder.ofFloat("scaleY", scaleFrom, scaleTo)
+            PropertyValuesHolder.ofFloat("scaleY", scaleFrom, scaleTo),
         )
     }
 
-    fun animate(expand: Boolean, effect: Boolean): ObjectAnimator {
+    fun animate(
+        expand: Boolean,
+        effect: Boolean,
+    ): ObjectAnimator {
         return if (effect) {
             val scaleFrom = if (expand) 0.1f else 1f
             val scaleTo = if (expand) 1f else 0.1f
@@ -61,14 +66,14 @@ class AnimationHolder<E : View>(
                 PropertyValuesHolder.ofFloat("alpha", alphaFrom, alphaTo),
                 PropertyValuesHolder.ofFloat("translationX", srcX, desX),
                 PropertyValuesHolder.ofFloat("scaleX", scaleFrom, scaleTo),
-                PropertyValuesHolder.ofFloat("scaleY", scaleFrom, scaleTo)
+                PropertyValuesHolder.ofFloat("scaleY", scaleFrom, scaleTo),
             )
         } else {
             ObjectAnimator.ofFloat(
                 view,
                 "translationX",
                 if (expand) 0f else x,
-                if (expand) x else 0f
+                if (expand) x else 0f,
             )
         }
     }
@@ -86,16 +91,17 @@ inline fun Animation.setAnimationListener(
     crossinline onEnd: (animation: Animation?) -> Unit = {},
     crossinline onRepeat: (animation: Animation?) -> Unit = {},
 ): Animation.AnimationListener {
-    val listener = object : Animation.AnimationListener {
-        override fun onAnimationStart(animation: Animation?) = onStart(animation)
+    val listener =
+        object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) = onStart(animation)
 
-        override fun onAnimationEnd(animation: Animation?) {
-            onEnd(animation)
-            if (oneShot) setAnimationListener(null)
+            override fun onAnimationEnd(animation: Animation?) {
+                onEnd(animation)
+                if (oneShot) setAnimationListener(null)
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) = onRepeat(animation)
         }
-
-        override fun onAnimationRepeat(animation: Animation?) = onRepeat(animation)
-    }
 
     setAnimationListener(listener)
     return listener

@@ -9,13 +9,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AppHistoryViewModel @Inject constructor(
-    private val logRepository: LogRepository,
-) : ViewModel() {
+class AppHistoryViewModel
+    @Inject
+    constructor(
+        private val logRepository: LogRepository,
+    ) : ViewModel() {
+        val history = logRepository.history
 
-    val history = logRepository.history
-
-    fun setLogTarget(target: AppRebootLog) = viewModelScope.launch {
-        logRepository.filterLogSince(target)
+        fun setLogTarget(target: AppRebootLog) =
+            viewModelScope.launch {
+                logRepository.filterLogSince(target)
+            }
     }
-}

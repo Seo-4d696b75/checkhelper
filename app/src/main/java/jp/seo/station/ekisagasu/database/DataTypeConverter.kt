@@ -14,7 +14,6 @@ import org.json.JSONObject
  */
 
 class NodeListConverter {
-
     @TypeConverter
     fun convertRegistration(value: List<StationNode>?): String? {
         return value?.let {
@@ -47,7 +46,6 @@ class RegistrationListConverter {
 }
 
 class ArrayIntConverter {
-
     @TypeConverter
     fun convertArray(value: Array<Int>?): String? {
         return value?.let {

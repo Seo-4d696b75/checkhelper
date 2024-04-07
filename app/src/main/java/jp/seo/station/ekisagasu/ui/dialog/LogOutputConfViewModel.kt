@@ -18,44 +18,47 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LogOutputConfViewModel @Inject constructor(
-    private val appStateRepository: AppStateRepository,
-    private val savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+class LogOutputConfViewModel
+    @Inject
+    constructor(
+        private val appStateRepository: AppStateRepository,
+        private val savedStateHandle: SavedStateHandle,
+    ) : ViewModel() {
+        val config: LogOutputConfig by lazy {
+            LogOutputConfDialogArgs.fromSavedStateHandle(savedStateHandle).config
+        }
 
-    val config: LogOutputConfig by lazy {
-        LogOutputConfDialogArgs.fromSavedStateHandle(savedStateHandle).config
-    }
+        private val _checked = MutableStateFlow(LogOutputExtension.txt)
+        val checked =
+            _checked
+                .map {
+                    when (it) {
+                        LogOutputExtension.txt -> R.id.radio_button_txt
+                        LogOutputExtension.gpx -> R.id.radio_button_gpx
+                    }
+                }
+                .stateIn(
+                    viewModelScope,
+                    SharingStarted.WhileSubscribed(),
+                    R.id.radio_button_txt,
+                )
 
-    private val _checked = MutableStateFlow(LogOutputExtension.txt)
-    val checked = _checked
-        .map {
-            when (it) {
-                LogOutputExtension.txt -> R.id.radio_button_txt
-                LogOutputExtension.gpx -> R.id.radio_button_gpx
+        fun onChecked(id: Int) {
+            _checked.update {
+                when (id) {
+                    R.id.radio_button_txt -> LogOutputExtension.txt
+                    R.id.radio_button_gpx -> LogOutputExtension.gpx
+                    else -> LogOutputExtension.txt
+                }
             }
         }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            R.id.radio_button_txt,
-        )
 
-    fun onChecked(id: Int) {
-        _checked.update {
-            when (id) {
-                R.id.radio_button_txt -> LogOutputExtension.txt
-                R.id.radio_button_gpx -> LogOutputExtension.gpx
-                else -> LogOutputExtension.txt
+        fun writeLog() =
+            viewModelScope.launch {
+                appStateRepository.emitMessage(
+                    AppMessage.LogOutputConfigResolved(
+                        LogOutputConfig.Geo(_checked.value),
+                    ),
+                )
             }
-        }
     }
-
-    fun writeLog() = viewModelScope.launch {
-        appStateRepository.emitMessage(
-            AppMessage.LogOutputConfigResolved(
-                LogOutputConfig.Geo(_checked.value)
-            )
-        )
-    }
-}

@@ -25,21 +25,22 @@ fun NavController.navigateWhenDialogClosed(
         if (top.destination.id == dialogId) {
             previousBackStackEntry?.let { entry ->
                 var run = false
-                val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_RESUME) {
-                        if (!run) {
-                            navigate(directions)
+                val observer =
+                    LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_RESUME) {
+                            if (!run) {
+                                navigate(directions)
+                            }
+                            run = true
                         }
-                        run = true
                     }
-                }
                 entry.lifecycle.addObserver(observer)
                 lifecycle.addObserver(
                     LifecycleEventObserver { _, event ->
                         if (event == Lifecycle.Event.ON_DESTROY) {
                             entry.lifecycle.removeObserver(observer)
                         }
-                    }
+                    },
                 )
             }
         }

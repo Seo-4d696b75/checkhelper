@@ -31,7 +31,6 @@ import kotlin.math.ceil
 
 @ExperimentalCoroutinesApi
 class DataUpdateUseCaseTest {
-
     @get:Rule
     val tempFolder = TemporaryFolder()
 
@@ -56,72 +55,76 @@ class DataUpdateUseCaseTest {
     }
 
     @Test
-    fun `成功`() = runTest(defaultDispatcher) {
-        // prepare
-        val callbackSlot = slot<(Long) -> Unit>()
-        coEvery { remoteRepository.download(any(), any(), capture(callbackSlot)) } coAnswers {
-            val callback = callbackSlot.captured
-            callback(0L)
-            callback(info.length)
+    fun `成功`() =
+        runTest(defaultDispatcher) {
+            // prepare
+            val callbackSlot = slot<(Long) -> Unit>()
+            coEvery { remoteRepository.download(any(), any(), capture(callbackSlot)) } coAnswers {
+                val callback = callbackSlot.captured
+                callback(0L)
+                callback(info.length)
+            }
+            coEvery { repository.updateData(any(), any()) } returns DataVersion(version = info.version)
+
+            // watch progress flow
+            val progressList = mutableListOf<DataUpdateProgress>()
+            val job =
+                launch {
+                    useCase.progress.toList(progressList)
+                }
+
+            // test
+            val result = useCase(info, tempFolder.newFolder())
+
+            // verify
+            assertThat(result.getOrNull()).isEqualTo(DataVersion(info.version))
+            coVerifyOrder {
+                remoteRepository.download(info.version, any(), any())
+                repository.updateData(info, any())
+            }
+            assertThat(progressList).containsExactly(
+                DataUpdateProgress.Download(0),
+                DataUpdateProgress.Download(100),
+                DataUpdateProgress.Save,
+            ).inOrder()
+
+            job.cancel()
+            confirmVerified(remoteRepository, repository)
         }
-        coEvery { repository.updateData(any(), any()) } returns DataVersion(version = info.version)
-
-        // watch progress flow
-        val progressList = mutableListOf<DataUpdateProgress>()
-        val job = launch {
-            useCase.progress.toList(progressList)
-        }
-
-        // test
-        val result = useCase(info, tempFolder.newFolder())
-
-        // verify
-        assertThat(result.getOrNull()).isEqualTo(DataVersion(info.version))
-        coVerifyOrder {
-            remoteRepository.download(info.version, any(), any())
-            repository.updateData(info, any())
-        }
-        assertThat(progressList).containsExactly(
-            DataUpdateProgress.Download(0),
-            DataUpdateProgress.Download(100),
-            DataUpdateProgress.Save,
-        ).inOrder()
-
-        job.cancel()
-        confirmVerified(remoteRepository, repository)
-    }
 
     @Test
-    fun `ダウンロード失敗`() = runTest {
-        // prepare
-        val callbackSlot = slot<(Long) -> Unit>()
-        coEvery { remoteRepository.download(any(), any(), capture(callbackSlot)) } coAnswers {
-            val callback = callbackSlot.captured
-            callback(0L)
-            callback(ceil(info.length / 2.0).toLong())
-            throw IOException()
+    fun `ダウンロード失敗`() =
+        runTest {
+            // prepare
+            val callbackSlot = slot<(Long) -> Unit>()
+            coEvery { remoteRepository.download(any(), any(), capture(callbackSlot)) } coAnswers {
+                val callback = callbackSlot.captured
+                callback(0L)
+                callback(ceil(info.length / 2.0).toLong())
+                throw IOException()
+            }
+
+            // watch progress flow
+            val progressList = mutableListOf<DataUpdateProgress>()
+            val job =
+                launch(defaultDispatcher) {
+                    useCase.progress.toList(progressList)
+                }
+
+            // test
+            val result = useCase(info, tempFolder.newFolder())
+
+            // verify
+            assertThat(result.isSuccess).isFalse()
+            coVerifyOrder {
+                remoteRepository.download(info.version, any(), any())
+            }
+            assertThat(progressList).containsExactly(
+                DataUpdateProgress.Download(0),
+                DataUpdateProgress.Download(50),
+            ).inOrder()
+
+            job.cancel()
+            confirmVerified(repository, remoteRepository)
         }
-
-        // watch progress flow
-        val progressList = mutableListOf<DataUpdateProgress>()
-        val job = launch(defaultDispatcher) {
-            useCase.progress.toList(progressList)
-        }
-
-        // test
-        val result = useCase(info, tempFolder.newFolder())
-
-        // verify
-        assertThat(result.isSuccess).isFalse()
-        coVerifyOrder {
-            remoteRepository.download(info.version, any(), any())
-        }
-        assertThat(progressList).containsExactly(
-            DataUpdateProgress.Download(0),
-            DataUpdateProgress.Download(50),
-        ).inOrder()
-
-        job.cancel()
-        confirmVerified(repository, remoteRepository)
-    }
 }

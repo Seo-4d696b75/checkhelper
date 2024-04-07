@@ -25,14 +25,14 @@ import java.util.Date
 @Database(
     entities = [Station::class, Line::class, StationNode::class, RootStationNode::class, DataVersion::class],
     version = 8,
-    exportSchema = false
+    exportSchema = false,
 )
 @TypeConverters(
     RegistrationListConverter::class,
     ArrayIntConverter::class,
     IntListConverter::class,
     NodeListConverter::class,
-    TimestampConverter::class
+    TimestampConverter::class,
 )
 abstract class StationDatabase : RoomDatabase() {
     abstract val dao: StationDao
@@ -40,7 +40,6 @@ abstract class StationDatabase : RoomDatabase() {
 
 @Dao
 abstract class StationDao {
-
     @Query("SELECT * FROM station WHERE code == :code")
     abstract suspend fun getStation(code: Int): Station
 
@@ -122,9 +121,8 @@ abstract class StationDao {
 @Entity(tableName = "version_history")
 data class DataVersion(
     @ColumnInfo(name = "version")
-    val version: Long
+    val version: Long,
 ) {
-
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id", index = true)
     var id: Long = 0

@@ -16,11 +16,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
     @Singleton
     @Provides
     fun provideStationDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): StationDao {
         return Room.databaseBuilder(context, StationDatabase::class.java, "station_db")
             .fallbackToDestructiveMigration()
@@ -31,7 +30,7 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideUserDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): UserDao {
         return Room.databaseBuilder(context, UserDatabase::class.java, "user_db")
             .fallbackToDestructiveMigration()

@@ -45,7 +45,7 @@ class PolylineCursor {
         end: PolylineNode,
         nearest: NearestPoint,
         pathPosition: Double,
-        old: PolylineCursor
+        old: PolylineCursor,
     ) {
         this.nearest = nearest
         this.explorer = old.explorer
@@ -111,33 +111,46 @@ class PolylineCursor {
     var pathPosAtNearest: Double
     var isSignDecided = false
 
-    fun initPosition(from: PolylineNode, to: PolylineNode) {
+    fun initPosition(
+        from: PolylineNode,
+        to: PolylineNode,
+    ) {
         start = from
         end = to
     }
 
-    fun update(location: Location, callback: MutableCollection<PolylineCursor>) {
-
+    fun update(
+        location: Location,
+        callback: MutableCollection<PolylineCursor>,
+    ) {
         // Search for the nearest point on this polyline to the given location in all the directions
         val list1 = mutableListOf<PolylineCursor>()
         val list2 = mutableListOf<PolylineCursor>()
-        val v1 = searchForNearest(
-            location,
-            start,
-            end,
-            PolylineCursor(this, true, location),
-            list1,
-            pathPosAtStart + nearest.edgeDistance * pathLengthSign
-        )
-        val v2 = searchForNearest(
-            location, end, start,
-            PolylineCursor(this, false, location), list2,
-            pathPosAtStart
-        )
+        val v1 =
+            searchForNearest(
+                location,
+                start,
+                end,
+                PolylineCursor(this, true, location),
+                list1,
+                pathPosAtStart + nearest.edgeDistance * pathLengthSign,
+            )
+        val v2 =
+            searchForNearest(
+                location,
+                end,
+                start,
+                PolylineCursor(this, false, location),
+                list2,
+                pathPosAtStart,
+            )
         Timber.tag("PolylineCursor").d("updated v1:$v1 v2:$v2")
-        val found: List<PolylineCursor> = if (max(v1, v2) / min(v1, v2) >= 2.0) {
-            if (v1 < v2) list1 else list2
-        } else list1
+        val found: List<PolylineCursor> =
+            if (max(v1, v2) / min(v1, v2) >= 2.0) {
+                if (v1 < v2) list1 else list2
+            } else {
+                list1
+            }
 
         callback.addAll(found)
     }
@@ -151,7 +164,7 @@ class PolylineCursor {
         current: PolylineNode,
         cursor: PolylineCursor,
         results: MutableCollection<PolylineCursor>,
-        pathPosition: Double
+        pathPosition: Double,
     ): Double {
         var min = cursor
         val iterator = current.iterator(previous)
@@ -159,32 +172,35 @@ class PolylineCursor {
         if (iterator.hasNext()) {
             while (iterator.hasNext()) {
                 val next = iterator.next()
-                val near = NearestPoint(
-                    current.point,
-                    next.point,
-                    LatLng(location.latitude, location.longitude)
-                )
+                val near =
+                    NearestPoint(
+                        current.point,
+                        next.point,
+                        LatLng(location.latitude, location.longitude),
+                    )
                 if (near.distance > min.nearest.distance * 2) {
                     // 探索終了
                     if (!results.contains(min)) results.add(min)
                     minDist = minDist.coerceAtMost(min.nearest.distance.toDouble())
                 } else {
                     if (near.distance < min.nearest.distance) {
-                        min = PolylineCursor(
-                            current, next, near,
-                            pathPosition,
-                            min
-                        )
+                        min =
+                            PolylineCursor(
+                                current, next, near,
+                                pathPosition,
+                                min,
+                            )
                     }
                     // 深さ優先探索
-                    val v = searchForNearest(
-                        location,
-                        current,
-                        next,
-                        min,
-                        results,
-                        pathPosition + iterator.distance() * min.pathLengthSign
-                    )
+                    val v =
+                        searchForNearest(
+                            location,
+                            current,
+                            next,
+                            min,
+                            results,
+                            pathPosition + iterator.distance() * min.pathLengthSign,
+                        )
                     minDist = minDist.coerceAtMost(v)
                 }
             }
@@ -196,15 +212,22 @@ class PolylineCursor {
         return minDist
     }
 
-    suspend fun predict(result: MutableCollection<StationPrediction>, maxPrediction: Int, current: StationArea?) {
+    suspend fun predict(
+        result: MutableCollection<StationPrediction>,
+        maxPrediction: Int,
+        current: StationArea?,
+    ) {
         // ポリライン上の現在位置の近傍駅
         val s = explorer.searchEuclid(nearest.closedPoint) ?: return
-        val area = if (s != current?.station) {
-            // 現在位置からの近傍駅と異なる場合もある
-            // result.add(StationPrediction(s, 0f))
-            // cnt--
-            StationArea.parseArea(s)
-        } else current
+        val area =
+            if (s != current?.station) {
+                // 現在位置からの近傍駅と異なる場合もある
+                // result.add(StationPrediction(s, 0f))
+                // cnt--
+                StationArea.parseArea(s)
+            } else {
+                current
+            }
         searchForStation(start, nearest.closedPoint, end, area, 0f, maxPrediction, result)
     }
 
@@ -250,18 +273,19 @@ class PolylineCursor {
             if (stationAtEnd != current.station) {
                 intersectionFound = true
                 val edge = Edge(start.point2D, end.point.point2D)
-                val intersection = current.getIntersection(edge)?.latLng ?: kotlin.run {
-                    // TODO 端点が境界に非常に近い場合、見つからない場合あがある？
-                    val middle = edge.middlePoint
-                    val stationAtMiddle = explorer.searchEuclid(middle.latLng)
-                    if (stationAtEnd == stationAtMiddle) {
-                        start
-                    } else if (current.station == stationAtMiddle) {
-                        end.point
-                    } else {
-                        throw RuntimeException("intersection with station voronoi not found")
+                val intersection =
+                    current.getIntersection(edge)?.latLng ?: kotlin.run {
+                        // TODO 端点が境界に非常に近い場合、見つからない場合あがある？
+                        val middle = edge.middlePoint
+                        val stationAtMiddle = explorer.searchEuclid(middle.latLng)
+                        if (stationAtEnd == stationAtMiddle) {
+                            start
+                        } else if (current.station == stationAtMiddle) {
+                            end.point
+                        } else {
+                            throw RuntimeException("intersection with station voronoi not found")
+                        }
                     }
-                }
                 /*
                    次の探索開始点＆隣接駅を決定
                    交点だと現在の駅と隣接駅から距離が同じで不都合
@@ -271,16 +295,17 @@ class PolylineCursor {
                 val distToEnd = end.point.measureEuclid(intersection)
                 val distFromStart = start.measureEuclid(intersection)
                 val delta = 0.00001
-                val nextStart = if (intersection != end.point && delta < distToEnd) {
-                    val m = delta / distFromStart
-                    LatLng(
-                        (1 + m) * intersection.latitude - m * start.latitude,
-                        (1 + m) * intersection.longitude - m * start.longitude
-                    )
-                } else {
-                    // 終点endが近すぎる場合
-                    end.point
-                }
+                val nextStart =
+                    if (intersection != end.point && delta < distToEnd) {
+                        val m = delta / distFromStart
+                        LatLng(
+                            (1 + m) * intersection.latitude - m * start.latitude,
+                            (1 + m) * intersection.longitude - m * start.longitude,
+                        )
+                    } else {
+                        // 終点endが近すぎる場合
+                        end.point
+                    }
                 // 隣接駅
                 val station = requireNotNull(explorer.searchEuclid(nextStart))
                 // 次の探索駅
@@ -348,7 +373,7 @@ class PolylineCursor {
         if (javaClass != other?.javaClass) return false
         other as PolylineCursor
         return (start == other.start && end == other.end) ||
-                (start == other.end && end == other.start)
+            (start == other.end && end == other.start)
     }
 
     override fun hashCode(): Int {

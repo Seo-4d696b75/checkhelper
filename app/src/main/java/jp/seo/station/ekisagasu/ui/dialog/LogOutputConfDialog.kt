@@ -12,16 +12,16 @@ import jp.seo.station.ekisagasu.databinding.DialogLogOutputConfigBinding
 
 @AndroidEntryPoint
 class LogOutputConfDialog : DialogFragment() {
-
     val viewModel: LogOutputConfViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val binding = DataBindingUtil.inflate<DialogLogOutputConfigBinding>(
-            layoutInflater,
-            R.layout.dialog_log_output_config,
-            null,
-            false,
-        )
+        val binding =
+            DataBindingUtil.inflate<DialogLogOutputConfigBinding>(
+                layoutInflater,
+                R.layout.dialog_log_output_config,
+                null,
+                false,
+            )
         binding.radioGroupFileExtension.setOnCheckedChangeListener { group, checkedId ->
             viewModel.onChecked(checkedId)
         }

@@ -53,9 +53,7 @@ object RetrofitModule {
 object ApiModule {
     @Singleton
     @Provides
-    fun provideAPIClient(
-        retrofit: Retrofit,
-    ): APIClient {
+    fun provideAPIClient(retrofit: Retrofit): APIClient {
         return retrofit.create(APIClient::class.java)
     }
 }
@@ -64,7 +62,8 @@ object ApiModule {
 @InstallIn(SingletonComponent::class)
 object JsonModule {
     @Provides
-    fun provideJson() = Json {
-        ignoreUnknownKeys = true
-    }
+    fun provideJson() =
+        Json {
+            ignoreUnknownKeys = true
+        }
 }

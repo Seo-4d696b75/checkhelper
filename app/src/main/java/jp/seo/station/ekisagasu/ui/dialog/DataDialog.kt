@@ -25,25 +25,27 @@ enum class DataUpdateType {
 
 @AndroidEntryPoint
 class ConfirmDataUpdateDialog : DialogFragment() {
-
     private val args: ConfirmDataUpdateDialogArgs by navArgs()
 
     private val viewModel: ConfirmDataUpdateViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        val binding = DataBindingUtil.inflate<DialogDataCheckBinding>(
-            layoutInflater,
-            R.layout.dialog_data_check,
-            null,
-            false,
-        )
+        val binding =
+            DataBindingUtil.inflate<DialogDataCheckBinding>(
+                layoutInflater,
+                R.layout.dialog_data_check,
+                null,
+                false,
+            )
         binding.viewModel = viewModel
 
         return AlertDialog.Builder(context).apply {
             setTitle(
-                if (args.type == DataUpdateType.Init) R.string.dialog_title_init_data
-                else R.string.dialog_title_latest_data
+                if (args.type == DataUpdateType.Init) {
+                    R.string.dialog_title_init_data
+                } else {
+                    R.string.dialog_title_latest_data
+                },
             )
             setPositiveButton(R.string.dialog_button_positive) { _, _ ->
                 viewModel.onResult(true)
@@ -62,17 +64,16 @@ class ConfirmDataUpdateDialog : DialogFragment() {
 
 @AndroidEntryPoint
 class DataUpdateDialog : DialogFragment() {
-
     private val viewModel: DataUpdateViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        val binding = DataBindingUtil.inflate<DialogDataUpdateBinding>(
-            layoutInflater,
-            R.layout.dialog_data_update,
-            null,
-            false,
-        )
+        val binding =
+            DataBindingUtil.inflate<DialogDataUpdateBinding>(
+                layoutInflater,
+                R.layout.dialog_data_update,
+                null,
+                false,
+            )
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
