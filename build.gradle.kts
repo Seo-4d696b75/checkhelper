@@ -1,5 +1,3 @@
-import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
-
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -11,16 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.ktlint.gradle)
     alias(libs.plugins.androidx.navigation.safeargs) apply false
-}
-
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    android.set(true)
-    outputColorName.set("RED")
-    ignoreFailures.set(true)
-    reporters {
-        reporter(ReporterType.PLAIN)
-        reporter(ReporterType.CHECKSTYLE)
-    }
 }
 
 task<Delete>("clean") {
