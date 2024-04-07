@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.gpx.serializeGPX
 import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.model.LogTarget
 import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.repository.DataRepository
 import jp.seo.station.ekisagasu.repository.LogRepository
@@ -43,7 +42,7 @@ class LogViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
     val target = logRepository.logFilter
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList<LogTarget>())
+        .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
     private val _filter = MutableStateFlow(LogFilter(AppLog.FILTER_ALL, "ALL"))
 
