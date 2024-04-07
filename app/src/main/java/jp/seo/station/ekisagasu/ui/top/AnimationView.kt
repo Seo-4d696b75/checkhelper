@@ -88,10 +88,10 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         val dst = this.dst
         val src = this.src
-        if (canvas == null || dst == null || src == null) return
+        if (dst == null || src == null) return
         val time = SystemClock.uptimeMillis()
         if (running && _time > 0) {
             var degree = _degree + (time - _time) * 0.01f
