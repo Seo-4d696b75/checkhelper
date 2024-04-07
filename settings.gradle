@@ -1,6 +1,0 @@
-include ':app'
-rootProject.name = "Ekisagasu"
-include ':widget'
-include ':diagram'
-project(':widget').projectDir = new File(settingsDir, '../MyAndroidLibrary/library/widget')
-project(':diagram').projectDir = new File(settingsDir, '../MyAndroidLibrary/library/diagram')
