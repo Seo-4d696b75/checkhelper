@@ -11,6 +11,7 @@ androidx-test = "1.4.0"
 kotlinx-coroutine = "1.6.1"
 kotlinx-serialization = "1.3.3"
 retrofit = "2.9.0"
+espresso-core = "3.5.1"
 
 [plugins]
 # kotlin
@@ -101,3 +102,4 @@ robolectric = { group = "org.robolectric", name = "robolectric", version = "4.8.
 mockk = { group = "io.mockk", name = "mockk", version = "1.12.5" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test" }
 okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version = "4.9.3" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }

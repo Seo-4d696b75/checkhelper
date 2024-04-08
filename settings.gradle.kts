@@ -27,7 +27,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Ekisagasu"
 include(":app")
-include(":widget")
+include(":ui")
 include(":diagram")
-project(":widget").projectDir = File(settingsDir, "../MyAndroidLibrary/library/widget")
 project(":diagram").projectDir = File(settingsDir, "../MyAndroidLibrary/library/diagram")

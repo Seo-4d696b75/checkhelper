@@ -77,7 +77,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":widget"))
+    implementation(project(":ui"))
     implementation(project(":diagram"))
 
     implementation(libs.androidx.core)
