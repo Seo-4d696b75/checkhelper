@@ -1,7 +1,15 @@
 // for dependencyResolutionManagement
 @file:Suppress("UnstableApiUsage")
 
+import java.util.Properties
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+val props = Properties().apply {
+    file("github_credential.properties").inputStream().use {
+        load(it)
+    }
+}
 
 pluginManagement {
     repositories {
@@ -22,11 +30,17 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Seo-4d696b75/diagram")
+            credentials {
+                username = props.getProperty("username")
+                password = props.getProperty("token")
+            }
+        }
     }
 }
 
 rootProject.name = "Ekisagasu"
 include(":app")
 include(":ui")
-include(":diagram")
-project(":diagram").projectDir = File(settingsDir, "../MyAndroidLibrary/library/diagram")

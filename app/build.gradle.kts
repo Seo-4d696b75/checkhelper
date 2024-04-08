@@ -78,7 +78,6 @@ android {
 
 dependencies {
     implementation(project(":ui"))
-    implementation(project(":diagram"))
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
@@ -117,6 +116,8 @@ dependencies {
     implementation(libs.google.maps.utils)
     implementation(libs.google.android.maps.utils)
     implementation(libs.apache.math)
+
+    implementation(libs.diagram)
 
     implementation(libs.timber)
 

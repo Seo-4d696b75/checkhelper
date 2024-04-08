@@ -90,6 +90,8 @@ timber = { group = "com.jakewharton.timber", name = "timber", version = "5.0.1" 
 google-maps-utils = { group = "com.google.maps.android", name = "maps-utils-ktx", version = "2.2.0" }
 google-android-maps-utils = { group = "com.google.maps.android", name = "android-maps-utils", version = "2.2.0" }
 
+# diagram
+diagram = { group = "com.github.seo4d696b75", name = "diagram", version = "0.2.2" }
 
 # test
 junit = { group = "junit", name = "junit", version = "4.13.2" }
