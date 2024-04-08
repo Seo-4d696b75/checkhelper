@@ -1,106 +1,50 @@
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.libraly)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.ktlint.gradle)
 }
 
 android {
-    namespace = "jp.seo.station.ekisagasu"
-
-    signingConfigs {
-        create("release") {
-            storeFile = file("release.jks")
-            storePassword = project.properties["release_keystore_pwd"].toString()
-            keyAlias = "key0"
-            keyPassword = project.properties["release_key_pwd"].toString()
-        }
-    }
+    namespace = "com.seo4d696b75.android.ekisagasu.data"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "jp.seo.station.ekisagasu"
         minSdk = 27
-        targetSdk = 32
-        compileSdk = 34
-        versionCode = 207
-        versionName = "2.2.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles.add(getDefaultProguardFile("proguard-android-optimize.txt"))
-            proguardFiles.add(file("proguard-rules.pro"))
-            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-
-    buildFeatures {
-        buildConfig = true
-    }
-
-    dataBinding {
-        enable = true
-    }
-
-    sourceSets {
-        getByName("test") {
-            resources.srcDirs("src/test/resources")
-        }
-        getByName("androidTest") {
-            resources.srcDirs("src/test/resources")
-        }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
 dependencies {
-    implementation(project(":ui"))
-    implementation(project(":data"))
-
     implementation(libs.androidx.core)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.activity)
-
-    implementation(libs.androidx.navigation.runtime)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
 
     implementation(platform(libs.kotlinx.coroutines.bom))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.runtime)
-
-    implementation(libs.androidx.recyclerview)
-
     implementation(libs.androidx.datastore.preferences)
-
-    implementation(libs.google.material)
 
     implementation(libs.kotlinx.serialization.json)
 
@@ -129,14 +73,13 @@ dependencies {
     testImplementation(libs.google.truth)
     testImplementation(libs.mockk)
     testImplementation(libs.okhttp.mockwebserver)
-}
 
-kapt {
-    correctErrorTypes = true
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    android.set(true)
+    android.set(false)
     outputColorName.set("RED")
     ignoreFailures.set(true)
     reporters {
