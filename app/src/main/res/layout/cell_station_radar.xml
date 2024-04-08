@@ -38,7 +38,7 @@
             android:textSize="12sp"
             app:stationDistance="@{near}" />
 
-        <jp.seo.android.widget.ExpandableTextView
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_cell_station_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             app:maxWidth="150dp"
             app:stationName="@{near}" />
 
-        <jp.seo.android.widget.ExpandableTextView
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_cell_station_lines"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -35,7 +35,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <jp.seo.android.widget.CustomNumberPicker
+            <com.seo4d696b75.android.ekisagasu.ui.common.CustomNumberPicker
                 android:id="@+id/number_time_interval"
                 android:layout_width="80dp"
                 android:layout_height="120dp"
@@ -85,7 +85,7 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <jp.seo.android.widget.CustomNumberPicker
+            <com.seo4d696b75.android.ekisagasu.ui.common.CustomNumberPicker
                 android:id="@+id/number_radar"
                 android:layout_width="80dp"
                 android:layout_height="120dp"
@@ -319,7 +319,7 @@
                 android:textColor="@color/colorText"
                 android:textSize="12sp" />
 
-            <jp.seo.android.widget.CustomNumberPicker
+            <com.seo4d696b75.android.ekisagasu.ui.common.CustomNumberPicker
                 android:id="@+id/number_vibrate_meter"
                 android:layout_width="80dp"
                 android:layout_height="120dp"

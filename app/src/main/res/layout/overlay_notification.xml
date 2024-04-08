@@ -45,7 +45,7 @@
                 android:layout_margin="2dp"
                 android:columnCount="2">
 
-                <jp.seo.android.widget.ExpandableTextView
+                <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                     android:id="@+id/station_name_notification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                     android:textColor="@color/colorText"
                     android:textSize="16sp" />
 
-                <jp.seo.android.widget.ExpandableTextView
+                <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                     android:id="@+id/text_notification_lines"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"

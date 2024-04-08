@@ -125,7 +125,7 @@
                 android:layout_height="20dp"
                 android:src="@drawable/station" />
 
-            <jp.seo.android.widget.HorizontalListView
+            <com.seo4d696b75.android.ekisagasu.ui.common.HorizontalListView
                 android:id="@+id/list_line_names"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -135,7 +135,7 @@
 
         </GridLayout>
 
-        <jp.seo.android.widget.ExpandableTextView
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_selected_line"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

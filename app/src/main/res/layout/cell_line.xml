@@ -22,7 +22,7 @@
             android:layout_height="20dp"
             app:lineSymbolColor="@{line}" />
 
-        <jp.seo.android.widget.ExpandableTextView
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_cell_line_name"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -35,7 +35,7 @@
             app:lineName="@{line}"
             app:maxWidth="150dp" />
 
-        <jp.seo.android.widget.ExpandableTextView
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_cell_line_stations_size"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

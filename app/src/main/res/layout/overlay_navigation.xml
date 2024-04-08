@@ -136,7 +136,7 @@
                             android:layout_marginTop="21dp"
                             android:background="@drawable/station_marker_normal" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_station_fade"
                             android:layout_width="match_parent"
                             android:layout_height="20dp"
@@ -146,7 +146,7 @@
                             android:visibility="invisible"
                             android:textSize="16sp" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_station_current"
                             android:layout_width="match_parent"
                             android:layout_height="20dp"
@@ -157,7 +157,7 @@
                             android:textColor="@color/colorTextDark"
                             android:textSize="16sp" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_station_next1"
                             android:layout_width="match_parent"
                             android:layout_height="20dp"
@@ -167,7 +167,7 @@
                             android:textColor="@color/colorTextDark"
                             android:textSize="16sp" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_station_next2"
                             android:layout_width="match_parent"
                             android:layout_height="20dp"
@@ -177,7 +177,7 @@
                             android:textColor="@color/colorTextDark"
                             android:textSize="16sp" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_distance_fade"
                             android:visibility="invisible"
                             android:layout_marginStart="38dp"
@@ -188,7 +188,7 @@
                             android:textColor="@color/colorText"
                             android:textSize="16sp" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_distance1"
                             android:layout_width="50dp"
                             android:layout_height="20dp"
@@ -199,7 +199,7 @@
                             android:textColor="@color/colorText"
                             android:textSize="16sp" />
 
-                        <jp.seo.android.widget.ExpandableTextView
+                        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                             android:id="@+id/text_distance2"
                             android:layout_marginStart="38dp"
                             android:layout_width="50dp"
@@ -220,7 +220,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginBottom="10dp">
 
-                    <jp.seo.android.widget.ExpandableTextView
+                    <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
                         android:id="@+id/text_navigation_line"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

@@ -7,7 +7,7 @@ import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import jp.seo.android.widget.ExpandableTextView
+import com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.Station
 import kotlin.math.max
