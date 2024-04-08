@@ -1,9 +1,9 @@
 package jp.seo.station.ekisagasu.polyline
 
 import com.google.android.gms.maps.model.LatLng
-import jp.seo.android.diagram.BasePoint
-import jp.seo.android.diagram.Edge
-import jp.seo.android.diagram.Point
+import jp.seo.diagram.core.BasePoint
+import jp.seo.diagram.core.Edge
+import jp.seo.diagram.core.Point
 import jp.seo.station.ekisagasu.BuildConfig
 import jp.seo.station.ekisagasu.model.StationArea
 import jp.seo.station.ekisagasu.search.NearestSearch
