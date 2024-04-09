@@ -8,9 +8,9 @@ import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.seo4d696b75.android.ekisagasu.data.station.Line
 import jp.seo.station.ekisagasu.databinding.CellLineBinding
 import jp.seo.station.ekisagasu.databinding.CellLineSmallBinding
-import jp.seo.station.ekisagasu.model.Line
 
 class LineComparator : DiffUtil.ItemCallback<Line>() {
     override fun areItemsTheSame(

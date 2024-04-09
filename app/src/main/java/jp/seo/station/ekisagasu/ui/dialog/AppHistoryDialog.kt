@@ -16,9 +16,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.database.AppRebootLog
 import jp.seo.station.ekisagasu.databinding.CellListHistoryBinding
 import jp.seo.station.ekisagasu.databinding.DialogHistoryBinding
 import kotlinx.coroutines.flow.launchIn

@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.seo4d696b75.android.ekisagasu.data.database.AppLog
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.database.AppLog
 import jp.seo.station.ekisagasu.databinding.CellListLogBinding
 import jp.seo.station.ekisagasu.databinding.FragmentLogBinding
 import jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialogDirections

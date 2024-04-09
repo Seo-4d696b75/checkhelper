@@ -3,10 +3,10 @@ package jp.seo.station.ekisagasu.ui.dialog
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.AppStateRepository
 import jp.seo.station.ekisagasu.ui.log.LogOutputConfig
 import jp.seo.station.ekisagasu.ui.log.LogOutputExtension
 import kotlinx.coroutines.flow.MutableStateFlow

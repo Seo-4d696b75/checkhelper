@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.log
 
-import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

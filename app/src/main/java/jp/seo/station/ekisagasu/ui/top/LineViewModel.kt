@@ -3,10 +3,10 @@ package jp.seo.station.ekisagasu.ui.top
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.data.station.StationRegister
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.StationRegister
-import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted

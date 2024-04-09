@@ -6,7 +6,7 @@
 
         <variable
             name="line"
-            type="jp.seo.station.ekisagasu.model.Line" />
+            type="com.seo4d696b75.android.ekisagasu.data.station.Line" />
     </data>
 
     <LinearLayout

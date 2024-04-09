@@ -3,16 +3,17 @@
 package jp.seo.station.ekisagasu.usecase
 
 import com.google.common.truth.Truth.assertThat
+import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateProgress
+import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateUseCase
+import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepository
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.slot
-import jp.seo.station.ekisagasu.database.DataVersion
 import jp.seo.station.ekisagasu.fakeLatestInfo
-import jp.seo.station.ekisagasu.model.DataUpdateProgress
-import jp.seo.station.ekisagasu.repository.DataRepository
-import jp.seo.station.ekisagasu.repository.RemoteDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList

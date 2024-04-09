@@ -19,13 +19,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.AppMessage
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.ui.dialog.ConfirmDataUpdateDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialogDirections
-import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.ui.log.LogViewModel

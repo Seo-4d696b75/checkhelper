@@ -19,9 +19,9 @@ import android.widget.TextView
 import androidx.core.animation.addListener
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.model.NearStation
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.repository.PrefectureRepository
-import jp.seo.station.ekisagasu.search.formatDistance
+import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 import java.util.Timer
 import java.util.TimerTask

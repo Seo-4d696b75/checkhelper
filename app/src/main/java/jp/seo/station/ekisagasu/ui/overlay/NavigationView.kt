@@ -17,11 +17,11 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.animation.addListener
+import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
+import com.seo4d696b75.android.ekisagasu.data.polyline.PredictionResult
+import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.data.station.Station
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.polyline.PredictionResult
-import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 
 /**

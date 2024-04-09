@@ -6,21 +6,21 @@ import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
+import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
+import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
+import com.seo4d696b75.android.ekisagasu.data.log.LogTarget
+import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateProgress
+import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME
+import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
+import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.database.AppRebootLog
-import jp.seo.station.ekisagasu.database.DataVersion
-import jp.seo.station.ekisagasu.model.DataLatestInfo
-import jp.seo.station.ekisagasu.model.DataUpdateProgress
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.LogTarget
 import jp.seo.station.ekisagasu.model.NearStation
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.search.formatDistance
-import jp.seo.station.ekisagasu.ui.dialog.DataUpdateType
 import jp.seo.station.ekisagasu.ui.top.AnimationView
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_DATETIME
-import jp.seo.station.ekisagasu.utils.TIME_PATTERN_MILLI_SEC
-import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.utils.getVFromColorCode
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import java.util.Date
@@ -205,7 +205,7 @@ fun setDataVersion(
 @BindingAdapter("dataVersion")
 fun setDataVersion(
     view: TextView,
-    info: DataLatestInfo?,
+    info: LatestDataVersion?,
 ) {
     view.text = info?.let {
         view.context.getString(R.string.text_data_version, it.version)
@@ -215,7 +215,7 @@ fun setDataVersion(
 @BindingAdapter("dataSize")
 fun setDataSize(
     view: TextView,
-    info: DataLatestInfo?,
+    info: LatestDataVersion?,
 ) {
     view.text = info?.let {
         view.context.getString(R.string.text_data_size, it.fileSize())

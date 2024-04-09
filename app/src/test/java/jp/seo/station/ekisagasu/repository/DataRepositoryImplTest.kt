@@ -3,22 +3,23 @@
 package jp.seo.station.ekisagasu.repository
 
 import com.google.common.truth.Truth.assertThat
+import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
+import com.seo4d696b75.android.ekisagasu.data.database.StationDao
+import com.seo4d696b75.android.ekisagasu.data.kdtree.RootStationNode
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.data.utils.unzip
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import io.mockk.slot
-import jp.seo.station.ekisagasu.database.DataVersion
-import jp.seo.station.ekisagasu.database.StationDao
 import jp.seo.station.ekisagasu.fakeData
 import jp.seo.station.ekisagasu.fakeLines
 import jp.seo.station.ekisagasu.fakeStations
 import jp.seo.station.ekisagasu.fakeTree
-import jp.seo.station.ekisagasu.model.DataLatestInfo
-import jp.seo.station.ekisagasu.model.RootStationNode
-import jp.seo.station.ekisagasu.repository.impl.DataRepositoryImpl
-import jp.seo.station.ekisagasu.utils.unzip
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -58,7 +59,7 @@ class DataRepositoryImplTest {
     }
 
     private val info =
-        DataLatestInfo(
+        LatestDataVersion(
             version = 1,
             length = 1024,
         )

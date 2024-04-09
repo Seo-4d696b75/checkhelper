@@ -2,15 +2,15 @@ package jp.seo.station.ekisagasu.ui.top
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.data.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.data.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.DataRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.NavigationRepository
-import jp.seo.station.ekisagasu.repository.PrefectureRepository
-import jp.seo.station.ekisagasu.repository.SearchRepository
-import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import jp.seo.station.ekisagasu.utils.mapState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,10 +25,10 @@ class TopViewModel
     @Inject
     constructor(
         private val locationRepository: LocationRepository,
-        private val searchRepository: SearchRepository,
+        private val searchRepository: StationSearchRepository,
         private val dataRepository: DataRepository,
         private val settingRepository: UserSettingRepository,
-        private val navigationRepository: NavigationRepository,
+        private val navigatorRepository: NavigatorRepository,
         private val prefectureRepository: PrefectureRepository,
         private val appStateRepository: AppStateRepository,
     ) : ViewModel() {
@@ -60,7 +60,7 @@ class TopViewModel
             if (isRunning.value) {
                 locationRepository.stopWatchCurrentLocation()
                 searchRepository.onStopSearch()
-                navigationRepository.stop()
+                navigatorRepository.stop()
             } else {
                 if (dataRepository.dataInitialized) {
                     locationRepository.startWatchCurrentLocation(settingRepository.setting.value.locationUpdateInterval)

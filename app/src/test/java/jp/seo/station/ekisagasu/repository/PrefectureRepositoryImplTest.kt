@@ -4,7 +4,7 @@ package jp.seo.station.ekisagasu.repository
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import jp.seo.station.ekisagasu.repository.impl.PrefectureRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepositoryImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

@@ -1,10 +1,10 @@
 package jp.seo.station.ekisagasu.usecase
 
 import android.content.Context
+import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LogRepository
-import jp.seo.station.ekisagasu.repository.UserSettingRepository
 import javax.inject.Inject
 
 class AppFinishUseCase

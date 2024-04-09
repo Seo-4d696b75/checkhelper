@@ -2,11 +2,12 @@ package jp.seo.station.ekisagasu.api
 
 import com.google.common.truth.Truth.assertThat
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.seo4d696b75.android.ekisagasu.data.api.APIClient
+import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepositoryImpl
 import io.mockk.mockk
 import io.mockk.verifyOrder
 import jp.seo.station.ekisagasu.fakeDataBuffer
 import jp.seo.station.ekisagasu.fakeLatestInfoString
-import jp.seo.station.ekisagasu.repository.impl.RemoteDataRepositoryImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json

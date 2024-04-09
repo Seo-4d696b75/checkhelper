@@ -3,13 +3,13 @@ package jp.seo.station.ekisagasu.service
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.NavigationRepository
-import jp.seo.station.ekisagasu.repository.SearchRepository
-import jp.seo.station.ekisagasu.repository.UserSettingRepository
+import com.seo4d696b75.android.ekisagasu.data.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.data.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
 import jp.seo.station.ekisagasu.usecase.BootUseCase
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,8 +25,8 @@ class ServiceViewModel
     constructor(
         private val locationRepository: LocationRepository,
         private val userSettingRepository: UserSettingRepository,
-        private val searchRepository: SearchRepository,
-        private val navigator: NavigationRepository,
+        private val searchRepository: StationSearchRepository,
+        private val navigator: NavigatorRepository,
         private val appStateRepository: AppStateRepository,
         private val bootUseCase: BootUseCase,
         private val appFinishUseCase: AppFinishUseCase,

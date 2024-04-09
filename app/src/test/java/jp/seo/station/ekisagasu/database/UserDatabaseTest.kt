@@ -3,6 +3,9 @@ package jp.seo.station.ekisagasu.database
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import com.seo4d696b75.android.ekisagasu.data.database.AppLog
+import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
+import com.seo4d696b75.android.ekisagasu.data.database.UserDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch

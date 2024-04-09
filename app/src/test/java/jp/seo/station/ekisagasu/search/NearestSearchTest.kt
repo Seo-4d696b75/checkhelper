@@ -1,12 +1,14 @@
 package jp.seo.station.ekisagasu.search
 
 import com.google.common.truth.Truth.assertThat
+import com.seo4d696b75.android.ekisagasu.data.kdtree.KdTree
+import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
 import jp.seo.station.ekisagasu.fakeStations
 import jp.seo.station.ekisagasu.fakeTree
-import jp.seo.station.ekisagasu.repository.DataRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

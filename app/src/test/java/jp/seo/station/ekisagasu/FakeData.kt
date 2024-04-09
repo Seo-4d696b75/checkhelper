@@ -1,9 +1,9 @@
 package jp.seo.station.ekisagasu
 
-import jp.seo.station.ekisagasu.model.DataLatestInfo
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.model.StationKdTree
+import com.seo4d696b75.android.ekisagasu.data.kdtree.StationKdTree
+import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.data.station.Station
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -71,7 +71,7 @@ val <T : Any> T.fakeTree: Lazy<StationKdTree>
             json.decodeFromString<StationKdTree>(str)
         }
 
-val <T : Any> T.fakeLatestInfo: Lazy<DataLatestInfo>
+val <T : Any> T.fakeLatestInfo: Lazy<LatestDataVersion>
     get() =
         lazy {
             val str by this.fakeLatestInfoString

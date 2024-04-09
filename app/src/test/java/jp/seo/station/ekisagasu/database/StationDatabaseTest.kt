@@ -3,6 +3,7 @@ package jp.seo.station.ekisagasu.database
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import com.seo4d696b75.android.ekisagasu.data.database.StationDatabase
 import jp.seo.station.ekisagasu.fakeLatestInfo
 import jp.seo.station.ekisagasu.fakeLines
 import jp.seo.station.ekisagasu.fakeStations

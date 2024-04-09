@@ -1,28 +1,28 @@
 package jp.seo.station.ekisagasu.hilt
 
+import com.seo4d696b75.android.ekisagasu.data.kdtree.KdTree
+import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.data.location.GPSClient
+import com.seo4d696b75.android.ekisagasu.data.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.data.log.LogRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.data.navigator.NavigatorRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.data.station.DataRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
+import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.DataRepository
-import jp.seo.station.ekisagasu.repository.LocationRepository
-import jp.seo.station.ekisagasu.repository.LogRepository
-import jp.seo.station.ekisagasu.repository.NavigationRepository
-import jp.seo.station.ekisagasu.repository.PrefectureRepository
-import jp.seo.station.ekisagasu.repository.SearchRepository
-import jp.seo.station.ekisagasu.repository.UserSettingRepository
-import jp.seo.station.ekisagasu.repository.impl.AppStateRepositoryImpl
-import jp.seo.station.ekisagasu.repository.impl.DataRepositoryImpl
-import jp.seo.station.ekisagasu.repository.impl.GPSClient
-import jp.seo.station.ekisagasu.repository.impl.LogRepositoryImpl
-import jp.seo.station.ekisagasu.repository.impl.NavigationRepositoryImpl
-import jp.seo.station.ekisagasu.repository.impl.PrefectureRepositoryImpl
-import jp.seo.station.ekisagasu.repository.impl.SearchRepositoryImpl
-import jp.seo.station.ekisagasu.repository.impl.UserSettingRepositoryImpl
-import jp.seo.station.ekisagasu.search.KdTree
-import jp.seo.station.ekisagasu.search.NearestSearch
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,7 +74,7 @@ interface SettingModule {
 interface SearchModule {
     @Singleton
     @Binds
-    fun bindSearchRepository(impl: SearchRepositoryImpl): SearchRepository
+    fun bindSearchRepository(impl: StationSearchRepositoryImpl): StationSearchRepository
 
     @Singleton
     @Binds
@@ -95,7 +95,7 @@ interface DataModule {
 interface NavigationModule {
     @Singleton
     @Binds
-    fun bindNavigation(impl: NavigationRepositoryImpl): NavigationRepository
+    fun bindNavigation(impl: NavigatorRepositoryImpl): NavigatorRepository
 }
 
 @Module

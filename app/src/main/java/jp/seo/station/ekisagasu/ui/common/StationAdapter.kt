@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import com.seo4d696b75.android.ekisagasu.data.station.StationRegister
 import jp.seo.station.ekisagasu.databinding.CellStationBinding
-import jp.seo.station.ekisagasu.model.StationRegister
 
 class StationAdapter(context: Context, stations: List<StationRegister>) :
     ArrayAdapter<StationRegister>(context, 0, stations) {

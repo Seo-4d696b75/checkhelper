@@ -19,12 +19,12 @@ import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
+import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.data.station.Station
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.repository.PrefectureRepository
-import jp.seo.station.ekisagasu.search.formatDistance
 import jp.seo.station.ekisagasu.ui.MainActivity
 import jp.seo.station.ekisagasu.ui.overlay.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder

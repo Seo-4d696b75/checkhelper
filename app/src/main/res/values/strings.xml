@@ -61,7 +61,6 @@
     <string name="setting_mes_brightness_dart">暗</string>
     <string name="setting_mes_brightness_bright">明</string>
     <string name="setting_mes_update_data">更新</string>
-    <string name="preference_setting_backup">setting_preference_backup</string>
     <string name="title_log_since">表示期間</string>
     <string name="title_log_filter">フィルター</string>
     <string name="log_save_fail">ログの書き出しに失敗しました</string>

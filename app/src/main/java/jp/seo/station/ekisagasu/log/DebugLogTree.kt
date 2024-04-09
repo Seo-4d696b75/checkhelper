@@ -2,7 +2,7 @@ package jp.seo.station.ekisagasu.log
 
 import android.annotation.SuppressLint
 import android.util.Log
-import jp.seo.station.ekisagasu.repository.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import kotlinx.coroutines.CoroutineDispatcher
 
 /**
