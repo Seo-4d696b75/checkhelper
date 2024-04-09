@@ -2,9 +2,8 @@ package com.seo4d696b75.android.ekisagasu.data.gpx
 
 import com.seo4d696b75.android.ekisagasu.data.config.AppConfig
 import com.seo4d696b75.android.ekisagasu.data.database.AppLog
-import com.seo4d696b75.android.ekisagasu.data.database.AppLog.Companion.FILTER_GEO
-import com.seo4d696b75.android.ekisagasu.data.database.AppLog.Companion.TYPE_LOCATION
-import com.seo4d696b75.android.ekisagasu.data.database.AppLog.Companion.TYPE_STATION
+import com.seo4d696b75.android.ekisagasu.data.database.filter
+import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_ISO8601_EXTEND
 import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
 import java.util.Date
@@ -95,13 +94,13 @@ class SerializeGPXUseCase @Inject constructor(
 }
 
 private fun List<AppLog>.toTrackSegment(): List<TrackPoint> {
-    val list = this.filter { it.type and FILTER_GEO > 0 }
+    val list = this.filter(AppLogType.Filter.Geo)
     val points = mutableListOf<TrackPoint>()
     var i = 0
     while (i < list.size) {
-        assert(list[i].type == TYPE_LOCATION)
+        assert(list[i].type == AppLogType.Location)
         val next = if (i + 1 < list.size) list[i + 1] else null
-        if (next != null && next.type == TYPE_STATION) {
+        if (next != null && next.type == AppLogType.Station) {
             points.add(
                 TrackPoint.fromLocationWithStation(
                     location = list[i],

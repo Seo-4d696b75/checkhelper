@@ -1,13 +1,11 @@
 package jp.seo.station.ekisagasu.hilt
 
 import android.app.Application
+import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
+import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.data.log.formatStackTrace
 import dagger.hilt.android.HiltAndroidApp
 import jp.seo.station.ekisagasu.BuildConfig
-import jp.seo.station.ekisagasu.log.DebugLogTree
-import jp.seo.station.ekisagasu.log.ReleaseLogTree
-import jp.seo.station.ekisagasu.model.AppMessage
-import jp.seo.station.ekisagasu.repository.AppStateRepository
-import jp.seo.station.ekisagasu.repository.LogRepository
 import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -29,8 +27,6 @@ import javax.inject.Inject
  */
 @HiltAndroidApp
 class HiltApplication : Application() {
-    @Inject
-    lateinit var appStateRepository: AppStateRepository
 
     @Inject
     lateinit var logRepository: LogRepository
@@ -43,9 +39,7 @@ class HiltApplication : Application() {
 
         // ログ出力を制御
         if (BuildConfig.DEBUG) {
-            Timber.plant(DebugLogTree(Dispatchers.Default, appStateRepository))
-        } else {
-            Timber.plant(ReleaseLogTree(Dispatchers.Default, appStateRepository))
+            Timber.plant(Timber.DebugTree())
         }
 
         // 未補足の例外を処理
@@ -57,8 +51,10 @@ class HiltApplication : Application() {
             try {
                 runBlocking(Dispatchers.Default) {
                     // ログ記録
-                    logRepository.saveMessage(
-                        AppMessage.Error("UnhandledException", e),
+                    logRepository.write(
+                        type = AppLogType.System,
+                        message = "UnhandledException:\n${e.formatStackTrace()}",
+                        isError = true,
                     )
                     // 終了処理
                     appFinishUseCase()
