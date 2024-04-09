@@ -73,6 +73,9 @@ data class AppLog constructor(
     }
 }
 
+fun List<AppLog>.filter(filter: AppLogType.Filter) =
+    filter { it.type.value and filter.value > 0 }
+
 @Entity(
     tableName = "reboot",
     foreignKeys = [

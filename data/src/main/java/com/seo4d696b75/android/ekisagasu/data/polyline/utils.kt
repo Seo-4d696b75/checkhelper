@@ -1,11 +1,11 @@
 package com.seo4d696b75.android.ekisagasu.data.polyline
 
 import com.google.android.gms.maps.model.LatLng
+import com.seo4d696b75.android.ekisagasu.data.BuildConfig
 import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
 import jp.seo.diagram.core.BasePoint
 import jp.seo.diagram.core.Edge
 import jp.seo.diagram.core.Point
-import jp.seo.station.ekisagasu.BuildConfig
 
 /**
  * 境界線をなす各辺に繰り返し処理を実行

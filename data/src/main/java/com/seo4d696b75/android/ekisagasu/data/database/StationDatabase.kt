@@ -11,11 +11,11 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.TypeConverters
-import jp.seo.station.ekisagasu.model.Line
-import jp.seo.station.ekisagasu.model.RootStationNode
-import jp.seo.station.ekisagasu.model.Station
-import jp.seo.station.ekisagasu.model.StationKdTree
-import jp.seo.station.ekisagasu.model.StationNode
+import com.seo4d696b75.android.ekisagasu.data.kdtree.RootStationNode
+import com.seo4d696b75.android.ekisagasu.data.kdtree.StationKdTree
+import com.seo4d696b75.android.ekisagasu.data.kdtree.StationNode
+import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.data.station.Station
 import java.util.Date
 
 /**

@@ -82,16 +82,19 @@ class StationService : LifecycleService() {
                     REQUEST_EXIT_SERVICE -> {
                         viewModel.requestAppFinish()
                     }
+
                     REQUEST_START_TIMER -> {
                         setTimer()
                     }
+
                     REQUEST_FINISH_TIMER -> {
                         timerRunning = false
                         overlayView.setTimerState(false)
                     }
+
                     else -> {
                         Timber.tag("Service").w(
-                            "unknown intent extra received:" + it.getStringExtra(KEY_REQUEST),
+                            "unknown intent extra received:%s", it.getStringExtra(KEY_REQUEST),
                         )
                     }
                 }
@@ -110,18 +113,18 @@ class StationService : LifecycleService() {
         notificationHolder.update("init", "initializing app")
 
         // init vibrator
-        vibrator =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
-                    val manager = it as VibratorManager
-                    manager.defaultVibrator
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                getSystemService(VIBRATOR_SERVICE) as Vibrator
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(VIBRATOR_MANAGER_SERVICE)?.let {
+                val manager = it as VibratorManager
+                manager.defaultVibrator
             }
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
 
         // when current location changed
+        // TODO map location flow to search station flow in repository
         viewModel
             .currentLocation
             .flowWithLifecycle(lifecycle)
@@ -131,18 +134,15 @@ class StationService : LifecycleService() {
         // update notification when nearest station changed
         viewModel.detectedStation
             .flowWithLifecycle(lifecycle)
-            .filterNotNull()
             .onEach { n ->
-                viewModel.saveStationLog(n.station)
                 overlayView.onStationChanged(n)
                 vibrate(n.station)
             }
             .launchIn(lifecycleScope)
+
         viewModel.selectedLine
             .flowWithLifecycle(lifecycle)
-            .onEach {
-                currentLine = it
-            }
+            .onEach { currentLine = it }
             .launchIn(lifecycleScope)
 
         // update notification when nearest station or distance changed
@@ -204,7 +204,6 @@ class StationService : LifecycleService() {
 
         viewModel.navigationPrediction
             .flowWithLifecycle(lifecycle)
-            .filterNotNull()
             .onEach { result ->
                 if (result.size > 0) {
                     val next = result.getStation(0)
@@ -225,9 +224,7 @@ class StationService : LifecycleService() {
         // when finish requested
         viewModel.appFinish
             .flowWithLifecycle(lifecycle)
-            .onEach {
-                stopService()
-            }
+            .onEach { stopService() }
             .launchIn(lifecycleScope)
 
         // init notification
@@ -237,12 +234,11 @@ class StationService : LifecycleService() {
         )
 
         // register broadcast receiver
-        val filter =
-            IntentFilter().apply {
-                addAction(Intent.ACTION_SCREEN_OFF)
-                addAction(Intent.ACTION_SCREEN_ON)
-                addAction(Intent.ACTION_USER_PRESENT)
-            }
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
         registerReceiver(receiver, filter)
 
         // when user setting changed
@@ -276,37 +272,39 @@ class StationService : LifecycleService() {
             .launchIn(lifecycleScope)
 
         // set timer
-        overlayView.timerListener =
-            { setTimer() }
+        overlayView.timerListener = { setTimer() }
+
         viewModel.startTimer
             .flowWithLifecycle(lifecycle)
             .onEach { setTimer() }
             .launchIn(lifecycleScope)
+
         viewModel.fixTimer
             .flowWithLifecycle(lifecycle)
             .onEach { overlayView.fixTimer(it) }
             .launchIn(lifecycleScope)
     }
 
-    private val receiver =
-        object : BroadcastReceiver() {
-            override fun onReceive(
-                context: Context?,
-                intent: Intent?,
-            ) {
-                intent?.action?.let {
-                    when (it) {
-                        Intent.ACTION_SCREEN_OFF -> {
-                            overlayView.screen = false
-                        }
-                        Intent.ACTION_USER_PRESENT -> {
-                            overlayView.screen = true
-                        }
-                        else -> {}
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(
+            context: Context?,
+            intent: Intent?,
+        ) {
+            intent?.action?.let {
+                when (it) {
+                    Intent.ACTION_SCREEN_OFF -> {
+                        overlayView.screen = false
                     }
+
+                    Intent.ACTION_USER_PRESENT -> {
+                        overlayView.screen = true
+                    }
+
+                    else -> {}
                 }
             }
         }
+    }
 
     @Inject
     lateinit var prefectureRepository: PrefectureRepository
@@ -393,35 +391,32 @@ class StationService : LifecycleService() {
             Toast.makeText(this, getString(R.string.timer_wait_message), Toast.LENGTH_SHORT).show()
             return
         }
-        val intent =
-            Intent(AlarmClock.ACTION_SET_TIMER)
-                .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
-                .putExtra(AlarmClock.EXTRA_LENGTH, 300)
-                .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = Intent(AlarmClock.ACTION_SET_TIMER)
+            .putExtra(AlarmClock.EXTRA_MESSAGE, getString(R.string.timer_title))
+            .putExtra(AlarmClock.EXTRA_LENGTH, 300)
+            .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val manager = getSystemService(ALARM_SERVICE)
         if (manager is AlarmManager && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
             overlayView.setTimerState(true)
-            val calendar =
-                Calendar.getInstance().apply {
-                    add(Calendar.MINUTE, 5)
-                }
-            val pending =
-                PendingIntent.getService(
-                    applicationContext,
-                    5,
-                    Intent(applicationContext, StationService::class.java).putExtra(
-                        KEY_REQUEST,
-                        REQUEST_FINISH_TIMER,
-                    ),
-                    PendingIntent.FLAG_CANCEL_CURRENT,
-                )
+            val calendar = Calendar.getInstance().apply {
+                add(Calendar.MINUTE, 5)
+            }
+            val pending = PendingIntent.getService(
+                applicationContext,
+                5,
+                Intent(applicationContext, StationService::class.java).putExtra(
+                    KEY_REQUEST,
+                    REQUEST_FINISH_TIMER,
+                ),
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
             manager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pending)
             timerRunning = true
             Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()
         } else {
-            Timber.tag("Service").e("タイマーを設定できませんでした")
+            Timber.d("Failed to set timer")
         }
     }
 }

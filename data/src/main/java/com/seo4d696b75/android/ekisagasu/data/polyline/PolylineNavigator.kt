@@ -10,8 +10,9 @@ import com.seo4d696b75.android.ekisagasu.data.station.Station
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
 import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -37,7 +38,7 @@ class PolylineNavigator(
     }
 
     private val _results = MutableStateFlow<PredictionResult?>(null)
-    val results: StateFlow<PredictionResult?> = _results
+    val results: Flow<PredictionResult?> = _results.asStateFlow()
 
     private fun setPolylineFragment(
         tag: String,

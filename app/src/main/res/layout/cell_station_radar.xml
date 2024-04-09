@@ -10,7 +10,7 @@
 
         <variable
             name="near"
-            type="jp.seo.station.ekisagasu.model.NearStation" />
+            type="com.seo4d696b75.android.ekisagasu.data.search.NearStation" />
     </data>
 
     <LinearLayout

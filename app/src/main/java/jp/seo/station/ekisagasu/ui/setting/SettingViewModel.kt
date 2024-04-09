@@ -2,6 +2,8 @@ package jp.seo.station.ekisagasu.ui.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.data.log.LogCollector
+import com.seo4d696b75.android.ekisagasu.data.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
@@ -15,59 +17,59 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingViewModel
-    @Inject
-    constructor(
-        private val settingRepository: UserSettingRepository,
-        private val appStateRepository: AppStateRepository,
-        private val dataRepository: DataRepository,
-        private val remoteDataRepository: RemoteDataRepository,
-    ) : ViewModel() {
-        val dataVersion = dataRepository.dataVersion
+class SettingViewModel @Inject constructor(
+    private val settingRepository: UserSettingRepository,
+    private val appStateRepository: AppStateRepository,
+    private val dataRepository: DataRepository,
+    private val remoteDataRepository: RemoteDataRepository,
+    private val logger: LogCollector,
+) : ViewModel(), LogCollector by logger {
+    val dataVersion = dataRepository.dataVersion
 
-        fun checkLatestData() =
-            viewModelScope.launch(Dispatchers.IO) {
-                val latest =
-                    try {
-                        remoteDataRepository.getLatestDataVersion(false)
-                    } catch (e: IOException) {
-                        appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
-                        return@launch
-                    }
-                val current = dataRepository.getDataVersion()
-                if (current == null || latest.version > current.version) {
-                    appStateRepository.emitMessage(
-                        AppMessage.RequestDataUpdate(DataUpdateType.Latest, latest),
-                    )
-                } else {
-                    appStateRepository.emitMessage(AppMessage.VersionUpToDate)
-                }
-            }
-
-        val state =
-            combine(
-                settingRepository.setting,
-                appStateRepository.nightMode,
-            ) { setting, night ->
-                SettingState.fromUserSetting(setting, night)
-            }.stateIn(
-                viewModelScope,
-                SharingStarted.Eagerly,
-                SettingState.fromUserSetting(UserSetting(), false),
+    fun checkLatestData() = viewModelScope.launch(Dispatchers.IO) {
+        val latest = try {
+            remoteDataRepository.getLatestDataVersion(false)
+        } catch (e: IOException) {
+            Timber.w(e)
+            appStateRepository.emitMessage(AppMessage.Data.CheckLatestVersionFailure(e))
+            log(LogMessage.Data.CheckLatestVersionFailure(e))
+            return@launch
+        }
+        val current = dataRepository.getDataVersion()
+        if (current == null || latest.version > current.version) {
+            appStateRepository.emitMessage(
+                AppMessage.Data.ConfirmUpdate(DataUpdateType.Latest, latest),
             )
-
-        fun updateState(producer: (SettingState) -> SettingState) =
-            settingRepository.update {
-                val old = SettingState.fromUserSetting(it, appStateRepository.nightMode.value)
-                val value = producer(old)
-                appStateRepository.setNightMode(value.isNightMode)
-                value.toUserSetting()
-            }
+            log(LogMessage.Data.LatestVersionFound(latest))
+        } else {
+            appStateRepository.emitMessage(AppMessage.Data.VersionUpToDate)
+        }
     }
+
+    val state = combine(
+        settingRepository.setting,
+        appStateRepository.nightMode,
+    ) { setting, night ->
+        SettingState.fromUserSetting(setting, night)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        SettingState.fromUserSetting(UserSetting(), false),
+    )
+
+    fun updateState(producer: (SettingState) -> SettingState) =
+        settingRepository.update {
+            val old = SettingState.fromUserSetting(it, appStateRepository.nightMode.value)
+            val value = producer(old)
+            appStateRepository.setNightMode(value.isNightMode)
+            value.toUserSetting()
+        }
+}
 
 data class SettingState(
     val locationUpdateInterval: Int,

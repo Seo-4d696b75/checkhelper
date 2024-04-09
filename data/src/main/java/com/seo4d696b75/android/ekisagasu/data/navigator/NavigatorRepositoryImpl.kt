@@ -22,10 +22,9 @@ class NavigatorRepositoryImpl @Inject constructor(
     override val running: StateFlow<Boolean> = _running
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val predictions =
-        _navigator.flatMapLatest { n ->
-            n?.results ?: flowOf(null)
-        }
+    override val predictions = _navigator.flatMapLatest { n ->
+        n?.results ?: flowOf(null)
+    }
 
     override val line: Line?
         get() = navigator?.line

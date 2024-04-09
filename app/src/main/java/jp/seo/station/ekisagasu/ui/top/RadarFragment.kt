@@ -16,11 +16,11 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.seo4d696b75.android.ekisagasu.data.search.NearStation
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.CellStationRadarBinding
 import jp.seo.station.ekisagasu.databinding.FragmentRadarBinding
-import jp.seo.station.ekisagasu.model.NearStation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -53,15 +53,14 @@ class RadarFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val adapter =
-            RadarAdapter(context).apply {
-                onItemClickListener = { data ->
-                    val action =
-                        StationFragmentDirections.actionGlobalStationFragment(data.station.code)
-                    findNavController().navigate(action)
-                }
-                setHasStableIds(true)
+        val adapter = RadarAdapter(context).apply {
+            onItemClickListener = { data ->
+                val action =
+                    StationFragmentDirections.actionGlobalStationFragment(data.station.code)
+                findNavController().navigate(action)
             }
+            setHasStableIds(true)
+        }
         binding.listRadar.also {
             it.addItemDecoration(
                 DividerItemDecoration(
@@ -101,8 +100,7 @@ class RadarFragment : Fragment() {
     private class RadarViewHolder(val binding: CellStationRadarBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    private class RadarAdapter(context: Context) :
-        ListAdapter<NearStation, RadarViewHolder>(NearStationComparator()) {
+    private class RadarAdapter(context: Context) : ListAdapter<NearStation, RadarViewHolder>(NearStationComparator()) {
         private val inflater = LayoutInflater.from(context)
         var onItemClickListener: ((NearStation) -> Unit)? = null
 

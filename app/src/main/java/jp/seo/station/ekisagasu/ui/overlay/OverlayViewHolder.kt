@@ -17,11 +17,11 @@ import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.core.animation.addListener
-import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.NearStation
-import com.seo4d696b75.android.ekisagasu.data.station.Station
-import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
+import com.seo4d696b75.android.ekisagasu.data.search.NearStation
+import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.data.station.Station
+import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 import java.util.Timer
 import java.util.TimerTask
@@ -78,7 +78,7 @@ class OverlayViewHolder(
                 0,
                 layerType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT,
             )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
@@ -94,9 +94,9 @@ class OverlayViewHolder(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 0, 0, layerType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT,
             )
         keepOnScreen = View(context)
@@ -109,8 +109,8 @@ class OverlayViewHolder(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 0, 0, layerType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT,
             )
         darkScreen = View(context)
@@ -123,8 +123,8 @@ class OverlayViewHolder(
                 0, 0,
                 0, 0, layerType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT,
             )
         touchScreen = View(context)
@@ -153,7 +153,7 @@ class OverlayViewHolder(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 0, 0, layerType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT,
             )
         layoutParam.gravity = Gravity.TOP.or(Gravity.START)
@@ -339,28 +339,27 @@ class OverlayViewHolder(
         }
     }
 
-    fun onStationChanged(station: NearStation) =
-        synchronized(this) {
-            detectedTime = SystemClock.elapsedRealtime()
-            nearestStation = station
-            if (!notify) return@synchronized
-            if (isNavigationRunning) return@synchronized
-            if (screen) {
-                if (nightMode && nightModeTimeout > 0 && darkScreen.visibility == View.VISIBLE) {
-                    keepOnScreen.visibility = View.VISIBLE
-                    onNotifyStation(station, false)
-                } else {
-                    onNotifyStation(station, !keepNotification)
-                }
-            } else if (forceNotify) {
-                wakeupCallback?.invoke()
+    fun onStationChanged(station: NearStation) = synchronized(this) {
+        detectedTime = SystemClock.elapsedRealtime()
+        nearestStation = station
+        if (!notify) return@synchronized
+        if (isNavigationRunning) return@synchronized
+        if (screen) {
+            if (nightMode && nightModeTimeout > 0 && darkScreen.visibility == View.VISIBLE) {
                 keepOnScreen.visibility = View.VISIBLE
-                darkScreen.visibility = View.VISIBLE
                 onNotifyStation(station, false)
             } else {
-                requestedStation = station
+                onNotifyStation(station, !keepNotification)
             }
+        } else if (forceNotify) {
+            wakeupCallback?.invoke()
+            keepOnScreen.visibility = View.VISIBLE
+            darkScreen.visibility = View.VISIBLE
+            onNotifyStation(station, false)
+        } else {
+            requestedStation = station
         }
+    }
 
     fun onLocationChanged(station: NearStation) {
         if (requestedStation?.station == station.station) {
@@ -517,7 +516,7 @@ class OverlayViewHolder(
                         pos,
                         layerType,
                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                         PixelFormat.TRANSLUCENT,
                     )
                 param.gravity = Gravity.END or Gravity.TOP
@@ -530,6 +529,7 @@ class OverlayViewHolder(
                                 isTimerButtonClicked = false
                                 touchY = event.rawY
                             }
+
                             MotionEvent.ACTION_MOVE -> {
                                 val y = event.rawY
                                 if (isTimerButtonClicked) {
@@ -546,9 +546,11 @@ class OverlayViewHolder(
                                     touchY = y
                                 }
                             }
+
                             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_HOVER_EXIT -> {
                                 timerLayoutParam?.let { timerPosition = it.y }
                             }
+
                             else -> {
                             }
                         }

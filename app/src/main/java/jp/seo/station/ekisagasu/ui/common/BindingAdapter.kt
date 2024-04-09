@@ -10,6 +10,7 @@ import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
 import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
 import com.seo4d696b75.android.ekisagasu.data.log.LogTarget
+import com.seo4d696b75.android.ekisagasu.data.search.NearStation
 import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateProgress
 import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
@@ -19,8 +20,8 @@ import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
 import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
 import jp.seo.station.ekisagasu.R
-import jp.seo.station.ekisagasu.model.NearStation
 import jp.seo.station.ekisagasu.ui.top.AnimationView
+import jp.seo.station.ekisagasu.utils.formatTime
 import jp.seo.station.ekisagasu.utils.getVFromColorCode
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import java.util.Date
@@ -171,9 +172,11 @@ fun setDataUpdateProgress(
             is DataUpdateProgress.Download -> {
                 view.context.getString(R.string.update_state_download, progress.percent)
             }
+
             is DataUpdateProgress.Save -> {
                 view.context.getString(R.string.update_state_save)
             }
+
             else -> ""
         }
 }
