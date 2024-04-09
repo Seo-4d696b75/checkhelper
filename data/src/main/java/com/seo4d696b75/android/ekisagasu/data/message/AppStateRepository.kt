@@ -1,6 +1,5 @@
-package jp.seo.station.ekisagasu.repository
+package com.seo4d696b75.android.ekisagasu.data.message
 
-import jp.seo.station.ekisagasu.model.AppMessage
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -11,7 +10,7 @@ interface AppStateRepository {
 
     val message: SharedFlow<AppMessage>
 
-    suspend fun emitMessage(message: AppMessage)
+    fun emitMessage(message: AppMessage)
 
     val fixTimer: StateFlow<Boolean>
 

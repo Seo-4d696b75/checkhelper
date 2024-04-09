@@ -77,7 +77,6 @@ class DataUpdateDialog : DialogFragment() {
         viewModel.result
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewModel.onResult(it.isSuccess)
                 dismiss()
             }
             .launchIn(lifecycleScope)
@@ -89,7 +88,7 @@ class DataUpdateDialog : DialogFragment() {
             setTitle(R.string.dialog_title_update_data)
             setNegativeButton(R.string.dialog_button_negative) { _, _ ->
                 viewModel.viewModelScope.coroutineContext.cancel()
-                viewModel.onResult(false)
+                viewModel.onCancel()
                 dismiss()
             }
             setView(binding.root)

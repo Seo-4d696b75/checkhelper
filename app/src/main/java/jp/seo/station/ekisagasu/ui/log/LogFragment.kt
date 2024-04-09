@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -18,13 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.seo4d696b75.android.ekisagasu.data.database.AppLog
+import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.CellListLogBinding
 import jp.seo.station.ekisagasu.databinding.FragmentLogBinding
 import jp.seo.station.ekisagasu.ui.dialog.AppHistoryDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LogOutputConfDialogDirections
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -32,10 +32,9 @@ import kotlinx.coroutines.flow.onEach
  * @author Seo-4d696b75
  * @version 2020/12/21.
  */
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class LogFragment : Fragment() {
-    private val viewModel: LogViewModel by viewModels()
+    private val viewModel: LogViewModel by activityViewModels()
 
     private lateinit var binding: FragmentLogBinding
 
@@ -63,14 +62,12 @@ class LogFragment : Fragment() {
         val context = requireContext()
 
         binding.dropdownLogFilter.apply {
-            val values = LogFilter.list.map { it.name }
-            val adapter =
-                ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, values)
+            val values = AppLogType.Filter.entries.map { it.name }
+            val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, values)
             setAdapter(adapter)
             setOnItemClickListener { _, _, position, _ ->
-                val name = adapter.getItem(position)!!
-                val filter =
-                    LogFilter.list.find { it.name == name } ?: throw NoSuchElementException()
+                val name = adapter.getItem(position) ?: throw NoSuchElementException()
+                val filter = AppLogType.Filter.valueOf(name)
                 viewModel.setLogFilter(filter)
             }
             setSelection(0)
@@ -101,7 +98,7 @@ class LogFragment : Fragment() {
         }
 
         binding.buttonWriteLog.setOnClickListener {
-            viewModel.requestWriteLog(getString(R.string.app_name)) {
+            viewModel.requestWriteLog {
                 val action = LogOutputConfDialogDirections.actionGlobalLogOutputConfDialog(it)
                 findNavController().navigate(action)
             }
@@ -111,23 +108,6 @@ class LogFragment : Fragment() {
             val action = AppHistoryDialogDirections.actionGlobalAppHistoryDialog()
             findNavController().navigate(action)
         }
-
-        viewModel.onLogFileUriResolved
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach {
-                viewModel.writeLog(it, context.contentResolver)
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
-
-        viewModel.onLogConfigResolved
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach {
-                viewModel.requestLogOutput(
-                    getString(R.string.app_name),
-                    it.config,
-                )
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     class LogViewHolder(val binding: CellListLogBinding) : RecyclerView.ViewHolder(binding.root)

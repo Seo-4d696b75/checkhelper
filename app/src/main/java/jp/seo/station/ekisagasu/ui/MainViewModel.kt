@@ -1,115 +1,92 @@
 package jp.seo.station.ekisagasu.ui
 
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.data.log.LogCollector
+import com.seo4d696b75.android.ekisagasu.data.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
 import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import jp.seo.station.ekisagasu.R
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel
-    @Inject
-    constructor(
-        @ApplicationContext private val context: Context,
-        private val appStateRepository: AppStateRepository,
-        private val dataRepository: DataRepository,
-        private val remoteDataRepository: RemoteDataRepository,
-    ) : ViewModel() {
-        val message = appStateRepository.message
+class MainViewModel @Inject constructor(
+    private val appStateRepository: AppStateRepository,
+    private val dataRepository: DataRepository,
+    private val remoteDataRepository: RemoteDataRepository,
+    private val logger: LogCollector,
+) : ViewModel(), LogCollector by logger {
+    val message = appStateRepository.message
 
-        var hasPermissionChecked: Boolean
-            get() = appStateRepository.hasPermissionChecked
-            set(value) {
-                appStateRepository.hasPermissionChecked = value
-            }
-
-        var isServiceRunning: Boolean
-            get() = appStateRepository.isServiceRunning
-            set(value) {
-                appStateRepository.isServiceRunning = value
-            }
-
-        fun onActivityResultResolved(
-            requestCode: Int,
-            resultCode: Int,
-            data: Intent?,
-        ) = viewModelScope.launch {
-            appStateRepository.emitMessage(
-                AppMessage.ReceiveActivityResult(
-                    requestCode,
-                    resultCode,
-                    data,
-                ),
-            )
+    var hasPermissionChecked: Boolean
+        get() = appStateRepository.hasPermissionChecked
+        set(value) {
+            appStateRepository.hasPermissionChecked = value
         }
 
-        /**
-         * アプリに必要なデータを確認
-         * (1) check data version
-         * (2) check data initialized
-         */
-        fun checkData() {
-            // check data version
-            if (!appStateRepository.hasDataVersionChecked) {
-                appStateRepository.hasDataVersionChecked = true
+    var isServiceRunning: Boolean
+        get() = appStateRepository.isServiceRunning
+        set(value) {
+            appStateRepository.isServiceRunning = value
+        }
 
-                viewModelScope.launch {
-                    val info = dataRepository.getDataVersion()
+    /**
+     * アプリに必要なデータを確認
+     * (1) check data version
+     * (2) check data initialized
+     */
+    fun checkData() {
+        // check data version
+        if (!appStateRepository.hasDataVersionChecked) {
+            appStateRepository.hasDataVersionChecked = true
 
-                    val latest =
-                        try {
-                            remoteDataRepository.getLatestDataVersion(true)
-                        } catch (e: IOException) {
-                            appStateRepository.emitMessage(AppMessage.CheckLatestVersionFailure(e))
-                            appStateRepository.hasDataVersionChecked = false
-                            return@launch
-                        }
+            viewModelScope.launch {
+                val info = dataRepository.getDataVersion()
 
-                    if (info == null) {
-                        Timber.tag("MainViewModel").i(
-                            context.getString(R.string.message_need_data_download, latest.version),
-                        )
+                val latest = try {
+                    remoteDataRepository.getLatestDataVersion(true)
+                } catch (e: IOException) {
+                    Timber.w(e)
+                    log(LogMessage.Data.CheckLatestVersionFailure(e))
+                    appStateRepository.emitMessage(AppMessage.Data.CheckLatestVersionFailure(e))
+                    appStateRepository.hasDataVersionChecked = false
+                    return@launch
+                }
+
+                if (info == null) {
+                    Timber.d("no data saved, download required")
+                    log(LogMessage.Data.DownloadRequired(latest))
+                    appStateRepository.emitMessage(
+                        AppMessage.Data.ConfirmUpdate(
+                            type = DataUpdateType.Init,
+                            info = latest,
+                        ),
+                    )
+                } else {
+                    log(LogMessage.Data.Found(info))
+                    if (info.version < latest.version) {
+                        log(LogMessage.Data.LatestVersionFound(latest))
                         appStateRepository.emitMessage(
-                            AppMessage.RequestDataUpdate(
-                                type = DataUpdateType.Init,
+                            AppMessage.Data.ConfirmUpdate(
+                                type = DataUpdateType.Latest,
                                 info = latest,
                             ),
                         )
-                    } else {
-                        Timber.tag("MainViewModel").i(
-                            context.getString(R.string.message_saved_data_found, info.version),
-                        )
-                        if (info.version < latest.version) {
-                            Timber.tag("MainViewModel").i(
-                                context.getString(R.string.message_latest_data_found, latest.version),
-                            )
-                            appStateRepository.emitMessage(
-                                AppMessage.RequestDataUpdate(
-                                    type = DataUpdateType.Latest,
-                                    info = latest,
-                                ),
-                            )
-                        }
                     }
                 }
             }
         }
-
-        fun requestAppFinish() =
-            viewModelScope.launch {
-                appStateRepository.emitMessage(
-                    AppMessage.FinishApp,
-                )
-            }
     }
+
+    fun requestAppFinish() = viewModelScope.launch {
+        appStateRepository.emitMessage(
+            AppMessage.FinishApp,
+        )
+    }
+}

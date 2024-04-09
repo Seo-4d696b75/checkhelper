@@ -30,7 +30,6 @@ import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.ui.log.LogViewModel
 import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
@@ -42,14 +41,25 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
+    private val logViewModel: LogViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO activityの再生成が失敗するので暫定的に初期状態から
         super.onCreate(null)
         setContentView(R.layout.main_activity)
 
+        // listen to log file output request
+        logViewModel
+            .outputFileRequested
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                requestLogFileUriLauncher.launch(it)
+            }
+            .launchIn(lifecycleScope)
+
         // handle message
-        viewModel.message
+        viewModel
+            .message
             .flowWithLifecycle(lifecycle)
             .onEach { message ->
                 when (message) {
@@ -58,68 +68,84 @@ class MainActivity : AppCompatActivity() {
                             IntentSenderRequest.Builder(message.exception.resolution).build(),
                         )
                     }
-                    is AppMessage.StartActivityForResult -> {
-                        when (message.code) {
-                            LogViewModel.REQUEST_CODE_LOG_FILE_URI -> {
-                                requestLogFileUriLauncher.launch(message.intent)
-                            }
-                            else -> {
-                                Timber.tag("MainActivity").w("unknown request: $message")
-                            }
-                        }
-                    }
+
                     is AppMessage.FinishApp -> {
                         finish()
                     }
-                    is AppMessage.RequestDataUpdate -> {
-                        // ユーザの確認を経てから実行
-                        if (message.confirmed) {
-                            val action =
-                                DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
-                                    info = message.info,
-                                    type = message.type,
-                                )
-                            findNavController(R.id.main_nav_host).navigateWhenDialogClosed(
-                                action,
-                                R.id.confirmDataUpdateDialog,
-                                lifecycle,
+
+                    is AppMessage.Data.ConfirmUpdate -> {
+                        val action =
+                            ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
+                                info = message.info,
+                                type = message.type,
                             )
-                        } else {
-                            val action =
-                                ConfirmDataUpdateDialogDirections.actionGlobalConfirmDataUpdateDialog(
-                                    info = message.info,
-                                    type = message.type,
-                                )
-                            findNavController(R.id.main_nav_host).navigate(action)
+                        findNavController(R.id.main_nav_host).navigate(action)
+                    }
+
+                    is AppMessage.Data.CancelUpdate -> {
+                        if (message.type == DataUpdateType.Init) {
+                            // データ不在なので継続不可
+                            viewModel.requestAppFinish()
+                            Toast.makeText(
+                                this@MainActivity,
+                                R.string.message_abort_init_data,
+                                Toast.LENGTH_LONG,
+                            ).show()
                         }
                     }
-                    is AppMessage.DataUpdateResult -> {
-                        val resId =
-                            if (message.success) {
-                                R.string.message_success_data_update
-                            } else if (message.type == DataUpdateType.Init) {
-                                // データの初期化に失敗・これ以上の続行不可能
-                                viewModel.requestAppFinish()
-                                R.string.message_fail_data_initialize
-                            } else {
-                                R.string.message_fail_data_update
-                            }
-                        Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
+
+                    is AppMessage.Data.RequestUpdate -> {
+                        val action =
+                            DataUpdateDialogDirections.actionGlobalDataUpdateDialog(
+                                info = message.info,
+                                type = message.type,
+                            )
+                        findNavController(R.id.main_nav_host).navigateWhenDialogClosed(
+                            action,
+                            R.id.confirmDataUpdateDialog,
+                            lifecycle,
+                        )
                     }
-                    is AppMessage.CheckLatestVersionFailure -> {
+
+                    AppMessage.Data.UpdateSuccess -> {
                         Toast.makeText(
-                            this,
+                            this@MainActivity,
+                            R.string.message_success_data_update,
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+
+                    is AppMessage.Data.UpdateFailure -> {
+                        val resId = if (message.type == DataUpdateType.Init) {
+                            // データの初期化に失敗・これ以上の続行不可能
+                            viewModel.requestAppFinish()
+                            R.string.message_fail_data_initialize
+                        } else {
+                            R.string.message_fail_data_update
+                        }
+                        Toast.makeText(
+                            this@MainActivity,
+                            resId,
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+
+                    is AppMessage.Data.CheckLatestVersionFailure -> {
+                        Toast.makeText(
+                            this@MainActivity,
                             R.string.message_network_failure,
                             Toast.LENGTH_LONG,
                         ).show()
                     }
-                    is AppMessage.VersionUpToDate -> {
+
+                    AppMessage.Data.VersionUpToDate -> {
                         Toast.makeText(
-                            this,
+                            this@MainActivity,
                             R.string.message_version_up_to_date,
                             Toast.LENGTH_LONG,
                         ).show()
                     }
+
                     else -> {}
                 }
             }
@@ -148,7 +174,6 @@ class MainActivity : AppCompatActivity() {
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun startService() {
         if (!viewModel.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)
@@ -195,64 +220,56 @@ class MainActivity : AppCompatActivity() {
         viewModel.hasPermissionChecked = true
     }
 
-    private val overlayPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult(),
-        ) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                Timber.tag("Permission").i(getString(R.string.message_permission_overlay_granted))
-            } else {
-                Timber.tag("Permission").i(getString(R.string.message_permission_overlay_denied))
-                if (!Settings.canDrawOverlays(this)) {
-                    Toast.makeText(
-                        applicationContext,
-                        getString(R.string.message_permission_denied),
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                    finish()
-                }
+    private val overlayPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            Timber.d("overlay permission granted")
+        } else {
+            Timber.d("overlay permission not granted")
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(
+                    applicationContext,
+                    getString(R.string.message_permission_denied),
+                    Toast.LENGTH_SHORT,
+                ).show()
+                finish()
             }
         }
+    }
 
-    private val resolvableApiLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult(),
-        ) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                Timber.tag("ResolvableAPIException").i(
-                    getString(R.string.message_resolvable_exception_success, it.toString()),
-                )
-            } else {
-                Timber.tag("ResolvableAPIException").i(
-                    getString(R.string.message_resolvable_exception_failure, it.toString()),
-                )
-            }
+    private val resolvableApiLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+    ) {
+        Timber.d("resolvable exception result: $it")
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { }
+
+    private val requestLogFileUriLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val uri = result.data?.data
+        if (result.resultCode == Activity.RESULT_OK && uri != null) {
+            Timber.d("log file resolved: $uri")
+            logViewModel.onOutputFileResolved(uri, contentResolver)
+        } else {
+            Timber.w("Failed to resolved log file")
         }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission(),
-        ) { }
-
-    private val requestLogFileUriLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult(),
-        ) { result ->
-            viewModel.onActivityResultResolved(
-                LogViewModel.REQUEST_CODE_LOG_FILE_URI,
-                result.resultCode,
-                result.data,
-            )
-        }
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_setting -> {
                 findNavController(R.id.main_nav_host).navigate(R.id.action_mainFragment_to_settingFragment)
             }
+
             R.id.menu_log -> {
                 findNavController(R.id.main_nav_host).navigate(R.id.action_mainFragment_to_logFragment)
             }
+
             else -> {
                 Timber.tag("Menu").w("unknown id:${item.itemId}")
             }

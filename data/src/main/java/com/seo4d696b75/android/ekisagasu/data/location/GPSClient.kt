@@ -15,16 +15,13 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.location.Priority
+import com.seo4d696b75.android.ekisagasu.data.log.LogCollector
+import com.seo4d696b75.android.ekisagasu.data.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import jp.seo.station.ekisagasu.R
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -34,36 +31,33 @@ import javax.inject.Inject
  */
 class GPSClient @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val defaultDispatcher: CoroutineDispatcher,
     private val appStateRepository: AppStateRepository,
-) : LocationCallback(), LocationRepository, CoroutineScope {
-    private var job = Job()
-
-    override val coroutineContext
-        get() = defaultDispatcher + job
+    private val logger: LogCollector,
+) : LocationCallback(), LocationRepository, LogCollector by logger {
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(context)
     private val settingClient = LocationServices.getSettingsClient(context)
 
     private var minInterval = 0
 
-    private val _location = MutableSharedFlow<Location>(replay = 0)
+    private val _location = MutableStateFlow<Location?>(null)
 
     private val _running = MutableStateFlow(false)
-    private var running = false
 
-    override val currentLocation = _location
+    override val currentLocation = _location.asStateFlow()
 
-    override val isRunning = _running
+    override val isRunning = _running.asStateFlow()
 
     override fun onLocationResult(result: LocationResult) {
         result.lastLocation?.let {
-            launch { _location.emit(it) }
+            Timber.d("(%.6f,%.6f)", it.latitude, it.longitude)
+            log(LogMessage.Location(it.latitude, it.longitude))
+            _location.value = it
         }
     }
 
     override fun onLocationAvailability(p: LocationAvailability) {
-        Timber.tag("GPS").d("isLocationAvailable: ${p.isLocationAvailable}")
+        Timber.d("isLocationAvailable: ${p.isLocationAvailable}")
     }
 
     /**
@@ -77,13 +71,14 @@ class GPSClient @Inject constructor(
     override fun startWatchCurrentLocation(interval: Int) {
         if (interval < 1) return
         try {
-            if (running) {
+            if (_running.value) {
                 if (interval != minInterval) {
-                    Timber.tag("GPS").i(context.getString(R.string.message_gps_min_interval, minInterval, interval))
+                    log(LogMessage.GPS.IntervalChanged(minInterval, interval))
+                    Timber.d("minInterval %d > %d", minInterval, interval)
                     minInterval = interval
                     locationClient.removeLocationUpdates(this)
                         .addOnCompleteListener {
-                            running = false
+                            _running.value = false
                             requestGPSUpdate()
                         }
                 }
@@ -91,30 +86,28 @@ class GPSClient @Inject constructor(
                 minInterval = interval
                 requestGPSUpdate()
 
-                Timber.tag("GPS").i(context.getString(R.string.message_gps_start, minInterval))
+                log(LogMessage.GPS.Start(minInterval))
+                Timber.d("GPS start")
             }
         } catch (e: ResolvableApiException) {
-            launch {
-                appStateRepository.emitMessage(
-                    AppMessage.ResolvableException(context.getString(R.string.message_gps_resolvable_exception), e),
-                )
-            }
+            Timber.w(e)
+            log(LogMessage.GPS.ResolvableException(e))
+            appStateRepository.emitMessage(AppMessage.ResolvableException(e))
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun requestGPSUpdate() {
-        val request =
-            LocationRequest.create().apply {
-                priority = Priority.PRIORITY_HIGH_ACCURACY
-                interval = minInterval * 1000L
-                fastestInterval = minInterval * 1000L
-            }
-        val settingRequest =
-            LocationSettingsRequest.Builder()
-                .addLocationRequest(request)
-                .build()
-        settingClient.checkLocationSettings(settingRequest)
+        val request = LocationRequest.create().apply {
+            priority = Priority.PRIORITY_HIGH_ACCURACY
+            interval = minInterval * 1000L
+            fastestInterval = minInterval * 1000L
+        }
+        val settingRequest = LocationSettingsRequest.Builder()
+            .addLocationRequest(request)
+            .build()
+        settingClient
+            .checkLocationSettings(settingRequest)
             .addOnSuccessListener {
                 if (ContextCompat.checkSelfPermission(
                         context,
@@ -122,34 +115,30 @@ class GPSClient @Inject constructor(
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
-                    running = true
-                    launch { _running.emit(true) }
+                    _running.value = true
                 } else {
-                    Timber.tag("GPS").w(context.getString(R.string.message_gps_permission_not_granted))
+                    log(LogMessage.GPS.NoPermission)
                 }
             }.addOnFailureListener { e ->
+                Timber.w(e)
                 if (e is ResolvableApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
-                    launch {
-                        appStateRepository.emitMessage(
-                            AppMessage.ResolvableException(e),
-                        )
-                    }
+                    log(LogMessage.GPS.ResolvableException(e))
+                    appStateRepository.emitMessage(AppMessage.ResolvableException(e))
                 } else {
-                    Timber.tag("GPS").e(e, context.getString(R.string.message_gps_start_failure))
+                    log(LogMessage.GPS.StartFailure(e))
                 }
             }
     }
 
     override fun stopWatchCurrentLocation(): Boolean {
-        if (running) {
-            locationClient.removeLocationUpdates(this)
+        if (_running.value) {
+            locationClient
+                .removeLocationUpdates(this)
                 .addOnCompleteListener {
-                    running = false
-                    job.cancel()
-                    job = Job()
+                    Timber.d("GPS stop")
+                    _running.value = false
+                    log(LogMessage.GPS.Stop)
                 }
-            _running.value = false
-            Timber.tag("GPS").i(context.getString(R.string.message_gps_end))
             return true
         }
         return false
