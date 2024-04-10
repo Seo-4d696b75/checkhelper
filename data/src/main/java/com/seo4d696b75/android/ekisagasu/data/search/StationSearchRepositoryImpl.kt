@@ -1,13 +1,15 @@
 package com.seo4d696b75.android.ekisagasu.data.search
 
-import android.location.Location
-import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
-import com.seo4d696b75.android.ekisagasu.data.kdtree.SearchResult
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.SearchResult
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
-import com.seo4d696b75.android.ekisagasu.data.log.LogCollector
-import com.seo4d696b75.android.ekisagasu.data.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
+import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.location.Location
+import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,7 +61,7 @@ class StationSearchRepositoryImpl @Inject constructor(
     override suspend fun updateNearestStations(location: Location) = updateMutex.withLock {
         require(searchK > 0)
         val last = _lastCheckedLocation
-        if (last != null && last.longitude == location.longitude && last.latitude == location.latitude) {
+        if (last != null && last.lng == location.lng && last.lat == location.lat) {
             return _nearestStation.value
         }
         _lastCheckedLocation = location
@@ -67,12 +69,12 @@ class StationSearchRepositoryImpl @Inject constructor(
     }
 
     private suspend fun updateLocation(location: Location): NearStation? {
-        val result = searchNearestStations(location.latitude, location.longitude, searchK, 0.0)
+        val result = searchNearestStations(location.lat, location.lng, searchK, 0.0)
         if (result.stations.isEmpty()) return null
 
         val nearest = result.stations[0]
         val current = _currentStation.value
-        val time = Date(location.time)
+        val time = Date(location.timestamp)
         val list = result.stations.map { s ->
             val lines = dataRepository.getLines(s.lines)
             NearStation(s, s.measureDistance(location), time, lines)

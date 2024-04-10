@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.ui.log
 
-import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
+import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
 
 enum class LogOutputExtension {
     txt,

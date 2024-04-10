@@ -2,13 +2,13 @@ package jp.seo.station.ekisagasu.ui.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.log.LogCollector
-import com.seo4d696b75.android.ekisagasu.data.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
-import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepository
+import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
+import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.data.user.UserSetting
 import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

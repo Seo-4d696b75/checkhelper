@@ -1,6 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.data.message
 
-import com.seo4d696b75.android.ekisagasu.data.utils.ExternalScope
+import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

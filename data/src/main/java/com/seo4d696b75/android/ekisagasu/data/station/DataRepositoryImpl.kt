@@ -1,8 +1,14 @@
 package com.seo4d696b75.android.ekisagasu.data.station
 
-import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
-import com.seo4d696b75.android.ekisagasu.data.database.StationDao
-import com.seo4d696b75.android.ekisagasu.data.kdtree.StationKdTree
+import com.seo4d696b75.android.ekisagasu.data.database.station.LineEntity
+import com.seo4d696b75.android.ekisagasu.data.database.station.StationDao
+import com.seo4d696b75.android.ekisagasu.data.database.station.StationEntity
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationKdTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,32 +24,33 @@ class DataRepositoryImpl @Inject constructor(
 ) : DataRepository {
     override suspend fun getLine(code: Int) =
         withContext(Dispatchers.IO) {
-            dao.getLine(code)
+            dao.getLine(code).toModel()
         }
 
     override suspend fun getLines(codes: List<Int>) =
         withContext(Dispatchers.IO) {
-            dao.getLines(codes)
+            dao.getLines(codes).map { it.toModel() }
         }
 
     override suspend fun getStation(code: Int) =
         withContext(Dispatchers.IO) {
-            dao.getStation(code)
+            dao.getStation(code).toModel()
         }
 
     override suspend fun getStations(codes: List<Int>) =
         withContext(Dispatchers.IO) {
-            dao.getStations(codes)
+            dao.getStations(codes).map { it.toModel() }
         }
 
     override suspend fun getStationKdTree() =
         withContext(Dispatchers.IO) {
             StationKdTree(
                 root = dao.getRootStationNode().code,
-                nodes = dao.getStationNodes(),
+                nodes = dao.getStationNodes().map { it.toModel() },
             )
         }
 
+    // TODO not cache in repository!
     private val _currentVersion = MutableStateFlow<DataVersion?>(null)
     private var _dataInitialized: Boolean = false
 
@@ -54,13 +61,13 @@ class DataRepositoryImpl @Inject constructor(
 
     override suspend fun getDataVersion(): DataVersion? =
         withContext(Dispatchers.IO) {
-            val version = dao.getCurrentDataVersion()
+            val version = dao.getCurrentDataVersion()?.toModel()
             _dataInitialized = version != null
             _currentVersion.value = version
             version
         }
 
-    override suspend fun getDataVersionHistory() = dao.getDataVersionHistory()
+    override suspend fun getDataVersionHistory() = dao.getDataVersionHistory().map { it.toModel() }
 
     override suspend fun updateData(
         info: LatestDataVersion,
@@ -78,9 +85,9 @@ class DataRepositoryImpl @Inject constructor(
     private fun File.stations() =
         json.decodeFromString<List<Station>>(
             File(this, "json/station.json").readText(Charsets.UTF_8),
-        )
+        ).map { StationEntity.fromModel(it) }
 
-    private fun File.lines(): List<Line> {
+    private fun File.lines(): List<LineEntity> {
         val dir = File(this, "json/line")
         require(dir.exists() && dir.isDirectory)
         return requireNotNull(dir.listFiles()).map {
@@ -92,7 +99,7 @@ class DataRepositoryImpl @Inject constructor(
             } else {
                 line
             }
-        }
+        }.map { LineEntity.fromModel(it) }
     }
 
     private fun File.kdTree() =

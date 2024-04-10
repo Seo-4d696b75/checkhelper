@@ -4,10 +4,10 @@ package jp.seo.station.ekisagasu.usecase
 
 import com.google.common.truth.Truth.assertThat
 import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateProgress
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateUseCase
-import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateProgress
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateUseCase
+import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified

@@ -10,7 +10,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.navArgs
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.DialogDataCheckBinding

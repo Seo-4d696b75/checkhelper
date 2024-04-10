@@ -4,12 +4,12 @@ package jp.seo.station.ekisagasu.repository
 
 import com.google.common.truth.Truth.assertThat
 import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
-import com.seo4d696b75.android.ekisagasu.data.database.StationDao
+import com.seo4d696b75.android.ekisagasu.data.database.station.StationDao
 import com.seo4d696b75.android.ekisagasu.data.kdtree.RootStationNode
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.data.station.DataRepositoryImpl
-import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
-import com.seo4d696b75.android.ekisagasu.data.utils.unzip
+import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.data.file.unzip
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder

@@ -4,14 +4,14 @@ package jp.seo.station.ekisagasu.repository
 
 import android.location.Location
 import com.google.common.truth.Truth.assertThat
-import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
-import com.seo4d696b75.android.ekisagasu.data.kdtree.SearchResult
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.SearchResult
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureSphere
-import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepositoryImpl
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.every

@@ -2,10 +2,10 @@ package jp.seo.station.ekisagasu.hilt
 
 import android.content.Context
 import androidx.room.Room
-import com.seo4d696b75.android.ekisagasu.data.database.StationDao
-import com.seo4d696b75.android.ekisagasu.data.database.StationDatabase
-import com.seo4d696b75.android.ekisagasu.data.database.UserDao
-import com.seo4d696b75.android.ekisagasu.data.database.UserDatabase
+import com.seo4d696b75.android.ekisagasu.data.database.station.StationDao
+import com.seo4d696b75.android.ekisagasu.data.database.station.StationDatabase
+import com.seo4d696b75.android.ekisagasu.data.database.user.UserDao
+import com.seo4d696b75.android.ekisagasu.data.database.user.UserDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

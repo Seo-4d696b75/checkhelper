@@ -3,9 +3,9 @@ package jp.seo.station.ekisagasu.ui.top
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.StationRegister
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import jp.seo.station.ekisagasu.ui.common.StationRegistrationUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,7 +40,7 @@ class LineViewModel @Inject constructor(
                 val list = dataRepository.getStations(indices)
                 it.stationList.map { r ->
                     val s = list.find { it.code == r.code } ?: throw NoSuchElementException()
-                    StationRegister(r.code, s, r.getNumberingString())
+                    StationRegistrationUiState(r.code, s, r.getNumberingString())
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

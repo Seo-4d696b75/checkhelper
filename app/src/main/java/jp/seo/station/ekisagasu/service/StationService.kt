@@ -20,9 +20,9 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.ui.MainActivity

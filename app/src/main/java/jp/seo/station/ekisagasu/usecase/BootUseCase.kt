@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.usecase
 
-import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
-import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -18,9 +18,9 @@ import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.core.animation.addListener
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
-import com.seo4d696b75.android.ekisagasu.data.search.NearStation
-import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 import java.util.Timer

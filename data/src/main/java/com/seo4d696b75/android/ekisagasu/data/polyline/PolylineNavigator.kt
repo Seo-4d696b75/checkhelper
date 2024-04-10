@@ -1,14 +1,15 @@
 package com.seo4d696b75.android.ekisagasu.data.polyline
 
-import android.location.Location
 import android.os.SystemClock
-import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
-import com.seo4d696b75.android.ekisagasu.data.navigator.PredictionResult
-import com.seo4d696b75.android.ekisagasu.data.navigator.StationPrediction
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.Station
-import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
-import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
+import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_MILLI_SEC
+import com.seo4d696b75.android.ekisagasu.domain.date.format
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.location.Location
+import com.seo4d696b75.android.ekisagasu.domain.navigator.PredictionResult
+import com.seo4d696b75.android.ekisagasu.domain.navigator.StationPrediction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ import java.util.Date
  * @author Seo-4d696b75
  * @version 2019/02/16.
  */
-class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
+class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
     companion object {
         private const val DISTANCE_THRESHOLD = 5f
     }
@@ -52,7 +53,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
         list.add(fragment)
     }
 
-    var maxPrediction: Int = 2
+    private var maxPrediction: Int = 2
 
     private val segmentJunction = mutableMapOf<String, MutableList<PolylineSegment>>()
     private val polylineSegments = mutableListOf<PolylineSegment>()
@@ -64,10 +65,9 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
     private var updateTime: Long = 0
 
     init {
-        if (line.polyline == null) {
-            throw IllegalArgumentException("Polyline not set, but prediction required. line:" + line.name)
-        }
-        PolylineSegment.parseSegments(line.polyline).forEach { segment ->
+        val data = line.polyline
+            ?: throw IllegalArgumentException("Polyline not set, but prediction required. line:" + line.name)
+        PolylineSegment.parseSegments(data).forEach { segment ->
             setPolylineFragment(segment.start, segment)
             setPolylineFragment(segment.end, segment)
             polylineSegments.add(segment)
@@ -80,14 +80,14 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
         location: Location,
         station: Station,
     ) = withContext(Dispatchers.IO) {
-        if (!location.latitude.isFinite() || !location.longitude.isFinite()) return@withContext
+        if (!location.lat.isFinite() || !location.lng.isFinite()) return@withContext
         assert {
-            location.latitude in -90.0..90.0 &&
-                location.longitude in -180.0..180.0
+            location.lat in -90.0..90.0 &&
+                location.lng in -180.0..180.0
         }
         lock.withLock {
             val start = SystemClock.uptimeMillis()
-            updateTime = location.elapsedRealtimeNanos / 1000000L
+            updateTime = location.elapsedRealtimeMillis
             if (cursors.isEmpty()) {
                 initialize(location)
                 val result = PredictionResult(0, station)
@@ -105,7 +105,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
             if (cursors.size > 1) filterCursors(list)
             cursors = list
             Timber.tag("Navigator").d("cursor size: %d", list.size)
-            if ((lastLocation?.distanceTo(location) ?: 100000f) < DISTANCE_THRESHOLD) {
+            if ((lastLocation?.measureDistance(location) ?: 100000f) < DISTANCE_THRESHOLD) {
                 Timber.tag("Navigator").d("location diff too small, skipped")
                 return@withContext
             }
@@ -130,7 +130,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
             val size = maxPrediction.coerceAtMost(prediction.size)
             // 結果オブジェクトにまとめる
             val result = PredictionResult(size, station)
-            val date: String = formatTime(TIME_PATTERN_MILLI_SEC, Date(updateTime))
+            val date: String = Date(updateTime).format(TIME_PATTERN_MILLI_SEC)
             Timber.tag("Navigator").d("predict date: $date, station size: ${prediction.size}")
             for (i in 0 until size) {
                 val s = prediction[i]
@@ -153,7 +153,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
         polylineSegments.map { f ->
             Pair(
                 f,
-                f.findNearestPoint(location.latitude, location.longitude),
+                f.findNearestPoint(location.lat, location.lng),
             )
         }.minByOrNull { p -> p.second.distance }?.let {
             cursors.add(

@@ -1,11 +1,11 @@
 package com.seo4d696b75.android.ekisagasu.data.polyline
 
-import android.location.Location
 import com.google.android.gms.maps.model.LatLng
-import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureEuclid
-import com.seo4d696b75.android.ekisagasu.data.navigator.StationPrediction
+import com.seo4d696b75.android.ekisagasu.domain.location.Location
+import com.seo4d696b75.android.ekisagasu.domain.navigator.StationPrediction
 import jp.seo.diagram.core.Edge
 import timber.log.Timber
 import kotlin.math.max
@@ -79,7 +79,7 @@ class PolylineCursor {
                 old.pathPosAtStart + old.pathLengthSign * old.nearest.edgeDistance
         }
 
-        val position = LatLng(location.latitude, location.longitude)
+        val position = LatLng(location.lat, location.lng)
         nearest = NearestPoint(start.point, end.point, position)
         this.explorer = old.explorer
         isSignDecided = old.isSignDecided
@@ -175,7 +175,7 @@ class PolylineCursor {
                     NearestPoint(
                         current.point,
                         next.point,
-                        LatLng(location.latitude, location.longitude),
+                        LatLng(location.lat, location.lng),
                     )
                 if (near.distance > min.nearest.distance * 2) {
                     // 探索終了

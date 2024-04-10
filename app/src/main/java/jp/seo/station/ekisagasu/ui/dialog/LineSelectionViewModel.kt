@@ -4,10 +4,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.location.LocationRepository
-import com.seo4d696b75.android.ekisagasu.data.navigator.NavigatorRepository
-import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepository
-import com.seo4d696b75.android.ekisagasu.data.station.Line
+import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.R
 import kotlinx.coroutines.flow.MutableSharedFlow

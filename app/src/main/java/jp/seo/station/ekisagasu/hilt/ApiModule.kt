@@ -2,7 +2,7 @@ package jp.seo.station.ekisagasu.hilt
 
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.seo4d696b75.android.ekisagasu.data.api.APIClient
+import com.seo4d696b75.android.ekisagasu.data.api.StationDataService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,7 +53,7 @@ object RetrofitModule {
 object ApiModule {
     @Singleton
     @Provides
-    fun provideAPIClient(retrofit: Retrofit): APIClient = retrofit.create(APIClient::class.java)
+    fun provideAPIClient(retrofit: Retrofit): StationDataService = retrofit.create(StationDataService::class.java)
 }
 
 @Module

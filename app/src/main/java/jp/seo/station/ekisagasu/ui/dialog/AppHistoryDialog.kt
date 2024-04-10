@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
+import com.seo4d696b75.android.ekisagasu.domain.log.AppLogTarget
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.databinding.CellListHistoryBinding
@@ -41,13 +41,12 @@ class AppHistoryDialog : DialogFragment() {
                 null,
                 false,
             )
-        val adapter =
-            HistoryAdapter(context).apply {
-                onItemSelectedListener = {
-                    viewModel.setLogTarget(it)
-                    dismiss()
-                }
+        val adapter = HistoryAdapter(context).apply {
+            onItemSelectedListener = {
+                viewModel.setLogTarget(it)
+                dismiss()
             }
+        }
         binding.listRebootHistory.also {
             it.addItemDecoration(
                 DividerItemDecoration(
@@ -78,25 +77,25 @@ class AppHistoryDialog : DialogFragment() {
 
     class AppHistoryViewHolder(val binding: CellListHistoryBinding) : RecyclerView.ViewHolder(binding.root)
 
-    class AppRebootLogComparator : DiffUtil.ItemCallback<AppRebootLog>() {
+    class AppRebootLogComparator : DiffUtil.ItemCallback<AppLogTarget>() {
         override fun areItemsTheSame(
-            oldItem: AppRebootLog,
-            newItem: AppRebootLog,
+            oldItem: AppLogTarget,
+            newItem: AppLogTarget,
         ): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.start == newItem.start
         }
 
         override fun areContentsTheSame(
-            oldItem: AppRebootLog,
-            newItem: AppRebootLog,
+            oldItem: AppLogTarget,
+            newItem: AppLogTarget,
         ): Boolean {
             return oldItem == newItem
         }
     }
 
     class HistoryAdapter(context: Context) :
-        ListAdapter<AppRebootLog, AppHistoryViewHolder>(AppRebootLogComparator()) {
-        var onItemSelectedListener: ((AppRebootLog) -> Unit)? = null
+        ListAdapter<AppLogTarget, AppHistoryViewHolder>(AppRebootLogComparator()) {
+        var onItemSelectedListener: ((AppLogTarget) -> Unit)? = null
 
         private val inflater = LayoutInflater.from(context)
 
@@ -104,13 +103,12 @@ class AppHistoryDialog : DialogFragment() {
             parent: ViewGroup,
             viewType: Int,
         ): AppHistoryViewHolder {
-            val binding =
-                DataBindingUtil.inflate<CellListHistoryBinding>(
-                    inflater,
-                    R.layout.cell_list_history,
-                    parent,
-                    false,
-                )
+            val binding = DataBindingUtil.inflate<CellListHistoryBinding>(
+                inflater,
+                R.layout.cell_list_history,
+                parent,
+                false,
+            )
             return AppHistoryViewHolder(binding)
         }
 

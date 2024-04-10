@@ -5,7 +5,7 @@ import com.google.maps.android.data.geojson.GeoJsonFeature
 import com.google.maps.android.data.geojson.GeoJsonLineString
 import com.google.maps.android.data.geojson.GeoJsonParser
 import com.google.maps.android.data.geojson.GeoJsonPolygon
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import org.json.JSONObject
 
 /**

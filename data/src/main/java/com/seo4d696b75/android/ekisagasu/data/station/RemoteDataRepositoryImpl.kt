@@ -1,7 +1,9 @@
 package com.seo4d696b75.android.ekisagasu.data.station
 
-import com.seo4d696b75.android.ekisagasu.data.api.APIClient
-import com.seo4d696b75.android.ekisagasu.data.utils.unzip
+import com.seo4d696b75.android.ekisagasu.data.api.StationDataService
+import com.seo4d696b75.android.ekisagasu.data.file.unzip
+import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 class RemoteDataRepositoryImpl @Inject constructor(
-    private val api: APIClient,
+    private val api: StationDataService,
 ) : RemoteDataRepository {
     // cached version
     private var _lastCheckedVersion: LatestDataVersion? = null

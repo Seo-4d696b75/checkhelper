@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.android.libraly)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.hilt)
+    alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.ktlint.gradle)
 }

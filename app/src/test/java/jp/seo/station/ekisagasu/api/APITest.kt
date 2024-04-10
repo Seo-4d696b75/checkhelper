@@ -2,7 +2,7 @@ package jp.seo.station.ekisagasu.api
 
 import com.google.common.truth.Truth.assertThat
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.seo4d696b75.android.ekisagasu.data.api.APIClient
+import com.seo4d696b75.android.ekisagasu.data.api.StationDataService
 import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepositoryImpl
 import io.mockk.mockk
 import io.mockk.verifyOrder
@@ -77,7 +77,7 @@ class APITest {
     @Test
     fun testAPIClient() =
         runTest {
-            val api = retrofit.create(APIClient::class.java)
+            val api = retrofit.create(StationDataService::class.java)
 
             val info = api.getLatestInfo()
             assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())

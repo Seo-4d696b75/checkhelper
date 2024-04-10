@@ -1,8 +1,8 @@
 package jp.seo.station.ekisagasu.hilt
 
 import android.app.Application
-import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
-import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
+import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
 import com.seo4d696b75.android.ekisagasu.data.log.formatStackTrace
 import dagger.hilt.android.HiltAndroidApp
 import jp.seo.station.ekisagasu.BuildConfig

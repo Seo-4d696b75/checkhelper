@@ -4,8 +4,8 @@ import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.seo4d696b75.android.ekisagasu.data.database.AppLog
-import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
-import com.seo4d696b75.android.ekisagasu.data.database.UserDatabase
+import com.seo4d696b75.android.ekisagasu.data.database.user.AppRebootEntity
+import com.seo4d696b75.android.ekisagasu.data.database.user.UserDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -46,7 +46,7 @@ class UserDatabaseTest {
             val since = dao.getLatestID()
 
             // watch flow
-            val rebootList = mutableListOf<List<AppRebootLog>>()
+            val rebootList = mutableListOf<List<AppRebootEntity>>()
             val logList = mutableListOf<List<AppLog>>()
             val job1 =
                 launch {

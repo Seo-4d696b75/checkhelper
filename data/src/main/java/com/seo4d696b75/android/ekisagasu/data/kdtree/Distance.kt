@@ -1,8 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.data.kdtree
 
-import android.location.Location
 import com.google.android.gms.maps.model.LatLng
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.location.Location
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow
@@ -61,9 +61,13 @@ fun measureDistance(
     lat2: Double,
     lng2: Double,
 ) = FloatArray(1).let {
-    Location.distanceBetween(lat1, lng1, lat2, lng2, it)
+    android.location.Location.distanceBetween(lat1, lng1, lat2, lng2, it)
     it[0]
 }
+
+fun Location.measureDistance(
+    other: Location,
+) = measureDistance(lat, lng, other.lat, other.lng)
 
 /**
  * メートル単位の距離を文字列表現に変換
@@ -112,6 +116,6 @@ fun Station.measureDistance(location: Location) =
     measureDistance(
         lat,
         lng,
-        location.latitude,
-        location.longitude,
+        location.lat,
+        location.lng,
     )

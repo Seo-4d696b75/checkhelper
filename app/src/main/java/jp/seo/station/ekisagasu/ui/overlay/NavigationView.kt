@@ -18,9 +18,9 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.animation.addListener
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
-import com.seo4d696b75.android.ekisagasu.data.navigator.PredictionResult
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.navigator.PredictionResult
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.utils.setAnimationListener
 

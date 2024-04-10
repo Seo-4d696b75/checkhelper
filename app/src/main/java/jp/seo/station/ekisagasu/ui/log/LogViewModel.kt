@@ -5,17 +5,17 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.database.AppLog
-import com.seo4d696b75.android.ekisagasu.data.database.filter
-import com.seo4d696b75.android.ekisagasu.data.gpx.SerializeGPXUseCase
-import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
-import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME
-import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME_FILE
-import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
-import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
 import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_DATETIME
+import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_DATETIME_FILE
+import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_MILLI_SEC
+import com.seo4d696b75.android.ekisagasu.domain.date.format
+import com.seo4d696b75.android.ekisagasu.domain.log.AppLog
+import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
+import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.domain.log.filter
+import com.seo4d696b75.android.ekisagasu.domain.xml.GPXSerializer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,10 +38,10 @@ class LogViewModel @Inject constructor(
     logRepository: LogRepository,
     private val appConfig: AppConfig,
     private val dataRepository: DataRepository,
-    private val serializeGPX: SerializeGPXUseCase,
+    private val gpxSerializer: GPXSerializer,
 ) : ViewModel() {
     val target = logRepository
-        .filter
+        .target
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     private val _filter = MutableStateFlow(AppLogType.Filter.All)
@@ -93,11 +93,11 @@ class LogViewModel @Inject constructor(
             "%s_%sLog_%s.%s",
             appConfig.appName,
             type.name,
-            formatTime(TIME_PATTERN_DATETIME_FILE, time),
+            time.format(TIME_PATTERN_DATETIME_FILE),
             config.extension.name.lowercase(),
         )
         fileContent = if (config.extension == LogOutputExtension.gpx) {
-            serializeGPX(
+            gpxSerializer(
                 log = list,
                 dataVersion = dataRepository.dataVersion.value?.version ?: throw RuntimeException(),
             )
@@ -107,10 +107,10 @@ class LogViewModel @Inject constructor(
                 append("\nlog type : ")
                 append(type.name)
                 append("\nwritten time : ")
-                append(formatTime(TIME_PATTERN_DATETIME, time))
+                append(time.format(TIME_PATTERN_DATETIME))
                 for (log in list) {
                     append("\n")
-                    append(formatTime(TIME_PATTERN_MILLI_SEC, log.timestamp))
+                    append(log.timestamp.format(TIME_PATTERN_MILLI_SEC))
                     append(" ")
                     append(log.message)
                 }

@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.libraly) apply false
-    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.ktlint.gradle)
     alias(libs.plugins.androidx.navigation.safeargs) apply false

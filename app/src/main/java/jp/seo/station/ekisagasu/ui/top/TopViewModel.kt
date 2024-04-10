@@ -2,13 +2,13 @@ package jp.seo.station.ekisagasu.ui.top
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.location.LocationRepository
-import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.data.navigator.NavigatorRepository
-import com.seo4d696b75.android.ekisagasu.data.search.StationSearchRepository
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
-import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepository
+import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.utils.mapState

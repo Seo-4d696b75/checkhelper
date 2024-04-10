@@ -2,7 +2,10 @@ package com.seo4d696b75.android.ekisagasu.data.log
 
 import android.content.Context
 import com.seo4d696b75.android.ekisagasu.data.R
-import com.seo4d696b75.android.ekisagasu.data.utils.ExternalScope
+import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
+import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
+import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
+import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -48,7 +51,7 @@ private fun LogMessage.toString(context: Context): String =
         is LogMessage.GPS.IntervalChanged -> context.getString(R.string.log_message_gps_min_interval, before, after)
         LogMessage.GPS.Stop -> context.getString(R.string.log_message_gps_end)
         LogMessage.GPS.NoPermission -> context.getString(R.string.log_message_gps_permission_not_granted)
-        is LogMessage.GPS.ResolvableException -> context.getString(R.string.log_message_gps_resolvable_exception)
+        LogMessage.GPS.ResolvableException -> context.getString(R.string.log_message_gps_resolvable_exception)
         is LogMessage.Data.Found -> context.getString(R.string.log_message_saved_data_found, version.version)
         is LogMessage.Data.DownloadRequired -> context.getString(
             R.string.log_message_need_data_download,

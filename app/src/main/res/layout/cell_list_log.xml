@@ -6,7 +6,7 @@
 
         <variable
             name="data"
-            type="com.seo4d696b75.android.ekisagasu.data.database.AppLog" />
+            type="com.seo4d696b75.android.ekisagasu.domain.log.AppLog" />
     </data>
 
     <LinearLayout

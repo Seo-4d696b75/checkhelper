@@ -1,7 +1,7 @@
 package jp.seo.station.ekisagasu.usecase
 
-import com.seo4d696b75.android.ekisagasu.data.log.LogRepository
-import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import javax.inject.Inject
 

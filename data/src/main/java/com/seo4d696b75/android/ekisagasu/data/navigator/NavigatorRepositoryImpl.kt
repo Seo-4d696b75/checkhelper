@@ -1,10 +1,11 @@
 package com.seo4d696b75.android.ekisagasu.data.navigator
 
-import android.location.Location
-import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.data.polyline.PolylineNavigator
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.location.Location
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

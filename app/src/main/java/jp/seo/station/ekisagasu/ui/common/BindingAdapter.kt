@@ -6,22 +6,21 @@ import android.view.View
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
-import com.seo4d696b75.android.ekisagasu.data.database.DataVersion
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
-import com.seo4d696b75.android.ekisagasu.data.log.LogTarget
-import com.seo4d696b75.android.ekisagasu.data.search.NearStation
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateProgress
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
-import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.Station
-import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME
-import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
-import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateProgress
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_DATETIME
+import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_MILLI_SEC
+import com.seo4d696b75.android.ekisagasu.domain.date.format
+import com.seo4d696b75.android.ekisagasu.domain.log.AppLogTarget
+import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.ui.top.AnimationView
-import jp.seo.station.ekisagasu.utils.formatTime
+import jp.seo.station.ekisagasu.utils.formatDuration
 import jp.seo.station.ekisagasu.utils.getVFromColorCode
 import jp.seo.station.ekisagasu.utils.parseColorCode
 import java.util.Date
@@ -184,13 +183,13 @@ fun setDataUpdateProgress(
 @BindingAdapter("logTarget")
 fun setLogFilter(
     view: TextView,
-    log: LogTarget?,
+    log: AppLogTarget?,
 ) {
-    view.text = log?.target?.let {
+    view.text = log?.let {
         String.format(
             "%s～%s",
-            formatTime(TIME_PATTERN_DATETIME, it.start),
-            formatTime(TIME_PATTERN_DATETIME, it.finish),
+            it.start.format(TIME_PATTERN_DATETIME),
+            it.end.format(TIME_PATTERN_DATETIME),
         )
     } ?: ""
 }
@@ -233,7 +232,7 @@ fun setDataUpdatedAt(
     view.text = version?.let {
         view.context.getString(
             R.string.text_data_updated_at,
-            formatTime(TIME_PATTERN_DATETIME, it.timestamp),
+            it.timestamp.format(TIME_PATTERN_DATETIME),
         )
     } ?: ""
 }
@@ -256,9 +255,7 @@ fun setFormatDateMilliSec(
     view: TextView,
     date: Date?,
 ) {
-    view.text = date?.let {
-        formatTime(TIME_PATTERN_MILLI_SEC, it)
-    } ?: ""
+    view.text = date.format(TIME_PATTERN_MILLI_SEC)
 }
 
 @BindingAdapter("formatDate")
@@ -266,19 +263,17 @@ fun setFormatDateTime(
     view: TextView,
     date: Date?,
 ) {
-    view.text = date?.let {
-        formatTime(TIME_PATTERN_DATETIME, it)
-    } ?: ""
+    view.text = date.format(TIME_PATTERN_DATETIME)
 }
 
 @BindingAdapter("formatAppRunningDuration")
 fun setDuration(
     view: TextView,
-    log: AppRebootLog?,
+    log: AppLogTarget?,
 ) {
-    view.text = log?.finish?.let {
+    view.text = log?.end?.let {
         val duration = ((it.time - log.start.time) / 1000L).toInt()
-        formatTime(view.context, duration)
+        view.context.formatDuration(duration)
     } ?: ""
 }
 

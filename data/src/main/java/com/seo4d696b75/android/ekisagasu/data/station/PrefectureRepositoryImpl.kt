@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.data.station
 import android.content.Context
 import android.util.SparseArray
 import com.seo4d696b75.android.ekisagasu.data.R
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -19,8 +19,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType
+import com.google.android.gms.common.api.ResolvableApiException
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.service.StationService
@@ -64,9 +65,11 @@ class MainActivity : AppCompatActivity() {
             .onEach { message ->
                 when (message) {
                     is AppMessage.ResolvableException -> {
-                        resolvableApiLauncher.launch(
-                            IntentSenderRequest.Builder(message.exception.resolution).build(),
-                        )
+                        message.exception.let {
+                            require(it is ResolvableApiException)
+                            val request = IntentSenderRequest.Builder(it.resolution).build()
+                            resolvableApiLauncher.launch(request)
+                        }
                     }
 
                     is AppMessage.FinishApp -> {

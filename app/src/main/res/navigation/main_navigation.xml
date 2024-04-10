@@ -45,10 +45,10 @@
         <argument
             android:name="type"
             android:defaultValue="Latest"
-            app:argType="com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType" />
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType" />
         <argument
             android:name="info"
-            app:argType="com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion" />
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion" />
     </dialog>
     <action
         android:id="@+id/action_global_confirmDataUpdateDialog"
@@ -59,10 +59,10 @@
         android:label="DataUpdateDialog">
         <argument
             android:name="info"
-            app:argType="com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion" />
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion" />
         <argument
             android:name="type"
-            app:argType="com.seo4d696b75.android.ekisagasu.data.station.DataUpdateType" />
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType" />
     </dialog>
     <action
         android:id="@+id/action_global_dataUpdateDialog"

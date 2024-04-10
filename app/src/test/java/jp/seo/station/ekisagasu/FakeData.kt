@@ -1,9 +1,9 @@
 package jp.seo.station.ekisagasu
 
-import com.seo4d696b75.android.ekisagasu.data.kdtree.StationKdTree
-import com.seo4d696b75.android.ekisagasu.data.station.LatestDataVersion
-import com.seo4d696b75.android.ekisagasu.data.station.Line
-import com.seo4d696b75.android.ekisagasu.data.station.Station
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationKdTree
+import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

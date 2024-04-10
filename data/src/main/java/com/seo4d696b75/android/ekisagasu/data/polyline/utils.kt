@@ -2,7 +2,7 @@ package com.seo4d696b75.android.ekisagasu.data.polyline
 
 import com.google.android.gms.maps.model.LatLng
 import com.seo4d696b75.android.ekisagasu.data.BuildConfig
-import com.seo4d696b75.android.ekisagasu.data.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import jp.seo.diagram.core.BasePoint
 import jp.seo.diagram.core.Edge
 import jp.seo.diagram.core.Point

@@ -3,8 +3,8 @@ package jp.seo.station.ekisagasu.ui.dialog
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

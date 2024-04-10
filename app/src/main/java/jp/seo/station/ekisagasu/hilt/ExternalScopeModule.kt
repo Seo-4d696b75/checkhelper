@@ -1,6 +1,6 @@
 package jp.seo.station.ekisagasu.hilt
 
-import com.seo4d696b75.android.ekisagasu.data.utils.ExternalScope
+import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,6 +1,9 @@
 package com.seo4d696b75.android.ekisagasu.data.kdtree
 
-import com.seo4d696b75.android.ekisagasu.data.station.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.SearchResult
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationNode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
