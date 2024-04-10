@@ -1,11 +1,11 @@
 package com.seo4d696b75.android.ekisagasu.data.gpx
 
-import com.seo4d696b75.android.ekisagasu.data.config.AppConfig
 import com.seo4d696b75.android.ekisagasu.data.database.AppLog
 import com.seo4d696b75.android.ekisagasu.data.database.filter
 import com.seo4d696b75.android.ekisagasu.data.log.AppLogType
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_ISO8601_EXTEND
 import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
+import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
 import java.util.Date
 import javax.inject.Inject
 

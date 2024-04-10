@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.config.AppConfig
 import com.seo4d696b75.android.ekisagasu.data.database.AppLog
 import com.seo4d696b75.android.ekisagasu.data.database.filter
 import com.seo4d696b75.android.ekisagasu.data.gpx.SerializeGPXUseCase
@@ -16,6 +15,7 @@ import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME_FILE
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_MILLI_SEC
 import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
+import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow

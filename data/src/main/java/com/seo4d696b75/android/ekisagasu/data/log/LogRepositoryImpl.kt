@@ -2,13 +2,13 @@ package com.seo4d696b75.android.ekisagasu.data.log
 
 import android.content.Context
 import com.seo4d696b75.android.ekisagasu.data.R
-import com.seo4d696b75.android.ekisagasu.data.config.AppConfig
 import com.seo4d696b75.android.ekisagasu.data.database.AppLog
 import com.seo4d696b75.android.ekisagasu.data.database.AppRebootLog
 import com.seo4d696b75.android.ekisagasu.data.database.UserDao
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_DATETIME
 import com.seo4d696b75.android.ekisagasu.data.utils.TIME_PATTERN_ISO8601_EXTEND
 import com.seo4d696b75.android.ekisagasu.data.utils.formatTime
+import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -42,6 +42,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":domain"))
+
     implementation(libs.androidx.core)
 
     implementation(platform(libs.kotlinx.coroutines.bom))

@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.ktlint.gradle)
     alias(libs.plugins.androidx.navigation.safeargs) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
 }
 
 task<Delete>("clean") {

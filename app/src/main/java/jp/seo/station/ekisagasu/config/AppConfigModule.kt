@@ -2,7 +2,7 @@ package jp.seo.station.ekisagasu.config
 
 import android.content.Context
 import android.os.Build
-import com.seo4d696b75.android.ekisagasu.data.config.AppConfig
+import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
