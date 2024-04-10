@@ -65,8 +65,4 @@ class NearestSearchTest {
         }
 }
 
-private data class LocationTestCase(
-    val lat: Double,
-    val lng: Double,
-    val stationName: String,
-)
+private data class LocationTestCase(val lat: Double, val lng: Double, val stationName: String,)

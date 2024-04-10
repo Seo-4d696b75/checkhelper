@@ -17,9 +17,7 @@ import jp.seo.station.ekisagasu.ui.MainActivity
  * @author Seo-4d696b75
  * @version 2020/12/24.
  */
-class NotificationViewHolder(
-    private val context: Context,
-) {
+class NotificationViewHolder(private val context: Context,) {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "jp.seo.station.ekisagasu.notification_main_silent"
         const val NOTIFICATION_TAG = 3910

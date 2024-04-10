@@ -11,16 +11,14 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class RadarViewModel
-    @Inject
-    constructor(
-        searchRepository: StationSearchRepository,
-        userSettingRepository: UserSettingRepository,
-    ) : ViewModel() {
-        val radarList = searchRepository.nearestStations
+class RadarViewModel @Inject constructor(
+    searchRepository: StationSearchRepository,
+    userSettingRepository: UserSettingRepository,
+) : ViewModel() {
+    val radarList = searchRepository.nearestStations
 
-        val radarK =
-            userSettingRepository.setting
-                .map { it.searchK }
-                .stateIn(viewModelScope, SharingStarted.Lazily, 12)
-    }
+    val radarK =
+        userSettingRepository.setting
+            .map { it.searchK }
+            .stateIn(viewModelScope, SharingStarted.Lazily, 12)
+}

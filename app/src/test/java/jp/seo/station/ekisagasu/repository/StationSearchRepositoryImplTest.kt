@@ -39,9 +39,7 @@ import java.util.Date
 
 @ExperimentalCoroutinesApi
 @RunWith(Parameterized::class)
-open class StationSearchRepositoryImplTest(
-    private val k: Int,
-) {
+open class StationSearchRepositoryImplTest(private val k: Int,) {
     private val dataRepository = mockk<DataRepository>()
     private val search = mockk<NearestSearch>()
 

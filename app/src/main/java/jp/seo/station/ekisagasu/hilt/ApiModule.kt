@@ -53,9 +53,7 @@ object RetrofitModule {
 object ApiModule {
     @Singleton
     @Provides
-    fun provideAPIClient(retrofit: Retrofit): APIClient {
-        return retrofit.create(APIClient::class.java)
-    }
+    fun provideAPIClient(retrofit: Retrofit): APIClient = retrofit.create(APIClient::class.java)
 }
 
 @Module

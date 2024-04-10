@@ -22,10 +22,4 @@ interface NearestSearch {
     ): SearchResult
 }
 
-data class SearchResult(
-    val lat: Double,
-    val lng: Double,
-    val k: Int,
-    val r: Double,
-    val stations: List<Station>,
-)
+data class SearchResult(val lat: Double, val lng: Double, val k: Int, val r: Double, val stations: List<Station>,)

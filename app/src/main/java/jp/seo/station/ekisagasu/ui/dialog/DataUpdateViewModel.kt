@@ -26,7 +26,8 @@ class DataUpdateViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val collector: LogCollector,
     @ApplicationContext private val context: Context,
-) : ViewModel(), LogCollector by collector {
+) : ViewModel(),
+    LogCollector by collector {
     private val args by lazy {
         ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
     }

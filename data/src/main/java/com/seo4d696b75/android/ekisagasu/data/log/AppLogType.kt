@@ -9,6 +9,6 @@ enum class AppLogType(val value: Int) {
         All(0b111),
         System(0b001),
         Geo(0b110),
-        Station(0b100);
+        Station(0b100)
     }
 }

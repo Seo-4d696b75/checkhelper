@@ -15,80 +15,60 @@ import org.json.JSONObject
 
 class NodeListConverter {
     @TypeConverter
-    fun convertRegistration(value: List<StationNode>?): String? {
-        return value?.let {
-            Json.encodeToString(it)
-        }
+    fun convertRegistration(value: List<StationNode>?): String? = value?.let {
+        Json.encodeToString(it)
     }
 
     @TypeConverter
-    fun convertJson(value: String?): List<StationNode>? {
-        return value?.let {
-            Json.decodeFromString<List<StationNode>>(it)
-        }
+    fun convertJson(value: String?): List<StationNode>? = value?.let {
+        Json.decodeFromString<List<StationNode>>(it)
     }
 }
 
 class RegistrationListConverter {
     @TypeConverter
-    fun convertArray(value: Array<StationRegistration>?): String? {
-        return value?.let {
-            Json.encodeToString(it)
-        }
+    fun convertArray(value: Array<StationRegistration>?): String? = value?.let {
+        Json.encodeToString(it)
     }
 
     @TypeConverter
-    fun convertJson(value: String?): Array<StationRegistration>? {
-        return value?.let {
-            Json.decodeFromString<Array<StationRegistration>>(it)
-        }
+    fun convertJson(value: String?): Array<StationRegistration>? = value?.let {
+        Json.decodeFromString<Array<StationRegistration>>(it)
     }
 }
 
 class ArrayIntConverter {
     @TypeConverter
-    fun convertArray(value: Array<Int>?): String? {
-        return value?.let {
-            Json.encodeToString(it)
-        }
+    fun convertArray(value: Array<Int>?): String? = value?.let {
+        Json.encodeToString(it)
     }
 
     @TypeConverter
-    fun convertJson(value: String?): Array<Int>? {
-        return value?.let {
-            Json.decodeFromString<Array<Int>>(it)
-        }
+    fun convertJson(value: String?): Array<Int>? = value?.let {
+        Json.decodeFromString<Array<Int>>(it)
     }
 }
 
 class IntListConverter {
     @TypeConverter
-    fun convertList(value: List<Int>?): String? {
-        return value?.let {
-            Json.encodeToString(it)
-        }
+    fun convertList(value: List<Int>?): String? = value?.let {
+        Json.encodeToString(it)
     }
 
     @TypeConverter
-    fun convertJson(value: String?): List<Int>? {
-        return value?.let {
-            Json.decodeFromString<List<Int>>(it)
-        }
+    fun convertJson(value: String?): List<Int>? = value?.let {
+        Json.decodeFromString<List<Int>>(it)
     }
 }
 
 class JSONRecordConverter {
     @TypeConverter
-    fun convertObject(value: JSONObject?): String? {
-        return value?.let {
-            value.toString()
-        }
+    fun convertObject(value: JSONObject?): String? = value?.let {
+        value.toString()
     }
 
     @TypeConverter
-    fun convertJson(value: String?): JSONObject? {
-        return value?.let {
-            JSONObject(value)
-        }
+    fun convertJson(value: String?): JSONObject? = value?.let {
+        JSONObject(value)
     }
 }

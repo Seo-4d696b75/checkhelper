@@ -3,10 +3,7 @@ package com.seo4d696b75.android.ekisagasu.data.polyline
 import com.google.android.gms.maps.model.LatLng
 import java.util.Locale
 
-class PolylineMiddleNode(
-    point: LatLng,
-    val index: Int,
-) : PolylineNode(point) {
+class PolylineMiddleNode(point: LatLng, val index: Int,) : PolylineNode(point) {
     private var next1: PolylineNode? = null
     private var next2: PolylineNode? = null
     private var distance1 = 0f
@@ -36,25 +33,19 @@ class PolylineMiddleNode(
         return object : NeighborIterator {
             private var hasIterated = false
 
-            override fun hasNext(): Boolean {
-                return !hasIterated
+            override fun hasNext(): Boolean = !hasIterated
+
+            override fun next(): PolylineNode = if (hasIterated) {
+                throw NoSuchElementException()
+            } else {
+                hasIterated = true
+                (if (former) next1 else next2) ?: throw IllegalStateException()
             }
 
-            override fun next(): PolylineNode {
-                return if (hasIterated) {
-                    throw NoSuchElementException()
-                } else {
-                    hasIterated = true
-                    (if (former) next1 else next2) ?: throw IllegalStateException()
-                }
-            }
-
-            override fun distance(): Float {
-                return if (hasIterated) {
-                    if (former) distance1 else distance2
-                } else {
-                    throw NoSuchElementException()
-                }
+            override fun distance(): Float = if (hasIterated) {
+                if (former) distance1 else distance2
+            } else {
+                throw NoSuchElementException()
             }
         }
     }
@@ -69,13 +60,11 @@ class PolylineMiddleNode(
         }
     }
 
-    override fun toString(): String {
-        return String.format(
-            Locale.US,
-            "MiddleNode(lat/lon:(%.6f,%.6f), index:%d)",
-            point.latitude,
-            point.longitude,
-            index,
-        )
-    }
+    override fun toString(): String = String.format(
+        Locale.US,
+        "MiddleNode(lat/lon:(%.6f,%.6f), index:%d)",
+        point.latitude,
+        point.longitude,
+        index,
+    )
 }

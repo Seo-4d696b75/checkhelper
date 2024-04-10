@@ -23,10 +23,7 @@ import java.util.Date
  * @author Seo-4d696b75
  * @version 2019/02/16.
  */
-class PolylineNavigator(
-    private val explorer: NearestSearch,
-    val line: Line,
-) {
+class PolylineNavigator(private val explorer: NearestSearch, val line: Line,) {
     companion object {
         private const val DISTANCE_THRESHOLD = 5f
     }
@@ -86,7 +83,7 @@ class PolylineNavigator(
         if (!location.latitude.isFinite() || !location.longitude.isFinite()) return@withContext
         assert {
             location.latitude in -90.0..90.0 &&
-                    location.longitude in -180.0..180.0
+                location.longitude in -180.0..180.0
         }
         lock.withLock {
             val start = SystemClock.uptimeMillis()

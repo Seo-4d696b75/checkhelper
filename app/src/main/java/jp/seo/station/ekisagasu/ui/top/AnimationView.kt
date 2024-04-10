@@ -20,7 +20,9 @@ import kotlin.math.ceil
  * @author Seo-4d696b75
  * @version 2021/01/10.
  */
-class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
+class AnimationView :
+    View,
+    ViewTreeObserver.OnGlobalLayoutListener {
     constructor(context: Context) : this(context, null)
 
     constructor(context: Context, set: AttributeSet?) : this(context, set, 0)
@@ -161,13 +163,9 @@ class AnimationView : View, ViewTreeObserver.OnGlobalLayoutListener {
             @JvmField
             val CREATOR: Parcelable.Creator<SavedState?> =
                 object : Parcelable.Creator<SavedState?> {
-                    override fun createFromParcel(`in`: Parcel): SavedState {
-                        return SavedState(`in`)
-                    }
+                    override fun createFromParcel(`in`: Parcel): SavedState = SavedState(`in`)
 
-                    override fun newArray(size: Int): Array<SavedState?> {
-                        return arrayOfNulls(size)
-                    }
+                    override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
                 }
         }
     }

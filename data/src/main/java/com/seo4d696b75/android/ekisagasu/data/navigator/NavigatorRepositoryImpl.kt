@@ -15,6 +15,7 @@ import javax.inject.Inject
 class NavigatorRepositoryImpl @Inject constructor(
     private val search: NearestSearch,
 ) : NavigatorRepository {
+
     private val _running = MutableStateFlow(false)
     private var navigator: PolylineNavigator? = null
     private val _navigator = MutableStateFlow<PolylineNavigator?>(null)

@@ -30,15 +30,11 @@ abstract class UserDatabase : RoomDatabase() {
 
 class TimestampConverter {
     @TypeConverter
-    fun convertDatetime(value: Date?): Long? {
-        return value?.time
-    }
+    fun convertDatetime(value: Date?): Long? = value?.time
 
     @TypeConverter
-    fun convertUnixTime(value: Long?): Date? {
-        return value?.let {
-            Date(it)
-        }
+    fun convertUnixTime(value: Long?): Date? = value?.let {
+        Date(it)
     }
 }
 
@@ -64,13 +60,11 @@ data class AppLog constructor(
     @ColumnInfo(name = "timestamp")
     var timestamp: Date = Date()
 
-    override fun toString(): String {
-        return String.format(
-            "%s %s",
-            formatTime(TIME_PATTERN_MILLI_SEC, timestamp),
-            message,
-        )
-    }
+    override fun toString(): String = String.format(
+        "%s %s",
+        formatTime(TIME_PATTERN_MILLI_SEC, timestamp),
+        message,
+    )
 }
 
 fun List<AppLog>.filter(filter: AppLogType.Filter) =

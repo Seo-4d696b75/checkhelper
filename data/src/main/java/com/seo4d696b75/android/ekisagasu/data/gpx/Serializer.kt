@@ -156,7 +156,4 @@ private data class TrackPoint(
     }
 }
 
-private data class StationExtension(
-    val name: String,
-    val code: String,
-)
+private data class StationExtension(val name: String, val code: String)

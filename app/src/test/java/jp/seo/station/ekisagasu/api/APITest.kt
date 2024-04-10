@@ -39,12 +39,10 @@ class APITest {
 
     private val serverDispatcher =
         object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse {
-                return when (request.path) {
-                    "/station_database/latest_info.json" -> MockResponse().setBody(info)
-                    "/station_database@20240329/out/main/json.zip" -> MockResponse().setBody(fakeDataBuffer())
-                    else -> MockResponse().setResponseCode(404)
-                }
+            override fun dispatch(request: RecordedRequest): MockResponse = when (request.path) {
+                "/station_database/latest_info.json" -> MockResponse().setBody(info)
+                "/station_database@20240329/out/main/json.zip" -> MockResponse().setBody(fakeDataBuffer())
+                else -> MockResponse().setResponseCode(404)
             }
         }
 

@@ -51,9 +51,7 @@ val <T : Any> T.fakeLines: Lazy<List<Line>>
         }
 
 @Serializable
-private data class LineCode(
-    val code: Int,
-)
+private data class LineCode(val code: Int,)
 
 val <T : Any> T.fakeLineCodes: Lazy<List<Int>>
     get() =

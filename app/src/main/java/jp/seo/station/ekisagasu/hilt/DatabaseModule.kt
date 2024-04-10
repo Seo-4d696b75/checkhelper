@@ -20,21 +20,17 @@ object DatabaseModule {
     @Provides
     fun provideStationDatabase(
         @ApplicationContext context: Context,
-    ): StationDao {
-        return Room.databaseBuilder(context, StationDatabase::class.java, "station_db")
-            .fallbackToDestructiveMigration()
-            .build()
-            .dao
-    }
+    ): StationDao = Room.databaseBuilder(context, StationDatabase::class.java, "station_db")
+        .fallbackToDestructiveMigration()
+        .build()
+        .dao
 
     @Singleton
     @Provides
     fun provideUserDatabase(
         @ApplicationContext context: Context,
-    ): UserDao {
-        return Room.databaseBuilder(context, UserDatabase::class.java, "user_db")
-            .fallbackToDestructiveMigration()
-            .build()
-            .userDao
-    }
+    ): UserDao = Room.databaseBuilder(context, UserDatabase::class.java, "user_db")
+        .fallbackToDestructiveMigration()
+        .build()
+        .userDao
 }

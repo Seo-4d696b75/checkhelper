@@ -30,11 +30,7 @@ fun convertGeoJsonFeatureCollections(value: String): List<GeoJsonFeature> {
     return parser.features
 }
 
-data class StationArea(
-    val station: Station,
-    val points: Array<LatLng>,
-    val enclosed: Boolean,
-) {
+data class StationArea(val station: Station, val points: Array<LatLng>, val enclosed: Boolean,) {
     companion object {
         fun parseArea(station: Station): StationArea {
             val feature = convertGeoJsonFeature(station.voronoi)
@@ -80,11 +76,7 @@ data class StationArea(
     }
 }
 
-data class PolylineSegment(
-    val points: Array<LatLng>,
-    val start: String,
-    val end: String,
-) {
+data class PolylineSegment(val points: Array<LatLng>, val start: String, val end: String,) {
     companion object {
         fun parseSegments(data: String): List<PolylineSegment> {
             return convertGeoJsonFeatureCollections(data).map {

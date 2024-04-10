@@ -64,7 +64,9 @@ private fun LogMessage.toString(context: Context): String =
         is LogMessage.Error -> {
             val message = when (this) {
                 is LogMessage.GPS.StartFailure -> context.getString(R.string.log_message_gps_start_failure)
-                is LogMessage.Data.CheckLatestVersionFailure -> context.getString(R.string.log_message_latest_check_failure)
+                is LogMessage.Data.CheckLatestVersionFailure -> context.getString(
+                    R.string.log_message_latest_check_failure
+                )
                 is LogMessage.Data.UpdateFailure -> context.getString(R.string.log_message_fail_data_update)
             }
             "$message caused by;\n${error.formatStackTrace()}"

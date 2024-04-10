@@ -372,10 +372,8 @@ class PolylineCursor {
         if (javaClass != other?.javaClass) return false
         other as PolylineCursor
         return (start == other.start && end == other.end) ||
-                (start == other.end && end == other.start)
+            (start == other.end && end == other.start)
     }
 
-    override fun hashCode(): Int {
-        return start.hashCode() + end.hashCode()
-    }
+    override fun hashCode(): Int = start.hashCode() + end.hashCode()
 }

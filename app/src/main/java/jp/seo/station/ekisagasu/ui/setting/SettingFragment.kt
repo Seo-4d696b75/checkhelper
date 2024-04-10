@@ -97,11 +97,11 @@ class SettingFragment : Fragment() {
                         NightModeTimeout(
                             timeout = timeout,
                             text =
-                                if (timeout == 0) {
-                                    context.getString(R.string.setting_mes_night_switch_always)
-                                } else {
-                                    context.getString(R.string.setting_mes_night_switch, timeout)
-                                },
+                            if (timeout == 0) {
+                                context.getString(R.string.setting_mes_night_switch_always)
+                            } else {
+                                context.getString(R.string.setting_mes_night_switch, timeout)
+                            },
                         )
                     }
             val text = values.map { it.text }
@@ -149,7 +149,4 @@ class SettingFragment : Fragment() {
     }
 }
 
-private data class NightModeTimeout(
-    val timeout: Int,
-    val text: String,
-)
+private data class NightModeTimeout(val timeout: Int, val text: String,)

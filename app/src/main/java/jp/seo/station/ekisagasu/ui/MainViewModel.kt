@@ -21,7 +21,8 @@ class MainViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val remoteDataRepository: RemoteDataRepository,
     private val logger: LogCollector,
-) : ViewModel(), LogCollector by logger {
+) : ViewModel(),
+    LogCollector by logger {
     val message = appStateRepository.message
 
     var hasPermissionChecked: Boolean

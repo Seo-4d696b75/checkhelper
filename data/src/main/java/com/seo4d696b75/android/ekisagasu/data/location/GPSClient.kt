@@ -33,7 +33,9 @@ class GPSClient @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appStateRepository: AppStateRepository,
     private val logger: LogCollector,
-) : LocationCallback(), LocationRepository, LogCollector by logger {
+) : LocationCallback(),
+    LocationRepository,
+    LogCollector by logger {
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(context)
     private val settingClient = LocationServices.getSettingsClient(context)

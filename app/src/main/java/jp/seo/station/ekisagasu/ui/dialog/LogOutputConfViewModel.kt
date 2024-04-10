@@ -3,7 +3,6 @@ package jp.seo.station.ekisagasu.ui.dialog
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.message.AppStateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.ui.log.LogOutputConfig
@@ -17,7 +16,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LogOutputConfViewModel @Inject constructor(
-    private val appStateRepository: AppStateRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val config: LogOutputConfig by lazy {

@@ -61,7 +61,7 @@ class NavigationView(
                 0,
                 layerType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT,
             )
         layoutParams.gravity = Gravity.TOP or Gravity.START

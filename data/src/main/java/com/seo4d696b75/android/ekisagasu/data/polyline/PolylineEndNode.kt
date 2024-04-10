@@ -89,9 +89,7 @@ class PolylineEndNode(
         return JunctionIterator(previous)
     }
 
-    private inner class JunctionIterator(
-        val previous: PolylineNode,
-    ) : NeighborIterator {
+    private inner class JunctionIterator(val previous: PolylineNode,) : NeighborIterator {
         var index = -1
         var nextIndex = -1
 
@@ -105,32 +103,26 @@ class PolylineEndNode(
                 val v = (
                     (v1.longitude - v2.longitude) * (v3.longitude - v2.longitude) +
                         (v1.latitude - v2.latitude) * (v3.latitude - v2.latitude)
-                )
+                    )
                 if (node != previous && v < 0) break
                 nextIndex++
             }
         }
 
-        override fun hasNext(): Boolean {
-            return nextIndex < size
+        override fun hasNext(): Boolean = nextIndex < size
+
+        override fun next(): PolylineNode = if (nextIndex >= size) {
+            throw NoSuchElementException()
+        } else {
+            index = nextIndex
+            searchForNext()
+            next[index] ?: throw NoSuchElementException()
         }
 
-        override fun next(): PolylineNode {
-            return if (nextIndex >= size) {
-                throw NoSuchElementException()
-            } else {
-                index = nextIndex
-                searchForNext()
-                next[index] ?: throw NoSuchElementException()
-            }
-        }
-
-        override fun distance(): Float {
-            return if (index < 0) {
-                throw NoSuchElementException()
-            } else {
-                distance[index]
-            }
+        override fun distance(): Float = if (index < 0) {
+            throw NoSuchElementException()
+        } else {
+            distance[index]
         }
 
         init {
@@ -147,14 +139,12 @@ class PolylineEndNode(
         }
     }
 
-    override fun toString(): String {
-        return String.format(
-            Locale.US,
-            "EndNode(lat/lon:(%.6f,%.6f), tag:%s, size:%s)",
-            point.latitude,
-            point.longitude,
-            tag,
-            if (hasChecked) size.toString() else "??",
-        )
-    }
+    override fun toString(): String = String.format(
+        Locale.US,
+        "EndNode(lat/lon:(%.6f,%.6f), tag:%s, size:%s)",
+        point.latitude,
+        point.longitude,
+        tag,
+        if (hasChecked) size.toString() else "??",
+    )
 }

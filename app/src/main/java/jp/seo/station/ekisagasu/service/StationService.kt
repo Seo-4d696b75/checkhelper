@@ -94,7 +94,8 @@ class StationService : LifecycleService() {
 
                     else -> {
                         Timber.tag("Service").w(
-                            "unknown intent extra received:%s", it.getStringExtra(KEY_REQUEST),
+                            "unknown intent extra received:%s",
+                            it.getStringExtra(KEY_REQUEST),
                         )
                     }
                 }

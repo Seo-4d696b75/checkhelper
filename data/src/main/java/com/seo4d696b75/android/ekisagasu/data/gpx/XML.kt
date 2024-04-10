@@ -22,9 +22,7 @@ fun serializeXML(
     return writer.toString()
 }
 
-class TagScope internal constructor(
-    private val serializer: XmlSerializer,
-) {
+class TagScope internal constructor(private val serializer: XmlSerializer,) {
     fun attribute(vararg list: Pair<String, String>) {
         list.forEach { pair ->
             serializer.attribute("", pair.first, pair.second)

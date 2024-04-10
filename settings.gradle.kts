@@ -5,7 +5,6 @@ import java.util.Properties
 
 include(":data")
 
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 val props = Properties().apply {

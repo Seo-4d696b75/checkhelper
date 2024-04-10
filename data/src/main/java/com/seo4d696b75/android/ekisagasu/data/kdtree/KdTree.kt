@@ -70,10 +70,7 @@ class KdTree @Inject constructor(
         val list: MutableList<NeighborNode> = ArrayList()
     }
 
-    private data class NeighborNode(
-        val code: Int,
-        val dist: Double,
-    )
+    private data class NeighborNode(val code: Int, val dist: Double)
 
     override suspend fun search(
         lat: Double,

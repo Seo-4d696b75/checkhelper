@@ -128,8 +128,7 @@ class LogFragment : Fragment() {
         }
     }
 
-    class LogAdapter(context: Context) :
-        ListAdapter<AppLog, LogViewHolder>(AppLogComparator()) {
+    class LogAdapter(context: Context) : ListAdapter<AppLog, LogViewHolder>(AppLogComparator()) {
         private val inflater = LayoutInflater.from(context)
 
         override fun onCreateViewHolder(
@@ -154,8 +153,6 @@ class LogFragment : Fragment() {
             holder.binding.data = log
         }
 
-        override fun getItemId(position: Int): Long {
-            return getItem(position).id
-        }
+        override fun getItemId(position: Int): Long = getItem(position).id
     }
 }

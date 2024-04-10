@@ -23,7 +23,8 @@ class StationSearchRepositoryImpl @Inject constructor(
     private val dataRepository: DataRepository,
     private val search: NearestSearch,
     private val logger: LogCollector,
-) : StationSearchRepository, LogCollector by logger {
+) : StationSearchRepository,
+    LogCollector by logger {
     private val updateMutex = Mutex()
     private var searchK: Int = 12
 

@@ -52,10 +52,7 @@ class LineNameAdapter(context: Context) : ListAdapter<Line, LineNameViewHolder>(
     fun getLine(position: Int): Line = getItem(position)
 }
 
-class LineAdapter(
-    context: Context,
-    lines: List<Line>,
-) : ArrayAdapter<Line>(context, 0, lines) {
+class LineAdapter(context: Context, lines: List<Line>,) : ArrayAdapter<Line>(context, 0, lines) {
     private val inflater = LayoutInflater.from(context)
 
     override fun getView(

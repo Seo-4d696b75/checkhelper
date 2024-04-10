@@ -4,34 +4,24 @@ import com.google.android.gms.maps.model.LatLng
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
 import java.util.Locale
 
-class NearestPoint(
-    val start: LatLng,
-    val end: LatLng,
-    point: LatLng,
-) {
+class NearestPoint(val start: LatLng, val end: LatLng, point: LatLng,) {
     var index = 0.0
     val distance: Float
     val edgeDistance: Float
     val closedPoint: LatLng
     var isOnEdge = false
 
-    fun distanceFrom(): Float {
-        return edgeDistance * index.toFloat()
-    }
+    fun distanceFrom(): Float = edgeDistance * index.toFloat()
 
-    fun distanceTo(): Float {
-        return edgeDistance * (1 - index.toFloat())
-    }
+    fun distanceTo(): Float = edgeDistance * (1 - index.toFloat())
 
-    override fun toString(): String {
-        return String.format(
-            Locale.US,
-            "NearestPoint(lat/lon:(%.6f,%.6f) - %.2fm)",
-            closedPoint.latitude,
-            closedPoint.longitude,
-            distance,
-        )
-    }
+    override fun toString(): String = String.format(
+        Locale.US,
+        "NearestPoint(lat/lon:(%.6f,%.6f) - %.2fm)",
+        closedPoint.latitude,
+        closedPoint.longitude,
+        distance,
+    )
 
     init {
         val v1 =

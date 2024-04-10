@@ -21,9 +21,7 @@ sealed interface LogOutputConfig : java.io.Serializable {
         override val extension = LogOutputExtension.txt
     }
 
-    data class Geo(
-        override val extension: LogOutputExtension,
-    ) : LogOutputConfig {
+    data class Geo(override val extension: LogOutputExtension,) : LogOutputConfig {
         override val filter = AppLogType.Filter.Geo
     }
 

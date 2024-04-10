@@ -76,8 +76,7 @@ class AppHistoryDialog : DialogFragment() {
         }.create()
     }
 
-    class AppHistoryViewHolder(val binding: CellListHistoryBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    class AppHistoryViewHolder(val binding: CellListHistoryBinding) : RecyclerView.ViewHolder(binding.root)
 
     class AppRebootLogComparator : DiffUtil.ItemCallback<AppRebootLog>() {
         override fun areItemsTheSame(

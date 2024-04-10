@@ -18,11 +18,7 @@ data class NearStation(
     val time: Date,
     val lines: List<Line>,
 ) {
-    fun getDetectedTime(): String {
-        return formatTime(TIME_PATTERN_SIMPLE, time)
-    }
+    fun getDetectedTime(): String = formatTime(TIME_PATTERN_SIMPLE, time)
 
-    fun getLinesName(): String {
-        return lines.joinToString(separator = " ", transform = { line -> line.name })
-    }
+    fun getLinesName(): String = lines.joinToString(separator = " ", transform = { line -> line.name })
 }

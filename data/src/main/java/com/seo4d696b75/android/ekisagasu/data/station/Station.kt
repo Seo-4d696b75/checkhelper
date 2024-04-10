@@ -75,10 +75,7 @@ data class Station constructor(
 }
 
 @Serializable
-data class StationRegistration(
-    val code: Int,
-    val numbering: List<String>? = null,
-) {
+data class StationRegistration(val code: Int, val numbering: List<String>? = null,) {
     fun getNumberingString(): String {
         return numbering?.joinToString(separator = "/", transform = String::toString) ?: ""
     }
@@ -97,7 +94,5 @@ class JsonObjectAsStringSerializer : KSerializer<String> {
     override fun serialize(
         encoder: Encoder,
         value: String,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 }

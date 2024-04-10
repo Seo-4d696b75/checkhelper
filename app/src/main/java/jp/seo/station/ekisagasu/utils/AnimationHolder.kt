@@ -9,11 +9,7 @@ import android.view.animation.Animation
  * @author Seo-4d696b75
  * @version 2021/01/13.
  */
-class AnimationHolder<E : View>(
-    val view: E,
-    pixelX: Int,
-    pixelY: Int,
-) {
+class AnimationHolder<E : View>(val view: E, pixelX: Int, pixelY: Int,) {
     private val x: Float = pixelX.toFloat()
     private val y: Float = pixelY.toFloat()
 

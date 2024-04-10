@@ -7,12 +7,10 @@ import jp.seo.station.ekisagasu.R
 fun formatTime(
     ctx: Context,
     sec: Int,
-): String {
-    return if (sec < 60) {
-        sec.toString() + ctx.getString(R.string.time_unit_sec)
-    } else if (sec < 3600) {
-        (sec / 60).toString() + ctx.getString(R.string.time_unit_min)
-    } else {
-        (sec / 3600).toString() + ctx.getString(R.string.time_unit_hour)
-    }
+): String = if (sec < 60) {
+    sec.toString() + ctx.getString(R.string.time_unit_sec)
+} else if (sec < 3600) {
+    (sec / 60).toString() + ctx.getString(R.string.time_unit_min)
+} else {
+    (sec / 3600).toString() + ctx.getString(R.string.time_unit_hour)
 }

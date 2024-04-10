@@ -19,8 +19,6 @@ const val TIME_PATTERN_DATETIME_FILE = "yyyyMMdd_HHmm"
 fun formatTime(
     pattern: String,
     time: Date?,
-): String {
-    return time?.let {
-        SimpleDateFormat(pattern, Locale.US).format(it)
-    } ?: ""
-}
+): String = time?.let {
+    SimpleDateFormat(pattern, Locale.US).format(it)
+} ?: ""

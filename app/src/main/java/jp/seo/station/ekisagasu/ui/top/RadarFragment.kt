@@ -97,8 +97,7 @@ class RadarFragment : Fragment() {
         }
     }
 
-    private class RadarViewHolder(val binding: CellStationRadarBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    private class RadarViewHolder(val binding: CellStationRadarBinding) : RecyclerView.ViewHolder(binding.root)
 
     private class RadarAdapter(context: Context) : ListAdapter<NearStation, RadarViewHolder>(NearStationComparator()) {
         private val inflater = LayoutInflater.from(context)
@@ -130,8 +129,6 @@ class RadarFragment : Fragment() {
             }
         }
 
-        override fun getItemId(position: Int): Long {
-            return getItem(position).station.code.toLong()
-        }
+        override fun getItemId(position: Int): Long = getItem(position).station.code.toLong()
     }
 }

@@ -12,9 +12,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class RemoteDataRepositoryImpl
-@Inject
-constructor(
+class RemoteDataRepositoryImpl @Inject constructor(
     private val api: APIClient,
 ) : RemoteDataRepository {
     // cached version

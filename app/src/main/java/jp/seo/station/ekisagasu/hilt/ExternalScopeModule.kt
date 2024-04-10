@@ -32,4 +32,3 @@ object ExternalScopeModule {
             get() = job + Dispatchers.Main.immediate + coroutineExceptionHandler
     }
 }
-

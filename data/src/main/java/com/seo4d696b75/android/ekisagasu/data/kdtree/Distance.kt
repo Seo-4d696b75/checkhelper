@@ -86,12 +86,10 @@ fun measure(
     lat2: Double,
     lng2: Double,
     sphere: Boolean,
-): Double {
-    return if (sphere) {
-        measureSphere(lat1, lng1, lat2, lng2)
-    } else {
-        measureEuclid(lat1, lng1, lat2, lng2)
-    }
+): Double = if (sphere) {
+    measureSphere(lat1, lng1, lat2, lng2)
+} else {
+    measureEuclid(lat1, lng1, lat2, lng2)
 }
 
 fun LatLng.measureEuclid(other: LatLng) =
