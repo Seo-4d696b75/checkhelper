@@ -77,12 +77,12 @@ class AppHistoryDialog : DialogFragment() {
 
     class AppHistoryViewHolder(val binding: CellListHistoryBinding) : RecyclerView.ViewHolder(binding.root)
 
-    class AppRebootLogComparator : DiffUtil.ItemCallback<AppLogTarget>() {
+    class AppLogTargetComparator : DiffUtil.ItemCallback<AppLogTarget>() {
         override fun areItemsTheSame(
             oldItem: AppLogTarget,
             newItem: AppLogTarget,
         ): Boolean {
-            return oldItem.start == newItem.start
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(
@@ -94,7 +94,7 @@ class AppHistoryDialog : DialogFragment() {
     }
 
     class HistoryAdapter(context: Context) :
-        ListAdapter<AppLogTarget, AppHistoryViewHolder>(AppRebootLogComparator()) {
+        ListAdapter<AppLogTarget, AppHistoryViewHolder>(AppLogTargetComparator()) {
         var onItemSelectedListener: ((AppLogTarget) -> Unit)? = null
 
         private val inflater = LayoutInflater.from(context)

@@ -51,8 +51,10 @@ class LogRepositoryImpl @Inject constructor(
 
     override val history = dao.getRebootHistory().map { list ->
         list.mapIndexed { i, log ->
+            // idに関して降順でソートされている
             AppLogTarget(
-                id = log.id..(if (i + 1 < list.size) list[i + 1].id else Long.MAX_VALUE),
+                id = log.id,
+                range = log.id..(if (i > 0) list[i - 1].id else Long.MAX_VALUE),
                 start = log.start,
                 end = log.finish,
                 hasError = log.error,
@@ -69,7 +71,7 @@ class LogRepositoryImpl @Inject constructor(
     override val logs = _target
         .filterNotNull()
         .flatMapLatest { target ->
-            dao.getLogs(target.id.first, target.id.last)
+            dao.getLogs(target.range.first, target.range.last)
                 .map { list -> list.map { it.toModel() } }
         }
 
@@ -83,7 +85,8 @@ class LogRepositoryImpl @Inject constructor(
         val current = dao.getCurrentReboot()
         _target.update {
             AppLogTarget(
-                id = current.id..Long.MAX_VALUE,
+                id = current.id,
+                range = current.id..Long.MAX_VALUE,
                 start = current.start,
                 end = current.finish,
                 hasError = false,
