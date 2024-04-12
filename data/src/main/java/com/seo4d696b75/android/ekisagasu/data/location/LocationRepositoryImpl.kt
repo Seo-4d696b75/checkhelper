@@ -146,7 +146,8 @@ class LocationRepositoryImpl @Inject constructor(
                 .removeLocationUpdates(this)
                 .addOnCompleteListener {
                     Timber.d("GPS stop")
-                    _running.value = false
+                    _location.update { null }
+                    _running.update { false }
                     log(LogMessage.GPS.Stop)
                 }
             return true
