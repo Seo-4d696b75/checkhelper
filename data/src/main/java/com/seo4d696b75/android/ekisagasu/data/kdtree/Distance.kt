@@ -112,10 +112,10 @@ fun LatLng.measureDistance(other: LatLng) =
         other.longitude,
     )
 
-fun Station.measureDistance(location: Location) =
+fun Station.measureDistance(lat: Double, lng: Double) =
     measureDistance(
+        this.lat,
+        this.lng,
         lat,
         lng,
-        location.lat,
-        location.lng,
     )

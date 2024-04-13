@@ -20,6 +20,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.seo4d696b75.android.ekisagasu.data.kdtree.formatDistance
+import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
@@ -29,8 +30,9 @@ import jp.seo.station.ekisagasu.ui.MainActivity
 import jp.seo.station.ekisagasu.ui.overlay.NotificationViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.OverlayViewHolder
 import jp.seo.station.ekisagasu.ui.overlay.WakeupActivity
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
@@ -124,14 +126,6 @@ class StationService : LifecycleService() {
             getSystemService(VIBRATOR_SERVICE) as Vibrator
         }
 
-        // when current location changed
-        // TODO map location flow to search station flow in repository
-        viewModel
-            .currentLocation
-            .flowWithLifecycle(lifecycle)
-            .onEach { viewModel.updateLocation(it) }
-            .launchIn(lifecycleScope)
-
         // update notification when nearest station changed
         viewModel.detectedStation
             .flowWithLifecycle(lifecycle)
@@ -149,7 +143,6 @@ class StationService : LifecycleService() {
         // update notification when nearest station or distance changed
         viewModel.nearestStation
             .flowWithLifecycle(lifecycle)
-            .filterNotNull()
             .onEach { s ->
                 notificationHolder.update(
                     String.format("%s  %s", s.station.name, s.getDetectedTime()),
@@ -191,11 +184,9 @@ class StationService : LifecycleService() {
                 if (it) {
                     hasApproach = false
                     nextApproachStation = null
-                    viewModel.navigationLine?.let { line ->
-                        viewModel.nearestStation.value?.let { n ->
-                            overlayView.navigation.startNavigation(line, n.station)
-                        }
-                    }
+                    val line = viewModel.navigatorLine ?: return@onEach
+                    val n = viewModel.nearestStation.first()
+                    overlayView.navigation.startNavigation(line, n.station)
                 } else {
                     overlayView.navigation.stopNavigation()
                 }
@@ -313,6 +304,10 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var viewModel: ServiceViewModel
 
+    @Inject
+    @ExternalScope
+    lateinit var job: Job
+
     private val notificationHolder: NotificationViewHolder by lazy {
         NotificationViewHolder(this)
     }
@@ -349,6 +344,7 @@ class StationService : LifecycleService() {
         overlayView.release()
         unregisterReceiver(receiver)
         stopSelf()
+        job.cancel()
     }
 
     companion object {

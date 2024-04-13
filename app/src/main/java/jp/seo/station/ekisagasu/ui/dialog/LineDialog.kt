@@ -16,6 +16,7 @@ import jp.seo.station.ekisagasu.databinding.DialogSelectLineBinding
 import jp.seo.station.ekisagasu.ui.common.LineAdapter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 
 /**
  * @author Seo-4d696b75
@@ -33,13 +34,12 @@ class LineDialog : DialogFragment() {
 
         builder.setTitle(context.getString(R.string.dialog_title_select_line))
 
-        val binding =
-            DataBindingUtil.inflate<DialogSelectLineBinding>(
-                layoutInflater,
-                R.layout.dialog_select_line,
-                null,
-                false,
-            )
+        val binding = DataBindingUtil.inflate<DialogSelectLineBinding>(
+            layoutInflater,
+            R.layout.dialog_select_line,
+            null,
+            false,
+        )
 
         binding.viewModel = viewModel
         builder.setView(binding.root)
@@ -52,8 +52,9 @@ class LineDialog : DialogFragment() {
                     }
                 }
             }
+
             LineDialogType.Navigation -> {
-                if (viewModel.isNavigationRunning) {
+                if (viewModel.navigatorLine != null) {
                     builder.setPositiveButton(R.string.dialog_button_unregister) { _, _ ->
                         viewModel.selectNavigationLine(null)
                     }
@@ -65,14 +66,20 @@ class LineDialog : DialogFragment() {
             dismiss()
         }
 
-        binding.listNearLines.also {
-            val lines = viewModel.lines
-            it.adapter = LineAdapter(context, lines)
-            it.setOnItemClickListener { _, _, position, _ ->
-                viewModel.onLineSelected(lines[position])
-                dismiss()
+        viewModel
+            .lines
+            .flowWithLifecycle(lifecycle)
+            .take(1)
+            .onEach { lines ->
+                binding.listNearLines.also {
+                    it.adapter = LineAdapter(context, lines)
+                    it.setOnItemClickListener { _, _, position, _ ->
+                        viewModel.onLineSelected(lines[position])
+                        dismiss()
+                    }
+                }
             }
-        }
+            .launchIn(lifecycleScope)
 
         viewModel
             .event

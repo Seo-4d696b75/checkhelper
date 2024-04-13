@@ -4,14 +4,16 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.seo.station.ekisagasu.R
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,32 +46,32 @@ class LineSelectionViewModel @Inject constructor(
     val currentLine: Line?
         get() = searchRepository.selectedLine.value
 
-    val isNavigationRunning: Boolean
-        get() = navigatorRepository.running.value
+    val navigatorLine: Line?
+        get() = navigatorRepository.currentLine
 
-    val lines: List<Line>
-        get() =
-            searchRepository.nearestStations.value.let { stations ->
-                val set = mutableSetOf<Line>()
-                stations.forEach { s ->
-                    set.addAll(s.lines)
-                }
-                set.toList()
+    val lines = searchRepository
+        .result
+        .filterNotNull()
+        .map {
+            val set = mutableSetOf<Line>()
+            it.nears.forEach { s ->
+                set.addAll(s.lines)
             }
+            set.toList()
+        }
 
-    fun onLineSelected(line: Line) =
-        viewModelScope.launch {
-            when (args.type) {
-                LineDialogType.Current -> selectCurrentLine(line)
-                LineDialogType.Navigation -> {
-                    if (line.polyline == null) {
-                        _event.emit(Event.Error(R.string.navigation_unsupported))
-                    } else {
-                        selectNavigationLine(line)
-                    }
+    fun onLineSelected(line: Line) = viewModelScope.launch {
+        when (args.type) {
+            LineDialogType.Current -> selectCurrentLine(line)
+            LineDialogType.Navigation -> {
+                if (line.polyline == null) {
+                    _event.emit(Event.Error(R.string.navigation_unsupported))
+                } else {
+                    selectNavigationLine(line)
                 }
             }
         }
+    }
 
     fun selectCurrentLine(line: Line?) {
         if (locationRepository.isRunning.value) {
@@ -79,10 +81,6 @@ class LineSelectionViewModel @Inject constructor(
 
     fun selectNavigationLine(line: Line?) {
         selectCurrentLine(line)
-        if (line == null) {
-            navigatorRepository.stop()
-        } else {
-            navigatorRepository.start(line)
-        }
+        navigatorRepository.setLine(line)
     }
 }

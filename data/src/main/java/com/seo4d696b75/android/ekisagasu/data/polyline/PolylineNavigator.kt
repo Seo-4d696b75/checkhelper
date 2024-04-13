@@ -11,9 +11,6 @@ import com.seo4d696b75.android.ekisagasu.domain.location.Location
 import com.seo4d696b75.android.ekisagasu.domain.navigator.PredictionResult
 import com.seo4d696b75.android.ekisagasu.domain.navigator.StationPrediction
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -35,8 +32,9 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
         cursors.clear()
     }
 
-    private val _results = MutableStateFlow<PredictionResult?>(null)
-    val results: Flow<PredictionResult?> = _results.asStateFlow()
+    private var _result: PredictionResult? = null
+    val result: PredictionResult?
+        get() = _result
 
     private fun setPolylineFragment(
         tag: String,
@@ -91,7 +89,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
             if (cursors.isEmpty()) {
                 initialize(location)
                 val result = PredictionResult(0, station)
-                _results.value = result
+                _result = result
                 return@withContext
             }
             if (currentStation?.station != station) {
@@ -142,7 +140,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
                     s.station.name,
                 )
             }
-            _results.value = result
+            _result = result
 
             val duration = SystemClock.uptimeMillis() - start
             Timber.tag("Navigator").d("update $duration [ms]")

@@ -2,20 +2,21 @@ package jp.seo.station.ekisagasu.ui.top
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
+import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapStateIn
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
-import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.seo.station.ekisagasu.utils.mapState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,33 +33,34 @@ class TopViewModel @Inject constructor(
 ) : ViewModel() {
     val isRunning = locationRepository.isRunning
 
-    val nearestStation = searchRepository.nearestStation
-    val station = nearestStation.mapState(viewModelScope) { it?.station }
-    val nearestStationPrefecture =
-        nearestStation.mapState(viewModelScope) { n ->
-            n?.let {
-                prefectureRepository.getName(it.station.prefecture)
-            } ?: ""
-        }
+    val nearestStation = searchRepository.result.mapStateIn(viewModelScope, null) { it?.nearest }
+    val station = nearestStation.mapStateIn(viewModelScope) { it?.station }
+    val nearestStationPrefecture = nearestStation.mapStateIn(viewModelScope) { n ->
+        n?.let {
+            prefectureRepository.getName(it.station.prefecture)
+        } ?: ""
+    }
+
     val selectedLine = searchRepository.selectedLine
 
-    val state =
-        combine(
-            isRunning,
-            searchRepository.nearestStation,
-        ) { run, station ->
-            if (run) {
-                if (station == null) SearchState.STARTING else SearchState.RUNNING
-            } else {
-                SearchState.STOPPED
-            }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, SearchState.STOPPED)
+    val state = combine(
+        isRunning,
+        searchRepository.result.map { it?.nearest },
+    ) { run, station ->
+        if (run) {
+            if (station == null) SearchState.STARTING else SearchState.RUNNING
+        } else {
+            SearchState.STOPPED
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        SearchState.STOPPED,
+    )
 
     fun onSearchStateChanged() {
         if (isRunning.value) {
             locationRepository.stopWatchCurrentLocation()
-            searchRepository.onStopSearch()
-            navigatorRepository.stop()
         } else {
             if (dataRepository.dataInitialized) {
                 locationRepository.startWatchCurrentLocation(settingRepository.setting.value.locationUpdateInterval)
@@ -122,11 +124,11 @@ enum class SearchState {
 }
 
 sealed interface TopFragmentEvent {
-    object ShowMap : TopFragmentEvent
+    data object ShowMap : TopFragmentEvent
 
-    object SelectLine : TopFragmentEvent
+    data object SelectLine : TopFragmentEvent
 
-    object StartNavigation : TopFragmentEvent
+    data object StartNavigation : TopFragmentEvent
 
     data class ToggleMenu(val open: Boolean) : TopFragmentEvent
 }
