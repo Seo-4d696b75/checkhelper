@@ -77,7 +77,7 @@ class PermissionRepositoryImpl @Inject constructor(
         return suspendCoroutine { continuation ->
             client
                 .checkLocationSettings(settingRequest)
-                .addOnCompleteListener {
+                .addOnSuccessListener {
                     continuation.resume(true)
                 }
                 .addOnFailureListener { e ->
