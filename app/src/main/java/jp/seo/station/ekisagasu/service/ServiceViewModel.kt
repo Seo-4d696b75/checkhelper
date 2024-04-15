@@ -60,7 +60,7 @@ class ServiceViewModel @Inject constructor(
 
     val selectedLine = searchRepository.selectedLine
 
-    private fun stopStationSearch() {
+    private fun stopStationSearch() = viewModelScope.launch {
         locationRepository.stopWatchCurrentLocation()
     }
 
@@ -95,7 +95,7 @@ class ServiceViewModel @Inject constructor(
         searchRepository.setSearchK(k)
     }
 
-    fun setSearchInterval(sec: Int) {
+    fun setSearchInterval(sec: Int) = viewModelScope.launch {
         if (locationRepository.isRunning.value) {
             locationRepository.startWatchCurrentLocation(sec)
         }

@@ -2,17 +2,13 @@ package com.seo4d696b75.android.ekisagasu.data.location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Looper
-import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.location.Priority
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
@@ -20,12 +16,15 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 /**
  * @author Seo-4d696b75
@@ -34,6 +33,7 @@ import javax.inject.Inject
 class LocationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appStateRepository: AppStateRepository,
+    private val permissionRepository: PermissionRepository,
     private val logger: LogCollector,
 ) : LocationCallback(),
     LocationRepository,
@@ -78,7 +78,7 @@ class LocationRepositoryImpl @Inject constructor(
      * @param interval  in seconds
      * @throws ResolvableApiException
      */
-    override fun startWatchCurrentLocation(interval: Int) {
+    override suspend fun startWatchCurrentLocation(interval: Int) {
         if (interval < 1) return
         try {
             if (_running.value) {
@@ -86,11 +86,9 @@ class LocationRepositoryImpl @Inject constructor(
                     log(LogMessage.GPS.IntervalChanged(minInterval, interval))
                     Timber.d("minInterval %d > %d", minInterval, interval)
                     minInterval = interval
-                    locationClient.removeLocationUpdates(this)
-                        .addOnCompleteListener {
-                            _running.value = false
-                            requestGPSUpdate()
-                        }
+                    removeLocationUpdate()
+                    _running.value = false
+                    requestGPSUpdate()
                 }
             } else {
                 minInterval = interval
@@ -107,51 +105,47 @@ class LocationRepositoryImpl @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    private fun requestGPSUpdate() {
+    private suspend fun requestGPSUpdate() {
+        if (
+            !permissionRepository.isDeviceLocationEnabled ||
+            !permissionRepository.isLocationGranted ||
+            !permissionRepository.checkDeviceLocationSettings(minInterval)
+        ) {
+            return
+        }
         val request = LocationRequest.create().apply {
             priority = Priority.PRIORITY_HIGH_ACCURACY
             interval = minInterval * 1000L
             fastestInterval = minInterval * 1000L
         }
-        val settingRequest = LocationSettingsRequest.Builder()
-            .addLocationRequest(request)
-            .build()
-        settingClient
-            .checkLocationSettings(settingRequest)
-            .addOnSuccessListener {
-                if (ContextCompat.checkSelfPermission(
-                        context,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
-                    _running.value = true
-                } else {
-                    log(LogMessage.GPS.NoPermission)
-                }
-            }.addOnFailureListener { e ->
-                Timber.w(e)
-                if (e is ResolvableApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
-                    log(LogMessage.GPS.ResolvableException)
-                    appStateRepository.emitMessage(AppMessage.ResolvableException(e))
-                } else {
-                    log(LogMessage.GPS.StartFailure(e))
-                }
-            }
+        locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
+        _running.value = true
     }
 
-    override fun stopWatchCurrentLocation(): Boolean {
+    override suspend fun stopWatchCurrentLocation(): Boolean {
         if (_running.value) {
-            locationClient
-                .removeLocationUpdates(this)
-                .addOnCompleteListener {
-                    Timber.d("GPS stop")
-                    _location.update { null }
-                    _running.update { false }
-                    log(LogMessage.GPS.Stop)
-                }
+            removeLocationUpdate()
+            Timber.d("GPS stop")
+            _location.update { null }
+            _running.update { false }
+            log(LogMessage.GPS.Stop)
             return true
         }
         return false
+    }
+
+    private suspend fun removeLocationUpdate(): Unit = suspendCancellableCoroutine { c ->
+        locationClient
+            .removeLocationUpdates(this)
+            .addOnSuccessListener {
+                c.resume(Unit)
+            }
+            .addOnFailureListener {
+                Timber.w(it)
+                c.cancel(it)
+            }
+            .addOnCanceledListener {
+                c.cancel()
+            }
     }
 }

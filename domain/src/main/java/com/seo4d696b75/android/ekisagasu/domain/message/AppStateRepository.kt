@@ -1,6 +1,5 @@
 package com.seo4d696b75.android.ekisagasu.domain.message
 
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 

@@ -58,7 +58,7 @@ class TopViewModel @Inject constructor(
         SearchState.STOPPED,
     )
 
-    fun onSearchStateChanged() {
+    fun onSearchStateChanged() = viewModelScope.launch {
         if (isRunning.value) {
             locationRepository.stopWatchCurrentLocation()
         } else {

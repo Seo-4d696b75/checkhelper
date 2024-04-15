@@ -10,7 +10,7 @@ interface LocationRepository {
     val currentLocation: Flow<Location?>
     val isRunning: StateFlow<Boolean>
 
-    fun startWatchCurrentLocation(interval: Int)
+    suspend fun startWatchCurrentLocation(interval: Int)
 
-    fun stopWatchCurrentLocation(): Boolean
+    suspend fun stopWatchCurrentLocation(): Boolean
 }
