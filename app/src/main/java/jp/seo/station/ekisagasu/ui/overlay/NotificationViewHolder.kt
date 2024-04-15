@@ -9,6 +9,7 @@ import android.content.Intent
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
+import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.service.StationService
 import jp.seo.station.ekisagasu.ui.MainActivity
@@ -19,7 +20,6 @@ import jp.seo.station.ekisagasu.ui.MainActivity
  */
 class NotificationViewHolder(private val context: Context,) {
     companion object {
-        const val NOTIFICATION_CHANNEL_ID = "jp.seo.station.ekisagasu.notification_main_silent"
         const val NOTIFICATION_TAG = 3910
     }
 

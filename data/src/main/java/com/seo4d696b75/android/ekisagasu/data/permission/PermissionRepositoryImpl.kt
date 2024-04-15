@@ -1,6 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.data.permission
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -20,6 +21,7 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
+import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -38,6 +40,10 @@ class PermissionRepositoryImpl @Inject constructor(
 
     private val locationManager: LocationManager by lazy {
         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    }
+
+    private val notificationManager: NotificationManager by lazy {
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
     private val client: SettingsClient by lazy {
@@ -104,6 +110,15 @@ class PermissionRepositoryImpl @Inject constructor(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
+        }
+    override val isNotificationChannelEnabled: Boolean
+        get() {
+            if (!notificationManager.areNotificationsEnabled()) {
+                return false
+            }
+            // no channel group
+            val channel = notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID)
+            return channel.importance != NotificationManager.IMPORTANCE_NONE
         }
 
     override val canDrawOverlay: Boolean

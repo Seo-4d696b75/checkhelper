@@ -38,7 +38,7 @@ class MainViewModel @Inject constructor(
         data object LocationPermissionRequired : Event
         data class GooglePlayServiceRequired(val errorCode: Int) : Event
         data object DrawOverlayRequired : Event
-        data object NotificationPermissionRequired : Event
+        data class NotificationPermissionRequired(val channelOnly: Boolean) : Event
         data object PermissionDenied : Event
     }
 
@@ -53,6 +53,9 @@ class MainViewModel @Inject constructor(
             appStateRepository.isServiceRunning = value
         }
 
+    // ActivityResultLauncher.launch で結果を受け取れない＆拒否された場合に繰り返さずアプリ終了させるフラグ
+    private var hasLocationPermissionRequested = false
+    private var hasNotificationPermissionRequested = false
     private var hasDrawOverlayRequested = false
     private var hasGooglePlayServiceRequested = false
 
@@ -67,16 +70,35 @@ class MainViewModel @Inject constructor(
         }
         if (!permissionRepository.isLocationGranted) {
             viewModelScope.launch {
-                _event.emit(Event.LocationPermissionRequired)
+                if (hasLocationPermissionRequested) {
+                    _event.emit(Event.PermissionDenied)
+                } else {
+                    hasLocationPermissionRequested = true
+                    _event.emit(Event.LocationPermissionRequired)
+                }
             }
             return false
         }
-        // TODO notification channel も考慮する
         if (!permissionRepository.isNotificationGranted) {
             viewModelScope.launch {
-                _event.emit(Event.NotificationPermissionRequired)
+                if (hasNotificationPermissionRequested) {
+                    _event.emit(Event.PermissionDenied)
+                } else {
+                    hasNotificationPermissionRequested = true
+                    _event.emit(Event.NotificationPermissionRequired(false))
+                }
             }
             return false
+        }
+        if (!permissionRepository.isNotificationChannelEnabled) {
+            viewModelScope.launch {
+                if (hasNotificationPermissionRequested) {
+                    _event.emit(Event.PermissionDenied)
+                } else {
+                    hasNotificationPermissionRequested = true
+                    _event.emit(Event.NotificationPermissionRequired(true))
+                }
+            }
         }
         if (!permissionRepository.canDrawOverlay) {
             viewModelScope.launch {

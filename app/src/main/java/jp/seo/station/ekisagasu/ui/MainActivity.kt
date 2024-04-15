@@ -184,14 +184,15 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    MainViewModel.Event.NotificationPermissionRequired -> {
+                    is MainViewModel.Event.NotificationPermissionRequired -> {
                         val shouldRequest = shouldShowRequestPermissionRationale(
                             Manifest.permission.POST_NOTIFICATIONS,
                         )
-                        if (shouldRequest) {
+                        if (!it.channelOnly && shouldRequest) {
                             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         } else {
                             // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
+                            // 通知チャネルも設定画面でのみ変更できる
                             val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                                 putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
                             }
