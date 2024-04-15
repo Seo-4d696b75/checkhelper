@@ -3,7 +3,6 @@ package jp.seo.station.ekisagasu.ui
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -13,15 +12,13 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ResolvableApiException
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import dagger.hilt.android.AndroidEntryPoint
 import jp.seo.station.ekisagasu.R
 import jp.seo.station.ekisagasu.service.StationService
@@ -153,12 +150,60 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             .launchIn(lifecycleScope)
+
+        viewModel
+            .event
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                when (it) {
+                    MainViewModel.Event.PermissionDenied -> {
+                        // ユーザーによって必要な権限が拒否されたらアプリを終了
+                        Toast.makeText(
+                            applicationContext,
+                            getString(R.string.message_permission_denied),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        finish()
+                    }
+
+                    MainViewModel.Event.LocationPermissionRequired -> {
+                        val shouldRequest = shouldShowRequestPermissionRationale(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                        )
+                        if (shouldRequest) {
+                            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        } else {
+                            // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
+                            val intent = Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:${applicationContext.packageName}"),
+                            )
+                            startActivity(intent)
+                        }
+                    }
+
+                    MainViewModel.Event.DrawOverlayRequired -> {
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:${applicationContext.packageName}"),
+                        )
+                        overlayPermissionLauncher.launch(intent)
+                    }
+
+                    is MainViewModel.Event.GooglePlayServiceRequired -> {
+                        GoogleApiAvailability
+                            .getInstance()
+                            .getErrorDialog(this, it.errorCode, 0)
+                            ?.show()
+                    }
+                }
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onResume() {
         super.onResume()
-        checkPermission()
-        if (viewModel.hasPermissionChecked) {
+        if (viewModel.checkPermission()) {
             startService()
             viewModel.checkData()
         }
@@ -185,71 +230,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkPermission() {
-        if (viewModel.hasPermissionChecked) return
-        // Runtime Permission required API level >= 23
-        // TODO permissionの必要をユーザ側に説明するUI
-        if (!Settings.canDrawOverlays(applicationContext)) {
-            Toast.makeText(
-                applicationContext,
-                "Need \"DrawOverlay\" Permission",
-                Toast.LENGTH_SHORT,
-            ).show()
-            val intent =
-                Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:${applicationContext.packageName}"),
-                )
-            overlayPermissionLauncher.launch(intent)
-            return
-        }
-        if (
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            return
-        }
-
-        val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
-        if (code != ConnectionResult.SUCCESS) {
-            GoogleApiAvailability.getInstance().getErrorDialog(this, code, 0)?.show()
-            return
-        }
-
-        viewModel.hasPermissionChecked = true
-    }
-
     private val overlayPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            Timber.d("overlay permission granted")
-        } else {
-            Timber.d("overlay permission not granted")
-            if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(
-                    applicationContext,
-                    getString(R.string.message_permission_denied),
-                    Toast.LENGTH_SHORT,
-                ).show()
-                finish()
-            }
-        }
+        // 常に Activity.RESULT_CANCELLED が返される
     }
 
     private val resolvableApiLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult(),
     ) {
-        Timber.d("resolvable exception result: $it")
+        viewModel.onPermissionResult(
+            it.resultCode == Activity.RESULT_OK,
+        )
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
-    ) { }
+    ) {
+        viewModel.onPermissionResult(it)
+    }
 
     private val requestLogFileUriLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
