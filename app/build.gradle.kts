@@ -26,7 +26,7 @@ android {
     defaultConfig {
         applicationId = "jp.seo.station.ekisagasu"
         minSdk = 27
-        targetSdk = 32
+        targetSdk = 33
         compileSdk = 34
         versionCode = 207
         versionName = "2.2.6"
