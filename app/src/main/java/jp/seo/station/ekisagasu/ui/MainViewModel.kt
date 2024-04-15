@@ -38,6 +38,7 @@ class MainViewModel @Inject constructor(
         data object LocationPermissionRequired : Event
         data class GooglePlayServiceRequired(val errorCode: Int) : Event
         data object DrawOverlayRequired : Event
+        data object NotificationPermissionRequired : Event
         data object PermissionDenied : Event
     }
 
@@ -67,6 +68,13 @@ class MainViewModel @Inject constructor(
         if (!permissionRepository.isLocationGranted) {
             viewModelScope.launch {
                 _event.emit(Event.LocationPermissionRequired)
+            }
+            return false
+        }
+        // TODO notification channel も考慮する
+        if (!permissionRepository.isNotificationGranted) {
+            viewModelScope.launch {
+                _event.emit(Event.NotificationPermissionRequired)
             }
             return false
         }

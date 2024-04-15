@@ -1,6 +1,7 @@
 package jp.seo.station.ekisagasu.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val logViewModel: LogViewModel by viewModels()
 
+    @SuppressLint("InlinedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO activityの再生成が失敗するので暫定的に初期状態から
         super.onCreate(null)
@@ -178,6 +180,21 @@ class MainActivity : AppCompatActivity() {
                                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                 Uri.parse("package:${applicationContext.packageName}"),
                             )
+                            startActivity(intent)
+                        }
+                    }
+
+                    MainViewModel.Event.NotificationPermissionRequired -> {
+                        val shouldRequest = shouldShowRequestPermissionRationale(
+                            Manifest.permission.POST_NOTIFICATIONS,
+                        )
+                        if (shouldRequest) {
+                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
+                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
+                            }
                             startActivity(intent)
                         }
                     }
