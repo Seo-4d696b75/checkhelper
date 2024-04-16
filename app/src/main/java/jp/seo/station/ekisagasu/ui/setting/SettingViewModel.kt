@@ -2,15 +2,15 @@ package jp.seo.station.ekisagasu.ui.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
-import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
-import com.seo4d696b75.android.ekisagasu.data.user.UserSetting
-import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
+import com.seo4d696b75.android.ekisagasu.domain.user.UserSetting
+import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted

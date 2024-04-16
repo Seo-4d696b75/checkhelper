@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.data.user
+package com.seo4d696b75.android.ekisagasu.domain.user
 
 import kotlinx.coroutines.flow.StateFlow
 

@@ -2,15 +2,15 @@ package jp.seo.station.ekisagasu.service
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.data.user.UserSettingRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.lifecycle.AppFinishUseCase
+import com.seo4d696b75.android.ekisagasu.domain.lifecycle.BootUseCase
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
-import jp.seo.station.ekisagasu.usecase.AppFinishUseCase
-import jp.seo.station.ekisagasu.usecase.BootUseCase
+import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
