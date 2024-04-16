@@ -29,12 +29,16 @@ class PermissionViewModel @Inject constructor(
     val hasChecked = _hasChecked.asStateFlow()
 
     sealed interface Event {
-        data class LocationPermissionRequired(val state: PermissionState.NotGranted) : Event
-        data class GooglePlayServiceRequired(val errorCode: Int) : Event
-        data object DrawOverlayRequired : Event
-        data class NotificationPermissionRequired(val state: PermissionState.NotGranted) : Event
-        data object NotificationChannelRequired : Event
+        sealed interface MissingRequirement : Event {
+            data class LocationPermission(val state: PermissionState.NotGranted) : MissingRequirement
+            data class NotificationPermission(val state: PermissionState.NotGranted) : MissingRequirement
+            data class GooglePlayService(val errorCode: Int) : MissingRequirement
+            data object DrawOverlay : MissingRequirement
+            data object NotificationChannel : MissingRequirement
+        }
+
         data object PermissionDenied : Event
+        data class RequestPermission(val rationale: PermissionRationale) : Event
     }
 
     private val _event = MutableSharedFlow<Event>()
@@ -61,7 +65,7 @@ class PermissionViewModel @Inject constructor(
                 _event.emit(Event.PermissionDenied)
             } else {
                 hasLocationPermissionRequested = true
-                _event.emit(Event.LocationPermissionRequired(location))
+                _event.emit(Event.MissingRequirement.LocationPermission(location))
             }
             return@launch
         }
@@ -73,7 +77,7 @@ class PermissionViewModel @Inject constructor(
                 _event.emit(Event.PermissionDenied)
             } else {
                 hasNotificationPermissionRequested = true
-                _event.emit(Event.NotificationPermissionRequired(notification))
+                _event.emit(Event.MissingRequirement.NotificationPermission(notification))
             }
             return@launch
         }
@@ -84,7 +88,7 @@ class PermissionViewModel @Inject constructor(
                 _event.emit(Event.PermissionDenied)
             } else {
                 hasNotificationPermissionRequested = true
-                _event.emit(Event.NotificationChannelRequired)
+                _event.emit(Event.MissingRequirement.NotificationChannel)
             }
             return@launch
         }
@@ -95,7 +99,7 @@ class PermissionViewModel @Inject constructor(
                 _event.emit(Event.PermissionDenied)
             } else {
                 hasDrawOverlayRequested = true
-                _event.emit(Event.DrawOverlayRequired)
+                _event.emit(Event.MissingRequirement.DrawOverlay)
             }
             return@launch
         }
@@ -108,7 +112,7 @@ class PermissionViewModel @Inject constructor(
                 _event.emit(Event.PermissionDenied)
             } else {
                 hasGooglePlayServiceRequested = true
-                _event.emit(Event.GooglePlayServiceRequired(code))
+                _event.emit(Event.MissingRequirement.GooglePlayService(code))
             }
             return@launch
         }
@@ -140,5 +144,13 @@ class PermissionViewModel @Inject constructor(
                 _event.emit(Event.PermissionDenied)
             }
         }
+    }
+
+    fun onPermissionRequestCancelled() = viewModelScope.launch {
+        _event.emit(Event.PermissionDenied)
+    }
+
+    fun requestPermission(rationale: PermissionRationale) = viewModelScope.launch {
+        _event.emit(Event.RequestPermission(rationale))
     }
 }

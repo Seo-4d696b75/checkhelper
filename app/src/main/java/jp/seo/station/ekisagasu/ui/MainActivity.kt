@@ -28,8 +28,12 @@ import jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.ui.log.LogViewModel
+import jp.seo.station.ekisagasu.ui.permission.PermissionRationale
+import jp.seo.station.ekisagasu.ui.permission.PermissionRationaleArg
+import jp.seo.station.ekisagasu.ui.permission.PermissionRationaleDialogDirections
 import jp.seo.station.ekisagasu.ui.permission.PermissionViewModel
 import jp.seo.station.ekisagasu.ui.permission.canShowSystemRequestDialog
+import jp.seo.station.ekisagasu.ui.permission.shouldShowRationale
 import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -46,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     private val logViewModel: LogViewModel by viewModels()
     private val permissionViewModel: PermissionViewModel by viewModels()
 
-    @SuppressLint("InlinedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO activityの再生成が失敗するので暫定的に初期状態から
         super.onCreate(null)
@@ -172,52 +175,12 @@ class MainActivity : AppCompatActivity() {
                         finish()
                     }
 
-                    is PermissionViewModel.Event.LocationPermissionRequired -> {
-                        if (it.state.canShowSystemRequestDialog(this)) {
-                            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                        } else {
-                            // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
-                            val intent = Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:${applicationContext.packageName}"),
-                            )
-                            startActivity(intent)
-                        }
+                    is PermissionViewModel.Event.MissingRequirement -> {
+                        onMissingRequirementFound(it)
                     }
 
-                    is PermissionViewModel.Event.NotificationPermissionRequired -> {
-                        if (it.state.canShowSystemRequestDialog(this)) {
-                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
-                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
-                            }
-                            startActivity(intent)
-                        }
-                    }
-
-                    PermissionViewModel.Event.NotificationChannelRequired -> {
-                        // 通知チャネルは設定画面でのみ変更できる
-                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                            putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
-                        }
-                        startActivity(intent)
-                    }
-
-                    PermissionViewModel.Event.DrawOverlayRequired -> {
-                        val intent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:${applicationContext.packageName}"),
-                        )
-                        overlayPermissionLauncher.launch(intent)
-                    }
-
-                    is PermissionViewModel.Event.GooglePlayServiceRequired -> {
-                        GoogleApiAvailability
-                            .getInstance()
-                            .getErrorDialog(this, it.errorCode, 0)
-                            ?.show()
+                    is PermissionViewModel.Event.RequestPermission -> {
+                        requestPermission(it.rationale)
                     }
                 }
             }
@@ -250,6 +213,105 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
+    }
+
+    private fun onMissingRequirementFound(e: PermissionViewModel.Event.MissingRequirement) {
+        when (e) {
+            is PermissionViewModel.Event.MissingRequirement.LocationPermission -> {
+                val rationale = PermissionRationale.LocationPermission(
+                    showSystemRequestDialog = e.state.canShowSystemRequestDialog(this),
+                )
+                if (e.state.shouldShowRationale) {
+                    // 必要なら権限リクエストを説明する
+                    val arg = PermissionRationaleArg(rationale)
+                    val action = PermissionRationaleDialogDirections.actionGlobalPermissionRationaleDialog(arg)
+                    findNavController(R.id.main_nav_host).navigate(action)
+                } else {
+                    permissionViewModel.requestPermission(rationale)
+                }
+            }
+
+            is PermissionViewModel.Event.MissingRequirement.NotificationPermission -> {
+                val rationale = PermissionRationale.NotificationPermission(
+                    showSystemRequestDialog = e.state.canShowSystemRequestDialog(this),
+                )
+                if (e.state.shouldShowRationale) {
+                    // 必要なら権限リクエストを説明する
+                    val arg = PermissionRationaleArg(rationale)
+                    val action = PermissionRationaleDialogDirections.actionGlobalPermissionRationaleDialog(arg)
+                    findNavController(R.id.main_nav_host).navigate(action)
+                } else {
+                    permissionViewModel.requestPermission(rationale)
+                }
+            }
+
+            is PermissionViewModel.Event.MissingRequirement.GooglePlayService -> {
+                // 特に説明は不要
+                GoogleApiAvailability
+                    .getInstance()
+                    .getErrorDialog(this, e.errorCode, 0)
+                    ?.show()
+            }
+
+            PermissionViewModel.Event.MissingRequirement.DrawOverlay -> {
+                // 権限リクエストを説明する
+                val arg = PermissionRationaleArg(PermissionRationale.DrawOverlay)
+                val action = PermissionRationaleDialogDirections.actionGlobalPermissionRationaleDialog(arg)
+                findNavController(R.id.main_nav_host).navigate(action)
+            }
+
+            PermissionViewModel.Event.MissingRequirement.NotificationChannel -> {
+                // 権限リクエストを説明する
+                val arg = PermissionRationaleArg(PermissionRationale.NotificationChannel)
+                val action = PermissionRationaleDialogDirections.actionGlobalPermissionRationaleDialog(arg)
+                findNavController(R.id.main_nav_host).navigate(action)
+            }
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun requestPermission(rationale: PermissionRationale) = when (rationale) {
+        is PermissionRationale.LocationPermission -> {
+            if (rationale.showSystemRequestDialog) {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            } else {
+                // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:${applicationContext.packageName}"),
+                )
+                startActivity(intent)
+            }
+        }
+
+        is PermissionRationale.NotificationPermission -> {
+            if (rationale.showSystemRequestDialog) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
+                }
+                startActivity(intent)
+            }
+        }
+
+        PermissionRationale.NotificationChannel -> {
+            // 通知チャネルは設定画面でのみ変更できる
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
+            }
+            startActivity(intent)
+        }
+
+        PermissionRationale.DrawOverlay -> {
+            // 設定画面に遷移
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${applicationContext.packageName}"),
+            )
+            overlayPermissionLauncher.launch(intent)
+        }
     }
 
     private fun startService() {
