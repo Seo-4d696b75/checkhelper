@@ -1,10 +1,7 @@
 package jp.seo.station.ekisagasu.ui
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
@@ -12,11 +9,7 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
@@ -24,26 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
     private val appStateRepository: AppStateRepository,
     private val dataRepository: DataRepository,
     private val remoteDataRepository: RemoteDataRepository,
-    private val permissionRepository: PermissionRepository,
     private val logger: LogCollector,
 ) : ViewModel(),
     LogCollector by logger {
-
-    sealed interface Event {
-        data object LocationPermissionRequired : Event
-        data class GooglePlayServiceRequired(val errorCode: Int) : Event
-        data object DrawOverlayRequired : Event
-        data class NotificationPermissionRequired(val channelOnly: Boolean) : Event
-        data object PermissionDenied : Event
-    }
-
-    private val _event = MutableSharedFlow<Event>()
-    val event = _event.asSharedFlow()
 
     val message = appStateRepository.message
 
@@ -52,88 +31,6 @@ class MainViewModel @Inject constructor(
         set(value) {
             appStateRepository.isServiceRunning = value
         }
-
-    // ActivityResultLauncher.launch で結果を受け取れない＆拒否された場合に繰り返さずアプリ終了させるフラグ
-    private var hasLocationPermissionRequested = false
-    private var hasNotificationPermissionRequested = false
-    private var hasDrawOverlayRequested = false
-    private var hasGooglePlayServiceRequested = false
-
-    // TODO permissionの必要をユーザ側に説明するUI
-    fun checkPermission(): Boolean {
-        if (!permissionRepository.isDeviceLocationEnabled) {
-            viewModelScope.launch {
-                // 失敗してシステムの位置情報許可ダイアログが表示される
-                permissionRepository.checkDeviceLocationSettings(1)
-            }
-            return false
-        }
-        if (!permissionRepository.isLocationGranted) {
-            viewModelScope.launch {
-                if (hasLocationPermissionRequested) {
-                    _event.emit(Event.PermissionDenied)
-                } else {
-                    hasLocationPermissionRequested = true
-                    _event.emit(Event.LocationPermissionRequired)
-                }
-            }
-            return false
-        }
-        if (!permissionRepository.isNotificationGranted) {
-            viewModelScope.launch {
-                if (hasNotificationPermissionRequested) {
-                    _event.emit(Event.PermissionDenied)
-                } else {
-                    hasNotificationPermissionRequested = true
-                    _event.emit(Event.NotificationPermissionRequired(false))
-                }
-            }
-            return false
-        }
-        if (!permissionRepository.isNotificationChannelEnabled) {
-            viewModelScope.launch {
-                if (hasNotificationPermissionRequested) {
-                    _event.emit(Event.PermissionDenied)
-                } else {
-                    hasNotificationPermissionRequested = true
-                    _event.emit(Event.NotificationPermissionRequired(true))
-                }
-            }
-        }
-        if (!permissionRepository.canDrawOverlay) {
-            viewModelScope.launch {
-                if (hasDrawOverlayRequested) {
-                    _event.emit(Event.PermissionDenied)
-                } else {
-                    hasDrawOverlayRequested = true
-                    _event.emit(Event.DrawOverlayRequired)
-                }
-            }
-            return false
-        }
-        val code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
-        if (code != ConnectionResult.SUCCESS) {
-            viewModelScope.launch {
-                if (hasGooglePlayServiceRequested) {
-                    // TODO より適切なUI表現
-                    _event.emit(Event.PermissionDenied)
-                } else {
-                    hasGooglePlayServiceRequested = true
-                    _event.emit(Event.GooglePlayServiceRequired(code))
-                }
-            }
-            return false
-        }
-        return true
-    }
-
-    fun onPermissionResult(result: Boolean) {
-        if (!result) {
-            viewModelScope.launch {
-                _event.emit(Event.PermissionDenied)
-            }
-        }
-    }
 
     /**
      * アプリに必要なデータを確認

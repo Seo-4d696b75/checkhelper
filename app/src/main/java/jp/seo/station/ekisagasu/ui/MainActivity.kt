@@ -28,7 +28,10 @@ import jp.seo.station.ekisagasu.ui.dialog.DataUpdateDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogDirections
 import jp.seo.station.ekisagasu.ui.dialog.LineDialogType
 import jp.seo.station.ekisagasu.ui.log.LogViewModel
+import jp.seo.station.ekisagasu.ui.permission.PermissionViewModel
+import jp.seo.station.ekisagasu.ui.permission.canShowSystemRequestDialog
 import jp.seo.station.ekisagasu.utils.navigateWhenDialogClosed
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
@@ -41,6 +44,7 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val logViewModel: LogViewModel by viewModels()
+    private val permissionViewModel: PermissionViewModel by viewModels()
 
     @SuppressLint("InlinedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,12 +157,12 @@ class MainActivity : AppCompatActivity() {
             }
             .launchIn(lifecycleScope)
 
-        viewModel
+        permissionViewModel
             .event
             .flowWithLifecycle(lifecycle)
             .onEach {
                 when (it) {
-                    MainViewModel.Event.PermissionDenied -> {
+                    PermissionViewModel.Event.PermissionDenied -> {
                         // ユーザーによって必要な権限が拒否されたらアプリを終了
                         Toast.makeText(
                             applicationContext,
@@ -168,12 +172,9 @@ class MainActivity : AppCompatActivity() {
                         finish()
                     }
 
-                    MainViewModel.Event.LocationPermissionRequired -> {
-                        val shouldRequest = shouldShowRequestPermissionRationale(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                        )
-                        if (shouldRequest) {
-                            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    is PermissionViewModel.Event.LocationPermissionRequired -> {
+                        if (it.state.canShowSystemRequestDialog(this)) {
+                            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                         } else {
                             // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
                             val intent = Intent(
@@ -184,15 +185,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    is MainViewModel.Event.NotificationPermissionRequired -> {
-                        val shouldRequest = shouldShowRequestPermissionRationale(
-                            Manifest.permission.POST_NOTIFICATIONS,
-                        )
-                        if (!it.channelOnly && shouldRequest) {
-                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    is PermissionViewModel.Event.NotificationPermissionRequired -> {
+                        if (it.state.canShowSystemRequestDialog(this)) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         } else {
                             // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
-                            // 通知チャネルも設定画面でのみ変更できる
                             val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                                 putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
                             }
@@ -200,7 +197,15 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    MainViewModel.Event.DrawOverlayRequired -> {
+                    PermissionViewModel.Event.NotificationChannelRequired -> {
+                        // 通知チャネルは設定画面でのみ変更できる
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
+                        }
+                        startActivity(intent)
+                    }
+
+                    PermissionViewModel.Event.DrawOverlayRequired -> {
                         val intent = Intent(
                             Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                             Uri.parse("package:${applicationContext.packageName}"),
@@ -208,7 +213,7 @@ class MainActivity : AppCompatActivity() {
                         overlayPermissionLauncher.launch(intent)
                     }
 
-                    is MainViewModel.Event.GooglePlayServiceRequired -> {
+                    is PermissionViewModel.Event.GooglePlayServiceRequired -> {
                         GoogleApiAvailability
                             .getInstance()
                             .getErrorDialog(this, it.errorCode, 0)
@@ -217,14 +222,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             .launchIn(lifecycleScope)
+
+        permissionViewModel
+            .hasChecked
+            .flowWithLifecycle(lifecycle)
+            .filter { it }
+            .onEach {
+                startService()
+                viewModel.checkData()
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onResume() {
         super.onResume()
-        if (viewModel.checkPermission()) {
-            startService()
-            viewModel.checkData()
-        }
+        permissionViewModel.check()
 
         // handle intent
         intent?.let {
@@ -257,15 +269,19 @@ class MainActivity : AppCompatActivity() {
     private val resolvableApiLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult(),
     ) {
-        viewModel.onPermissionResult(
-            it.resultCode == Activity.RESULT_OK,
-        )
+        permissionViewModel.onDeviceLocationSettingResult(it)
     }
 
-    private val requestPermissionLauncher = registerForActivityResult(
+    private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) {
-        viewModel.onPermissionResult(it)
+        permissionViewModel.onLocationPermissionResult(it)
+    }
+
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) {
+        permissionViewModel.onNotificationPermissionResult(it)
     }
 
     private val requestLogFileUriLauncher = registerForActivityResult(
