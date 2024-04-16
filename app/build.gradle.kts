@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ktlint.gradle)
 }
 
