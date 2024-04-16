@@ -22,6 +22,7 @@ import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
+import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionState
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -35,6 +36,7 @@ import kotlin.coroutines.suspendCoroutine
 class PermissionRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appStateRepository: AppStateRepository,
+    private val store: PermissionDataStore,
     collector: LogCollector,
 ) : PermissionRepository, LogCollector by collector {
 
@@ -50,21 +52,52 @@ class PermissionRepositoryImpl @Inject constructor(
         LocationServices.getSettingsClient(context)
     }
 
+    override suspend fun getLocationPermissionState(): PermissionState {
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        return if (granted) {
+            PermissionState.Granted
+        } else {
+            log(LogMessage.GPS.NoPermission)
+            PermissionState.NotGranted(
+                permission = Manifest.permission.ACCESS_FINE_LOCATION,
+                hasDenied = store.hasLocationPermissionDenied(),
+            )
+        }
+    }
+
+    override suspend fun setLocationPermissionDenied() {
+        store.setLocationPermissionDenied()
+    }
+
+    override suspend fun getNotificationPermissionState(): PermissionState {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            PermissionState.Granted
+        } else {
+            val granted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+            if (granted) {
+                PermissionState.Granted
+            } else {
+                PermissionState.NotGranted(
+                    permission = Manifest.permission.POST_NOTIFICATIONS,
+                    hasDenied = store.hasNotificationPermissionDenied(),
+                )
+            }
+        }
+    }
+
+    override suspend fun setNotificationPermissionDenied() {
+        store.setNotificationPermissionDenied()
+    }
+
     override val isDeviceLocationEnabled: Boolean
         get() = run {
             LocationManagerCompat.isLocationEnabled(locationManager)
-        }.also {
-            if (!it) {
-                log(LogMessage.GPS.NoPermission)
-            }
-        }
-
-    override val isLocationGranted: Boolean
-        get() = run {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            ) == PackageManager.PERMISSION_GRANTED
         }.also {
             if (!it) {
                 log(LogMessage.GPS.NoPermission)
@@ -102,15 +135,6 @@ class PermissionRepositoryImpl @Inject constructor(
         }
     }
 
-    override val isNotificationGranted: Boolean
-        get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            true
-        } else {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
-        }
     override val isNotificationChannelEnabled: Boolean
         get() {
             if (!notificationManager.areNotificationsEnabled()) {

@@ -17,6 +17,7 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
+import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -108,7 +109,7 @@ class LocationRepositoryImpl @Inject constructor(
     private suspend fun requestGPSUpdate() {
         if (
             !permissionRepository.isDeviceLocationEnabled ||
-            !permissionRepository.isLocationGranted ||
+            permissionRepository.getLocationPermissionState() !is PermissionState.Granted ||
             !permissionRepository.checkDeviceLocationSettings(minInterval)
         ) {
             return

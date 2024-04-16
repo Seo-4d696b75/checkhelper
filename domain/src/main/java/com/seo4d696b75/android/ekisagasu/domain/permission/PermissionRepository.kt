@@ -1,10 +1,13 @@
 package com.seo4d696b75.android.ekisagasu.domain.permission
 
 interface PermissionRepository {
+    suspend fun getLocationPermissionState(): PermissionState
+    suspend fun setLocationPermissionDenied()
+    suspend fun getNotificationPermissionState(): PermissionState
+    suspend fun setNotificationPermissionDenied()
+
     val isDeviceLocationEnabled: Boolean
-    val isLocationGranted: Boolean
     suspend fun checkDeviceLocationSettings(minInterval: Int): Boolean
-    val isNotificationGranted: Boolean
     val isNotificationChannelEnabled: Boolean
     val canDrawOverlay: Boolean
 
