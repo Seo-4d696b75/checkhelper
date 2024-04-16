@@ -9,6 +9,21 @@
     <string name="dialog_button_positive">OK</string>
     <string name="dialog_button_negative">キャンセル</string>
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
+
+    <!-- PermissionRationaleDialog -->
+    <string name="dialog_title_permission">権限リクエスト</string>
+    <string name="dialog_button_next">次へ</string>
+    <string name="dialog_button_finish_app">終了</string>
+    <string name="dialog_location_permission_rationale">現在位置と付近の駅を探すために高精度な位置情報の取得が必要です。</string>
+    <string name="dialog_notification_permission_rationale">バッググランドで現在位置を取得するために通知の表示が必要です。</string>
+    <string name="dialog_draw_overlay_rationale">近くの駅が変化したときプッシュ通知を表示するため、他のアプリの上にも表示できる権限が必要です。</string>
+    <string name="dialog_location_permission_request_dialog">「次へ」をタップすると権限ダイアログが開くので、「アプリの使用中のみ許可」を選択してください。権限を許可しない場合はアプリを終了します。</string>
+    <string name="dialog_location_permission_request_setting">「次へ」をタップするとアプリ設定画面が開くので「権限」>「位置情報」を選択して\n<ul><li>「アプリの使用中のみ許可」を選択する</li>\n<li>「正確な位置情報を使用」を有効化する</li></ul>\nの２点を確認してください。権限を許可しなかった場合はアプリを終了します。</string>
+    <string name="dialog_notification_permission_request_dialog">「次へ」をタップすると権限ダイアログが開くので、「許可」を選択してください。権限を許可しない場合はアプリを終了します。</string>
+    <string name="dialog_notification_permission_request_setting">「次へ」をタップするとアプリの通知設定画面が開くので、権限を許可してください。権限を許可しない場合はアプリを終了します。</string>
+    <string name="dialog_notification_channel_request">「次へ」をタップするとアプリの通知設定画面が開くので、「カテゴリ」の「メイン通知」を有効化してください。権限を有効化しない場合はアプリを終了します。</string>
+    <string name="dialog_draw_overlay_request">「次へ」をタップすると「他のアプリの上に重ねて表示」の設定画面が開くので、アプリ一覧から「駅サガース」を有効化してください。権限を有効化しない場合はアプリを終了します。</string>
+
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
     <string name="message_network_failure">ネットワークから情報を利用できません</string>
     <string name="message_success_data_update">データの更新が完了しました</string>

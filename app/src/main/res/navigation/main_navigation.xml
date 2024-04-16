@@ -85,4 +85,16 @@
     <action
         android:id="@+id/action_global_logOutputConfDialog"
         app:destination="@id/logOutputConfDialog" />
+
+    <dialog
+        android:id="@+id/permissionRationaleDialog"
+        android:name="jp.seo.station.ekisagasu.ui.permission.PermissionRationaleDialog"
+        android:label="PermissionRationaleDialog">
+        <argument
+            android:name="rationale"
+            app:argType="jp.seo.station.ekisagasu.ui.permission.PermissionRationaleArg" />
+    </dialog>
+    <action
+        android:id="@+id/action_global_permissionRationaleDialog"
+        app:destination="@id/permissionRationaleDialog" />
 </navigation>
