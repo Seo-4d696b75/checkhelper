@@ -18,4 +18,8 @@
     <string name="log_message_latest_check_failure">最新データのバージョン確認に失敗</string>
     <string name="log_message_success_data_update">データ更新に成功しました</string>
     <string name="log_message_fail_data_update">データ更新に失敗しました</string>
+
+    <!-- 通知チャネル -->
+    <string name="notification_channel_name">メイン通知</string>
+    <string name="notification_channel_description">現在地から最も近い駅の情報など探索の状況を表示します. この通知はバックグラウンドで探索処理を実行する間は常に表示されます.</string>
 </resources>

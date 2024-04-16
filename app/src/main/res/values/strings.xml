@@ -18,8 +18,6 @@
     <string name="message_stop_search">探索を終了しました</string>
     <string name="update_state_download">データをダウンロード&#8230; %1$d%%</string>
     <string name="update_state_save">データを保存しています&#8230;</string>
-    <string name="notification_channel_name">メイン通知</string>
-    <string name="notification_channel_description">現在地から最も近い駅の情報など探索の状況を表示します. この通知はバックグラウンドで探索処理が走っている間は常に表示されます.</string>
     <string name="notification_action_exit">探索の終了</string>
     <string name="notification_action_timer">5分タイマー</string>
     <string name="notification_title_wait">検索の開始を待っています</string>

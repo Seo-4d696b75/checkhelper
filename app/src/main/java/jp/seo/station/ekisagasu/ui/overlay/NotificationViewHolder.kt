@@ -1,7 +1,6 @@
 package jp.seo.station.ekisagasu.ui.overlay
 
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -18,38 +17,18 @@ import jp.seo.station.ekisagasu.ui.MainActivity
  * @author Seo-4d696b75
  * @version 2020/12/24.
  */
-class NotificationViewHolder(private val context: Context,) {
+class NotificationViewHolder(private val context: Context) {
     companion object {
         const val NOTIFICATION_TAG = 3910
     }
 
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    private val builder: NotificationCompat.Builder
+    private val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
     private var remoteView: RemoteViews? = null
     private var updateCnt = 0
 
     init {
-        // TODO 削除予定
-        // delete old channel if any
-        notificationManager.deleteNotificationChannel("jp.seo.station.ekisagasu.notification_main")
-
-        // init notification channel
-        val channel =
-            NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                context.getString(R.string.notification_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply {
-                description = context.getString(R.string.notification_channel_description)
-                enableVibration(false)
-                enableLights(false)
-                setSound(null, null)
-            }
-        notificationManager.createNotificationChannel(channel)
-
-        builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-
         // pending intent to MainActivity
         val intent = Intent(context, MainActivity::class.java)
         val stackBuilder = TaskStackBuilder.create(context)
