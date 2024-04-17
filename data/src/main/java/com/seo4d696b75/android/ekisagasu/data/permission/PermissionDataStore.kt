@@ -33,7 +33,7 @@ class PermissionDataStore @Inject constructor(
         context
             .dataStore
             .data
-            .map { it[keyHasLocationPermissionDenied] ?: false }
+            .map { it[keyHasNotificationPermissionDenied] ?: false }
             .first()
     }
 
