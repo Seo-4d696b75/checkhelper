@@ -92,11 +92,10 @@ class LocationRepositoryImpl @Inject constructor(
                     requestGPSUpdate()
                 }
             } else {
-                minInterval = interval
-                requestGPSUpdate()
-
                 log(LogMessage.GPS.Start(minInterval))
                 Timber.d("GPS start")
+                minInterval = interval
+                requestGPSUpdate()
             }
         } catch (e: ResolvableApiException) {
             Timber.w(e)
