@@ -44,6 +44,15 @@ class PermissionViewModel @Inject constructor(
     private val _event = MutableSharedFlow<Event>()
     val event = _event.asSharedFlow()
 
+    private var hasAnyPermissionDenied = false
+    private suspend fun onPermissionDenied() {
+        if (!hasAnyPermissionDenied) {
+            // 重複防止
+            hasAnyPermissionDenied = true
+            _event.emit(Event.PermissionDenied)
+        }
+    }
+
     // ActivityResultLauncher.launch で結果を受け取れない＆拒否された場合に繰り返さずアプリ終了させるフラグ
     private var hasLocationPermissionRequested = false
     private var hasNotificationPermissionRequested = false
@@ -62,7 +71,7 @@ class PermissionViewModel @Inject constructor(
         val location = permissionRepository.getLocationPermissionState()
         if (location is PermissionState.NotGranted) {
             if (hasLocationPermissionRequested) {
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             } else {
                 hasLocationPermissionRequested = true
                 _event.emit(Event.MissingRequirement.LocationPermission(location))
@@ -74,7 +83,7 @@ class PermissionViewModel @Inject constructor(
         val notification = permissionRepository.getNotificationPermissionState()
         if (notification is PermissionState.NotGranted) {
             if (hasNotificationPermissionRequested) {
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             } else {
                 hasNotificationPermissionRequested = true
                 _event.emit(Event.MissingRequirement.NotificationPermission(notification))
@@ -85,7 +94,7 @@ class PermissionViewModel @Inject constructor(
         // 通知チャネル
         if (!permissionRepository.isNotificationChannelEnabled) {
             if (hasNotificationPermissionRequested) {
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             } else {
                 hasNotificationPermissionRequested = true
                 _event.emit(Event.MissingRequirement.NotificationChannel)
@@ -96,7 +105,7 @@ class PermissionViewModel @Inject constructor(
         // 重ねて表示
         if (!permissionRepository.canDrawOverlay) {
             if (hasDrawOverlayRequested) {
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             } else {
                 hasDrawOverlayRequested = true
                 _event.emit(Event.MissingRequirement.DrawOverlay)
@@ -109,7 +118,7 @@ class PermissionViewModel @Inject constructor(
         if (code != ConnectionResult.SUCCESS) {
             if (hasGooglePlayServiceRequested) {
                 // TODO より適切なUI表現
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             } else {
                 hasGooglePlayServiceRequested = true
                 _event.emit(Event.MissingRequirement.GooglePlayService(code))
@@ -123,7 +132,7 @@ class PermissionViewModel @Inject constructor(
     fun onDeviceLocationSettingResult(result: ActivityResult) {
         if (result.resultCode != Activity.RESULT_OK) {
             viewModelScope.launch {
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             }
         }
     }
@@ -132,7 +141,7 @@ class PermissionViewModel @Inject constructor(
         if (!result) {
             viewModelScope.launch {
                 permissionRepository.setLocationPermissionDenied()
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             }
         }
     }
@@ -141,13 +150,13 @@ class PermissionViewModel @Inject constructor(
         if (!result) {
             viewModelScope.launch {
                 permissionRepository.setNotificationPermissionDenied()
-                _event.emit(Event.PermissionDenied)
+                onPermissionDenied()
             }
         }
     }
 
     fun onPermissionRequestCancelled() = viewModelScope.launch {
-        _event.emit(Event.PermissionDenied)
+        onPermissionDenied()
     }
 
     fun requestPermission(rationale: PermissionRationale) = viewModelScope.launch {
