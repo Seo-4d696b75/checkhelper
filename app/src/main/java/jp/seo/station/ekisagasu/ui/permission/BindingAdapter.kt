@@ -1,6 +1,9 @@
 package jp.seo.station.ekisagasu.ui.permission
 
+import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import jp.seo.station.ekisagasu.R
 
@@ -39,5 +42,62 @@ fun setPermissionRequestDescription(
 
         PermissionRationale.NotificationChannel -> view.context.getString(R.string.dialog_notification_channel_request)
         PermissionRationale.DrawOverlay -> view.context.getString(R.string.dialog_draw_overlay_request)
+    }
+}
+
+@BindingAdapter("permissionRequestGuideImg")
+fun setPermissionRequestGuideImg(
+    view: ImageView,
+    rationale: PermissionRationale?,
+) {
+    val drawable = when (rationale) {
+        null -> null
+        is PermissionRationale.LocationPermission -> if (rationale.showSystemRequestDialog) {
+            null
+        } else {
+            ResourcesCompat.getDrawable(view.context.resources, R.drawable.location_permission, null)
+        }
+
+        is PermissionRationale.NotificationPermission -> if (rationale.showSystemRequestDialog) {
+            null
+        } else {
+            ResourcesCompat.getDrawable(view.context.resources, R.drawable.notification_permission, null)
+        }
+
+        PermissionRationale.NotificationChannel -> ResourcesCompat.getDrawable(
+            view.context.resources,
+            R.drawable.notification_permission,
+            null,
+        )
+
+        PermissionRationale.DrawOverlay -> ResourcesCompat.getDrawable(
+            view.context.resources,
+            R.drawable.draw_overlay_setting,
+            null,
+        )
+    }
+    view.setImageDrawable(drawable)
+    view.visibility = if (drawable == null) View.GONE else View.VISIBLE
+}
+
+@BindingAdapter("permissionRequestGuideCaption")
+fun setPermissionRequestGuideCaption(
+    view: TextView,
+    rationale: PermissionRationale?,
+) {
+    val visible = when (rationale) {
+        null -> false
+        is PermissionRationale.LocationPermission -> !rationale.showSystemRequestDialog
+        is PermissionRationale.NotificationPermission -> !rationale.showSystemRequestDialog
+
+        PermissionRationale.NotificationChannel -> true
+
+        PermissionRationale.DrawOverlay -> true
+    }
+    if (visible) {
+        view.setText(R.string.dialog_guide_image_caption)
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.GONE
     }
 }

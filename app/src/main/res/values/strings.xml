@@ -23,6 +23,7 @@
     <string name="dialog_notification_permission_request_setting">「次へ」をタップするとアプリの通知設定画面が開くので、権限を許可してください。権限を許可しない場合はアプリを終了します。</string>
     <string name="dialog_notification_channel_request">「次へ」をタップするとアプリの通知設定画面が開くので、「メイン通知」を有効化してください。権限を有効化しない場合はアプリを終了します。</string>
     <string name="dialog_draw_overlay_request">「次へ」をタップすると「他のアプリの上に重ねて表示」の設定画面が開くので、アプリ一覧から「駅サガース」を有効化してください。権限を有効化しない場合はアプリを終了します。</string>
+    <string name="dialog_guide_image_caption">＊端末やOSバージョンによっては見た目が異なります</string>
 
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
     <string name="message_network_failure">ネットワークから情報を利用できません</string>
