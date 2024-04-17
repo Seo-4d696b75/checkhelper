@@ -16,14 +16,14 @@ data class Line(
     val nameKana: String,
     @SerialName("station_size")
     val stationSize: Int,
-    val symbol: String?,
-    val color: String?,
+    val symbol: String? = null,
+    val color: String? = null,
     val closed: Boolean,
     @SerialName("station_list")
     val stationList: Array<StationRegistration>,
     @SerialName("polyline_list")
     @Serializable(with = JsonObjectAsStringSerializer::class)
-    val polyline: String?,
+    val polyline: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

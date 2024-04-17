@@ -31,7 +31,7 @@ data class Station(
     val closed: Boolean,
     @Serializable(with = JsonObjectAsStringSerializer::class)
     val voronoi: String,
-    val attr: String?,
+    val attr: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -57,7 +57,10 @@ data class Station(
 }
 
 @Serializable
-data class StationRegistration(val code: Int, val numbering: List<String>? = null) {
+data class StationRegistration(
+    val code: Int,
+    val numbering: List<String>? = null,
+) {
     fun getNumberingString(): String {
         return numbering?.joinToString(separator = "/", transform = String::toString) ?: ""
     }
