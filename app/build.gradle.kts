@@ -48,12 +48,6 @@ android {
         jvmTarget = "1.8"
     }
 
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -65,15 +59,6 @@ android {
 
     dataBinding {
         enable = true
-    }
-
-    sourceSets {
-        getByName("test") {
-            resources.srcDirs("src/test/resources")
-        }
-        getByName("androidTest") {
-            resources.srcDirs("src/test/resources")
-        }
     }
 }
 
@@ -130,7 +115,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.google.truth)
     testImplementation(libs.mockk)
-    testImplementation(libs.okhttp.mockwebserver)
 }
 
 kapt {

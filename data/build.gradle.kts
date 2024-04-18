@@ -39,6 +39,21 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
+    sourceSets {
+        getByName("test") {
+            resources.srcDirs("src/test/resources")
+        }
+        getByName("androidTest") {
+            resources.srcDirs("src/test/resources")
+        }
+    }
 }
 
 dependencies {

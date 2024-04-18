@@ -1,13 +1,12 @@
-package jp.seo.station.ekisagasu.api
+package com.seo4d696b75.android.ekisagasu.data.api
 
 import com.google.common.truth.Truth.assertThat
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.seo4d696b75.android.ekisagasu.data.api.StationDataService
+import com.seo4d696b75.android.ekisagasu.data.fakeDataBuffer
+import com.seo4d696b75.android.ekisagasu.data.fakeLatestInfoString
 import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepositoryImpl
 import io.mockk.mockk
 import io.mockk.verifyOrder
-import jp.seo.station.ekisagasu.fakeDataBuffer
-import jp.seo.station.ekisagasu.fakeLatestInfoString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -37,19 +36,17 @@ class APITest {
     private val server = MockWebServer()
     private val info by fakeLatestInfoString
 
-    private val serverDispatcher =
-        object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse = when (request.path) {
-                "/station_database/latest_info.json" -> MockResponse().setBody(info)
-                "/station_database@20240329/out/main/json.zip" -> MockResponse().setBody(fakeDataBuffer())
-                else -> MockResponse().setResponseCode(404)
-            }
+    private val serverDispatcher = object : Dispatcher() {
+        override fun dispatch(request: RecordedRequest): MockResponse = when (request.path) {
+            "/station_database/latest_info.json" -> MockResponse().setBody(info)
+            "/station_database@20240329/out/main/json.zip" -> MockResponse().setBody(fakeDataBuffer())
+            else -> MockResponse().setResponseCode(404)
         }
+    }
 
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-        }
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     private lateinit var retrofit: Retrofit
 
@@ -75,21 +72,20 @@ class APITest {
     }
 
     @Test
-    fun testAPIClient() =
-        runTest {
-            val api = retrofit.create(StationDataService::class.java)
+    fun testAPIClient() = runTest {
+        val api = retrofit.create(StationDataService::class.java)
 
-            val info = api.getLatestInfo()
-            assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
+        val info = api.getLatestInfo()
+        assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
 
-            val repository = RemoteDataRepositoryImpl(api)
-            val dir = tempFolder.newFolder()
+        val repository = RemoteDataRepositoryImpl(api)
+        val dir = tempFolder.newFolder()
 
-            val callback = mockk<(Long) -> Unit>(relaxed = true)
-            repository.download(info.version, dir, callback)
-            verifyOrder {
-                callback(0L)
-                callback(info.length)
-            }
+        val callback = mockk<(Long) -> Unit>(relaxed = true)
+        repository.download(info.version, dir, callback)
+        verifyOrder {
+            callback(0L)
+            callback(info.length)
         }
+    }
 }
