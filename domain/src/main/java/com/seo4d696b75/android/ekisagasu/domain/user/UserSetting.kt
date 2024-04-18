@@ -12,5 +12,4 @@ data class UserSetting(
     val vibrateDistance: Int = 100,
     val nightModeTimeout: Int = 0,
     val nightModeBrightness: Float = 128f,
-    val timerPosition: Int = 0,
 )

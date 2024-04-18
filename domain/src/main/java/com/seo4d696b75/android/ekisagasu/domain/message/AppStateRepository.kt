@@ -12,10 +12,6 @@ interface AppStateRepository {
 
     fun emitMessage(message: AppMessage)
 
-    val fixTimer: StateFlow<Boolean>
-
-    fun setTimerFixed(fixed: Boolean)
-
     val nightMode: StateFlow<Boolean>
 
     fun setNightMode(enabled: Boolean)

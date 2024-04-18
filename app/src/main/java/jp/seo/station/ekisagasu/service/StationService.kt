@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
-import java.util.Calendar
 import javax.inject.Inject
 
 /**
@@ -243,7 +242,6 @@ class StationService : LifecycleService() {
                     displayPrefecture = it.isShowPrefectureNotification
                     nightModeTimeout = it.nightModeTimeout
                     brightness = it.nightModeBrightness
-                    timerPosition = it.timerPosition
                 }
                 // vibration param
                 isVibrate = it.isVibrate
@@ -258,17 +256,9 @@ class StationService : LifecycleService() {
             .onEach { overlayView.nightMode = it }
             .launchIn(lifecycleScope)
 
-        // set timer
-        overlayView.timerListener = { setTimer() }
-
         viewModel.startTimer
             .flowWithLifecycle(lifecycle)
             .onEach { setTimer() }
-            .launchIn(lifecycleScope)
-
-        viewModel.fixTimer
-            .flowWithLifecycle(lifecycle)
-            .onEach { overlayView.fixTimer(it) }
             .launchIn(lifecycleScope)
     }
 
@@ -335,7 +325,6 @@ class StationService : LifecycleService() {
     }
 
     private fun stopService() {
-        viewModel.saveTimerPosition(overlayView.timerPosition)
         overlayView.release()
         unregisterReceiver(receiver)
         stopSelf()

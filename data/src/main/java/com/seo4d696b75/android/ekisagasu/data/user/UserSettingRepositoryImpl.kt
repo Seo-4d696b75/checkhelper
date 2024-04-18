@@ -33,7 +33,6 @@ class UserSettingRepositoryImpl @Inject constructor(
     private val keyVibrateMeter = intPreferencesKey(KEY_VIBRATE_METER)
     private val keyNightTimeout = intPreferencesKey(KEY_NIGHT_TIMEOUT)
     private val keyBrightness = floatPreferencesKey(KEY_BRIGHTNESS)
-    private val keyTimerPosition = intPreferencesKey(KEY_TIMER_POSITION)
 
     private val Preferences.userSetting: UserSetting
         get() =
@@ -49,7 +48,6 @@ class UserSettingRepositoryImpl @Inject constructor(
                 vibrateDistance = this[keyVibrateMeter] ?: 100,
                 nightModeTimeout = this[keyNightTimeout] ?: 0,
                 nightModeBrightness = this[keyBrightness] ?: 128f,
-                timerPosition = this[keyTimerPosition] ?: 0,
             )
 
     private val _setting = MutableStateFlow(UserSetting())
@@ -77,7 +75,6 @@ class UserSettingRepositoryImpl @Inject constructor(
                 it[keyVibrateMeter] = value.vibrateDistance
                 it[keyNightTimeout] = value.nightModeTimeout
                 it[keyBrightness] = value.nightModeBrightness
-                it[keyTimerPosition] = value.timerPosition
             }
         }
 
@@ -97,7 +94,6 @@ class UserSettingRepositoryImpl @Inject constructor(
         private const val KEY_VIBRATE_METER = "vibrate_meter"
         private const val KEY_VIBRATE_APPROACH = "vibrate_approach"
         private const val KEY_NIGHT_TIMEOUT = "night_mode_timeout"
-        private const val KEY_TIMER_POSITION = "timer_position_y"
     }
 }
 

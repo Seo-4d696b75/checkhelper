@@ -85,7 +85,6 @@ data class SettingState(
     val isNightMode: Boolean,
     val nightModeTimeout: Int,
     val nightModeBrightness: Float,
-    val timerPosition: Int,
 ) {
     companion object {
         fun fromUserSetting(
@@ -104,7 +103,6 @@ data class SettingState(
             isNightMode = isNightMode,
             nightModeTimeout = setting.nightModeTimeout,
             nightModeBrightness = setting.nightModeBrightness,
-            timerPosition = setting.timerPosition,
         )
     }
 
@@ -121,6 +119,5 @@ data class SettingState(
             vibrateDistance = vibrateDistance,
             nightModeTimeout = nightModeTimeout,
             nightModeBrightness = nightModeBrightness,
-            timerPosition = timerPosition,
         )
 }

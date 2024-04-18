@@ -221,22 +221,6 @@
                 app:tint="@color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_fix_timer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginEnd="15dp"
-                android:layout_marginBottom="15dp"
-                android:onClick="@{() -> viewModel.fixTimer()}"
-                android:src="@drawable/ic_fixed"
-                android:visibility="invisible"
-                app:backgroundTint="@color/colorPrimary"
-                app:fabSize="mini"
-                app:tint="@color/white" />
-
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_timer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

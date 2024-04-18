@@ -6,6 +6,8 @@ import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,16 +20,10 @@ class AppStateRepositoryImpl @Inject constructor(
     override var hasDataVersionChecked = false
 
     private val _message = MutableSharedFlow<AppMessage>()
-    private val _fixTimer = MutableStateFlow(false)
     private val _nightMode = MutableStateFlow(false)
 
-    override val fixTimer = _fixTimer
-    override val nightMode = _nightMode
-    override val message = _message
-
-    override fun setTimerFixed(fixed: Boolean) {
-        _fixTimer.update { fixed }
-    }
+    override val nightMode = _nightMode.asStateFlow()
+    override val message = _message.asSharedFlow()
 
     override fun setNightMode(enabled: Boolean) {
         _nightMode.update { enabled }

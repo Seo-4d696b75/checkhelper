@@ -137,12 +137,6 @@ class TopFragment : Fragment() {
                 res.getDimensionPixelSize(R.dimen.fab_timer_x),
                 res.getDimensionPixelSize(R.dimen.fab_timer_y),
             )
-        val fabFixTimer =
-            AnimationHolder<FloatingActionButton>(
-                binding.fabFixTimer,
-                res.getDimensionPixelSize(R.dimen.fab_fix_timer_x),
-                res.getDimensionPixelSize(R.dimen.fab_fix_timer_y),
-            )
         val fabMap =
             AnimationHolder<FloatingActionButton>(
                 binding.fabMap,
@@ -154,7 +148,6 @@ class TopFragment : Fragment() {
                 val list: MutableList<Animator> = LinkedList()
                 list.add(fabMap.animate(expand))
                 list.add(fabTimer.animate(expand))
-                list.add(fabFixTimer.animate(expand))
                 list.add(fabExit.animate(expand, false))
                 list.add(fabMenu.animate(!expand, true))
                 val running = viewModel.isRunning.value
@@ -180,7 +173,6 @@ class TopFragment : Fragment() {
                             if (expand) {
                                 fabMap.visibility = true
                                 fabTimer.visibility = true
-                                fabFixTimer.visibility = true
                                 fabSelectLine.visibility = running
                                 fabPredict.visibility = running
                             } else {
@@ -191,7 +183,6 @@ class TopFragment : Fragment() {
                             if (!expand) {
                                 fabMap.visibility = false
                                 fabTimer.visibility = false
-                                fabFixTimer.visibility = false
                                 fabSelectLine.visibility = false
                                 fabPredict.visibility = false
                             } else {
@@ -218,11 +209,13 @@ class TopFragment : Fragment() {
                             )
                         startActivity(intent)
                     }
+
                     is TopFragmentEvent.SelectLine -> {
                         val action =
                             LineDialogDirections.actionGlobalLineDialog(LineDialogType.Current)
                         view.findNavController().navigate(action)
                     }
+
                     is TopFragmentEvent.StartNavigation -> {
                         val action =
                             LineDialogDirections.actionGlobalLineDialog(LineDialogType.Navigation)

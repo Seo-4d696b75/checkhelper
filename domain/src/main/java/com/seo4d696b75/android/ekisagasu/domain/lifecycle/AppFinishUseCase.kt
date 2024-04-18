@@ -16,7 +16,6 @@ class AppFinishUseCase @Inject constructor(
         userSettingRepository.save()
 
         // reset
-        appStateRepository.setTimerFixed(false)
         appStateRepository.setNightMode(false)
     }
 }

@@ -54,10 +54,6 @@ class ServiceViewModel @Inject constructor(
     val navigatorLine: Line?
         get() = navigator.currentLine
 
-    fun saveTimerPosition(position: Int) = userSettingRepository.update {
-        it.copy(timerPosition = position)
-    }
-
     val selectedLine = searchRepository.selectedLine
 
     private fun stopStationSearch() = viewModelScope.launch {
@@ -88,7 +84,6 @@ class ServiceViewModel @Inject constructor(
 
     // accessor to app state
     val startTimer = appStateRepository.message.filterIsInstance<AppMessage.StartTimer>()
-    val fixTimer = appStateRepository.fixTimer
     val nightMode = appStateRepository.nightMode
 
     fun setSearchK(k: Int) = viewModelScope.launch {

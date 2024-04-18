@@ -108,13 +108,6 @@ class TopViewModel @Inject constructor(
             appStateRepository.emitMessage(AppMessage.StartTimer)
             closeMenu()
         }
-
-    fun fixTimer() =
-        viewModelScope.launch {
-            val current = appStateRepository.fixTimer.value
-            appStateRepository.setTimerFixed(!current)
-            closeMenu()
-        }
 }
 
 enum class SearchState {
