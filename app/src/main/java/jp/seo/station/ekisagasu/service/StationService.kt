@@ -1,7 +1,6 @@
 package jp.seo.station.ekisagasu.service
 
-import android.app.AlarmManager
-import android.app.PendingIntent
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,6 +9,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -87,11 +87,6 @@ class StationService : LifecycleService() {
 
                     REQUEST_START_TIMER -> {
                         setTimer()
-                    }
-
-                    REQUEST_FINISH_TIMER -> {
-                        timerRunning = false
-                        overlayView.setTimerState(false)
                     }
 
                     else -> {
@@ -351,7 +346,6 @@ class StationService : LifecycleService() {
         const val KEY_REQUEST = "service_request"
         const val REQUEST_EXIT_SERVICE = "exit_service"
         const val REQUEST_START_TIMER = "start_timer"
-        const val REQUEST_FINISH_TIMER = "finish_timer"
         private val VIBRATE_PATTERN_NORMAL = longArrayOf(0, 500, 100, 100)
         private val VIBRATE_PATTERN_ALERT = longArrayOf(0, 500, 100, 100, 100, 100, 100, 100)
         private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
@@ -380,11 +374,12 @@ class StationService : LifecycleService() {
         vibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
     }
 
-    private var timerRunning = false
+    private val timerDurationMillis = 5 * 60 * 1000L
+    private var previousTimerTimestamp = -timerDurationMillis
 
     private fun setTimer() {
-        if (timerRunning) {
-            overlayView.setTimerState(true)
+        val current = SystemClock.elapsedRealtime()
+        if (current - previousTimerTimestamp < timerDurationMillis) {
             Toast.makeText(this, getString(R.string.timer_wait_message), Toast.LENGTH_SHORT).show()
             return
         }
@@ -393,27 +388,12 @@ class StationService : LifecycleService() {
             .putExtra(AlarmClock.EXTRA_LENGTH, 300)
             .putExtra(AlarmClock.EXTRA_SKIP_UI, true)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val manager = getSystemService(ALARM_SERVICE)
-        if (manager is AlarmManager && intent.resolveActivity(packageManager) != null) {
+        try {
             startActivity(intent)
-            overlayView.setTimerState(true)
-            val calendar = Calendar.getInstance().apply {
-                add(Calendar.MINUTE, 5)
-            }
-            val pending = PendingIntent.getService(
-                applicationContext,
-                5,
-                Intent(applicationContext, StationService::class.java).putExtra(
-                    KEY_REQUEST,
-                    REQUEST_FINISH_TIMER,
-                ),
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-            manager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pending)
-            timerRunning = true
             Toast.makeText(this, getString(R.string.timer_set_message), Toast.LENGTH_SHORT).show()
-        } else {
-            Timber.d("Failed to set timer")
+            previousTimerTimestamp = current
+        } catch (e: ActivityNotFoundException) {
+            Timber.w(e, "Failed to set timer")
         }
     }
 }
