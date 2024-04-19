@@ -39,7 +39,8 @@ jobs:
         run: ./gradlew testDebugUnitTest --stacktrace
       - name: Run Danger
         uses: MeilCli/danger-action@v6
-        if: cancelled() != true # 中断されない限り、エラーでも実行
+        # FIXME 暫定処置：PRの差分ファイル数が300を超えると落ちる
+        if: false # cancelled() != true # 中断されない限り、エラーでも実行
         with:
           plugins_file: '.github/workflows/Gemfile'
           install_path: 'vendor/bundle'
