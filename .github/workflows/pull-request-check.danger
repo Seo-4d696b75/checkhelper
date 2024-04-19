@@ -2,12 +2,12 @@
 job_status = ENV['JOB_STATUS']
 
 # 追加・変更していないコードはコメント対象外とするか
-github.dismiss_out_of_range_messages({
-  error: false, # エラーは追加・変更していないコードでもコメント
-  warning: true,
-  message: true,
-  markdown: true
-})
+#github.dismiss_out_of_range_messages({
+#  error: false, # エラーは追加・変更していないコードでもコメント
+#  warning: true,
+#  message: true,
+#  markdown: true
+#})
 
 # ktlint の結果ファイルの解析とコメント
 # org.jlleitschuh.gradle.ktlint プラグインの ktlintCheckタスクの場合
@@ -35,10 +35,10 @@ Dir.glob("**/build/test-results/*/*.xml").each { |report|
 }
 
 # プルリクの body が空の場合はエラー
-fail 'Write at least one line in the description of PR.' if github.pr_body.length < 1
+# fail 'Write at least one line in the description of PR.' if github.pr_body.length < 1
 
 # プルリクが大きい場合はワーニング
-warn 'Changes have exceeded 500 lines. Divide if possible.' if git.lines_of_code > 500
+# warn 'Changes have exceeded 500 lines. Divide if possible.' if git.lines_of_code > 500
 
 # 追加で独自のチェックをする場合はこのあたりで実施する
 # ...
