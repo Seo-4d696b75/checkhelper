@@ -6,6 +6,7 @@
 !/.idea/compiler.xml
 !/.idea/gradle.xml
 !/.idea/misc.xml
+!/.idea/icon.png
 
 .DS_Store
 /build
