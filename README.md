@@ -1,56 +1,33 @@
-# checkhelper
+# 駅サガース Androidアプリ
 
-某位置ゲームのAndroid向けツールアプリのKotlin実装版  
+某位置ゲームのAndroid向けツールアプリ
 
-現在値位置をバックグラウンドで収集し最近傍の駅の変化を通知などユーザを手助けする
+- ✅ 現在位置をバックグラウンドで監視して付近の駅が変化したら通知する
+- ✅ 現在位置からレーダーでアクセスできる駅一覧の確認
+- ✅ [最新の駅情報](https://github.com/Seo-4d696b75/station_database)への更新機能
+- ✅ 現在位置や付近の駅の履歴を記録・閲覧
 
-## 使用データ
-[station-database](https://github.com/Seo-4d696b75/station_database)のリポジトリで管理
 
 ## 開発セットアップ
 
-### 依存の追加
+### GitHubの認証情報
 
-[他リポジトリで管理しているソースを利用します](https://github.com/Seo-4d696b75/MyAndroidLibrary/tree/kotlin)
+一部の依存をGitHub Packageから取得するため、各自のGitHubアカウントの認証情報が必要です  
+認証情報のファイルはgit管理せず、各自で`/github_credential.properties`を追加してください
 
-```bash
-git clone https://github.com/Seo-4d696b75/MyAndroidLibrary.git
-git checkout kotlin
+```properties
+username=${GitHubアカウント名}
+token=${Githubのアクセストークン}
 ```
 
-`/library`ディレクトリ下にある2つのモジュールをこのプロジェクトにimportします
+### リリース用の署名
 
-- widget : カスタムViewを利用
-- diagram : 図形計算に使用
+詳細は`app/build.gradle.kts`の署名設定を参照してください
 
-`settings.gradle`にimportするモジュールのパスを指定します
-```groovy
-include ':widget'
-include ':diagram'
-project(':widget').projectDir = new File(settingsDir, '${path2project}/library/widget')
-project(':diagram').projectDir = new File(settingsDir, '${path2project}/library/diagram')
-```
+署名関連のファイルはgitで管理しないため各自で用意します
 
-appモジュールの`build.gradle`に対象２モジュールを依存に追加します
-```groovy
-    implementation project(':widget')
-    implementation project(':diagram')
-```
-
-### Build署名の用意
-
-1. keystoreファイル  
-
-ファイルは`app/release.jks`で保存します.
-key alias は`key0`を指定します.
-
-2. パスワードの指定
-
-`app/gradle.properties`に記述します.
-
-**このファイルは.gitignoreに追加されています**
-
-```shell
-release_keystore_pwd=${keystore_password}
-release_key_pwd=${key_password}
-```
+- keystoreファイルは`app/release.jks`
+    - key alias: `key0`
+- `app/gradle.properties`にパスワードを指定
+    - release_keystore_pwd: keystoreのパスワード
+    - release_key_pwd: key0のパスワード
