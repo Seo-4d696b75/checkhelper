@@ -85,8 +85,6 @@ dependencies {
 
     implementation(libs.androidx.recyclerview)
 
-    implementation(libs.androidx.datastore.preferences)
-
     implementation(libs.google.material)
 
     implementation(libs.kotlinx.serialization.json)

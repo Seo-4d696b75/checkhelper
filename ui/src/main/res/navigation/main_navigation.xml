@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/top_fragment">
+
+    <fragment
+        android:id="@+id/top_fragment"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.top.TopFragment"
+        android:label="TopFragment">
+        <action
+            android:id="@+id/goto_log_screen"
+            app:destination="@id/log_fragment" />
+        <action
+            android:id="@+id/goto_setting_screen"
+            app:destination="@id/setting_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/log_fragment"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.log.LogFragment"
+        android:label="LogFragment" />
+
+    <fragment
+        android:id="@+id/setting_fragment"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.setting.SettingFragment"
+        android:label="SettingFragment" />
+
+    <dialog
+        android:id="@+id/line_select_dialog"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialog"
+        android:label="LineDialog">
+        <argument
+            android:name="type"
+            android:defaultValue="Current"
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType" />
+    </dialog>
+    <action
+        android:id="@+id/show_line_select_dialog"
+        app:destination="@id/line_select_dialog" />
+
+    <dialog
+        android:id="@+id/confirm_date_update_dialog"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.update.ConfirmDataUpdateDialog"
+        android:label="DataCheckDialog">
+        <argument
+            android:name="type"
+            android:defaultValue="Latest"
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType" />
+        <argument
+            android:name="info"
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion" />
+    </dialog>
+    <action
+        android:id="@+id/show_confirm_date_update_dialog"
+        app:destination="@id/confirm_date_update_dialog" />
+
+    <dialog
+        android:id="@+id/date_update_dialog"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateDialog"
+        android:label="DataUpdateDialog">
+        <argument
+            android:name="info"
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion" />
+        <argument
+            android:name="type"
+            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType" />
+    </dialog>
+    <action
+        android:id="@+id/show_date_update_dialog"
+        app:destination="@id/date_update_dialog" />
+
+    <dialog
+        android:id="@+id/app_history_dialog"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.log.history.AppHistoryDialog"
+        android:label="DataUpdateDialog" />
+    <action
+        android:id="@+id/show_app_history_dialog"
+        app:destination="@id/app_history_dialog" />
+
+    <dialog
+        android:id="@+id/log_output_config_dialog"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.log.output.LogOutputConfDialog"
+        android:label="LogOutputConfDialog">
+        <argument
+            android:name="config"
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.log.LogOutputConfig" />
+    </dialog>
+    <action
+        android:id="@+id/show_log_output_config_dialog"
+        app:destination="@id/log_output_config_dialog" />
+
+    <dialog
+        android:id="@+id/permission_rationale_dialog"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationaleDialog"
+        android:label="PermissionRationaleDialog">
+        <argument
+            android:name="rationale"
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationaleArg" />
+    </dialog>
+    <action
+        android:id="@+id/show_permission_rationale_dialog"
+        app:destination="@id/permission_rationale_dialog" />
+</navigation>

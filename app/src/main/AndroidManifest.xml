@@ -25,11 +25,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".service.StationService"
+            android:name="com.seo4d696b75.android.ekisagasu.ui.service.StationService"
             android:exported="false"
             android:foregroundServiceType="location" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name="com.seo4d696b75.android.ekisagasu.ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.overlay.WakeupActivity"
+            android:name="com.seo4d696b75.android.ekisagasu.ui.overlay.WakeupActivity"
             android:exported="false"
             android:theme="@style/Theme.WakeupActivity"
             android:launchMode="singleInstance"

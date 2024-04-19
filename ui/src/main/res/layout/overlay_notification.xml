@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/container_notification"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="65dp">
+
+
+        <RelativeLayout
+            android:id="@+id/container_notification_icon"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/notification_back_left"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_margin="3dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/launch_icon" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/container_notification_detail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/notification_back_right"
+            android:paddingStart="5dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="10dp"
+            android:visibility="visible">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:columnCount="2">
+
+                <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
+                    android:id="@+id/station_name_notification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="新宿"
+                    android:textColor="@color/colorTextDark"
+                    android:textSize="20sp"
+                    custom:maxWidth="200dp" />
+
+                <TextView
+                    android:id="@+id/text_notification_prefecture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:lines="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="6dp"
+                    android:text="東京都"
+                    android:textColor="@color/colorTextDark"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/text_notification_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="6dp"
+                    android:gravity="center_vertical"
+                    android:text="176m"
+                    android:textColor="@color/colorText"
+                    android:textSize="16sp" />
+
+                <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
+                    android:id="@+id/text_notification_lines"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:lines="1"
+                    android:text="山手線"
+                    android:textColor="@color/colorText"
+                    android:textSize="16sp"
+                    custom:maxWidth="160dp" />
+            </GridLayout>
+
+            <TextView
+                android:id="@+id/text_notification_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:paddingEnd="5dp"
+                android:paddingStart="0dp"
+                android:text="たった今"
+                android:textColor="@color/colorText"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
+

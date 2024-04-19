@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_menu_x">0dp</dimen>
+    <dimen name="fab_menu_y">0dp</dimen>
+    <dimen name="fab_exit_x">-45dp</dimen>
+    <dimen name="fab_exit_y">0dp</dimen>
+    <dimen name="fab_select_line_x">-50dp</dimen>
+    <dimen name="fab_select_line_y">0dp</dimen>
+    <dimen name="fab_predict_x">-95dp</dimen>
+    <dimen name="fab_predict_y">0dp</dimen>
+    <dimen name="fab_timer_x">-35dp</dimen>
+    <dimen name="fab_timer_y">-35dp</dimen>
+    <dimen name="fab_fix_timer_x">-80dp</dimen>
+    <dimen name="fab_fix_timer_y">-35dp</dimen>
+    <dimen name="fab_map_x">0dp</dimen>
+    <dimen name="fab_map_y">-50dp</dimen>
+</resources>
