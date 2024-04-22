@@ -289,10 +289,6 @@ class StationService : LifecycleService() {
     @Inject
     lateinit var viewModel: ServiceViewModel
 
-    @Inject
-    @ExternalScope
-    lateinit var job: Job
-
     private val notificationHolder: NotificationViewHolder by lazy {
         NotificationViewHolder(this)
     }
@@ -328,7 +324,6 @@ class StationService : LifecycleService() {
         overlayView.release()
         unregisterReceiver(receiver)
         stopSelf()
-        job.cancel()
     }
 
     companion object {
