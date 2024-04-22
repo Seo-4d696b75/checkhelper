@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
  */
 @SuppressLint("ClickableViewAccessibility")
 class OverlayViewHolder(
-    private val context: Context,
+    context: Context,
     private val prefectureRepository: PrefectureRepository,
     private val main: Handler,
     wakeupCallback: () -> Unit,

@@ -17,7 +17,7 @@ import com.seo4d696b75.android.ekisagasu.ui.service.StationService
  * @author Seo-4d696b75
  * @version 2020/12/24.
  */
-class NotificationViewHolder(private val context: Context) {
+class NotificationViewHolder(context: Context) {
     companion object {
         const val NOTIFICATION_TAG = 3910
     }
@@ -27,6 +27,7 @@ class NotificationViewHolder(private val context: Context) {
     private val builder: NotificationCompat.Builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
     private var remoteView: RemoteViews? = null
     private var updateCnt = 0
+    private var _context: Context? = context
 
     init {
         // pending intent to MainActivity
@@ -70,13 +71,13 @@ class NotificationViewHolder(private val context: Context) {
             ),
         )
 
-        createNotificationView()
+        createNotificationView(context)
     }
 
     val notification: Notification
         get() = builder.build()
 
-    private fun createNotificationView() {
+    private fun createNotificationView(context: Context) {
         val view = RemoteViews(context.packageName, R.layout.notification_main)
         builder.setCustomContentView(view)
         remoteView = view
@@ -86,11 +87,12 @@ class NotificationViewHolder(private val context: Context) {
         title: String,
         message: String,
     ) {
+        val context = _context ?: return
         synchronized(this) {
             if (updateCnt++ > 100) {
                 // RemoteViewを一定回数以上更新すると不具合が発生する場合があるので作り直す
                 updateCnt = 0
-                createNotificationView()
+                createNotificationView(context)
             }
             remoteView?.let {
                 it.setTextViewText(R.id.notification_title, title)
@@ -98,5 +100,9 @@ class NotificationViewHolder(private val context: Context) {
             }
             notificationManager.notify(NOTIFICATION_TAG, notification)
         }
+    }
+
+    fun release() {
+        _context = null
     }
 }

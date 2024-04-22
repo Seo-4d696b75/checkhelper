@@ -78,8 +78,8 @@ class ServiceViewModel @Inject constructor(
         .filterIsInstance<AppMessage.FinishApp>()
         .onEach {
             stopStationSearch()
-            Timber.tag("Service").d("service terminated")
             appFinishUseCase()
+            Timber.tag("Service").d("service terminated")
         }
 
     // accessor to app state

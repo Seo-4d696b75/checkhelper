@@ -19,7 +19,6 @@ import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
@@ -30,7 +29,6 @@ import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewHolder
 import com.seo4d696b75.android.ekisagasu.ui.overlay.WakeupActivity
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -322,6 +320,7 @@ class StationService : LifecycleService() {
 
     private fun stopService() {
         overlayView.release()
+        notificationHolder.release()
         unregisterReceiver(receiver)
         stopSelf()
     }
