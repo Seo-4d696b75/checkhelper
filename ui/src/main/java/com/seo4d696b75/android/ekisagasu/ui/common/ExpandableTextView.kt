@@ -5,12 +5,12 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import androidx.appcompat.widget.AppCompatTextView
 import com.seo4d696b75.android.ekisagasu.ui.R
+import timber.log.Timber
 import java.lang.Float.max
 import java.lang.Float.min
-import java.util.*
+import java.util.Locale
 import kotlin.math.ceil
 
 
@@ -316,7 +316,7 @@ class ExpandableTextView : AppCompatTextView {
         ReplaceWith("// Do not call ExpandableTextView#setLines(Int)")
     )
     override fun setLines(lines: Int) {
-        Log.w("ExpandableTextView", "setLines(Int) has no effect on this widget")
+        Timber.tag("ExpandableTextView").w("setLines(Int) has no effect on this widget")
     }
 
     override fun toString(): String {
@@ -332,7 +332,7 @@ class ExpandableTextView : AppCompatTextView {
         ReplaceWith("// Do not call ExpandableTextView#setTextScaleX(Float)")
     )
     override fun setTextScaleX(size: Float) {
-        Log.w("ExpandableTextView", "textScaleX is adjusted automatically, so DO NOT set manually")
+        Timber.tag("ExpandableTextView").w("textScaleX is adjusted automatically, so DO NOT set manually")
     }
 
 
