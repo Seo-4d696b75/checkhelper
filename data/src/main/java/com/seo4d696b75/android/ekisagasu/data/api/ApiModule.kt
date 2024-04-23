@@ -1,7 +1,6 @@
-package jp.seo.station.ekisagasu.hilt
+package com.seo4d696b75.android.ekisagasu.data.api
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.seo4d696b75.android.ekisagasu.data.api.StationDataService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,8 +56,5 @@ object ApiModule {
 @InstallIn(SingletonComponent::class)
 object JsonModule {
     @Provides
-    fun provideJson() =
-        Json {
-            ignoreUnknownKeys = true
-        }
+    fun provideJson() = Json { ignoreUnknownKeys = true }
 }

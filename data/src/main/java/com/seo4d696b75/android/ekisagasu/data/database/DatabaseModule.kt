@@ -1,4 +1,4 @@
-package jp.seo.station.ekisagasu.hilt
+package com.seo4d696b75.android.ekisagasu.data.database
 
 import android.content.Context
 import androidx.room.Room

@@ -18,13 +18,18 @@ import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionState
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 
 /**
@@ -148,4 +153,13 @@ class LocationRepositoryImpl @Inject constructor(
                 c.cancel()
             }
     }
+}
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface LocationRepositoryModule {
+    @Binds
+    @Singleton
+    fun bindLocationRepository(impl: LocationRepositoryImpl): LocationRepository
 }

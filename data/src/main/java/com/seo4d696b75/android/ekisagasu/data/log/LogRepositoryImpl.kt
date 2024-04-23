@@ -12,7 +12,11 @@ import com.seo4d696b75.android.ekisagasu.domain.date.format
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLogTarget
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,8 +30,9 @@ import java.io.File
 import java.io.IOException
 import java.util.Date
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class LogRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val config: AppConfig,
@@ -137,4 +142,13 @@ class LogRepositoryImpl @Inject constructor(
             }
         }
     }
+}
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface LogRepositoryModule {
+    @Binds
+    @Singleton
+    fun bindsLogRepository(impl: LogRepositoryImpl): LogRepository
 }

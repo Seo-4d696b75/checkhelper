@@ -9,6 +9,10 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationKdTree
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +21,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class DataRepositoryImpl @Inject constructor(
     private val dao: StationDao,
@@ -106,4 +111,13 @@ class DataRepositoryImpl @Inject constructor(
         json.decodeFromString<StationKdTree>(
             File(this, "json/tree.json").readText(Charsets.UTF_8),
         )
+}
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface DataRepositoryModule {
+    @Singleton
+    @Binds
+    fun bindDataRepository(impl: DataRepositoryImpl): DataRepository
 }

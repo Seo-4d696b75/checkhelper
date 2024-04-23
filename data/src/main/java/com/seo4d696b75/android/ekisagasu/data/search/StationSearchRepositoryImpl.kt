@@ -13,6 +13,10 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchResult
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +33,7 @@ import kotlinx.coroutines.flow.update
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class StationSearchRepositoryImpl @Inject constructor(
     private val dataRepository: DataRepository,
@@ -126,4 +131,13 @@ class StationSearchRepositoryImpl @Inject constructor(
             )
         }
     }
+}
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface StationSearchRepositoryModule {
+    @Singleton
+    @Binds
+    fun bind(impl: StationSearchRepositoryImpl): StationSearchRepository
 }

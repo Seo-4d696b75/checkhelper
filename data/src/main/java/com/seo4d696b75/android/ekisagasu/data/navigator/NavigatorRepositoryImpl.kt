@@ -8,6 +8,10 @@ import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.PredictionResult
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class NavigatorRepositoryImpl @Inject constructor(
     private val search: NearestSearch,
@@ -84,4 +89,13 @@ class NavigatorRepositoryImpl @Inject constructor(
                     }
             }
         }
+}
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface NavigationRepositoryModule {
+    @Singleton
+    @Binds
+    fun bindNavigation(impl: NavigatorRepositoryImpl): NavigatorRepository
 }

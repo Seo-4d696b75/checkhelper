@@ -4,9 +4,14 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.SearchResult
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationNode
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
@@ -161,4 +166,13 @@ class KdTree @Inject constructor(
             search(if (value < threshold) node.right else node.left, prop)
         }
     }
+}
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface NearestSearchModule {
+    @Singleton
+    @Binds
+    fun bindNearestSearch(impl: KdTree): NearestSearch
 }

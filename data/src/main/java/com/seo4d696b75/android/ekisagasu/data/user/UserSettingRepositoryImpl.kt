@@ -11,13 +11,18 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSetting
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class UserSettingRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -105,3 +110,12 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
         )
     },
 )
+
+@Suppress("unused")
+@Module
+@InstallIn(SingletonComponent::class)
+interface SettingRepositoryModule {
+    @Singleton
+    @Binds
+    fun bindSettingRepository(impl: UserSettingRepositoryImpl): UserSettingRepository
+}
