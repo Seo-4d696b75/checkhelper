@@ -12,7 +12,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.databinding.FragmentSettingBinding
-import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewHolder
+import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
@@ -117,7 +117,7 @@ class SettingFragment : Fragment() {
         }
 
         binding.seekBrightness.also {
-            it.valueFrom = OverlayViewHolder.MIN_BRIGHTNESS
+            it.valueFrom = OverlayViewController.MIN_BRIGHTNESS
             it.valueTo = 255f
             it.addOnChangeListener { _, value, fromUser ->
                 if (fromUser) {
