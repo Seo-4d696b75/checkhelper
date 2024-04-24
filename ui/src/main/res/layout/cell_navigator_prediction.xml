@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data></data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="27dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="3dp">
+
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
+            android:id="@+id/text_prediction_distance"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/colorText"
+            android:textSize="16sp"
+            app:minTextScaleX="0.4"
+            tools:text="123m" />
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/station_marker_normal" />
+
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
+            android:id="@+id/text_prediction_station"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorTextDark"
+            android:textSize="16sp"
+            tools:text="新宿（東京）" />
+
+        <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
+            android:id="@+id/text_prediction_lines"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:gravity="start"
+            android:paddingStart="2dp"
+            android:paddingEnd="4dp"
+            android:textColor="@color/colorTextGray"
+            android:textSize="12sp" />
+    </LinearLayout>
+</layout>
