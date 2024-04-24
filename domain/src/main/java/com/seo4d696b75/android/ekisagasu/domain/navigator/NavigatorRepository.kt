@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
  * @version 2021/03/05.
  */
 interface NavigatorRepository {
-    val predictions: Flow<PredictionResult?>
+    val state: Flow<NavigatorState?>
     val line: Flow<Line?>
 
     // TODO 画面遷移の引数で渡せばflowのみの公開で済む？

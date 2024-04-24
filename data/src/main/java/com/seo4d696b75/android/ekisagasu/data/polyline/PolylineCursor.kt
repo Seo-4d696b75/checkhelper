@@ -1,11 +1,10 @@
 package com.seo4d696b75.android.ekisagasu.data.polyline
 
 import com.google.android.gms.maps.model.LatLng
-import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureEuclid
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
-import com.seo4d696b75.android.ekisagasu.domain.navigator.StationPrediction
 import jp.seo.diagram.core.Edge
 import timber.log.Timber
 import kotlin.math.max

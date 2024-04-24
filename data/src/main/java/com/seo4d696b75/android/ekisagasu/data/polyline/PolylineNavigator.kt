@@ -8,8 +8,6 @@ import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_MILLI_SEC
 import com.seo4d696b75.android.ekisagasu.domain.date.format
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
-import com.seo4d696b75.android.ekisagasu.domain.navigator.PredictionResult
-import com.seo4d696b75.android.ekisagasu.domain.navigator.StationPrediction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

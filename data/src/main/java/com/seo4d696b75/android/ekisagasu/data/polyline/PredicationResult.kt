@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.domain.navigator
+package com.seo4d696b75.android.ekisagasu.data.polyline
 
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 

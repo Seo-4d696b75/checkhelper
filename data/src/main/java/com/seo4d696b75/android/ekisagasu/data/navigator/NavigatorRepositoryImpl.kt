@@ -5,8 +5,9 @@ import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapLatestBySkip
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorPrediction
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
-import com.seo4d696b75.android.ekisagasu.domain.navigator.PredictionResult
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import dagger.Binds
 import dagger.Module
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -53,13 +53,13 @@ class NavigatorRepositoryImpl @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val predictions = searchRepository
+    override val state = searchRepository
         .result
         .map { it != null }
         .distinctUntilChanged()
         .flatMapLatest { running ->
             if (running) {
-                _prediction
+                _state
             } else {
                 navigator.update {
                     it?.release()
@@ -75,17 +75,36 @@ class NavigatorRepositoryImpl @Inject constructor(
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _prediction: Flow<PredictionResult?> =
+    private val _state: Flow<NavigatorState?> =
         navigator.flatMapLatest { navigator ->
             if (navigator == null) {
                 flowOf(null)
             } else {
                 searchRepository
                     .result
-                    .filterNotNull()
                     .mapLatestBySkip {
-                        navigator.onLocationUpdate(it.location, it.detected.station)
-                        navigator.result
+                        val result = if (it == null) {
+                            null
+                        } else {
+                            navigator.onLocationUpdate(it.location, it.detected.station)
+                            navigator.result
+                        }
+                        if (result == null) {
+                            NavigatorState.Initializing(
+                                line = navigator.line,
+                            )
+                        } else {
+                            NavigatorState.Result(
+                                line = navigator.line,
+                                current = result.current,
+                                predictions = (0 until result.size).map { idx ->
+                                    NavigatorPrediction(
+                                        station = result.getStation(idx),
+                                        distance = result.getDistance(idx),
+                                    )
+                                },
+                            )
+                        }
                     }
             }
         }
