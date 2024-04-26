@@ -24,6 +24,7 @@ object ExternalScopeModule {
 
         private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
             Timber.e(throwable, "caught in external scope")
+            throw throwable
         }
 
         override val coroutineContext: CoroutineContext
