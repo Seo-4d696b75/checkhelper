@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -85,6 +86,7 @@ class OverlayViewController @Inject constructor(
     private var requestedStation: NearStation? = null
 
     fun onCreate(context: Context, owner: LifecycleOwner) {
+        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         wakeupCallback = {
             val intent = Intent(context, WakeupActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -205,6 +207,15 @@ class OverlayViewController @Inject constructor(
                 onNotificationRemoved(null)
             }
         }
+
+        animAppear = AnimationUtils.loadAnimation(context, R.anim.anim_appear)
+        animDisappear = AnimationUtils.loadAnimation(context, R.anim.anim_disappear)
+        animOpen = AnimationUtils.loadAnimation(context, R.anim.anim_open)
+        animClose = AnimationUtils.loadAnimation(context, R.anim.anim_close)
+
+        timeNow = context.getString(R.string.notification_time_now)
+        timeSec = context.getString(R.string.notification_time_sec)
+        timeMin = context.getString(R.string.notification_time_min)
 
         owner.lifecycleScope.launch {
             owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
