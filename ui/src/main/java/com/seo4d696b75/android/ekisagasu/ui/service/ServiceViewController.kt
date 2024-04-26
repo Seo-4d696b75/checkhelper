@@ -53,6 +53,8 @@ class ServiceViewController @Inject constructor(
     }
 
     fun onCreate(context: Context, owner: LifecycleOwner) {
+        this.context = context
+
         notificationViewController.onCreate(context, owner)
         overlayViewController.onCreate(context, owner)
         navigatorViewController.onCreate(context, owner)
