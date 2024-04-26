@@ -20,6 +20,10 @@ username=${GitHubアカウント名}
 token=${Githubのアクセストークン}
 ```
 
+### Firebase認証情報
+
+`app/google-services.json`を用意する
+
 ### リリース用の署名
 
 詳細は`app/build.gradle.kts`の署名設定を参照してください

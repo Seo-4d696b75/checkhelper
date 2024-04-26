@@ -6,10 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-// FIXME use crashlytics
 class AppCrashUseCase @Inject constructor(
     private val logRepository: LogRepository,
-    private val appFinishUseCase: AppFinishUseCase,
 ) {
     operator fun invoke(e: Throwable) = runBlocking(Dispatchers.Default) {
         // ログ記録
@@ -18,7 +16,6 @@ class AppCrashUseCase @Inject constructor(
             message = "UnhandledException:\n$e",
             isError = true,
         )
-        // 終了処理
-        appFinishUseCase()
+        logRepository.onAppFinish()
     }
 }

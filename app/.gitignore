@@ -3,3 +3,4 @@
 # release credentials
 /release.jks
 /gradle.properties
+/google-services.json
