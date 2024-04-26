@@ -51,11 +51,22 @@
                 auto:navigatorLine="@{state}"
                 tools:text="JR東海道本線" />
 
+            <ImageView
+                visibleForNavigator="@{state}"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="46dp"
+                android:contentDescription="@null"
+                android:scaleType="fitXY"
+                android:src="@drawable/navigator_anim_background"
+                auto:layout_constraintBottom_toBottomOf="@id/list_navigator_predication"
+                auto:layout_constraintStart_toStartOf="@id/list_navigator_predication"
+                auto:layout_constraintTop_toTopOf="@id/list_navigator_predication" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_navigator_predication"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="3dp"
                 android:scrollbars="none"
@@ -64,6 +75,17 @@
                 auto:layout_constraintStart_toEndOf="@id/image_notification_icon"
                 auto:layout_constraintTop_toTopOf="parent" />
 
+            <ImageView
+                visibleForNavigator="@{state}"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="46dp"
+                android:contentDescription="@null"
+                android:scaleType="fitXY"
+                android:src="@drawable/navigator_anim_foreground"
+                auto:layout_constraintBottom_toBottomOf="@id/list_navigator_predication"
+                auto:layout_constraintStart_toStartOf="@id/list_navigator_predication"
+                auto:layout_constraintTop_toTopOf="@id/list_navigator_predication" />
 
             <ProgressBar
                 android:id="@+id/progress_initializing"

@@ -18,7 +18,6 @@ import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.databinding.OverlayNavigatorBinding
-import com.seo4d696b75.android.ekisagasu.ui.top.radar.RadarAdapter
 import com.seo4d696b75.android.ekisagasu.ui.utils.setAnimationListener
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,7 +30,7 @@ class NavigatorViewController @Inject constructor(
     private lateinit var windowManager: WindowManager
     private lateinit var icon: View
     private lateinit var binding: OverlayNavigatorBinding
-    private lateinit var adapter: RadarAdapter
+    private lateinit var adapter: NavigatorStationAdapter
 
     private lateinit var animShrink: Animation
     private lateinit var animExpand: Animation
@@ -106,14 +105,13 @@ class NavigatorViewController @Inject constructor(
         animAppear = AnimationUtils.loadAnimation(context, R.anim.anim_appear)
         animDisappear = AnimationUtils.loadAnimation(context, R.anim.anim_disappear)
 
-        adapter = RadarAdapter(context).apply {
+        adapter = NavigatorStationAdapter(context).apply {
             setHasStableIds(true)
         }
         binding.listNavigatorPredication.also {
             it.layoutManager = LinearLayoutManager(context).apply {
                 orientation = LinearLayoutManager.VERTICAL
                 reverseLayout = true
-                stackFromEnd = true
             }
             it.adapter = adapter
         }
@@ -160,7 +158,7 @@ class NavigatorViewController @Inject constructor(
             is NavigatorUiState.Result -> state.stations
             else -> emptyList()
         }
-        // adapter.submitList(list)
+        adapter.submitList(list)
     }
 
     private fun stop() {

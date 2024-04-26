@@ -3,38 +3,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data></data>
+    <data>
+
+        <variable
+            name="state"
+            type="com.seo4d696b75.android.ekisagasu.ui.navigator.NavigatorStationUiState" />
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="27dp"
+        android:layout_height="25dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="3dp">
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp">
 
         <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_prediction_distance"
-            android:layout_width="50dp"
+            android:layout_width="46dp"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:textColor="@color/colorText"
-            android:textSize="16sp"
+            android:textSize="12sp"
             app:minTextScaleX="0.4"
+            app:navigatorStationDistance="@{state}"
             tools:text="123m" />
 
         <View
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_width="16dp"
+            android:layout_height="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
             android:background="@drawable/station_marker_normal" />
 
         <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
             android:id="@+id/text_prediction_station"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@{state.station.name}"
             android:textColor="@color/colorTextDark"
-            android:textSize="16sp"
+            android:textSize="14sp"
             tools:text="新宿（東京）" />
 
         <com.seo4d696b75.android.ekisagasu.ui.common.ExpandableTextView
@@ -45,7 +53,8 @@
             android:gravity="start"
             android:paddingStart="2dp"
             android:paddingEnd="4dp"
-            android:textColor="@color/colorTextGray"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:minTextScaleX="0.5"
+            app:navigatorLines="@{state}" />
     </LinearLayout>
 </layout>
