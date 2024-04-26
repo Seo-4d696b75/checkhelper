@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.text.TextPaint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.text.buildSpannedString
 import com.seo4d696b75.android.ekisagasu.ui.R
 import timber.log.Timber
 import java.lang.Float.max
@@ -253,7 +254,11 @@ class ExpandableTextView : AppCompatTextView {
             val length: Float = textPaint.measureText(str)
             if (length <= maxLength) {
                 calcTextScaleX(_minTextScaleX, str, maxLength)
-                return str
+                // String型で長さを計算するが、SpannableStringなどの装飾要素を最後に調整する
+                return buildSpannedString {
+                    append(text.subSequence(0, i - 1))
+                    append('…')
+                }
             }
             builder.deleteCharAt(i - 1)
             i--
@@ -283,6 +288,7 @@ class ExpandableTextView : AppCompatTextView {
                         updateText(_currentText, BufferType.NORMAL, widthSize)
                     }
                 }
+
                 MeasureSpec.AT_MOST -> {
                     val max = kotlin.math.min(widthSize, _maxWidth)
                     if (length + padding > max) {
@@ -297,6 +303,7 @@ class ExpandableTextView : AppCompatTextView {
                         requestedWidth = ceil((length + padding).toDouble()).toInt()
                     }
                 }
+
                 MeasureSpec.UNSPECIFIED -> {
                     requestedWidth = ceil((length + padding).toDouble()).toInt()
                     textPaint.textScaleX = 1f
