@@ -197,10 +197,10 @@ class NavigatorViewController @Inject constructor(
             runningAnimation = true
         } else if (binding.root.visibility == View.GONE) {
             animExpand.setAnimationListener(onEnd = {
-                icon.visibility = View.GONE
                 runningAnimation = false
             })
             binding.root.visibility = View.VISIBLE
+            icon.visibility = View.GONE
             binding.contentContainer.startAnimation(animExpand)
             runningAnimation = true
         }
