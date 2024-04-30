@@ -1,7 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.data.api
 
 import com.google.common.truth.Truth.assertThat
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.seo4d696b75.android.ekisagasu.data.fakeDataBuffer
 import com.seo4d696b75.android.ekisagasu.data.fakeLatestInfoString
 import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepositoryImpl
@@ -22,6 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 /**
  * @author Seo-4d696b75

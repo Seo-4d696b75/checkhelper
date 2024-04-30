@@ -93,7 +93,7 @@ firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics
 
 # retrofit
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "0.8.0" }
+retrofit-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
 
 # math
 apache-math = { group = "org.apache.commons", name = "commons-math3", version = "3.6.1" }
