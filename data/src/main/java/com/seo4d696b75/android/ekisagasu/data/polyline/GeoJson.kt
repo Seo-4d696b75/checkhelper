@@ -132,7 +132,7 @@ data class PolylineSegment(val points: Array<LatLng>, val start: String, val end
                 var end = start + step
                 if (end >= points.size) end = points.size - 1
                 if (start == end) break
-                val n = NearestPoint(points[start], points[end], p)
+                val n = NearestPoint.from(points[start], points[end], p)
                 if (n.distance < minValue) {
                     minValue = n.distance.toDouble()
                     minStart = start
@@ -142,7 +142,7 @@ data class PolylineSegment(val points: Array<LatLng>, val start: String, val end
             }
         }
         return (minStart until minEnd)
-            .map { idx -> NearestPoint(points[idx], points[idx + 1], p) }
+            .map { idx -> NearestPoint.from(points[idx], points[idx + 1], p) }
             .minByOrNull { n -> n.distance } ?: throw NoSuchElementException()
     }
 }

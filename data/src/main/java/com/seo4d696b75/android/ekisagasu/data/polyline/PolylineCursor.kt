@@ -79,7 +79,7 @@ class PolylineCursor {
         }
 
         val position = LatLng(location.lat, location.lng)
-        nearest = NearestPoint(start.point, end.point, position)
+        nearest = NearestPoint.from(start.point, end.point, position)
         this.explorer = old.explorer
         isSignDecided = old.isSignDecided
         pathPosAtNearest = pathPosAtStart + nearest.distanceFrom() * pathLengthSign
@@ -171,7 +171,7 @@ class PolylineCursor {
             while (iterator.hasNext()) {
                 val next = iterator.next()
                 val near =
-                    NearestPoint(
+                    NearestPoint.from(
                         current.point,
                         next.point,
                         LatLng(location.lat, location.lng),
