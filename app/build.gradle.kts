@@ -40,8 +40,10 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            proguardFiles.add(getDefaultProguardFile("proguard-android-optimize.txt"))
-            proguardFiles.add(file("proguard-rules.pro"))
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("release")
         }
     }
@@ -61,6 +63,10 @@ android {
 
     dataBinding {
         enable = true
+    }
+
+    lint {
+        disable.add("Instantiatable")
     }
 }
 
