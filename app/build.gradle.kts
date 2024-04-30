@@ -70,55 +70,15 @@ dependencies {
     implementation(project(":data"))
 
     implementation(libs.androidx.core)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.activity)
-
-    implementation(libs.androidx.navigation.runtime)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
-
-    implementation(platform(libs.kotlinx.coroutines.bom))
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
-
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.runtime)
-
-    implementation(libs.androidx.recyclerview)
-
-    implementation(libs.google.material)
-
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.kotlinx.serialization)
-
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
-
-    implementation(libs.google.play.services.location)
-    implementation(libs.google.maps.utils)
-    implementation(libs.google.android.maps.utils)
-    implementation(libs.apache.math)
-
-    implementation(libs.diagram)
 
     implementation(libs.timber)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.google.truth)
-    testImplementation(libs.mockk)
 }
 
 kapt {
