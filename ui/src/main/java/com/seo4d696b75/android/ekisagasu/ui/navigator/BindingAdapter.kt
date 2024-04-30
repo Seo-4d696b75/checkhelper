@@ -15,6 +15,9 @@ fun setVisibleForInitializing(
 ) {
     view.visibility = when (state) {
         is NavigatorUiState.Initializing -> View.VISIBLE
+        is NavigatorUiState.Result ->
+            if (state.stations.any { it is NavigatorStationUiState.Prediction }) View.GONE else View.VISIBLE
+
         else -> View.GONE
     }
 }

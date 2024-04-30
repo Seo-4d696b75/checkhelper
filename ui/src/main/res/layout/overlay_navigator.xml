@@ -52,6 +52,7 @@
                 tools:text="JR東海道本線" />
 
             <ImageView
+                android:id="@+id/image_navigation_anim_background"
                 visibleForNavigator="@{state}"
                 android:layout_width="40dp"
                 android:layout_height="0dp"
@@ -97,7 +98,7 @@
                 auto:layout_constraintBottom_toBottomOf="@id/list_navigator_predication"
                 auto:layout_constraintEnd_toStartOf="@id/text_initializing"
                 auto:layout_constraintHorizontal_chainStyle="packed"
-                auto:layout_constraintStart_toStartOf="@id/list_navigator_predication"
+                auto:layout_constraintStart_toEndOf="@id/image_navigation_anim_background"
                 auto:layout_constraintTop_toTopOf="@id/list_navigator_predication"
                 auto:visibleForInitializing="@{state}"
                 tools:visibility="visible" />
