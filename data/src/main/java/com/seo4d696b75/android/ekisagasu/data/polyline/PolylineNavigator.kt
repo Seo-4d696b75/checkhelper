@@ -54,7 +54,6 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
     private val segmentJunction = mutableMapOf<String, MutableList<PolylineSegment>>()
     private val polylineSegments = mutableListOf<PolylineSegment>()
     private var cursors = mutableListOf<PolylineCursor>()
-    private var currentStation: StationArea? = null
     private var prediction = mutableListOf<StationPrediction>()
     private var lastLocation: Location? = null
 
@@ -77,10 +76,8 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
         station: Station,
     ) = withContext(Dispatchers.IO) {
         if (!location.lat.isFinite() || !location.lng.isFinite()) return@withContext
-        assert {
-            location.lat in -90.0..90.0 &&
-                location.lng in -180.0..180.0
-        }
+        require(location.lat in -90.0..90.0)
+        require(location.lng in -180.0..180.0)
         lock.withLock {
             val start = SystemClock.uptimeMillis()
             updateTime = location.elapsedRealtimeMillis
@@ -89,9 +86,6 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
                 val result = PredictionResult(0, station)
                 _result = result
                 return@withContext
-            }
-            if (currentStation?.station != station) {
-                currentStation = StationArea.parseArea(station)
             }
             // Update each cursors
             val list = mutableListOf<PolylineCursor>()
@@ -112,7 +106,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
             val predictions: MutableList<StationPrediction> = mutableListOf()
             for (p in list) {
                 predictions.clear()
-                p.predict(predictions, maxPrediction, currentStation)
+                p.predict(predictions, maxPrediction)
                 // 駅の重複がないように、重複するならより近い距離を採用
                 for (prediction in predictions) {
                     val same = getSameStation(resolved, prediction.station)
@@ -153,7 +147,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
             )
         }.minByOrNull { p -> p.second.distance }?.let {
             cursors.add(
-                PolylineCursor(
+                PolylineCursor.initialize(
                     it.first,
                     { tag -> segmentJunction[tag] ?: throw NoSuchElementException() },
                     it.second,

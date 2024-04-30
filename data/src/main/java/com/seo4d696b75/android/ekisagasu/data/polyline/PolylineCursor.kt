@@ -11,19 +11,32 @@ import kotlin.math.max
 import kotlin.math.min
 
 class PolylineCursor {
+
+    companion object {
+        fun initialize(
+            segment: PolylineSegment,
+            provider: PolylineSegmentProvider,
+            nearest: NearestPoint,
+            explore: NearestSearch,
+        ): PolylineCursor {
+            val (start, end) = PolylineEndNode.initialize(segment, provider, nearest)
+            return PolylineCursor(start, end, nearest, explore)
+        }
+    }
+
     /**
      * 初期化
      */
-    constructor(
-        segment: PolylineSegment,
-        provider: PolylineSegmentProvider,
+    private constructor(
+        start: PolylineNode,
+        end: PolylineNode,
         nearest: NearestPoint,
         explore: NearestSearch,
     ) {
+        this.start = start
+        this.end = end
         this.nearest = nearest
         this.explorer = explore
-        // initialize node-node graph and start end node
-        PolylineEndNode(segment, provider, this)
 
         pathLengthSign = 1
         pathPosAtStart = 0.0
@@ -87,35 +100,16 @@ class PolylineCursor {
 
     private val explorer: NearestSearch
 
-    var nearest: NearestPoint
+    val nearest: NearestPoint
 
-    private var _start: PolylineNode? = null
-    private var _end: PolylineNode? = null
-
-    var start: PolylineNode
-        get() = _start ?: throw IllegalStateException("start node not set yet")
-        set(value) {
-            _start = value
-        }
-    var end: PolylineNode
-        get() = _end ?: throw IllegalStateException("end node not set yet")
-        set(value) {
-            _end = value
-        }
+    private val start: PolylineNode
+    private val end: PolylineNode
 
     // start -> end 方向を正方向とし、startを原点とする1次元座標で測定する
-    var pathLengthSign = 0
-    var pathPosAtStart = 0.0
-    var pathPosAtNearest: Double
-    var isSignDecided = false
-
-    fun initPosition(
-        from: PolylineNode,
-        to: PolylineNode,
-    ) {
-        start = from
-        end = to
-    }
+    private var pathLengthSign = 0
+    private var pathPosAtStart = 0.0
+    private var pathPosAtNearest: Double
+    private var isSignDecided = false
 
     fun update(
         location: Location,
@@ -213,20 +207,20 @@ class PolylineCursor {
     suspend fun predict(
         result: MutableCollection<StationPrediction>,
         maxPrediction: Int,
-        current: StationArea?,
     ) {
         // ポリライン上の現在位置の近傍駅
-        val s = explorer.searchEuclid(nearest.closedPoint) ?: return
-        val area =
-            if (s != current?.station) {
-                // 現在位置からの近傍駅と異なる場合もある
-                // result.add(StationPrediction(s, 0f))
-                // cnt--
-                StationArea.parseArea(s)
-            } else {
-                current
-            }
-        searchForStation(start, nearest.closedPoint, end, area, 0f, maxPrediction, result)
+        val s = explorer.searchEuclid(nearest.nearest) ?: return
+        val area = StationArea.parseArea(s)
+        searchForStation(
+            previous = start,
+            start = nearest.nearest,
+            end = end,
+            current = area,
+            pathLength = 0f,
+            cnt = maxPrediction,
+            result = result,
+            depth = 0,
+        )
     }
 
     /**
@@ -245,7 +239,7 @@ class PolylineCursor {
         pathLength: Float,
         cnt: Int,
         result: MutableCollection<StationPrediction>,
-        depth: Int = 0,
+        depth: Int,
     ) {
         // TODO 無限ループ回避策（消極的）
         if (depth > 1000) {
@@ -263,13 +257,13 @@ class PolylineCursor {
             true
         }
 
-        var intersectionFound = false
+        require(cnt > 0)
+
         if (start != end.point) {
             val stationAtEnd = requireNotNull(explorer.searchEuclid(end.point))
             // ボロノイ領域は凸なので線分の両端で同じ駅なら線分上どこでも同じ駅
             // 逆に両端で異なるなら線分上に１つ以上の境界線との交点がある
             if (stationAtEnd != current.station) {
-                intersectionFound = true
                 val edge = Edge(start.point2D, end.point.point2D)
                 val intersection =
                     current.getIntersection(edge)?.latLng ?: kotlin.run {
@@ -293,24 +287,24 @@ class PolylineCursor {
                 val distToEnd = end.point.measureEuclid(intersection)
                 val distFromStart = start.measureEuclid(intersection)
                 val delta = 0.00001
-                val nextStart =
-                    if (intersection != end.point && delta < distToEnd) {
-                        val m = delta / distFromStart
-                        LatLng(
-                            (1 + m) * intersection.latitude - m * start.latitude,
-                            (1 + m) * intersection.longitude - m * start.longitude,
-                        )
-                    } else {
-                        // 終点endが近すぎる場合
-                        end.point
-                    }
+                val nextStart = if (intersection != end.point && delta < distToEnd) {
+                    val m = delta / distFromStart
+                    require(!m.isNaN())
+                    LatLng(
+                        (1 + m) * intersection.latitude - m * start.latitude,
+                        (1 + m) * intersection.longitude - m * start.longitude,
+                    )
+                } else {
+                    // 終点endが近すぎる場合
+                    end.point
+                }
                 // 隣接駅
                 val station = requireNotNull(explorer.searchEuclid(nextStart))
+                require(station != current.station)
                 // 次の探索駅
                 val next = StationArea.parseArea(station)
                 // 表示用の距離
-                val nextPathLength =
-                    pathLength + start.measureDistance(nextStart)
+                val nextPathLength = pathLength + start.measureDistance(nextStart)
                 // 予測を追加
                 val prediction = StationPrediction(station, nextPathLength)
                 result.add(prediction)
@@ -318,24 +312,21 @@ class PolylineCursor {
                 if (cnt - 1 > 0) {
                     // まだ必要なら残りの線分上を探索続ける
                     searchForStation(
-                        previous,
-                        nextStart,
-                        end,
-                        next,
-                        nextPathLength,
-                        cnt - 1,
-                        result,
-                        depth + 1,
+                        previous = previous,
+                        start = nextStart,
+                        end = end,
+                        current = next,
+                        pathLength = nextPathLength,
+                        cnt = cnt - 1,
+                        result = result,
+                        depth = depth + 1,
                     )
                 }
+                return
             }
         }
 
-        // 線分上に駅境界を発見しているなら探索済み
-        if (intersectionFound) return
-
         // 線分上に駅境界が見つからなかった場合は、次のポリライン線分を探索
-        assert(cnt > 0)
         val iterator = end.iterator(previous)
         while (iterator.hasNext()) {
             val next = iterator.next()
@@ -349,14 +340,14 @@ class PolylineCursor {
                 true
             }
             searchForStation(
-                end,
-                end.point,
-                next,
-                current,
-                pathLength + start.measureDistance(end.point),
-                cnt,
-                result,
-                depth + 1,
+                previous = end,
+                start = end.point,
+                end = next,
+                current = current,
+                pathLength = pathLength + start.measureDistance(end.point),
+                cnt = cnt,
+                result = result,
+                depth = depth + 1,
             )
         }
     }
