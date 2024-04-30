@@ -2,7 +2,7 @@ package com.seo4d696b75.android.ekisagasu.data.polyline
 
 import com.google.android.gms.maps.model.LatLng
 
-abstract class PolylineNode(val point: LatLng,) {
+abstract class PolylineNode(val point: LatLng) {
     abstract fun iterator(previous: PolylineNode): NeighborIterator
 
     abstract fun release()

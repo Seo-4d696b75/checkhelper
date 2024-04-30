@@ -3,7 +3,7 @@ package com.seo4d696b75.android.ekisagasu.data.polyline
 import com.google.android.gms.maps.model.LatLng
 import java.util.Locale
 
-class PolylineMiddleNode(point: LatLng, val index: Int,) : PolylineNode(point) {
+class PolylineMiddleNode(point: LatLng, val index: Int) : PolylineNode(point) {
     private var next1: PolylineNode? = null
     private var next2: PolylineNode? = null
     private var distance1 = 0f
@@ -14,6 +14,8 @@ class PolylineMiddleNode(point: LatLng, val index: Int,) : PolylineNode(point) {
         next: PolylineNode,
         distance: Float,
     ) {
+        require(!next.point.latitude.isNaN() && !next.point.longitude.isNaN())
+
         if (next1 == null) {
             next1 = next
             distance1 = distance
@@ -21,14 +23,17 @@ class PolylineMiddleNode(point: LatLng, val index: Int,) : PolylineNode(point) {
             next2 = next
             distance2 = distance
         } else {
-            throw RuntimeException()
+            throw IllegalArgumentException("already init both neighbors")
         }
     }
 
     override fun iterator(previous: PolylineNode): NeighborIterator {
+        if (next1 == null && next2 == null) {
+            throw IllegalStateException("node not init yet")
+        }
         val former = previous == next2
-        if (!former && previous != next1) {
-            throw RuntimeException()
+        require(former || previous == next1) {
+            "previous($previous) is not either of neighbors"
         }
         return object : NeighborIterator {
             private var hasIterated = false
@@ -39,7 +44,9 @@ class PolylineMiddleNode(point: LatLng, val index: Int,) : PolylineNode(point) {
                 throw NoSuchElementException()
             } else {
                 hasIterated = true
-                (if (former) next1 else next2) ?: throw IllegalStateException()
+                requireNotNull(
+                    if (former) next1 else next2
+                )
             }
 
             override fun distance(): Float = if (hasIterated) {

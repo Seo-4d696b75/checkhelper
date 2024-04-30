@@ -6,21 +6,48 @@ import java.util.Locale
 
 typealias PolylineSegmentProvider = (String) -> List<PolylineSegment>
 
-class PolylineEndNode(
+class PolylineEndNode private constructor(
     point: LatLng,
     private val segment: PolylineSegment,
     private val provider: PolylineSegmentProvider,
-    val tag: String,
+    private val tag: String,
 ) : PolylineNode(point) {
-    constructor(
-        segment: PolylineSegment,
-        provider: PolylineSegmentProvider,
-        cursor: PolylineCursor?,
-    ) : this(segment.points[0], segment, provider, segment.start) {
-        expand(segment, cursor)
+    companion object {
+        // 指定した1辺分のグラフを初期化
+        fun initialize(
+            segment: PolylineSegment,
+            provider: PolylineSegmentProvider,
+            nearest: NearestPoint,
+        ): Pair<PolylineNode, PolylineNode> {
+            val node = PolylineEndNode(
+                point = segment.points[0],
+                segment = segment,
+                provider = provider,
+                tag = segment.start,
+            ).apply {
+                expand(segment)
+            }
+            var previous: PolylineNode = node
+            var current: PolylineNode = requireNotNull(node.next[0])
+            while (true) {
+                if (nearest.start == previous.point && nearest.end == current.point) {
+                    return previous to current
+                } else if (nearest.start == current.point && nearest.end == previous.point) {
+                    return current to previous
+                }
+                if (current is PolylineMiddleNode) {
+                    val iterator = current.iterator(previous)
+                    previous = current
+                    current = iterator.next()
+                } else {
+                    break
+                }
+            }
+            throw NoSuchElementException()
+        }
     }
 
-    private var next: Array<PolylineNode?> = arrayOfNulls(3)
+    private val next: Array<PolylineNode?> = arrayOfNulls(3)
     private var distance: FloatArray = FloatArray(3)
     private var size = 0
     private var hasChecked = false
@@ -30,8 +57,9 @@ class PolylineEndNode(
         next: PolylineNode,
         distance: Float,
     ) {
+        require(!next.point.latitude.isNaN() && !next.point.longitude.isNaN())
         if (size >= 3) {
-            throw RuntimeException()
+            throw IllegalStateException("neighbor size is already 3")
         } else {
             this.next[size] = next
             this.distance[size] = distance
@@ -41,7 +69,6 @@ class PolylineEndNode(
 
     private fun expand(
         segment: PolylineSegment,
-        cursor: PolylineCursor?,
     ) {
         val forward: Boolean = segment.start == tag
         val start = if (forward) 1 else segment.points.size - 2
@@ -51,27 +78,19 @@ class PolylineEndNode(
         var index = 0
         var i = start
         while (i != end + dir) {
-            val node =
-                if (i == end) {
-                    PolylineEndNode(
-                        segment.points[end],
-                        segment,
-                        provider,
-                        if (forward) segment.end else segment.start,
-                    )
-                } else {
-                    PolylineMiddleNode(segment.points[i], index++)
-                }
+            val node = if (i == end) {
+                PolylineEndNode(
+                    segment.points[end],
+                    segment,
+                    provider,
+                    if (forward) segment.end else segment.start,
+                )
+            } else {
+                PolylineMiddleNode(segment.points[i], index++)
+            }
             val distance = previous.point.measureDistance(node.point)
             previous.setNext(node, distance)
             node.setNext(previous, distance)
-            if (cursor != null) {
-                if (cursor.nearest.start == previous.point && cursor.nearest.end == node.point) {
-                    cursor.initPosition(previous, node)
-                } else if (cursor.nearest.start == node.point && cursor.nearest.end == previous.point) {
-                    cursor.initPosition(node, previous)
-                }
-            }
             previous = node
             i += dir
         }
@@ -82,14 +101,14 @@ class PolylineEndNode(
         if (!hasChecked) {
             for (segment in provider(tag)) {
                 if (segment == this.segment) continue
-                expand(segment, null)
+                expand(segment)
             }
             hasChecked = true
         }
         return JunctionIterator(previous)
     }
 
-    private inner class JunctionIterator(val previous: PolylineNode,) : NeighborIterator {
+    private inner class JunctionIterator(val previous: PolylineNode) : NeighborIterator {
         var index = -1
         var nextIndex = -1
 
