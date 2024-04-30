@@ -97,7 +97,7 @@ class LocationRepositoryImpl @Inject constructor(
                     requestGPSUpdate()
                 }
             } else {
-                log(LogMessage.GPS.Start(minInterval))
+                log(LogMessage.GPS.Start(interval))
                 Timber.d("GPS start")
                 minInterval = interval
                 requestGPSUpdate()
