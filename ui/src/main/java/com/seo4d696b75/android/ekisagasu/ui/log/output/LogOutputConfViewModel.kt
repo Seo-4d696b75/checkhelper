@@ -19,15 +19,15 @@ class LogOutputConfViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val config: LogOutputConfig by lazy {
-        LogOutputConfDialogArgs.fromSavedStateHandle(savedStateHandle).config
+        LogOutputConfDialogArgs.fromSavedStateHandle(savedStateHandle).config.value
     }
 
     private val _checked = MutableStateFlow(config.extension)
     val checked = _checked
         .map {
             when (it) {
-                LogOutputExtension.txt -> R.id.radio_button_txt
-                LogOutputExtension.gpx -> R.id.radio_button_gpx
+                LogOutputExtension.TXT -> R.id.radio_button_txt
+                LogOutputExtension.GPX -> R.id.radio_button_gpx
             }
         }
         .stateIn(
@@ -39,9 +39,9 @@ class LogOutputConfViewModel @Inject constructor(
     fun onChecked(id: Int) {
         _checked.update {
             when (id) {
-                R.id.radio_button_txt -> LogOutputExtension.txt
-                R.id.radio_button_gpx -> LogOutputExtension.gpx
-                else -> LogOutputExtension.txt
+                R.id.radio_button_txt -> LogOutputExtension.TXT
+                R.id.radio_button_gpx -> LogOutputExtension.GPX
+                else -> LogOutputExtension.TXT
             }
         }
     }

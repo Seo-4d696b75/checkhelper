@@ -49,7 +49,7 @@
             app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType" />
         <argument
             android:name="info"
-            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion" />
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.update.LatestDataVersionArg" />
     </dialog>
     <action
         android:id="@+id/show_confirm_date_update_dialog"
@@ -61,7 +61,7 @@
         android:label="DataUpdateDialog">
         <argument
             android:name="info"
-            app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion" />
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.update.LatestDataVersionArg" />
         <argument
             android:name="type"
             app:argType="com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType" />
@@ -84,7 +84,7 @@
         android:label="LogOutputConfDialog">
         <argument
             android:name="config"
-            app:argType="com.seo4d696b75.android.ekisagasu.ui.log.LogOutputConfig" />
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.log.LogOutputConfigArg" />
     </dialog>
     <action
         android:id="@+id/show_log_output_config_dialog"

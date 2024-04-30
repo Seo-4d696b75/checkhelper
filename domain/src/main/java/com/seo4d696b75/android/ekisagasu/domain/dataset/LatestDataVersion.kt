@@ -9,7 +9,7 @@ data class LatestDataVersion(
     val version: Long,
     @SerialName("size")
     val length: Long,
-) : java.io.Serializable {
+) {
     fun fileSize(): String {
         var bytes = length
         if (bytes < 0) return "0 B"

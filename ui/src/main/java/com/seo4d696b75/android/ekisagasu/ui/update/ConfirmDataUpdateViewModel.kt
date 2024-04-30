@@ -18,7 +18,7 @@ class ConfirmDataUpdateViewModel @Inject constructor(
         ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
     }
 
-    val info by lazy { args.info }
+    val info by lazy { args.info.value }
 
     val type by lazy { args.type }
 

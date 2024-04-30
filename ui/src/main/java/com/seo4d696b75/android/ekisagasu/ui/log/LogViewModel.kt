@@ -74,7 +74,7 @@ class LogViewModel @Inject constructor(
             }
 
             AppLogType.Filter.Geo -> {
-                onConfigRequested(LogOutputConfig.Geo(LogOutputExtension.txt))
+                onConfigRequested(LogOutputConfig.Geo(LogOutputExtension.TXT))
             }
         }
     }
@@ -96,7 +96,7 @@ class LogViewModel @Inject constructor(
             time.format(TIME_PATTERN_DATETIME_FILE),
             config.extension.name.lowercase(),
         )
-        fileContent = if (config.extension == LogOutputExtension.gpx) {
+        fileContent = if (config.extension == LogOutputExtension.GPX) {
             gpxSerializer(
                 log = list,
                 dataVersion = dataRepository.dataVersion.value?.version ?: throw RuntimeException(),

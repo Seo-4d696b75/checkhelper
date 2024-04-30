@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.ui.permission
+package com.seo4d696b75.android.ekisagasu.ui.log
 
 import android.os.Parcel
 import android.os.Parcelable
@@ -10,19 +10,20 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Parcelize
-@TypeParceler<PermissionRationale, PermissionRationaleParceler>
-data class PermissionRationaleArg(
-    val value: PermissionRationale,
+@TypeParceler<LogOutputConfig, LogOutputConfigParceler>
+data class LogOutputConfigArg(
+    val value: LogOutputConfig,
 ) : Parcelable
 
-class PermissionRationaleParceler : Parceler<PermissionRationale> {
-    override fun create(parcel: Parcel): PermissionRationale {
+class LogOutputConfigParceler : Parceler<LogOutputConfig> {
+    override fun create(parcel: Parcel): LogOutputConfig {
         val str = requireNotNull(parcel.readString())
         return Json.decodeFromString(str)
     }
 
-    override fun PermissionRationale.write(parcel: Parcel, flags: Int) {
+    override fun LogOutputConfig.write(parcel: Parcel, flags: Int) {
         val str = Json.encodeToString(this)
         parcel.writeString(str)
     }
+
 }

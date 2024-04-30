@@ -16,7 +16,7 @@ class PermissionRationaleDialog @Inject constructor() : DialogFragment() {
 
     private val args: PermissionRationaleDialogArgs by navArgs()
     private val rationale: PermissionRationale by lazy {
-        args.rationale.rationale
+        args.rationale.value
     }
 
     private val viewModel: PermissionViewModel by activityViewModels()

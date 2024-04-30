@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateUseCase
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -33,7 +33,7 @@ class DataUpdateViewModel @Inject constructor(
         ConfirmDataUpdateDialogArgs.fromSavedStateHandle(savedStateHandle)
     }
 
-    val info by lazy { args.info }
+    val info by lazy { args.info.value }
 
     val type by lazy { args.type }
 

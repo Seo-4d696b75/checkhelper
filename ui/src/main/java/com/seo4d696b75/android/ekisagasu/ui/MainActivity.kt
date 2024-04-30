@@ -32,6 +32,7 @@ import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.update.ConfirmDataUpdateDialogDirections
 import com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateDialogDirections
+import com.seo4d696b75.android.ekisagasu.ui.update.LatestDataVersionArg
 import com.seo4d696b75.android.ekisagasu.ui.utils.navigateWhenDialogClosed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filter
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
                     is AppMessage.Data.ConfirmUpdate -> {
                         val action = ConfirmDataUpdateDialogDirections.showConfirmDateUpdateDialog(
-                            info = message.info,
+                            info = LatestDataVersionArg(message.info),
                             type = message.type,
                         )
                         findNavController(R.id.main_nav_host).navigate(action)
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity() {
 
                     is AppMessage.Data.RequestUpdate -> {
                         val action = DataUpdateDialogDirections.showDateUpdateDialog(
-                            info = message.info,
+                            info = LatestDataVersionArg(message.info),
                             type = message.type,
                         )
                         findNavController(R.id.main_nav_host).navigateWhenDialogClosed(

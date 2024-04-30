@@ -85,7 +85,9 @@ class LogFragment : Fragment() {
 
         binding.buttonWriteLog.setOnClickListener {
             viewModel.requestWriteLog {
-                val action = LogOutputConfDialogDirections.showLogOutputConfigDialog(it)
+                val action = LogOutputConfDialogDirections.showLogOutputConfigDialog(
+                    LogOutputConfigArg(it)
+                )
                 findNavController().navigate(action)
             }
         }
