@@ -81,9 +81,10 @@ fun <T, R> Flow<T>.mapLatestBySkip(
     val upstream = this
     var runningTransform: Job? = null
     return channelFlow {
+        val scope = this
         upstream.collectLatest { value ->
             runningTransform?.join()
-            runningTransform = launch {
+            runningTransform = scope.launch {
                 val result = transform(value)
                 send(result)
             }
