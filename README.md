@@ -7,7 +7,6 @@
 - ✅ [最新の駅情報](https://github.com/Seo-4d696b75/station_database)への更新機能
 - ✅ 現在位置や付近の駅の履歴を記録・閲覧
 
-
 ## 開発セットアップ
 
 ### GitHubの認証情報
@@ -35,3 +34,13 @@ token=${Githubのアクセストークン}
 - `app/gradle.properties`にパスワードを指定
     - release_keystore_pwd: keystoreのパスワード
     - release_key_pwd: key0のパスワード
+
+### GitHubActionsの設定
+
+一部の認証情報がCIでも必要になるため、対象のファイルをbase64でエンコードしてリポジトリのシークレットに登録します
+
+| name                   | file                       |  
+|------------------------|----------------------------|
+| KEYSTORE_BASE64        | `app/release.jks`          |  
+| PWD_BASE64             | `app/gradle.properties`    |  
+| GOOGLE_SERVICES_BASE64 | `app/google-services.json` |

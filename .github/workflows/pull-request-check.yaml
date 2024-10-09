@@ -28,6 +28,7 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.jks
           echo "${{ secrets.PWD_BASE64 }}" | base64 -d > app/gradle.properties
+          echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 -d > app/google-services.json
           touch github_credential.properties
           echo "username=${{ github.actor }}" >> github_credential.properties
           echo "token=${{ secrets.GITHUB_TOKEN }}" >> github_credential.properties
