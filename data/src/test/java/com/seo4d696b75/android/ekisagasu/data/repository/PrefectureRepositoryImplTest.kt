@@ -2,25 +2,24 @@
 
 package com.seo4d696b75.android.ekisagasu.data.repository
 
-import androidx.test.platform.app.InstrumentationRegistry
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.seo4d696b75.android.ekisagasu.data.station.PrefectureRepositoryImpl
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@ExperimentalCoroutinesApi
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class PrefectureRepositoryImplTest {
     private lateinit var repository: PrefectureRepository
 
     @Before
     fun setup() = runTest {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val context = ApplicationProvider.getApplicationContext<Context>()
         repository = PrefectureRepositoryImpl(context)
         repository.setData()
     }
