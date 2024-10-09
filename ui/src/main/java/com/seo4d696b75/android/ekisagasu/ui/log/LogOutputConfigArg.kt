@@ -25,5 +25,4 @@ class LogOutputConfigParceler : Parceler<LogOutputConfig> {
         val str = Json.encodeToString(this)
         parcel.writeString(str)
     }
-
 }

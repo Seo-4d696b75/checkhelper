@@ -41,16 +41,12 @@ class RadarAdapter(context: Context) : ListAdapter<NearStation, RadarAdapter.Rad
         override fun areItemsTheSame(
             oldItem: NearStation,
             newItem: NearStation,
-        ): Boolean {
-            return oldItem.station.id == newItem.station.id && oldItem.distance == newItem.distance
-        }
+        ) = oldItem.station.id == newItem.station.id && oldItem.distance == newItem.distance
 
         override fun areContentsTheSame(
             oldItem: NearStation,
             newItem: NearStation,
-        ): Boolean {
-            return oldItem == newItem
-        }
+        ) = oldItem == newItem
     }
 
     class RadarViewHolder(val binding: CellStationRadarBinding) : RecyclerView.ViewHolder(binding.root)

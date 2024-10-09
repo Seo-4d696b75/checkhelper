@@ -46,17 +46,16 @@ class LocationRepositoryImpl @Inject constructor(
     LogCollector by logger {
 
     private val locationClient = LocationServices.getFusedLocationProviderClient(context)
-    private val settingClient = LocationServices.getSettingsClient(context)
 
     private var minInterval = 0
 
-    private val _location = MutableStateFlow<Location?>(null)
+    private val locationFlow = MutableStateFlow<Location?>(null)
 
-    private val _running = MutableStateFlow(false)
+    private val runningFlow = MutableStateFlow(false)
 
-    override val currentLocation = _location.asStateFlow()
+    override val currentLocation = locationFlow.asStateFlow()
 
-    override val isRunning = _running.asStateFlow()
+    override val isRunning = runningFlow.asStateFlow()
 
     override fun onLocationResult(result: LocationResult) {
         result.lastLocation?.let {
@@ -68,7 +67,7 @@ class LocationRepositoryImpl @Inject constructor(
                 timestamp = it.time,
                 elapsedRealtimeMillis = it.elapsedRealtimeNanos / 1000_1000L,
             )
-            _location.update { model }
+            locationFlow.update { model }
         }
     }
 
@@ -87,13 +86,13 @@ class LocationRepositoryImpl @Inject constructor(
     override suspend fun startWatchCurrentLocation(interval: Int) {
         if (interval < 1) return
         try {
-            if (_running.value) {
+            if (runningFlow.value) {
                 if (interval != minInterval) {
                     log(LogMessage.GPS.IntervalChanged(minInterval, interval))
                     Timber.d("minInterval %d > %d", minInterval, interval)
                     minInterval = interval
                     removeLocationUpdate()
-                    _running.value = false
+                    runningFlow.value = false
                     requestGPSUpdate()
                 }
             } else {
@@ -124,15 +123,15 @@ class LocationRepositoryImpl @Inject constructor(
             fastestInterval = minInterval * 1000L
         }
         locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
-        _running.value = true
+        runningFlow.value = true
     }
 
     override suspend fun stopWatchCurrentLocation(): Boolean {
-        if (_running.value) {
+        if (runningFlow.value) {
             removeLocationUpdate()
             Timber.d("GPS stop")
-            _location.update { null }
-            _running.update { false }
+            locationFlow.update { null }
+            runningFlow.update { false }
             log(LogMessage.GPS.Stop)
             return true
         }

@@ -57,7 +57,6 @@ class GetNavigatorUiStateUseCase @Inject constructor(
                     },
                 )
             }
-
         }
 }
 

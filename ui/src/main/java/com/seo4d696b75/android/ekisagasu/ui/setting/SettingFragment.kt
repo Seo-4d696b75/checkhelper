@@ -142,5 +142,4 @@ class SettingFragment : Fragment() {
     }
 
     private data class NightModeTimeout(val timeout: Int, val text: String)
-
 }

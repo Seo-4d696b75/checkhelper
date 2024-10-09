@@ -26,5 +26,4 @@ class LatestDataVersionParceler : Parceler<LatestDataVersion> {
         val str = Json.encodeToString(this)
         parcel.writeString(str)
     }
-
 }

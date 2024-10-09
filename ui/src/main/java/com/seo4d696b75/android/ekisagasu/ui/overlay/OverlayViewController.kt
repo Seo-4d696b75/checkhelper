@@ -103,7 +103,9 @@ class OverlayViewController @Inject constructor(
         val keepOnLayoutParam = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
-            0, 0, layerType,
+            0,
+            0,
+            layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
@@ -117,7 +119,9 @@ class OverlayViewController @Inject constructor(
         val darkLayoutParam = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
-            0, 0, layerType,
+            0,
+            0,
+            layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -129,8 +133,11 @@ class OverlayViewController @Inject constructor(
 
         // zero size view to watch any touch event and not consume any touch event
         val touchLayoutParam = WindowManager.LayoutParams(
-            0, 0,
-            0, 0, layerType,
+            0,
+            0,
+            0,
+            0,
+            layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
@@ -161,7 +168,9 @@ class OverlayViewController @Inject constructor(
         val notificationLayoutParam = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            0, 0, layerType,
+            0,
+            0,
+            layerType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT,
@@ -267,7 +276,6 @@ class OverlayViewController @Inject constructor(
                 }
             }
         }
-
     }
 
     private var displayPrefecture: Boolean = false

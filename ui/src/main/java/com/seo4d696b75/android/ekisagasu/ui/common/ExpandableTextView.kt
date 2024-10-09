@@ -14,7 +14,6 @@ import java.lang.Float.min
 import java.util.Locale
 import kotlin.math.ceil
 
-
 /**
  * 文字列の長さに応じてViewの横幅や文字列の横方向の比率を動的に制御できるTextViewの拡張.
  *
@@ -39,20 +38,15 @@ import kotlin.math.ceil
  */
 class ExpandableTextView : AppCompatTextView {
 
-    constructor(context: Context) : this(context, null) {
+    constructor(context: Context) : this(context, null) {}
 
-    }
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0) {
-
-    }
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0) {}
 
     constructor(context: Context, attrs: AttributeSet?, defaultAttr: Int) : super(
         context,
         attrs,
         0
     ) {
-
         val array = context.obtainStyledAttributes(
             attrs,
             R.styleable.ExpandableTextView,
@@ -88,7 +82,6 @@ class ExpandableTextView : AppCompatTextView {
 
     private var _currentText: CharSequence
     private var _displayedText: CharSequence
-
 
     /**
      * このViewが表示するよう指定されている文字列を取得する
@@ -129,9 +122,9 @@ class ExpandableTextView : AppCompatTextView {
                 if (MeasureSpec.getMode(rawWidthMeasureSpec) == MeasureSpec.EXACTLY) {
                     // no layout() needed
                     updateText(
-                        _currentText, BufferType.NORMAL, MeasureSpec.getSize(
-                            rawWidthMeasureSpec
-                        )
+                        _currentText,
+                        BufferType.NORMAL,
+                        MeasureSpec.getSize(rawWidthMeasureSpec),
                     )
                 } else {
                     // has to measure again
@@ -142,7 +135,7 @@ class ExpandableTextView : AppCompatTextView {
         }
 
     override fun setText(text: CharSequence?, type: BufferType?) {
-        //#setText(char[], int, int) <- finalでオーバーライド不可
+        // #setText(char[], int, int) <- finalでオーバーライド不可
         //           以外はここを経由している
         val value = text ?: ""
         if (_currentText == value) return
@@ -157,7 +150,6 @@ class ExpandableTextView : AppCompatTextView {
         }
     }
 
-
     // 必要に応じて文字列を伸縮させたり代替文字列に置換する
     private fun updateText(original: CharSequence, type: BufferType, widthSize: Int) {
         var text = original
@@ -171,7 +163,6 @@ class ExpandableTextView : AppCompatTextView {
         _displayedText = text
         super.setText(text, type)
     }
-
 
     /**
      * 指定された最大幅に合うように文字列を横方向へ収縮させる.
@@ -328,20 +319,22 @@ class ExpandableTextView : AppCompatTextView {
 
     override fun toString(): String {
         return String.format(
-            Locale.US, "ExpandableTextView@%x{displayed:\"%s\",text:\"%s\",textScaleX=%.2f}",
+            Locale.US,
+            "ExpandableTextView@%x{displayed:\"%s\",text:\"%s\",textScaleX=%.2f}",
             System.identityHashCode(this),
-            _displayedText, _currentText, textPaint.textScaleX
+            _displayedText,
+            _currentText,
+            textPaint.textScaleX,
         )
     }
 
     @Deprecated(
         "textScaleX is adjusted automatically",
-        ReplaceWith("// Do not call ExpandableTextView#setTextScaleX(Float)")
+        ReplaceWith("// Do not call ExpandableTextView#setTextScaleX(Float)"),
     )
     override fun setTextScaleX(size: Float) {
         Timber.tag("ExpandableTextView").w("textScaleX is adjusted automatically, so DO NOT set manually")
     }
-
 
     internal class SavedState : BaseSavedState {
         constructor(superState: Parcelable?) : super(superState) {}
@@ -365,7 +358,8 @@ class ExpandableTextView : AppCompatTextView {
             return String.format(
                 Locale.US,
                 "ExpandableTextView#SavedState{%s text:%s}",
-                Integer.toHexString(System.identityHashCode(this)), mText
+                Integer.toHexString(System.identityHashCode(this)),
+                mText,
             )
         }
 
@@ -399,5 +393,4 @@ class ExpandableTextView : AppCompatTextView {
         _maxWidth = myState.mMaxWidth
         setText(myState.mText)
     }
-
 }

@@ -34,5 +34,5 @@ ktlint_standard_trailing-comma-on-declaration-site = disabled
 ktlint_standard_function-signature = disabled
 ktlint_standard_class-signature = disabled
 
-ktlint_standard_property-naming = enabled
+ktlint_standard_property-naming = disabled
 ktlint_standard_function-expression-body = enabled

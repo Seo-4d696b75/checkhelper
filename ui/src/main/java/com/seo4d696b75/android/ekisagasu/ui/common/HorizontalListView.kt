@@ -7,30 +7,24 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-
 /**
  * @author Seo-4d696b75
  * @version 2018/10/31.
  */
 class HorizontalListView : RecyclerView {
 
+    constructor(context: Context) : this(context, null) {}
 
-    constructor(context: Context) : this(context, null) {
-    }
-
-    constructor(context: Context, set: AttributeSet?) : this(context, set, 0) {
-    }
+    constructor(context: Context, set: AttributeSet?) : this(context, set, 0) {}
 
     constructor(context: Context, set: AttributeSet?, defaultAttr: Int) : super(
         context,
         set,
         defaultAttr
     ) {
-
         val manager = LinearLayoutManager(context)
         manager.orientation = LinearLayoutManager.HORIZONTAL
         layoutManager = manager
-
     }
 
     private var listener: OnItemClickListener? = null
@@ -62,7 +56,7 @@ class HorizontalListView : RecyclerView {
 
     private class SimpleViewHolder(
         view: View
-    ) : ViewHolder(view) {}
+    ) : ViewHolder(view)
 
     abstract class ArrayAdapter<E> : Adapter<ViewHolder> {
 
@@ -119,9 +113,7 @@ class HorizontalListView : RecyclerView {
             }
         }
 
-        override fun getItemCount(): Int {
-            return list.size
-        }
+        override fun getItemCount() = list.size
 
         override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
             super.onDetachedFromRecyclerView(recyclerView)
@@ -129,9 +121,7 @@ class HorizontalListView : RecyclerView {
             views.clear()
             listener = null
         }
-
     }
-
 }
 
 typealias OnItemSelectedListener<E> = (view: View, data: E, position: Int) -> Unit

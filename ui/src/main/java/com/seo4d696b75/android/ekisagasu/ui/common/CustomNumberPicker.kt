@@ -14,7 +14,6 @@ import java.lang.Integer.min
 import kotlin.math.abs
 import kotlin.math.pow
 
-
 /**
  * 負数まで拡張した整数全体を表示・選択できる[android.widget.NumberPicker]の拡張View
  *
@@ -40,7 +39,6 @@ open class CustomNumberPicker : NumberPicker {
     }
 
     private fun init(context: Context, set: AttributeSet?, defaultAttr: Int) {
-
         val array =
             context.obtainStyledAttributes(set, R.styleable.CustomNumberPicker, defaultAttr, 0)
         min = array.getInteger(R.styleable.CustomNumberPicker_min, 0)
@@ -53,7 +51,6 @@ open class CustomNumberPicker : NumberPicker {
         array.recycle()
         setValues(false)
         setValue(value)
-
     }
 
     private var min: Int = 0
@@ -85,17 +82,17 @@ open class CustomNumberPicker : NumberPicker {
         if (keepValue) {
             value = this.displayedValue
         }
-        //最大最小の逆転を修正
+        // 最大最小の逆転を修正
         if (min > max) {
             val temp: Int = min
             min = max
             max = temp
         }
-        //ステップ
+        // ステップ
         if (step <= 0 || step > max - min) {
             step = 1
         }
-        //最大最小をステップに合わせる、つまり上限下限と同じ扱いにする
+        // 最大最小をステップに合わせる、つまり上限下限と同じ扱いにする
         if (max > 0) {
             max = max / step * step
         } else if (max < 0) {
@@ -106,7 +103,7 @@ open class CustomNumberPicker : NumberPicker {
         } else if (min < 0) {
             min = -(-min / step) * step
         }
-        //空集合の場合は初期値に変更
+        // 空集合の場合は初期値に変更
         if (min > max) {
             min = 0
             max = if (step > 100) step else 100
@@ -144,7 +141,8 @@ open class CustomNumberPicker : NumberPicker {
     }
 
     @Deprecated(
-        "returned value is not the displayed value, but an index of current displayed value, use 'displayedValue' instead",
+        """returned value is not the displayed value,
+            but an index of current displayed value, use 'displayedValue' instead.""",
         ReplaceWith("displayedValue")
     )
     override fun getValue(): Int {
@@ -206,7 +204,6 @@ open class CustomNumberPicker : NumberPicker {
     override fun setMaxValue(maxValue: Int) {
         displayedMaxValue = maxValue
     }
-
 
     @Deprecated(
         "returned value is max index of displayed values, use 'displayedMaxValue' instead",
@@ -286,12 +283,14 @@ open class CustomNumberPicker : NumberPicker {
                 val index = shiftRate.pow(section)
                 currentSpeed = speed * index
             }
+
             MotionEvent.ACTION_MOVE -> {
                 val currentMoveY = event.y
                 val deltaMoveY = ((currentMoveY - lastYPos) * (currentSpeed - 1f)).toInt()
                 super.scrollBy(0, deltaMoveY)
                 lastYPos = currentMoveY
             }
+
             else -> {
             }
         }
@@ -375,6 +374,4 @@ open class CustomNumberPicker : NumberPicker {
         value = myState.value
         requestLayout()
     }
-
-
 }

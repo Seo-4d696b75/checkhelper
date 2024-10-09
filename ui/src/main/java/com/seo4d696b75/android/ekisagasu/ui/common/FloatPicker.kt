@@ -33,7 +33,6 @@ class FloatPicker : CustomNumberPicker {
     }
 
     private fun init(context: Context, set: AttributeSet?, defaultAttr: Int) {
-
         val array = context.obtainStyledAttributes(set, R.styleable.FloatPicker, defaultAttr, 0)
         max = array.getFloat(R.styleable.FloatPicker_maxFloat, 10f)
         min = array.getFloat(R.styleable.FloatPicker_minFloat, 0f)
@@ -43,7 +42,6 @@ class FloatPicker : CustomNumberPicker {
         super.stepValue = 1
         stepFloat = step
     }
-
 
     private var step = 0f
     private var min = 0f
@@ -202,7 +200,6 @@ class FloatPicker : CustomNumberPicker {
         return super.getMinValue()
     }
 
-
     class SavedState : BaseSavedState {
         constructor(superState: Parcelable?) : super(
             superState
@@ -254,7 +251,7 @@ class FloatPicker : CustomNumberPicker {
     }
 
     override fun onSaveInstanceState(): Parcelable {
-        //setFreezesText(true);
+        // setFreezesText(true);
         val superState = super.onSaveInstanceState()
         val state = SavedState(superState)
         state.value = valueFloat
@@ -276,5 +273,4 @@ class FloatPicker : CustomNumberPicker {
     }
 }
 
-typealias OnFloatValueChangedListener =
-            (picker: FloatPicker, oldValue: Float, newValue: Float) -> Unit
+typealias OnFloatValueChangedListener = (picker: FloatPicker, oldValue: Float, newValue: Float) -> Unit

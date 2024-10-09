@@ -30,18 +30,18 @@ import kotlin.math.sin
 class KdTree @Inject constructor(
     private val repository: DataRepository,
 ) : NearestSearch {
-    private var _root: Node? = null
+    private var root: Node? = null
 
     // mutex lock obj when checking and loading tree-segment data, in order to avoid duplicated operations
     private val lock = Mutex()
 
     private suspend fun getRoot(): Node =
         lock.withLock {
-            _root ?: run {
+            root ?: run {
                 val data = repository.getStationKdTree()
                 val map = data.nodes.associateBy { it.code }
                 val node = Node.build(0, data.root, map)
-                _root = node
+                root = node
                 node
             }
         }

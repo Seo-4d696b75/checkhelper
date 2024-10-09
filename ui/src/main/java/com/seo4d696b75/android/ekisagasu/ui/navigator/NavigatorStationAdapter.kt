@@ -39,30 +39,25 @@ class NavigatorStationAdapter(
         override fun areItemsTheSame(
             oldItem: NavigatorStationUiState,
             newItem: NavigatorStationUiState,
-        ): Boolean {
-            return when {
-                oldItem is NavigatorStationUiState.Current &&
-                    newItem is NavigatorStationUiState.Current -> {
-                    oldItem.station.id == newItem.station.id
-                }
-
-                oldItem is NavigatorStationUiState.Prediction &&
-                    newItem is NavigatorStationUiState.Prediction -> {
-                    oldItem.station.id == newItem.station.id &&
-                        oldItem.distance == newItem.distance
-                }
-
-                else -> false
+        ) = when {
+            oldItem is NavigatorStationUiState.Current &&
+                newItem is NavigatorStationUiState.Current -> {
+                oldItem.station.id == newItem.station.id
             }
+
+            oldItem is NavigatorStationUiState.Prediction &&
+                newItem is NavigatorStationUiState.Prediction -> {
+                oldItem.station.id == newItem.station.id &&
+                    oldItem.distance == newItem.distance
+            }
+
+            else -> false
         }
 
         override fun areContentsTheSame(
             oldItem: NavigatorStationUiState,
             newItem: NavigatorStationUiState,
-        ): Boolean {
-            return oldItem == newItem
-        }
-
+        ) = oldItem == newItem
     }
 
     class NavigatorStationViewHolder(

@@ -40,9 +40,9 @@ class LogRepositoryImpl @Inject constructor(
 ) : LogRepository {
 
     private lateinit var reboot: AppRebootEntity
-    private val _target = MutableStateFlow<AppLogTarget?>(null)
+    private val targetFlow = MutableStateFlow<AppLogTarget?>(null)
 
-    private var _hasError = false
+    private var hasError = false
 
     override suspend fun write(
         type: AppLogType,
@@ -50,7 +50,7 @@ class LogRepositoryImpl @Inject constructor(
         isError: Boolean,
     ) = withContext(Dispatchers.IO) {
         val log = AppLogEntity(type, message)
-        _hasError = _hasError || isError
+        hasError = hasError || isError
         dao.insertLog(log)
     }
 
@@ -67,13 +67,13 @@ class LogRepositoryImpl @Inject constructor(
         }
     }
 
-    override val target = _target.filterNotNull()
+    override val target = targetFlow.filterNotNull()
 
     override fun setTarget(target: AppLogTarget) {
-        _target.update { target }
+        targetFlow.update { target }
     }
 
-    override val logs = _target
+    override val logs = targetFlow
         .filterNotNull()
         .flatMapLatest { target ->
             dao.getLogs(target.range.first, target.range.last)
@@ -88,7 +88,7 @@ class LogRepositoryImpl @Inject constructor(
         val log = AppLogEntity(AppLogType.System, mes)
         dao.insertRebootLog(log)
         val current = dao.getCurrentReboot()
-        _target.update {
+        targetFlow.update {
             AppLogTarget(
                 id = current.id,
                 range = current.id..Long.MAX_VALUE,
@@ -101,7 +101,7 @@ class LogRepositoryImpl @Inject constructor(
     }
 
     override suspend fun onAppFinish() = withContext(Dispatchers.IO) {
-        if (_hasError) {
+        if (hasError) {
             writeErrorLog(
                 config.appName,
                 context.getExternalFilesDir(null),
@@ -109,7 +109,7 @@ class LogRepositoryImpl @Inject constructor(
         }
         val log = AppLogEntity(AppLogType.System, context.getString(R.string.log_message_fin_app))
         dao.insertLog(log)
-        dao.writeFinish(log.timestamp, _hasError)
+        dao.writeFinish(log.timestamp, hasError)
     }
 
     private suspend fun writeErrorLog(

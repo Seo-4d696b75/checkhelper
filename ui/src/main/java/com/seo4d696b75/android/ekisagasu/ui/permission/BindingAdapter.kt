@@ -14,9 +14,15 @@ fun setPermissionRationale(
 ) {
     view.text = when (rationale) {
         null -> ""
-        is PermissionRationale.LocationPermission -> view.context.getString(R.string.dialog_location_permission_rationale)
-        is PermissionRationale.NotificationPermission -> view.context.getString(R.string.dialog_notification_permission_rationale)
-        PermissionRationale.NotificationChannel -> view.context.getString(R.string.dialog_notification_permission_rationale)
+        is PermissionRationale.LocationPermission ->
+            view.context.getString(R.string.dialog_location_permission_rationale)
+
+        is PermissionRationale.NotificationPermission ->
+            view.context.getString(R.string.dialog_notification_permission_rationale)
+
+        PermissionRationale.NotificationChannel ->
+            view.context.getString(R.string.dialog_notification_permission_rationale)
+
         PermissionRationale.DrawOverlay -> view.context.getString(R.string.dialog_draw_overlay_rationale)
     }
 }

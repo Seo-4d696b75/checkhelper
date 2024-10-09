@@ -4,16 +4,15 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.seo4d696b75.android.ekisagasu.ui.R
-import dagger.hilt.android.AndroidEntryPoint
 import com.seo4d696b75.android.ekisagasu.ui.common.LineAdapter
 import com.seo4d696b75.android.ekisagasu.ui.databinding.DialogSelectLineBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
@@ -95,4 +94,3 @@ class LineSelectDialog : DialogFragment() {
         return builder.create()
     }
 }
-

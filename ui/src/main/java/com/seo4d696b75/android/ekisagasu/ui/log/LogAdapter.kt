@@ -36,15 +36,11 @@ class LogAdapter(context: Context) : ListAdapter<AppLog, LogAdapter.LogViewHolde
         override fun areItemsTheSame(
             oldItem: AppLog,
             newItem: AppLog,
-        ): Boolean {
-            return oldItem.id == newItem.id
-        }
+        ) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: AppLog,
             newItem: AppLog,
-        ): Boolean {
-            return oldItem == newItem
-        }
+        ) = oldItem == newItem
     }
 }

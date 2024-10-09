@@ -48,15 +48,11 @@ class HistoryAdapter(context: Context) :
         override fun areItemsTheSame(
             oldItem: AppLogTarget,
             newItem: AppLogTarget,
-        ): Boolean {
-            return oldItem.id == newItem.id
-        }
+        ) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: AppLogTarget,
             newItem: AppLogTarget,
-        ): Boolean {
-            return oldItem == newItem
-        }
+        ) = oldItem == newItem
     }
 }
