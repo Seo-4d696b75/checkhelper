@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="log_message_start_app">アプリを開始します %s</string>
+    <string name="log_message_fin_app">アプリを終了します</string>
+
+    <!-- GPS location provider -->
+    <string name="log_message_gps_start">GPSを開始 > 最短更新間隔: %1$d 秒</string>
+    <string name="log_message_gps_min_interval">GPSの最短更新間隔を変更 %1$d > %2$d 秒</string>
+    <string name="log_message_gps_end">GPSを停止しました</string>
+    <string name="log_message_gps_start_failure">GPSを開始できません</string>
+    <string name="log_message_gps_permission_not_granted">位置情報の権限が許可されていません</string>
+    <string name="log_message_gps_resolvable_exception">GPSによる現在値取得に追加の操作が必要です</string>
+
+    <!-- 駅データ -->
+    <string name="log_message_need_data_download">データのダウンロードが必要です version:%1$d</string>
+    <string name="log_message_saved_data_found">保存されたデータがあります version:%1$d</string>
+    <string name="log_message_latest_data_found">新しいデータが見つかりました version:%1$d</string>
+    <string name="log_message_latest_check_failure">最新データのバージョン確認に失敗</string>
+    <string name="log_message_success_data_update">データ更新に成功しました</string>
+    <string name="log_message_fail_data_update">データ更新に失敗しました</string>
+
+    <!-- 通知チャネル -->
+    <string name="notification_channel_name">メイン通知</string>
+    <string name="notification_channel_description">現在地から最も近い駅の情報など探索の状況を表示します. この通知はバックグラウンドで探索処理を実行する間は常に表示されます.</string>
+</resources>

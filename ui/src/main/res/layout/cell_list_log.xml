@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="data"
+            type="com.seo4d696b75.android.ekisagasu.domain.log.AppLog" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="1dp"
+        android:paddingBottom="2dp">
+
+        <TextView
+            android:id="@+id/text_log_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="13sp"
+            app:formatDateMilliSec="@{data.timestamp}" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:id="@+id/text_log_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{data.message}"
+            android:textColor="@color/colorText"
+            android:textSize="13sp" />
+    </LinearLayout>
+</layout>

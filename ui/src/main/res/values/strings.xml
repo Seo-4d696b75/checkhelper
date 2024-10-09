@@ -1,0 +1,129 @@
+<resources>
+    <!-- TODO defined in BuildConfig -->
+    <string name="map_url">https://seo-4d696b75.github.io/ekisagasu/#/</string>
+
+    <!-- data update -->
+    <string name="dialog_title_init_data">駅データの初期化</string>
+    <string name="dialog_message_init_data">このアプリには駅データが必要です.データをダウンロードしてアプリを利用しますか？</string>
+    <string name="dialog_title_update_data">駅データの更新</string>
+    <string name="dialog_title_latest_data">駅データの更新</string>
+    <string name="dialog_button_positive">OK</string>
+    <string name="dialog_button_negative">キャンセル</string>
+    <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
+    <string name="update_state_download">データをダウンロード&#8230; %1$d%%</string>
+    <string name="update_state_save">データを保存しています&#8230;</string>
+
+    <!-- data version -->
+    <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
+    <string name="message_network_failure">ネットワークから情報を利用できません</string>
+    <string name="message_success_data_update">データの更新が完了しました</string>
+    <string name="message_fail_data_update">データの更新に失敗しました</string>
+    <string name="message_fail_data_initialize">データの初期化に失敗しました</string>
+    <string name="message_version_up_to_date">既に最新バージョンです</string>
+    <string name="text_data_version">バージョン: %1$d</string>
+    <string name="text_data_updated_at">更新日時: %1$s</string>
+    <string name="text_data_size">データ: %1$s</string>
+
+    <!-- PermissionRationaleDialog -->
+    <string name="dialog_title_permission">権限リクエスト</string>
+    <string name="dialog_button_next">次へ</string>
+    <string name="dialog_button_finish_app">終了</string>
+    <string name="dialog_location_permission_rationale">現在位置と付近の駅を探すために高精度な位置情報の取得が必要です。</string>
+    <string name="dialog_notification_permission_rationale">バッググランドで現在位置を取得するために通知の表示が必要です。</string>
+    <string name="dialog_draw_overlay_rationale">近くの駅が変化したときプッシュ通知を表示するため、他のアプリの上にも表示できる権限が必要です。</string>
+    <string name="dialog_location_permission_request_dialog">「次へ」をタップすると権限ダイアログが開くので、「アプリの使用中のみ許可」を選択してください。権限を許可しない場合はアプリを終了します。</string>
+    <string name="dialog_location_permission_request_setting">「次へ」をタップするとアプリ設定画面が開くので「権限」>「位置情報」を選択して\n<ul><li>「アプリの使用中のみ許可」を選択する</li>\n<li>「正確な位置情報を使用」を有効化する</li></ul>\nの２点を確認してください。権限を許可しなかった場合はアプリを終了します。</string>
+    <string name="dialog_notification_permission_request_dialog">「次へ」をタップすると権限ダイアログが開くので、「許可」を選択してください。権限を許可しない場合はアプリを終了します。</string>
+    <string name="dialog_notification_permission_request_setting">「次へ」をタップするとアプリの通知設定画面が開くので、権限を許可してください。権限を許可しない場合はアプリを終了します。</string>
+    <string name="dialog_notification_channel_request">「次へ」をタップするとアプリの通知設定画面が開くので、「メイン通知」を有効化してください。権限を有効化しない場合はアプリを終了します。</string>
+    <string name="dialog_draw_overlay_request">「次へ」をタップすると「他のアプリの上に重ねて表示」の設定画面が開くので、アプリ一覧から「駅サガース」を有効化してください。権限を有効化しない場合はアプリを終了します。</string>
+    <string name="dialog_guide_image_caption">＊端末やOSバージョンによっては見た目が異なります</string>
+
+
+    <!-- notification -->
+    <string name="notification_action_exit">探索の終了</string>
+    <string name="notification_action_timer">5分タイマー</string>
+    <string name="notification_title_wait">検索の開始を待っています</string>
+    <string name="notification_message_wait">タップして検索を開始します</string>
+    <string name="notification_title_start">検索を開始しています</string>
+    <string name="notification_message_start">付近の駅を探しています&#8230;</string>
+    <string name="notification_time_now">数秒前</string>
+    <string name="notification_time_sec">数十秒前</string>
+    <string name="notification_time_min">分前</string>
+    <string name="main_message_wait_search">検索を待機しています</string>
+    <string name="main_message_starting_search">周辺の駅を探してます</string>
+
+    <!-- finish app -->
+    <string name="message_stop_search">探索を終了しました</string>
+    <string name="message_permission_denied">権限が許可されませんでした</string>
+
+    <!-- setting -->
+    <string name="setting_title_freq">探索頻度</string>
+    <string name="setting_mes_freq">位置情報を更新する最短間隔を秒単位で指定します. 間隔を短くすると更新が早くなりますが電力消費も増加します.</string>
+    <string name="setting_title_radar">周辺駅</string>
+    <string name="setting_mes_radar">探知する周辺駅の数を指定できます. 探知された駅は現在地から近い順に表示されますが距離計算の精度によって変化することがあります.</string>
+    <string name="setting_title_notification">プッシュ通知</string>
+    <string name="setting_mes_notification">最寄り駅の変更を検知すると通知を表示します. 他のアプリ操作中も画面上にオーバレイします. </string>
+    <string name="setting_title_force_notify">強制通知モード</string>
+    <string name="setting_mes_force_notify">スリープ中でも画面を点灯して表示します. ただしロックスクリーンが有効な場合はユーザによる解除操作が必要です.</string>
+    <string name="setting_title_vibe">バイブレータ</string>
+    <string name="setting_mes_vibe">最寄り駅の変更を検知するとバイブレータで知らせます.</string>
+    <string name="setting_title_data">駅データ</string>
+    <string name="setting_title_notify_stationary">常駐モード</string>
+    <string name="setting_mes_notify_stationary">通知を常時画面上部に表示させます. </string>
+    <string name="setting_title_notify_prefecture">都道府県の表示</string>
+    <string name="setting_mes_notify_prefecture">通知に駅が所在する都道府県を表示させます.</string>
+    <string name="setting_title_meter">接近距離</string>
+    <string name="setting_mes_meter">路線案内モード中において次の駅までの距離(m)が指定値以下になるとバイブレータを鳴らします.</string>
+    <string name="setting_title_night">夜間モード</string>
+    <string name="setting_mes_night">画面の輝度を強制的に下げます. ただし画面上部のステータスバーや下部のナビゲーションバーなどシステムUI上には影響しません.</string>
+    <string name="setting_title_night_switch">夜間モードの自動切替</string>
+    <string name="setting_mes_night_select">選択</string>
+    <string name="setting_mes_night_switch_always">常に有効化</string>
+    <string name="setting_mes_night_switch">操作がない状態で%1$d後に有効化</string>
+    <string name="setting_title_brightness">あかるさ</string>
+    <string name="setting_mes_brightness_sample">サンプル</string>
+    <string name="setting_mes_brightness">画面の暗さを調整します.</string>
+    <string name="setting_mes_brightness_dart">暗</string>
+    <string name="setting_mes_brightness_bright">明</string>
+    <string name="setting_mes_update_data">更新</string>
+
+    <!-- log -->
+    <string name="title_log_since">表示期間</string>
+    <string name="title_log_filter">フィルター</string>
+    <string name="dialog_title_history">アプリ使用履歴</string>
+    <string name="dialog_message_history">ログを表示する期間を選択してください</string>
+    <string name="app_history_has_error">Error</string>
+    <string name="app_history_running">Running</string>
+    <string name="dialog_log_output_config_title">ログ出力</string>
+    <string name="dialog_log_output_config_message">出力するファイル形式を指定できます</string>
+    <string name="dialog_log_output_config_txt_description">1行ごとにログを出力します</string>
+    <string name="dialog_log_output_config_gpx_description">GPSデータ専用のXML Schemaです</string>
+    <string name="file_extension_txt">.txt</string>
+    <string name="file_extension_gpx">.gpx</string>
+
+    <!-- other -->
+    <string name="no_selected_line">選択なし</string>
+    <string name="dialog_title_select_line">路線選択</string>
+    <string name="dialog_message_select_line">現在乗車中の路線を選択します.</string>
+    <string name="dialog_message_select_navigation">案内する路線を選択します.</string>
+    <string name="dialog_button_cancel">キャンセル</string>
+    <string name="dialog_button_unregister">解除</string>
+    <string name="navigation_unsupported">この路線は対応していません</string>
+    <string name="timer_title">5分タイマー</string>
+    <string name="timer_wait_message">まだ５分経過してません</string>
+    <string name="timer_set_message">５分タイマーをセット</string>
+    <string name="navigation_wait">探索中…</string>
+    <string name="time_unit_sec">秒</string>
+    <string name="time_unit_min">分</string>
+    <string name="time_unit_hour">時間</string>
+    <string name="title_nearest_station">最寄駅の情報</string>
+    <string name="title_detail_line">路線詳細</string>
+    <string name="title_detail_list_station">登録駅一覧</string>
+    <string name="title_detail_station">駅詳細</string>
+    <string name="title_detail_station_prefecture">所在：</string>
+    <string name="title_detail_station_location">場所：</string>
+    <string name="title_line_list">登録路線一覧</string>
+    <string name="title_radar_list">周辺駅</string>
+
+</resources>

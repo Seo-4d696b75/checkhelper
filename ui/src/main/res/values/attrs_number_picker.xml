@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomNumberPicker">
+        <attr name="max" format="integer"/>
+        <attr name="min" format="integer"/>
+        <attr name="step" format="integer"/>
+        <attr name="value" format="integer"/>
+        <attr name="scrollSpeed" format="float"/>
+        <attr name="speedShiftPoint" format="integer"/>
+        <attr name="speedShiftRate" format="float"/>
+    </declare-styleable>
+</resources>

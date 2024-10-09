@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="StationNameView">
+        <attr name="nameTextColor" format="color" />
+        <attr name="kanaTextColor" format="color" />
+        <attr name="nameTextSize" format="dimension" />
+        <attr name="kanaTextSize" format="dimension" />
+    </declare-styleable>
+</resources>

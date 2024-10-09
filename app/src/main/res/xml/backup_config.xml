@@ -4,6 +4,9 @@
         domain="sharedpref"
         path="." />
     <exclude
+        domain="sharedpref"
+        path="permission_datastore.xml" />
+    <exclude
         domain="external"
         path="."
         tools:ignore="FullBackupContent" />

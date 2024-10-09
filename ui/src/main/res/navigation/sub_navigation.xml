@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sub_navigation"
+    app:startDestination="@id/radar_fragment">
+
+    <fragment
+        android:id="@+id/radar_fragment"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.top.radar.RadarFragment"
+        android:label="RadarFragment">
+        <action
+            android:id="@+id/goto_station_screen"
+            app:destination="@id/station_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/station_fragment"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.top.station.StationFragment"
+        android:label="StationFragment">
+        <argument
+            android:name="stationCode"
+            app:argType="integer" />
+        <action
+            android:id="@+id/goto_line_screen"
+            app:destination="@id/line_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/line_fragment"
+        android:name="com.seo4d696b75.android.ekisagasu.ui.top.line.LineFragment"
+        android:label="LineFragment">
+        <argument
+            android:name="lineCode"
+            app:argType="integer" />
+        <action
+            android:id="@+id/goto_station_screen"
+            app:destination="@id/station_fragment" />
+    </fragment>
+
+    <action
+        android:id="@+id/back_radar_screen"
+        app:destination="@id/radar_fragment"
+        app:popUpTo="@id/sub_navigation"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/goto_station_screen_from_top"
+        app:destination="@id/station_fragment" />
+    <action
+        android:id="@+id/goto_line_screen_from_top"
+        app:destination="@id/line_fragment" />
+</navigation>

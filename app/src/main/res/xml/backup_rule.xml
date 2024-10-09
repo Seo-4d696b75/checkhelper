@@ -4,11 +4,17 @@
         <include
             domain="sharedpref"
             path="." />
+        <exclude
+            domain="sharedpref"
+            path="permission_datastore.xml" />
     </cloud-backup>
     <device-transfer>
         <include
             domain="sharedpref"
             path="." />
+        <exclude
+            domain="sharedpref"
+            path="permission_datastore.xml" />
         <include
             domain="database"
             path="." />
