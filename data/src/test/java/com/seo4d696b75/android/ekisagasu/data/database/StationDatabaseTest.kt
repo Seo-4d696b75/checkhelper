@@ -1,7 +1,9 @@
 package com.seo4d696b75.android.ekisagasu.data.database
 
+import android.content.Context
 import androidx.room.Room
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
 import com.seo4d696b75.android.ekisagasu.data.database.station.LineEntity
 import com.seo4d696b75.android.ekisagasu.data.database.station.StationDatabase
@@ -10,16 +12,13 @@ import com.seo4d696b75.android.ekisagasu.data.fakeLatestInfo
 import com.seo4d696b75.android.ekisagasu.data.fakeLines
 import com.seo4d696b75.android.ekisagasu.data.fakeStations
 import com.seo4d696b75.android.ekisagasu.data.fakeTree
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@ExperimentalCoroutinesApi
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class StationDatabaseTest {
     private val info by fakeLatestInfo
     private val stations by fakeStations
@@ -29,7 +28,7 @@ class StationDatabaseTest {
 
     @Before
     fun setup() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val context = ApplicationProvider.getApplicationContext<Context>()
         stationDB = Room
             .databaseBuilder(context, StationDatabase::class.java, "station_db")
             .allowMainThreadQueries()

@@ -1,13 +1,14 @@
 package com.seo4d696b75.android.ekisagasu.data.database
 
+import android.content.Context
 import androidx.room.Room
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
 import com.seo4d696b75.android.ekisagasu.data.database.user.AppLogEntity
 import com.seo4d696b75.android.ekisagasu.data.database.user.AppRebootEntity
 import com.seo4d696b75.android.ekisagasu.data.database.user.UserDatabase
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -17,17 +18,15 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 @Ignore("Localだと通るがGithubActionsだと落ちる")
-@ExperimentalCoroutinesApi
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class UserDatabaseTest {
     private lateinit var userDB: UserDatabase
 
     @Before
     fun setup() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val context = ApplicationProvider.getApplicationContext<Context>()
         userDB = Room
             .databaseBuilder(context, UserDatabase::class.java, "user_db")
             .allowMainThreadQueries()
