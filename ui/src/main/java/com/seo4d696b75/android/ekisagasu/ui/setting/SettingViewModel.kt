@@ -63,13 +63,14 @@ class SettingViewModel @Inject constructor(
         SettingState.fromUserSetting(UserSetting(), false),
     )
 
-    fun updateState(producer: (SettingState) -> SettingState) =
+    fun updateState(producer: (SettingState) -> SettingState) = viewModelScope.launch {
         settingRepository.update {
             val old = SettingState.fromUserSetting(it, appStateRepository.nightMode.value)
             val value = producer(old)
             appStateRepository.setNightMode(value.isNightMode)
             value.toUserSetting()
         }
+    }
 }
 
 data class SettingState(
