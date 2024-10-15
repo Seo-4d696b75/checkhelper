@@ -14,11 +14,14 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.databinding.OverlayNavigatorBinding
 import com.seo4d696b75.android.ekisagasu.ui.utils.setAnimationListener
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -90,7 +93,7 @@ class NavigatorViewController @Inject constructor(
         }
         binding.buttonNavigatorStop.setOnClickListener {
             searchRepository.clearLine()
-            navigator.setLine(null)
+            navigator.stop()
         }
         binding.buttonNavigatorSelectLine.setOnClickListener {
             val intent = Intent(context, MainActivity::class.java).apply {
@@ -119,8 +122,10 @@ class NavigatorViewController @Inject constructor(
         owner.lifecycleScope.launch {
             launch {
                 navigator
-                    .isRunning
+                    .state
                     .flowWithLifecycle(owner.lifecycle)
+                    .map { it is NavigatorState.Running }
+                    .distinctUntilChanged()
                     .collect {
                         if (it) {
                             start()

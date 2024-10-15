@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.Flow
  * @version 2021/03/05.
  */
 interface NavigatorRepository {
-    val state: Flow<NavigatorState?>
-    val line: Flow<Line?>
+    val state: Flow<NavigatorState>
+    fun start(line: Line)
+    fun stop()
 
     // TODO 画面遷移の引数で渡せばflowのみの公開で済む？
     val currentLine: Line?
-    val isRunning: Flow<Boolean>
-    fun setLine(line: Line?)
 }

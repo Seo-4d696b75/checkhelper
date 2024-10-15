@@ -5,6 +5,7 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
 
@@ -12,11 +13,12 @@ class GetNavigatorUiStateUseCase @Inject constructor(
     private val navigator: NavigatorRepository,
     private val dataRepository: DataRepository,
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke() = navigator
         .state
         .mapLatest { state ->
             when (state) {
-                null -> NavigatorUiState.Idle
+                NavigatorState.Idle -> NavigatorUiState.Idle
                 is NavigatorState.Initializing -> NavigatorUiState.Initializing(state.line)
                 is NavigatorState.Result -> NavigatorUiState.Result(
                     line = state.line,

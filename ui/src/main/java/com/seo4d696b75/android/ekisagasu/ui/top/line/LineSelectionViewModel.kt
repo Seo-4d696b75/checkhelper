@@ -83,6 +83,10 @@ class LineSelectionViewModel @Inject constructor(
 
     fun selectNavigationLine(line: Line?) {
         selectCurrentLine(line)
-        navigatorRepository.setLine(line)
+        if (line == null) {
+            navigatorRepository.stop()
+        } else {
+            navigatorRepository.start(line)
+        }
     }
 }

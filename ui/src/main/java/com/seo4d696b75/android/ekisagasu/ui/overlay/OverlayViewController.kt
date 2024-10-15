@@ -22,6 +22,7 @@ import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
@@ -271,8 +272,8 @@ class OverlayViewController @Inject constructor(
                 }
                 launch {
                     // 経路探索のon/off
-                    navigatorRepository.isRunning.collect {
-                        isNavigationRunning = it
+                    navigatorRepository.state.collect {
+                        isNavigationRunning = it is NavigatorState.Running
                     }
                 }
             }
