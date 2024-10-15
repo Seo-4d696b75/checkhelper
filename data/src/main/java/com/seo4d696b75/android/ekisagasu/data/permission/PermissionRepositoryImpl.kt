@@ -105,11 +105,12 @@ class PermissionRepositoryImpl @Inject constructor(
         }
 
     override suspend fun checkDeviceLocationSettings(minInterval: Int): Boolean {
-        val request = LocationRequest.create().apply {
-            priority = Priority.PRIORITY_HIGH_ACCURACY
-            interval = minInterval * 1000L
-            fastestInterval = minInterval * 1000L
-        }
+        val request = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            minInterval * 1000L,
+        )
+            .setMinUpdateIntervalMillis(minInterval * 1000L)
+            .build()
         val settingRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(request)
             .build()

@@ -116,11 +116,12 @@ class LocationRepositoryImpl @Inject constructor(
         ) {
             return
         }
-        val request = LocationRequest.create().apply {
-            priority = Priority.PRIORITY_HIGH_ACCURACY
-            interval = minInterval * 1000L
-            fastestInterval = minInterval * 1000L
-        }
+        val request = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            minInterval * 1000L,
+        )
+            .setMinUpdateIntervalMillis(minInterval * 1000L)
+            .build()
         locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
         runningFlow.value = true
     }
