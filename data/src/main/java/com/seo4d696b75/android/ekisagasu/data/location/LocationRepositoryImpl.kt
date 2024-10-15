@@ -92,7 +92,6 @@ class LocationRepositoryImpl @Inject constructor(
                     Timber.d("minInterval %d > %d", minInterval, interval)
                     minInterval = interval
                     removeLocationUpdate()
-                    runningFlow.value = false
                     requestGPSUpdate()
                 }
             } else {
