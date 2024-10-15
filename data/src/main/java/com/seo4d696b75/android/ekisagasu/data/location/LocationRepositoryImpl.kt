@@ -145,6 +145,7 @@ class LocationRepositoryImpl @Inject constructor(
             interval * 1000L,
         )
             .setMinUpdateIntervalMillis(interval * 1000L)
+            .setMinUpdateDistanceMeters(0.1f)
             .build()
         locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
         stateFlow.update {

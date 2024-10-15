@@ -110,6 +110,7 @@ class PermissionRepositoryImpl @Inject constructor(
             minInterval * 1000L,
         )
             .setMinUpdateIntervalMillis(minInterval * 1000L)
+            .setMinUpdateDistanceMeters(0.1f)
             .build()
         val settingRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(request)
