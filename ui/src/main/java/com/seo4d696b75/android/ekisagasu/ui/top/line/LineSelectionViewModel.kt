@@ -73,8 +73,10 @@ class LineSelectionViewModel @Inject constructor(
         }
     }
 
-    fun selectCurrentLine(line: Line?) {
-        if (locationRepository.isRunning.value) {
+    fun selectCurrentLine(line: Line?) = viewModelScope.launch {
+        if (line == null) {
+            searchRepository.clearLine()
+        } else {
             searchRepository.selectLine(line)
         }
     }

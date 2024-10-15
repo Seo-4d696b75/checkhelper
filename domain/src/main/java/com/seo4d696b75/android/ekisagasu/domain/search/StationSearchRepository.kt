@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
  * 近傍の駅の探索機能を提供
  */
 interface StationSearchRepository {
-    fun setSearchK(value: Int)
     val result: Flow<StationSearchResult?>
-    fun selectLine(line: Line?)
     val selectedLine: StateFlow<Line?>
+    suspend fun selectLine(line: Line)
+    fun clearLine()
 }
 
 data class StationSearchResult(

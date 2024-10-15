@@ -19,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
@@ -247,8 +248,8 @@ class OverlayViewController @Inject constructor(
                 }
                 launch {
                     // 探索の進行状態を更新
-                    locationRepository.isRunning.collect {
-                        isSearchRunning = it
+                    locationRepository.currentLocation.collect {
+                        isSearchRunning = it is LocationState.Running
                     }
                 }
                 launch {

@@ -89,7 +89,7 @@ class NavigatorViewController @Inject constructor(
             toggle()
         }
         binding.buttonNavigatorStop.setOnClickListener {
-            searchRepository.selectLine(null)
+            searchRepository.clearLine()
             navigator.setLine(null)
         }
         binding.buttonNavigatorSelectLine.setOnClickListener {

@@ -7,10 +7,9 @@ import android.content.Intent
 import android.os.SystemClock
 import android.provider.AlarmClock
 import android.widget.Toast
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.seo4d696b75.android.ekisagasu.domain.lifecycle.AppFinishUseCase
 import com.seo4d696b75.android.ekisagasu.domain.lifecycle.BootUseCase
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
@@ -64,27 +63,14 @@ class ServiceViewController @Inject constructor(
             launch {
                 bootUseCase()
             }
-            owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    userSettingRepository
-                        .setting
-                        .collect {
-                            // TODO flowで流す
-                            searchRepository.setSearchK(it.searchK)
-                            if (locationRepository.isRunning.value) {
-                                locationRepository.startWatchCurrentLocation(it.locationUpdateInterval)
-                            }
-                        }
+
+            appStateRepository
+                .message
+                .flowWithLifecycle(owner.lifecycle)
+                .filterIsInstance<AppMessage.StartTimer>()
+                .collect {
+                    setTimer()
                 }
-                launch {
-                    appStateRepository
-                        .message
-                        .filterIsInstance<AppMessage.StartTimer>()
-                        .collect {
-                            setTimer()
-                        }
-                }
-            }
         }
     }
 

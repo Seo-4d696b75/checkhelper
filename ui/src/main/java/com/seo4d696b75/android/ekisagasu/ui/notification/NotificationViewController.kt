@@ -14,12 +14,14 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -111,26 +113,30 @@ class NotificationViewController @Inject constructor(
                 }
                 launch {
                     // 探索状態の変化
-                    locationRepository.isRunning.collect {
-                        if (it) {
-                            update(
-                                context.getString(R.string.notification_title_start),
-                                context.getString(R.string.notification_message_start),
-                            )
-                        } else {
-                            update(
-                                context.getString(R.string.notification_title_wait),
-                                context.getString(R.string.notification_message_wait),
-                            )
+                    locationRepository
+                        .currentLocation
+                        .map { it is LocationState.Running }
+                        .distinctUntilChanged()
+                        .collect {
+                            if (it) {
+                                update(
+                                    context.getString(R.string.notification_title_start),
+                                    context.getString(R.string.notification_message_start),
+                                )
+                            } else {
+                                update(
+                                    context.getString(R.string.notification_title_wait),
+                                    context.getString(R.string.notification_message_wait),
+                                )
+                            }
                         }
-                    }
                 }
                 launch {
                     // TODO notificationとは関係なくね？
                     // 探索終了
                     locationRepository
-                        .isRunning
-                        .filter { !it }
+                        .currentLocation
+                        .filter { it == LocationState.Idle }
                         .drop(1)
                         .collect {
                             Toast.makeText(

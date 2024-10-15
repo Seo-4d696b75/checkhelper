@@ -8,26 +8,25 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchResult
+import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
@@ -38,42 +37,45 @@ import javax.inject.Singleton
 class StationSearchRepositoryImpl @Inject constructor(
     private val dataRepository: DataRepository,
     private val locationRepository: LocationRepository,
+    settingRepository: UserSettingRepository,
     private val search: NearestSearch,
     private val logger: LogCollector,
     @ExternalScope private val scope: CoroutineScope,
 ) : StationSearchRepository,
     LogCollector by logger {
 
-    private var searchK = MutableStateFlow(12)
     private val _selectedLine = MutableStateFlow<Line?>(null)
 
     override val selectedLine = _selectedLine.asStateFlow()
-    override fun setSearchK(value: Int) {
-        searchK.update { value }
+
+    override suspend fun selectLine(line: Line) {
+        if (locationRepository.currentLocation.first() is LocationState.Running) {
+            _selectedLine.update { line }
+        }
     }
 
-    override fun selectLine(line: Line?) {
-        _selectedLine.value = line
+    override fun clearLine() {
+        _selectedLine.update { null }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override val result: Flow<StationSearchResult?> = locationRepository
-        .isRunning
-        .flatMapLatest { running ->
-            if (running) {
-                combine(
-                    locationRepository.currentLocation.filterNotNull(),
-                    searchK,
-                ) { location, k ->
-                    SearchParam(location, k)
-                }
-                    .distinctUntilChanged(::isSearchSkippable)
-                    .mapLatestBySkip(null, ::updateLocation)
-            } else {
+    override val result = combine(
+        locationRepository.currentLocation,
+        settingRepository.setting.map { it.searchK },
+    ) { state, k ->
+        when (state) {
+            LocationState.Idle -> {
                 _selectedLine.update { null }
-                flowOf(null)
+                null
             }
-        }.stateIn(
+
+            is LocationState.Running -> state.location?.let {
+                SearchParam(it, k)
+            }
+        }
+    }
+        .distinctUntilChanged(::isSearchSkippable)
+        .mapLatestBySkip(null, ::updateLocation)
+        .stateIn(
             // convert into hot flow so that same result should be shared in application
             scope,
             SharingStarted.WhileSubscribed(),
@@ -85,16 +87,25 @@ class StationSearchRepositoryImpl @Inject constructor(
         val k: Int,
     )
 
-    private fun isSearchSkippable(old: SearchParam, new: SearchParam): Boolean {
+    private fun isSearchSkippable(old: SearchParam?, new: SearchParam?): Boolean {
+        if (old == null && new == null) {
+            return true
+        }
+        if (old == null || new == null) {
+            return false
+        }
         return old.location.lat == new.location.lat
             && old.location.lng == old.location.lng
             && old.k == new.k
     }
 
     private suspend fun updateLocation(
-        param: SearchParam,
+        param: SearchParam?,
         previous: StationSearchResult?,
     ): StationSearchResult? {
+        if (param == null) {
+            return null
+        }
         // Must be pure function
         // do not access to class member!!
         require(param.k > 0)
