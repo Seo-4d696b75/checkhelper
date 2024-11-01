@@ -8,6 +8,8 @@ import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_MILLI_SEC
 import com.seo4d696b75.android.ekisagasu.domain.date.format
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorPrediction
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -19,20 +21,19 @@ import java.util.Date
  * @author Seo-4d696b75
  * @version 2019/02/16.
  */
-class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
+class PolylineNavigator(
+    private val explorer: NearestSearch,
+    val line: Line,
+) {
     companion object {
         private const val DISTANCE_THRESHOLD = 5f
+        private const val MAX_PREDICTION = 2
     }
 
     fun release() {
         for (p in cursors) p.release()
-        prediction.clear()
         cursors.clear()
     }
-
-    private var _result: PredictionResult? = null
-    val result: PredictionResult?
-        get() = _result
 
     private fun setPolylineFragment(
         tag: String,
@@ -49,12 +50,9 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
         list.add(fragment)
     }
 
-    private var maxPrediction: Int = 2
-
     private val segmentJunction = mutableMapOf<String, MutableList<PolylineSegment>>()
     private val polylineSegments = mutableListOf<PolylineSegment>()
     private var cursors = mutableListOf<PolylineCursor>()
-    private var prediction = mutableListOf<StationPrediction>()
     private var lastLocation: Location? = null
 
     private var updateTime: Long = 0
@@ -71,11 +69,15 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
 
     private val lock = Mutex()
 
+    private var lastResult: NavigatorState.Running = NavigatorState.Initializing(line)
+
     suspend fun onLocationUpdate(
         location: Location,
         station: Station,
-    ) = withContext(Dispatchers.IO) {
-        if (!location.lat.isFinite() || !location.lng.isFinite()) return@withContext
+    ): NavigatorState.Running = withContext(Dispatchers.IO) {
+        if (!location.lat.isFinite() || !location.lng.isFinite()) {
+            return@withContext null
+        }
         require(location.lat in -90.0..90.0)
         require(location.lng in -180.0..180.0)
         lock.withLock {
@@ -83,9 +85,7 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
             updateTime = location.elapsedRealtimeMillis
             if (cursors.isEmpty()) {
                 initialize(location)
-                val result = PredictionResult(0, station)
-                _result = result
-                return@withContext
+                return@withContext NavigatorState.Initializing(line)
             }
             // Update each cursors
             val list = mutableListOf<PolylineCursor>()
@@ -97,47 +97,58 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
             Timber.tag("Navigator").d("cursor size: %d", list.size)
             if ((lastLocation?.measureDistance(location) ?: 100000f) < DISTANCE_THRESHOLD) {
                 Timber.tag("Navigator").d("location diff too small, skipped")
-                return@withContext
+                return@withContext null
             }
             lastLocation = location
 
             // prediction の集計
-            val resolved: MutableList<StationPrediction> = mutableListOf()
-            val predictions: MutableList<StationPrediction> = mutableListOf()
+            val resolved: MutableList<NavigatorPrediction> = mutableListOf()
+            val predictions: MutableList<NavigatorPrediction> = mutableListOf()
             for (p in list) {
                 predictions.clear()
-                p.predict(predictions, maxPrediction)
+                p.predict(predictions, MAX_PREDICTION)
                 // 駅の重複がないように、重複するならより近い距離を採用
                 for (prediction in predictions) {
-                    val same = getSameStation(resolved, prediction.station)
-                    same?.compareDistance(prediction) ?: resolved.add(prediction)
+                    val idx = resolved.indexOfFirst {
+                        it.station == prediction.station && it.distance > prediction.distance
+                    }
+                    if (idx < 0) {
+                        resolved.add(prediction)
+                    } else {
+                        resolved[idx] = prediction
+                    }
                 }
             }
 
             // 距離に関して駅をソート
-            resolved.sort()
-            prediction = resolved
-            val size = maxPrediction.coerceAtMost(prediction.size)
+            resolved.sortBy { it.distance }
+
             // 結果オブジェクトにまとめる
-            val result = PredictionResult(size, station)
+            val result = resolved.take(MAX_PREDICTION)
+
             val date: String = Date(updateTime).format(TIME_PATTERN_MILLI_SEC)
-            Timber.tag("Navigator").d("predict date: $date, station size: ${prediction.size}")
-            for (i in 0 until size) {
-                val s = prediction[i]
-                result.predictions[i] = s
+            Timber.tag("Navigator").d("predict date: $date, station size: ${result.size}")
+
+            result.forEachIndexed { index, p ->
                 Timber.tag("Navigator").d(
                     "[%d] %.0fm %s",
-                    i,
-                    s.distance,
-                    s.station.name,
+                    index,
+                    p.distance,
+                    p.station.name,
                 )
             }
-            _result = result
 
             val duration = SystemClock.uptimeMillis() - start
             Timber.tag("Navigator").d("update $duration [ms]")
+            NavigatorState.Result(
+                line = line,
+                current = station,
+                predictions = result,
+            )
         }
-    }
+    }?.also {
+        lastResult = it
+    } ?: lastResult
 
     private fun initialize(location: Location) {
         polylineSegments.map { f ->
@@ -156,16 +167,6 @@ class PolylineNavigator(private val explorer: NearestSearch, val line: Line) {
             )
         }
         lastLocation = location
-    }
-
-    private fun getSameStation(
-        list: List<StationPrediction>,
-        station: Station,
-    ): StationPrediction? {
-        for (p in list) {
-            if (p.station == station) return p
-        }
-        return null
     }
 
     private fun filterCursors(list: MutableList<PolylineCursor>): Double {

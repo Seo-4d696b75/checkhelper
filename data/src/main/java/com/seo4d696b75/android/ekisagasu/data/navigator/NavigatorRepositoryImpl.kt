@@ -5,7 +5,6 @@ import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapLatestBySkip
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
-import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorPrediction
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
@@ -65,26 +64,7 @@ class NavigatorRepositoryImpl @Inject constructor(
                 }
                 .filterNotNull()
                 .mapLatestBySkip {
-                    val result = navigator.run {
-                        onLocationUpdate(it.location, it.detected.station)
-                        result
-                    }
-                    if (result == null) {
-                        NavigatorState.Initializing(
-                            line = navigator.line,
-                        )
-                    } else {
-                        NavigatorState.Result(
-                            line = navigator.line,
-                            current = result.current,
-                            predictions = (0 until result.size).map { idx ->
-                                NavigatorPrediction(
-                                    station = result.getStation(idx),
-                                    distance = result.getDistance(idx),
-                                )
-                            },
-                        )
-                    }
+                    navigator.onLocationUpdate(it.location, it.detected.station)
                 }
         }
     }.stateIn(
