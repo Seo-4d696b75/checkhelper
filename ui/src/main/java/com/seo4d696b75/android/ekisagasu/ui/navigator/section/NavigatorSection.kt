@@ -15,16 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorLineState
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorState
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorStationState
@@ -85,12 +84,10 @@ fun NavigatorSection(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(
+            AutoScalingText(
                 text = state.line?.name ?: "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
             Spacer(modifier = Modifier.height(5.dp))
             Row {
@@ -125,7 +122,9 @@ val previewLine = Line(
 private fun NavigationSectionPreview_initializing() {
     AppTheme {
         NavigatorSection(
-            state = DisplayedNavigatorState.Initializing(previewLine),
+            state = DisplayedNavigatorState.Initializing(
+                previewLine.copy(name = "めっちゃ長い長い長い長い長い長い名前の路線")
+            ),
             onToggle = {},
             onStopClicked = {},
             onSelectLineClicked = {},

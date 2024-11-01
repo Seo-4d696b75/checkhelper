@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,13 +27,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorLineState
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorStationState
 import com.seo4d696b75.android.ekisagasu.ui.navigator.section.previewLine
@@ -85,12 +84,10 @@ fun NavigatorStationList(
                         targetState = distance,
                         label = "NavigatorStationList ${item.station.code}",
                     ) { value ->
-                        Text(
+                        AutoScalingText(
                             text = value,
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 12.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
                             textAlign = TextAlign.End,
                             modifier = Modifier.width(46.dp),
                         )
@@ -106,14 +103,13 @@ fun NavigatorStationList(
                             ),
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(
+                    AutoScalingText(
                         text = item.station.name,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 14.sp,
-                        maxLines = 1,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
+                    AutoScalingText(
                         text = buildAnnotatedString {
                             val sorted = item.lines.sortedBy {
                                 if (it.isCurrentSelected) 0 else 1
@@ -139,8 +135,6 @@ fun NavigatorStationList(
                         },
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Start,
                         modifier = Modifier.weight(1f),
                     )
@@ -186,6 +180,10 @@ private fun NavigatorStationListPreview() {
                                 line = previewLine,
                                 isCurrentSelected = true,
                             ),
+                            DisplayedNavigatorLineState(
+                                line = previewLine,
+                                isCurrentSelected = false,
+                            ),
                         ),
                     ),
                     DisplayedNavigatorStationState.Prediction(
@@ -203,12 +201,12 @@ private fun NavigatorStationListPreview() {
                             voronoi = "",
                             attr = "",
                         ),
-                        lines = listOf(
+                        lines = List(10) {
                             DisplayedNavigatorLineState(
                                 line = previewLine,
                                 isCurrentSelected = false,
-                            ),
-                        ),
+                            )
+                        },
                         distance = 100f,
                     ),
                     DisplayedNavigatorStationState.Prediction(
@@ -226,12 +224,12 @@ private fun NavigatorStationListPreview() {
                             voronoi = "",
                             attr = "",
                         ),
-                        lines = listOf(
+                        lines = List(5) {
                             DisplayedNavigatorLineState(
                                 line = previewLine,
                                 isCurrentSelected = false,
-                            ),
-                        ),
+                            )
+                        },
                         distance = 200f,
                     ),
                 ),
