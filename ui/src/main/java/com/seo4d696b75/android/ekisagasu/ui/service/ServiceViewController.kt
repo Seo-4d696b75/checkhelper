@@ -10,13 +10,12 @@ import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.savedstate.SavedStateRegistryOwner
 import com.seo4d696b75.android.ekisagasu.domain.lifecycle.AppFinishUseCase
 import com.seo4d696b75.android.ekisagasu.domain.lifecycle.BootUseCase
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
-import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.navigator.NavigatorViewController
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
@@ -29,8 +28,6 @@ import javax.inject.Inject
 
 class ServiceViewController @Inject constructor(
     private val locationRepository: LocationRepository,
-    private val userSettingRepository: UserSettingRepository,
-    private val searchRepository: StationSearchRepository,
     private val appStateRepository: AppStateRepository,
     private val bootUseCase: BootUseCase,
     private val appFinishUseCase: AppFinishUseCase,
@@ -51,22 +48,22 @@ class ServiceViewController @Inject constructor(
         appStateRepository.emitMessage(AppMessage.FinishApp)
     }
 
-    fun onCreate(context: Context, owner: LifecycleOwner) {
+    fun onCreate(context: Context, registryOwner: SavedStateRegistryOwner, lifecycleOwner: LifecycleOwner) {
         this.context = context
 
-        notificationViewController.onCreate(context, owner)
-        overlayViewController.onCreate(context, owner)
-        navigatorViewController.onCreate(context, owner)
-        vibratorController.onCreate(context, owner)
+        notificationViewController.onCreate(context, lifecycleOwner)
+        overlayViewController.onCreate(context, lifecycleOwner)
+        navigatorViewController.onCreate(context, registryOwner, lifecycleOwner)
+        vibratorController.onCreate(context, lifecycleOwner)
 
-        owner.lifecycleScope.launch {
+        lifecycleOwner.lifecycleScope.launch {
             launch {
                 bootUseCase()
             }
 
             appStateRepository
                 .message
-                .flowWithLifecycle(owner.lifecycle)
+                .flowWithLifecycle(lifecycleOwner.lifecycle)
                 .filterIsInstance<AppMessage.StartTimer>()
                 .collect {
                     setTimer()

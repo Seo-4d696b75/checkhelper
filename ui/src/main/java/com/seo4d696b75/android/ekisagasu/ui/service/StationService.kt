@@ -7,6 +7,9 @@ import android.os.IBinder
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
@@ -23,7 +26,7 @@ import javax.inject.Inject
  * This service has to sense GPS location, so must be run as foreground service.
  */
 @AndroidEntryPoint
-class StationService : LifecycleService() {
+class StationService : LifecycleService(), SavedStateRegistryOwner {
     inner class StationServiceBinder : Binder() {
         fun bind(): StationService {
             return this@StationService
@@ -77,11 +80,17 @@ class StationService : LifecycleService() {
         return START_STICKY
     }
 
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
+
     override fun onCreate() {
         super.onCreate()
 
         // init view controller
-        viewController.onCreate(this, this)
+        savedStateRegistryController.performRestore(null)
+        viewController.onCreate(this, this, this)
 
         // start this service as foreground one
         startForeground(
