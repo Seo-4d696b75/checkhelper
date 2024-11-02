@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import com.seo4d696b75.android.ekisagasu.ui.broadcast.ScreenBroadcastReceiver
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
@@ -106,6 +107,8 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
         }
         registerReceiver(viewController, filter)
 
+        registerReceiver(screenBroadcastReceiver, filter)
+
         viewController
             .appFinish
             .flowWithLifecycle(lifecycle)
@@ -120,6 +123,9 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
 
     @Inject
     lateinit var viewController: ServiceViewController
+
+    @Inject
+    lateinit var screenBroadcastReceiver: ScreenBroadcastReceiver
 
     companion object {
         const val KEY_REQUEST = "service_request"
