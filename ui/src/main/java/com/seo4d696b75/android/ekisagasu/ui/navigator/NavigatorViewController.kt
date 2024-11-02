@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -73,25 +72,20 @@ class NavigatorViewController @Inject constructor(
         registryOwner: SavedStateRegistryOwner,
         lifecycleOwner: LifecycleOwner,
     ): View {
-        val isVisible = MutableStateFlow(false)
         val isExpanded = MutableStateFlow(true)
 
-        lifecycleOwner.lifecycleScope.launch {
-            navigator
-                .state
-                .flowWithLifecycle(lifecycleOwner.lifecycle)
-                .onEach { Timber.d("navigator state ${it.javaClass}") }
-                .map { it is NavigatorState.Running }
-                .distinctUntilChanged()
-                .collect { running ->
-                    if (running) {
-                        isVisible.update { true }
-                        isExpanded.update { true }
-                    } else {
-                        isVisible.update { false }
-                    }
+        val isVisible = navigator
+            .state
+            .flowWithLifecycle(lifecycleOwner.lifecycle)
+            .onEach { Timber.d("navigator state ${it.javaClass}") }
+            .map { it is NavigatorState.Running }
+            .distinctUntilChanged()
+            .map { running ->
+                if (running) {
+                    isExpanded.update { true }
                 }
-        }
+                running
+            }
 
         val uiStateFlow = combine(
             isVisible,
