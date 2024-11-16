@@ -11,39 +11,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
-import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
-import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
+import com.seo4d696b75.android.ekisagasu.ui.service.ServiceViewModelComponent
+import com.seo4d696b75.android.ekisagasu.ui.service.viewModels
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.ceil
 
 class NavigatorViewController @Inject constructor(
-    private val searchRepository: StationSearchRepository,
-    private val navigator: NavigatorRepository,
-    private val getDisplayedNavigatorState: GetDisplayedNavigatorStateUseCase,
-) {
+    component: ServiceViewModelComponent,
+) : ServiceViewModelComponent by component {
     private lateinit var windowManager: WindowManager
     private lateinit var view: View
 
@@ -68,87 +57,8 @@ class NavigatorViewController @Inject constructor(
         layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.screenBrightness = -1f
 
-        view = onCreateView(context, registryOwner, lifecycleOwner)
-        windowManager.addView(view, layoutParams)
-    }
+        val viewModel: NavigatorViewModel by viewModels()
 
-    private fun onCreateView(
-        context: Context,
-        registryOwner: SavedStateRegistryOwner,
-        lifecycleOwner: LifecycleOwner,
-    ): View {
-        val isExpanded = MutableStateFlow(true)
-
-        val isVisible = navigator
-            .state
-            .flowWithLifecycle(lifecycleOwner.lifecycle)
-            .onEach { Timber.d("navigator state ${it.javaClass}") }
-            .map { it is NavigatorState.Running }
-            .distinctUntilChanged()
-            .onEach {
-                if (it) {
-                    isExpanded.update { true }
-                }
-            }.stateIn(
-                lifecycleOwner.lifecycleScope,
-                SharingStarted.WhileSubscribed(),
-                false,
-            )
-
-        val density = context.resources.displayMetrics.density
-
-        lifecycleOwner.lifecycleScope.launch {
-            // 縮小時に背後へタップイベントを伝達するためViewのサイズを変更する必要がある
-            // しかしwrap_contentではViewとComposeのサイズが連動しないため、Viewのサイズを直接指定する
-            launch {
-                isExpanded.drop(1).collectLatest {
-                    val params = view.layoutParams as? WindowManager.LayoutParams ?: return@collectLatest
-                    if (!it) {
-                        delay(500)
-                        params.width = ceil(59 * density).toInt()
-                        params.height = ceil(59 * density).toInt()
-                    } else {
-                        params.width = WindowManager.LayoutParams.MATCH_PARENT
-                        params.height = ceil(90 * density).toInt()
-                    }
-                    windowManager.updateViewLayout(view, params)
-                }
-            }
-            launch {
-                isVisible.drop(1).collectLatest {
-                    val params = view.layoutParams as? WindowManager.LayoutParams ?: return@collectLatest
-                    if (!it) {
-                        delay(500)
-                        params.height = 1
-                    } else {
-                        params.height = ceil(90 * density).toInt()
-                    }
-                    windowManager.updateViewLayout(view, params)
-                }
-            }
-        }
-
-        val uiStateFlow = combine(
-            isVisible,
-            isExpanded,
-            getDisplayedNavigatorState(),
-        ) { visible, expanded, navigation ->
-            NavigatorUiState(
-                visible = visible,
-                isExpanded = expanded,
-                navigation = navigation,
-            )
-        }.stateIn(
-            lifecycleOwner.lifecycleScope,
-            SharingStarted.WhileSubscribed(),
-            NavigatorUiState.Initial,
-        )
-
-        val onToggle = { isExpanded.update { !it } }
-        val onStopClicked = {
-            searchRepository.clearLine()
-            navigator.stop()
-        }
         val onSelectLineClicked = {
             val intent = Intent(context, MainActivity::class.java).apply {
                 putExtra(MainActivity.INTENT_KEY_SELECT_NAVIGATION, true)
@@ -157,20 +67,57 @@ class NavigatorViewController @Inject constructor(
             context.startActivity(intent)
         }
 
-        return ComposeView(context).apply {
+        view = ComposeView(context).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setViewTreeSavedStateRegistryOwner(registryOwner)
             setViewTreeLifecycleOwner(lifecycleOwner)
             setContent {
-                val uiState by uiStateFlow.collectAsStateWithLifecycle()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                 AppTheme {
                     NavigatorScreen(
                         uiState = uiState,
-                        onToggle = onToggle,
-                        onStopClicked = onStopClicked,
+                        onToggle = viewModel::onToggle,
+                        onStopClicked = viewModel::onStopNavigator,
                         onSelectLineClicked = onSelectLineClicked,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                }
+            }
+        }
+
+        windowManager.addView(view, layoutParams)
+
+        val density = context.resources.displayMetrics.density
+
+        lifecycleOwner.lifecycleScope.launch {
+            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // 縮小時に背後へタップイベントを伝達するためViewのサイズを変更する必要がある
+                // しかしwrap_contentではViewとComposeのサイズが連動しないため、Viewのサイズを直接指定する
+                launch {
+                    viewModel.isExpanded.drop(1).collectLatest {
+                        val params = view.layoutParams as? WindowManager.LayoutParams ?: return@collectLatest
+                        if (!it) {
+                            delay(500)
+                            params.width = ceil(59 * density).toInt()
+                            params.height = ceil(59 * density).toInt()
+                        } else {
+                            params.width = WindowManager.LayoutParams.MATCH_PARENT
+                            params.height = ceil(90 * density).toInt()
+                        }
+                        windowManager.updateViewLayout(view, params)
+                    }
+                }
+                launch {
+                    viewModel.isVisible.drop(1).collectLatest {
+                        val params = view.layoutParams as? WindowManager.LayoutParams ?: return@collectLatest
+                        if (!it) {
+                            delay(500)
+                            params.height = 1
+                        } else {
+                            params.height = ceil(90 * density).toInt()
+                        }
+                        windowManager.updateViewLayout(view, params)
+                    }
                 }
             }
         }
