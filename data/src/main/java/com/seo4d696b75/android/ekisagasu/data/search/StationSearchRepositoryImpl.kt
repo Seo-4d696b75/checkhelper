@@ -63,13 +63,12 @@ class StationSearchRepositoryImpl @Inject constructor(
         settingRepository.setting.map { it.searchK },
     ) { state, k ->
         when (state) {
-            LocationState.Idle -> {
+            is LocationState.Result ->
+                SearchParam(state.location, k)
+
+            else -> {
                 _selectedLine.update { null }
                 null
-            }
-
-            is LocationState.Running -> state.location?.let {
-                SearchParam(it, k)
             }
         }
     }

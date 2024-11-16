@@ -88,7 +88,10 @@ class LocationRepositoryImpl @Inject constructor(
             )
             stateFlow.update { current ->
                 require(current is LocationState.Running)
-                current.copy(location = model)
+                LocationState.Result(
+                    interval = current.interval,
+                    location = model,
+                )
             }
         }
     }
@@ -150,8 +153,8 @@ class LocationRepositoryImpl @Inject constructor(
         locationClient.requestLocationUpdates(request, this, Looper.getMainLooper())
         stateFlow.update {
             when (it) {
-                LocationState.Idle -> LocationState.Running(null, interval)
-                is LocationState.Running -> it.copy(interval = interval)
+                is LocationState.Result -> it.copy(interval = interval)
+                else -> LocationState.Initializing(interval = interval)
             }
         }
     }
