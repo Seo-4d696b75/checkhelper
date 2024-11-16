@@ -1,0 +1,99 @@
+package com.seo4d696b75.android.ekisagasu.ui.popup.section
+
+import android.annotation.SuppressLint
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
+import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.navigator.section.previewLine
+import com.seo4d696b75.android.ekisagasu.ui.popup.PopupStationState
+import com.seo4d696b75.android.ekisagasu.ui.popup.component.StationDetectedTime
+import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import java.util.Date
+
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
+@Composable
+fun PopupSection(
+    state: PopupStationState,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(6.dp),
+            )
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.launch_icon),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = 8.dp, end = 10.dp)
+                .size(36.dp),
+        )
+        val station = when (state) {
+            PopupStationState.None -> null
+            is PopupStationState.Result -> state.nearest.station
+        }
+        Crossfade(
+            targetState = station,
+            label = "PopupSection station",
+        ) {
+            if (state is PopupStationState.Result) {
+                PopupResultSection(state)
+            }
+        }
+    }
+}
+
+@Composable
+@PreviewLightDark
+private fun PopupSectionPreview() {
+    AppTheme {
+        PopupSection(
+            state = PopupStationState.Result(
+                prefecture = "東京都",
+                time = StationDetectedTime.Now,
+                nearest = NearStation(
+                    station = Station(
+                        id = "1",
+                        code = 1,
+                        name = "東京",
+                        originalName = "東京",
+                        nameKana = "とうきょう",
+                        lines = listOf(1),
+                        lat = 45.5,
+                        lng = 135.0,
+                        prefecture = 13,
+                        closed = false,
+                        voronoi = "",
+                        attr = "",
+                    ),
+                    distance = 176f,
+                    lines = List(10) { previewLine },
+                    time = Date(),
+                ),
+            ),
+            onClick = {},
+            modifier = Modifier.height(53.dp),
+        )
+    }
+}
