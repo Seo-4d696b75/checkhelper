@@ -43,9 +43,6 @@ fun NavigatorSection(
 ) {
     Row(
         modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 3.dp)
-            .padding(top = 3.dp)
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = RoundedCornerShape(6.dp),
@@ -214,7 +211,7 @@ private fun NavigationSectionPreview_result() {
             onToggle = {},
             onStopClicked = {},
             onSelectLineClicked = {},
-            modifier = Modifier.height(90.dp),
+            modifier = Modifier.height(87.dp),
         )
     }
 }

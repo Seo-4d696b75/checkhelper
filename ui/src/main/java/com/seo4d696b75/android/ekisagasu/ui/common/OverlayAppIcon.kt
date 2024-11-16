@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.ui.navigator.component
+package com.seo4d696b75.android.ekisagasu.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,14 +21,13 @@ import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable
-fun NavigatorShrinkIcon(
+fun OverlayAppIcon(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(width = 52.dp, height = 53.dp)
             .background(
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(6.dp),
@@ -51,6 +50,9 @@ fun NavigatorShrinkIcon(
 @Composable
 private fun NavigatorShrinkIconPreview() {
     AppTheme {
-        NavigatorShrinkIcon(onClick = {})
+        OverlayAppIcon(
+            onClick = {},
+            modifier = Modifier.size(53.dp),
+        )
     }
 }

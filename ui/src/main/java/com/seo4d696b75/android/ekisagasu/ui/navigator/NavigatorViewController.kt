@@ -23,16 +23,21 @@ import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.ceil
 
 class NavigatorViewController @Inject constructor(
     private val searchRepository: StationSearchRepository,
@@ -80,12 +85,48 @@ class NavigatorViewController @Inject constructor(
             .onEach { Timber.d("navigator state ${it.javaClass}") }
             .map { it is NavigatorState.Running }
             .distinctUntilChanged()
-            .map { running ->
-                if (running) {
+            .onEach {
+                if (it) {
                     isExpanded.update { true }
                 }
-                running
+            }.stateIn(
+                lifecycleOwner.lifecycleScope,
+                SharingStarted.WhileSubscribed(),
+                false,
+            )
+
+        val density = context.resources.displayMetrics.density
+
+        lifecycleOwner.lifecycleScope.launch {
+            // 縮小時に背後へタップイベントを伝達するためViewのサイズを変更する必要がある
+            // しかしwrap_contentではViewとComposeのサイズが連動しないため、Viewのサイズを直接指定する
+            launch {
+                isExpanded.drop(1).collectLatest {
+                    val params = view.layoutParams as? WindowManager.LayoutParams ?: return@collectLatest
+                    if (!it) {
+                        delay(500)
+                        params.width = ceil(59 * density).toInt()
+                        params.height = ceil(59 * density).toInt()
+                    } else {
+                        params.width = WindowManager.LayoutParams.MATCH_PARENT
+                        params.height = ceil(90 * density).toInt()
+                    }
+                    windowManager.updateViewLayout(view, params)
+                }
             }
+            launch {
+                isVisible.drop(1).collectLatest {
+                    val params = view.layoutParams as? WindowManager.LayoutParams ?: return@collectLatest
+                    if (!it) {
+                        delay(500)
+                        params.height = 1
+                    } else {
+                        params.height = ceil(90 * density).toInt()
+                    }
+                    windowManager.updateViewLayout(view, params)
+                }
+            }
+        }
 
         val uiStateFlow = combine(
             isVisible,
