@@ -5,6 +5,7 @@ import android.content.IntentFilter
 import android.os.Binder
 import android.os.IBinder
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.savedstate.SavedStateRegistry
@@ -15,7 +16,6 @@ import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewControl
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.take
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -105,17 +105,14 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_USER_PRESENT)
         }
-        registerReceiver(viewController, filter)
-
         registerReceiver(screenBroadcastReceiver, filter)
 
         viewController
             .appFinish
             .flowWithLifecycle(lifecycle)
-            .take(1)
             .onEach {
-                unregisterReceiver(viewController)
-                viewController.onDestroy()
+                unregisterReceiver(screenBroadcastReceiver)
+                viewModelStore.clear()
                 stopSelf()
             }
             .launchIn(lifecycleScope)
@@ -126,6 +123,10 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
 
     @Inject
     lateinit var screenBroadcastReceiver: ScreenBroadcastReceiver
+
+    @Inject
+    @ServiceViewModel
+    lateinit var viewModelStore: ViewModelStore
 
     companion object {
         const val KEY_REQUEST = "service_request"

@@ -1,7 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui.service
 
 import android.content.ActivityNotFoundException
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
@@ -16,12 +15,14 @@ import com.seo4d696b75.android.ekisagasu.domain.lifecycle.BootUseCase
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.navigator.NavigatorViewController
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
-import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewController
+import com.seo4d696b75.android.ekisagasu.ui.popup.PopupViewController
 import com.seo4d696b75.android.ekisagasu.ui.vibrator.VibratorController
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -33,13 +34,15 @@ class ServiceViewController @Inject constructor(
     private val appFinishUseCase: AppFinishUseCase,
     private val vibratorController: VibratorController,
     private val notificationViewController: NotificationViewController,
-    private val overlayViewController: OverlayViewController,
+    // private val overlayViewController: OverlayViewController,
+    private val popupViewController: PopupViewController,
     private val navigatorViewController: NavigatorViewController,
-) : BroadcastReceiver() {
+    private val screenRepository: ScreenRepository,
+) {
 
     private var context: Context? = null
 
-    val appFinish = appStateRepository.message.filterIsInstance<AppMessage.FinishApp>()
+    val appFinish = appStateRepository.message.filterIsInstance<AppMessage.FinishApp>().take(1)
 
     /**
      * 必要ならActivity側にも通知して終了させる
@@ -48,11 +51,16 @@ class ServiceViewController @Inject constructor(
         appStateRepository.emitMessage(AppMessage.FinishApp)
     }
 
-    fun onCreate(context: Context, registryOwner: SavedStateRegistryOwner, lifecycleOwner: LifecycleOwner) {
+    fun onCreate(
+        context: Context,
+        registryOwner: SavedStateRegistryOwner,
+        lifecycleOwner: LifecycleOwner,
+    ) {
         this.context = context
 
         notificationViewController.onCreate(context, lifecycleOwner)
-        overlayViewController.onCreate(context, lifecycleOwner)
+        // overlayViewController.onCreate(context, lifecycleOwner)
+        popupViewController.onCreate(context, registryOwner, lifecycleOwner)
         navigatorViewController.onCreate(context, registryOwner, lifecycleOwner)
         vibratorController.onCreate(context, lifecycleOwner)
 
@@ -61,23 +69,41 @@ class ServiceViewController @Inject constructor(
                 bootUseCase()
             }
 
-            appStateRepository
-                .message
-                .flowWithLifecycle(lifecycleOwner.lifecycle)
-                .filterIsInstance<AppMessage.StartTimer>()
-                .collect {
-                    setTimer()
+            launch {
+                screenRepository
+                    .isTurnOn
+                    .flowWithLifecycle(lifecycleOwner.lifecycle)
+                    .collect {
+                        Timber.d("screen repository $it")
+                    }
+            }
+
+            launch {
+                appStateRepository
+                    .message
+                    .flowWithLifecycle(lifecycleOwner.lifecycle)
+                    .filterIsInstance<AppMessage.StartTimer>()
+                    .collect {
+                        setTimer()
+                    }
+            }
+
+            launch {
+                appFinish.collect {
+                    onDestroy()
                 }
+            }
         }
     }
 
-    suspend fun onDestroy() {
+    private suspend fun onDestroy() {
         Timber.d("terminate service")
         locationRepository.stopWatchCurrentLocation()
         appFinishUseCase()
 
         notificationViewController.onDestroy()
-        overlayViewController.onDestroy()
+        // overlayViewController.onDestroy()
+        popupViewController.onDestroy()
         navigatorViewController.onDestroy()
         vibratorController.onDestroy()
 
@@ -85,22 +111,6 @@ class ServiceViewController @Inject constructor(
     }
 
     fun getNotification() = notificationViewController.notification
-
-    override fun onReceive(context: Context?, intent: Intent?) {
-        intent?.action?.let {
-            when (it) {
-                Intent.ACTION_SCREEN_OFF -> {
-                    overlayViewController.screen = false
-                }
-
-                Intent.ACTION_USER_PRESENT -> {
-                    overlayViewController.screen = true
-                }
-
-                else -> {}
-            }
-        }
-    }
 
     private val timerDurationMillis = 5 * 60 * 1000L
     private var previousTimerTimestamp = -timerDurationMillis
