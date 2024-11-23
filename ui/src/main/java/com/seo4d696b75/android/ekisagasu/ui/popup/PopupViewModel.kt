@@ -3,37 +3,27 @@ package com.seo4d696b75.android.ekisagasu.ui.popup
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapWithPrevious
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
-import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
-import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
-import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
-import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
-import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
+import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatus
+import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatusRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import com.seo4d696b75.android.ekisagasu.ui.popup.component.StationDetectedTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -42,9 +32,7 @@ class PopupViewModel(
     private val settingRepository: UserSettingRepository,
     private val searchRepository: StationSearchRepository,
     private val prefectureRepository: PrefectureRepository,
-    private val navigatorRepository: NavigatorRepository,
-    private val locationRepository: LocationRepository,
-    private val screenRepository: ScreenRepository,
+    private val popupStatusRepository: PopupStatusRepository,
 ) : ViewModel() {
 
     init {
@@ -55,97 +43,39 @@ class PopupViewModel(
         }
     }
 
-    val isVisible: StateFlow<Boolean> = combine(
-        settingRepository.setting,
-        locationRepository.currentLocation,
-        navigatorRepository.state,
-    ) { setting, location, navigation ->
-        val enabled = setting.isPushNotification &&
-            location is LocationState.Result &&
-            navigation !is NavigatorState.Running
-        val keep = setting.isKeepNotification
-        enabled to keep
-    }
-        .distinctUntilChanged()
-        .flatMapLatest { pair ->
-            val (enabled, keep) = pair
-            if (!enabled) {
-                // 常に非表示
-                flowOf(false)
-            } else if (keep) {
-                // 常に表示
-                flowOf(true)
-            } else {
-                // 状態・ユーザ操作によって表示・非表示が変化する
-                isVisibleFromUpstream.transformLatest { visible ->
-                    if (visible) {
-                        isVisibleFromUser.update { true }
-                        emitAll(isVisibleFromUser)
-                    } else {
-                        emit(false)
-                    }
-                }
-            }
-        }
-        .distinctUntilChanged()
+    private val status = popupStatusRepository
+        .status
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            PopupStatus.Invisible,
+        )
+
+    val isVisible = status
+        .map { it is PopupStatus.Visible }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
             false,
         )
 
-    // ユーザ操作による状態（優先）
-    private val isVisibleFromUser = MutableStateFlow(true)
-
-    // ユーザ操作以外によって決まる状態
-    private val isVisibleFromUpstream = channelFlow {
-        send(false)
-        var forceNotify = false
-        var screen = false
-        var pending = false
-        var timer: Job? = null
-        val notify = suspend {
-            send(true)
-            timer?.cancel()
-            timer = launch {
-                delay(5000L)
-                send(false)
+    val isExpanded = status
+        .mapWithPrevious { previous, value ->
+            when (value) {
+                is PopupStatus.Visible -> value.isExpanded
+                PopupStatus.Invisible -> if (previous is PopupStatus.Visible) {
+                    // アニメーションの自然のため直前の状態を保持する
+                    previous.isExpanded
+                } else {
+                    true
+                }
             }
         }
-        launch {
-            settingRepository
-                .setting
-                .collect {
-                    forceNotify = it.isPushNotificationForce
-                }
-        }
-        launch {
-            screenRepository
-                .isTurnOn
-                .collect {
-                    screen = it
-                    if (it && pending) {
-                        pending = false
-                        notify()
-                    }
-                }
-        }
-        launch {
-            searchRepository
-                .result
-                .distinctUntilChangedBy { it?.detected?.station }
-                .drop(1)
-                .filterNotNull()
-                .collect {
-                    // 最近傍の駅が変化したとき
-                    if (screen || forceNotify) {
-                        notify()
-                    } else {
-                        pending = true
-                    }
-                }
-        }
-    }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            true,
+        )
 
     // ポップアップに表示する状態を生成する
     private val stationState: Flow<PopupStationState> = searchRepository
@@ -195,28 +125,6 @@ class PopupViewModel(
             }
         }
 
-    // ポップアップを常に表示する条件下の、ユーザ操作による開閉状態
-    private val isExpandedFromUser = MutableStateFlow(true)
-
-    val isExpanded = settingRepository
-        .setting
-        .map { it.isKeepNotification }
-        .distinctUntilChanged()
-        .transformLatest { keep ->
-            if (keep) {
-                isExpandedFromUser.update { true }
-                emitAll(isExpandedFromUser)
-            } else {
-                emit(true)
-            }
-        }
-        .distinctUntilChanged()
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            true,
-        )
-
     val uiStateFlow = combine(
         isVisible,
         isExpanded,
@@ -234,7 +142,10 @@ class PopupViewModel(
     )
 
     fun onClicked() {
-        isExpandedFromUser.update { !it }
-        isVisibleFromUser.update { false }
+        when (status.value) {
+            is PopupStatus.Visible.Fixed -> popupStatusRepository.togglePopup()
+            PopupStatus.Visible.Closable -> popupStatusRepository.closePopup()
+            PopupStatus.Invisible -> {}
+        }
     }
 }

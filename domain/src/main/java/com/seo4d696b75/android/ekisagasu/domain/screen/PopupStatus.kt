@@ -5,8 +5,15 @@ sealed interface PopupStatus {
     data object Invisible : PopupStatus
 
     /** 表示 */
-    data class Visible(
-        /** ユーザー操作やタイマーによって非表示にしない */
-        val shouldKeep: Boolean,
-    ) : PopupStatus
+    sealed interface Visible : PopupStatus {
+        val isExpanded: Boolean
+
+        /** 表示し続ける ただし縮小可能 */
+        data class Fixed(override val isExpanded: Boolean) : Visible
+
+        /** ユーザー操作により非表示可能 */
+        data object Closable : Visible {
+            override val isExpanded = true
+        }
+    }
 }
