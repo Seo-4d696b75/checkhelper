@@ -10,9 +10,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
-import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
-import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
+import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatusRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import com.seo4d696b75.android.ekisagasu.ui.navigator.NavigatorViewModel
@@ -67,9 +66,8 @@ object ViewModelModule {
         searchRepository: StationSearchRepository,
         prefectureRepository: PrefectureRepository,
         navigatorRepository: NavigatorRepository,
-        locationRepository: LocationRepository,
-        screenRepository: ScreenRepository,
         dataRepository: DataRepository,
+        popupStatusRepository: PopupStatusRepository,
     ) = viewModelFactory {
         // 各ViewModelごとに指定すること
         initializer {
@@ -84,9 +82,7 @@ object ViewModelModule {
                 settingRepository,
                 searchRepository,
                 prefectureRepository,
-                navigatorRepository,
-                locationRepository,
-                screenRepository,
+                popupStatusRepository,
             )
         }
     }
