@@ -1,7 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.domain.coroutine
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -10,42 +9,16 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 fun <T, R> Flow<T>.mapWithPrevious(
-    initialValue: R,
-    transform: (value: T, previous: R) -> R,
+    transform: (previous: T?, value: T) -> R,
 ): Flow<R> {
-    var previous: R = initialValue
+    var previous: T? = null
     return map { value ->
-        transform(value, previous).also {
-            previous = it
-        }
-    }
-}
-
-fun <T> Flow<T>.onEachWithPrevious(
-    initialValue: T,
-    action: suspend (value: T, previous: T) -> Unit,
-): Flow<T> {
-    var previous: T = initialValue
-    return onEach { value ->
-        action(value, previous)
-        previous = value
-    }
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-fun <T, R> Flow<T>.mapLatestWithPrevious(
-    initialValue: R,
-    transform: suspend (value: T, previous: R) -> R,
-): Flow<R> {
-    var previous: R = initialValue
-    return mapLatest { value ->
-        transform(value, previous).also {
-            previous = it
+        transform(previous, value).also {
+            previous = value
         }
     }
 }
