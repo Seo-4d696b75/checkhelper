@@ -1,7 +1,10 @@
 package com.seo4d696b75.android.ekisagasu.ui.overlay
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
 import com.seo4d696b75.android.ekisagasu.ui.databinding.ActivityWakeupBinding
@@ -16,6 +19,10 @@ class WakeupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge(
+            navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+        )
 
         if (screenRepository.isScreenLocked) {
             // SecureなLockScreenが存在する場合
