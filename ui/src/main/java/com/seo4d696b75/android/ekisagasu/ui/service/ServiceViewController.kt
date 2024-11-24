@@ -15,10 +15,10 @@ import com.seo4d696b75.android.ekisagasu.domain.lifecycle.BootUseCase
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.navigator.NavigatorViewController
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
+import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewController
 import com.seo4d696b75.android.ekisagasu.ui.popup.PopupViewController
 import com.seo4d696b75.android.ekisagasu.ui.vibrator.VibratorController
 import kotlinx.coroutines.flow.filterIsInstance
@@ -26,7 +26,9 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ServiceViewController @Inject constructor(
     private val locationRepository: LocationRepository,
     private val appStateRepository: AppStateRepository,
@@ -34,10 +36,9 @@ class ServiceViewController @Inject constructor(
     private val appFinishUseCase: AppFinishUseCase,
     private val vibratorController: VibratorController,
     private val notificationViewController: NotificationViewController,
-    // private val overlayViewController: OverlayViewController,
+    private val overlayViewController: OverlayViewController,
     private val popupViewController: PopupViewController,
     private val navigatorViewController: NavigatorViewController,
-    private val screenRepository: ScreenRepository,
 ) {
 
     private var context: Context? = null
@@ -59,7 +60,7 @@ class ServiceViewController @Inject constructor(
         this.context = context
 
         notificationViewController.onCreate(context, lifecycleOwner)
-        // overlayViewController.onCreate(context, lifecycleOwner)
+        overlayViewController.onCreate(context, lifecycleOwner)
         popupViewController.onCreate(context, registryOwner, lifecycleOwner)
         navigatorViewController.onCreate(context, registryOwner, lifecycleOwner)
         vibratorController.onCreate(context, lifecycleOwner)
@@ -67,15 +68,6 @@ class ServiceViewController @Inject constructor(
         lifecycleOwner.lifecycleScope.launch {
             launch {
                 bootUseCase()
-            }
-
-            launch {
-                screenRepository
-                    .isTurnOn
-                    .flowWithLifecycle(lifecycleOwner.lifecycle)
-                    .collect {
-                        Timber.d("screen repository $it")
-                    }
             }
 
             launch {
@@ -102,7 +94,7 @@ class ServiceViewController @Inject constructor(
         appFinishUseCase()
 
         notificationViewController.onDestroy()
-        // overlayViewController.onDestroy()
+        overlayViewController.onDestroy()
         popupViewController.onDestroy()
         navigatorViewController.onDestroy()
         vibratorController.onDestroy()
