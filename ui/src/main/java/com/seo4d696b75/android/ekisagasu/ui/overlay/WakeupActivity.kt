@@ -1,22 +1,23 @@
 package com.seo4d696b75.android.ekisagasu.ui.overlay
 
-import android.app.KeyguardManager
-import android.content.Context
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
 import com.seo4d696b75.android.ekisagasu.ui.databinding.ActivityWakeupBinding
-import timber.log.Timber
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class WakeupActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var screenRepository: ScreenRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val manager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        val locked = manager.isKeyguardLocked
-
-        Timber.tag("Wakeup").d("locked: $locked")
-        if (locked) {
+        if (screenRepository.isScreenLocked) {
             // SecureなLockScreenが存在する場合
             // ユーザ操作でないと解除できない 適当な画面を表示し続けて解除を促す
             window.setFlags(
