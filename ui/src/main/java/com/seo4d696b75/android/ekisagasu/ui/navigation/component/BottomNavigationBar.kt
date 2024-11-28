@@ -10,6 +10,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -31,16 +32,24 @@ fun BottomNavigationBar(
             derivedStateOf { backStackEntry?.toRoute()?.findTab() }
         }
         NavigationTab.entries.forEach { tab ->
+            val selected = tab == currentTab
             NavigationBarItem(
-                selected = tab == currentTab,
+                selected = selected,
                 icon = {
                     Icon(
-                        imageVector = tab.icon,
-                        contentDescription = tab.label,
+                        imageVector = tab.icon(selected),
+                        contentDescription = tab.label(),
                     )
                 },
                 label = {
-                    Text(text = tab.label)
+                    Text(
+                        text = tab.label(),
+                        fontWeight = if (selected) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Normal
+                        },
+                    )
                 },
                 onClick = dropUnlessStarted {
                     navController.navigate(tab) {

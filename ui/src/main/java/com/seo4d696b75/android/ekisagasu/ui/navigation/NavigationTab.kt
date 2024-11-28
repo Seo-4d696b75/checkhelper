@@ -1,6 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
@@ -11,10 +13,11 @@ import kotlinx.serialization.Serializable
 
 /** BottomNavigationのタブを定義 */
 sealed interface NavigationTab {
-    @get:Composable
-    val icon: ImageVector
+    @Composable
+    fun icon(selected: Boolean): ImageVector
 
-    val label: String
+    @Composable
+    fun label(): String
 
     companion object {
         val entries = listOf(Home, Log, Setting)
@@ -22,28 +25,42 @@ sealed interface NavigationTab {
 
     @Serializable
     data object Home : NavigationTab {
-        @get:Composable
-        override val icon
-            get() = Icons.Outlined.Home
+        @Composable
+        override fun icon(selected: Boolean) = if (selected) {
+            Icons.Filled.Home
+        } else {
+            Icons.Outlined.Home
+        }
 
-        override val label = "ホーム"
+        @Composable
+        override fun label() = "ホーム"
     }
 
     @Serializable
     data object Log : NavigationTab {
-        override val icon
-            @Composable
-            get() = ImageVector.vectorResource(id = R.drawable.ic_history)
+        @Composable
+        override fun icon(selected: Boolean) = ImageVector.vectorResource(
+            id = if (selected) {
+                R.drawable.ic_database_filled
+            } else {
+                R.drawable.ic_database_outlined
+            }
+        )
 
-        override val label = "ログ"
+        @Composable
+        override fun label() = "ログ"
     }
 
     @Serializable
     data object Setting : NavigationTab {
-        @get:Composable
-        override val icon
-            get() = Icons.Outlined.Settings
+        @Composable
+        override fun icon(selected: Boolean) = if (selected) {
+            Icons.Filled.Settings
+        } else {
+            Icons.Outlined.Settings
+        }
 
-        override val label = "設定"
+        @Composable
+        override fun label() = "設定"
     }
 }
