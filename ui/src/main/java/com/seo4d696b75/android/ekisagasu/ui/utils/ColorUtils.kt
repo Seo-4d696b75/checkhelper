@@ -1,10 +1,13 @@
 package com.seo4d696b75.android.ekisagasu.ui.utils
 
+import androidx.compose.ui.graphics.Color
+
 /**
  * @author Seo-4d696b75
  * @version 2021/01/19.
  */
 
+// FIXME data class で変換しておく
 fun parseColorCode(value: String?): Int {
     val color = value?.substring(1)?.toInt(16) ?: 0xcccccc
     return color.or(0xff000000.toInt())
@@ -19,3 +22,5 @@ fun getVFromColorCode(value: String): Int {
     val r = color.and(0xff)
     return maxOf(r, g, b)
 }
+
+fun Int.asComposeColor(): Color = Color(this)

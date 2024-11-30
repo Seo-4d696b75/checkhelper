@@ -26,7 +26,9 @@ data class Station(
     val originalName: String,
     @SerialName("name_kana")
     val nameKana: String,
+    // FIXME String変換する
     val prefecture: Int,
+    // FIXME List<Line>に変換する
     val lines: List<Int>,
     val closed: Boolean,
     @Serializable(with = JsonObjectAsStringSerializer::class)
