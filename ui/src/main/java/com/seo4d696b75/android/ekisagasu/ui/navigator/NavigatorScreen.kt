@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.common.OverlayAppIcon
 import com.seo4d696b75.android.ekisagasu.ui.navigator.section.NavigatorSection
-import com.seo4d696b75.android.ekisagasu.ui.navigator.section.previewLine
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import com.seo4d696b75.android.ekisagasu.ui.utils.previewLine
 
 @Composable
 fun NavigatorScreen(

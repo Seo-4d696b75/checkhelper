@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
@@ -31,6 +30,7 @@ import com.seo4d696b75.android.ekisagasu.ui.navigator.component.NavigationButton
 import com.seo4d696b75.android.ekisagasu.ui.navigator.component.NavigatorInitializingSection
 import com.seo4d696b75.android.ekisagasu.ui.navigator.component.NavigatorStationList
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import com.seo4d696b75.android.ekisagasu.ui.utils.previewLine
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
@@ -103,16 +103,6 @@ fun NavigatorSection(
         }
     }
 }
-
-val previewLine = Line(
-    id = "id",
-    code = 10001,
-    name = "東海道新幹線",
-    closed = false,
-    nameKana = "とうかいどうしんかんせん",
-    stationSize = 17,
-    stationList = emptyArray(),
-)
 
 @Composable
 @PreviewLightDark

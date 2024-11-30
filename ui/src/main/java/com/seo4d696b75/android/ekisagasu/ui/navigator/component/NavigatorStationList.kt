@@ -36,9 +36,9 @@ import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorLineState
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorStationState
-import com.seo4d696b75.android.ekisagasu.ui.navigator.section.previewLine
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
+import com.seo4d696b75.android.ekisagasu.ui.utils.previewLine
 
 @Composable
 fun NavigatorStationList(

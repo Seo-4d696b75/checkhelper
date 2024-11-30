@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import com.seo4d696b75.android.ekisagasu.ui.utils.previewStation
 
 @Composable
 fun StationName(
@@ -33,21 +34,6 @@ fun StationName(
         )
     }
 }
-
-val previewStation = Station(
-    id = "1",
-    code = 1,
-    name = "東京",
-    originalName = "東京",
-    nameKana = "とうきょう",
-    lines = listOf(1),
-    lat = 45.5,
-    lng = 135.0,
-    prefecture = 13,
-    closed = false,
-    voronoi = "",
-    attr = "",
-)
 
 @Composable
 @PreviewLightDark

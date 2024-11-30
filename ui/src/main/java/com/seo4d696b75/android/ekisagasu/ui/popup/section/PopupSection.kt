@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.ui.R
-import com.seo4d696b75.android.ekisagasu.ui.navigator.section.previewLine
 import com.seo4d696b75.android.ekisagasu.ui.popup.PopupStationState
 import com.seo4d696b75.android.ekisagasu.ui.popup.component.StationDetectedTime
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import com.seo4d696b75.android.ekisagasu.ui.utils.previewLine
 import java.util.Date
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
