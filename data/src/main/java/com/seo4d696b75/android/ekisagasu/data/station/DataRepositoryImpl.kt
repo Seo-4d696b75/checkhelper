@@ -7,6 +7,7 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationKdTree
 import dagger.Binds
@@ -17,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import javax.inject.Inject
@@ -26,11 +26,25 @@ import javax.inject.Singleton
 class DataRepositoryImpl @Inject constructor(
     private val dao: StationDao,
     private val json: Json,
+    private val prefectureRepository: PrefectureRepository,
 ) : DataRepository {
     override suspend fun getLine(code: Int) =
         withContext(Dispatchers.IO) {
             dao.getLine(code).toModel()
         }
+
+    private fun LineEntity.toModel() = Line(
+        id = id,
+        code = code,
+        name = name,
+        nameKana = nameKana,
+        stationSize = stationSize,
+        symbol = symbol,
+        color = color,
+        closed = closed,
+        stationList = stationList,
+        polyline = polyline,
+    )
 
     override suspend fun getLines(codes: List<Int>) =
         withContext(Dispatchers.IO) {
@@ -41,6 +55,20 @@ class DataRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             dao.getStation(code).toModel()
         }
+
+    private suspend fun StationEntity.toModel() = Station(
+        id = id,
+        code = code,
+        lat = lat,
+        lng = lng,
+        name = name,
+        originalName = originalName,
+        nameKana = nameKana,
+        prefecture = prefectureRepository[prefecture],
+        lines = getLines(lines),
+        closed = closed,
+        voronoi = voronoi,
+    )
 
     override suspend fun getStations(codes: List<Int>) =
         withContext(Dispatchers.IO) {
@@ -88,15 +116,15 @@ class DataRepositoryImpl @Inject constructor(
     }
 
     private fun File.stations() =
-        json.decodeFromString<List<Station>>(
+        json.decodeFromString<List<StationResponse>>(
             File(this, "json/station.json").readText(Charsets.UTF_8),
-        ).map { StationEntity.fromModel(it) }
+        ).map { it.toEntity() }
 
     private fun File.lines(): List<LineEntity> {
         val dir = File(this, "json/line")
         require(dir.exists() && dir.isDirectory)
         return requireNotNull(dir.listFiles()).map {
-            val line = json.decodeFromString<Line>(it.readText(Charsets.UTF_8))
+            val line = json.decodeFromString<LineResponse>(it.readText(Charsets.UTF_8))
             // load polyline from different file
             val file = File(this, "json/polyline/${line.code}.json")
             if (file.exists()) {
@@ -104,7 +132,7 @@ class DataRepositoryImpl @Inject constructor(
             } else {
                 line
             }
-        }.map { LineEntity.fromModel(it) }
+        }.map { it.toEntity() }
     }
 
     private fun File.kdTree() =
