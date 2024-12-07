@@ -6,6 +6,5 @@ package com.seo4d696b75.android.ekisagasu.domain.dataset
  */
 interface PrefectureRepository {
     suspend fun setData()
-
-    fun getName(code: Int): String
+    operator fun get(code: Int): Prefecture
 }

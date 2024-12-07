@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.data.station
 import android.content.Context
 import android.util.SparseArray
 import com.seo4d696b75.android.ekisagasu.data.R
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import dagger.Binds
 import dagger.Module
@@ -17,18 +18,19 @@ import javax.inject.Singleton
 class PrefectureRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : PrefectureRepository {
-    private var _prefectures: SparseArray<String>? = null
+    private var _prefectures: SparseArray<Prefecture>? = null
 
     override suspend fun setData() = withContext(Dispatchers.IO) {
         try {
             val stream = context.resources.openRawResource(R.raw.prefecture)
             val reader = stream.bufferedReader()
-            val array = SparseArray<String>()
+            val array = SparseArray<Prefecture>()
             reader.lines().forEach { line ->
                 val data = line.split(",")
                 if (data.size == 2) {
-                    val id = data[0].toInt()
-                    array.put(id, data[1])
+                    val code = data[0].toInt()
+                    val name = data[1]
+                    array.put(code, Prefecture(code, name))
                 }
             }
             _prefectures = array
@@ -37,9 +39,11 @@ class PrefectureRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getName(code: Int): String {
-        if (code < 1 || code > 47) return "unknown"
-        return _prefectures?.get(code) ?: "not-init"
+    override operator fun get(code: Int): Prefecture {
+        if (code < 1 || code > 47) {
+            return Prefecture(code, "unknown")
+        }
+        return _prefectures?.get(code) ?: throw IllegalStateException("not initialized")
     }
 }
 
