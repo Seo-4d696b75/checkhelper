@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.ui.radar.section
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -38,6 +39,7 @@ fun RadarListSection(
             ) {
                 Row(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .clickable { onStationClicked(n.station) }
                         .padding(4.dp),
                 ) {
