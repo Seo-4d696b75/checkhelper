@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -21,6 +22,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.ui.log.LogViewModel
+import com.seo4d696b75.android.ekisagasu.ui.navigation.MainScreen
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationale
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationaleArg
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationaleDialogDirections
@@ -28,6 +30,7 @@ import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionViewModel
 import com.seo4d696b75.android.ekisagasu.ui.permission.canShowSystemRequestDialog
 import com.seo4d696b75.android.ekisagasu.ui.permission.shouldShowRationale
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
+import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.update.ConfirmDataUpdateDialogDirections
@@ -53,7 +56,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO activityの再生成が失敗するので暫定的に初期状態から
         super.onCreate(null)
-        setContentView(R.layout.main_activity)
+        // setContentView(R.layout.main_activity)
+        setContent {
+            AppTheme {
+                MainScreen()
+            }
+        }
 
         // listen to log file output request
         logViewModel
@@ -87,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                             info = LatestDataVersionArg(message.info),
                             type = message.type,
                         )
-                        findNavController(R.id.main_nav_host).navigate(action)
+                        // findNavController(R.id.main_nav_host).navigate(action)
                     }
 
                     is AppMessage.Data.CancelUpdate -> {

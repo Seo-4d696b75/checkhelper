@@ -31,17 +31,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
-import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorLineState
 import com.seo4d696b75.android.ekisagasu.ui.navigator.DisplayedNavigatorStationState
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
 import com.seo4d696b75.android.ekisagasu.ui.utils.previewLine
+import com.seo4d696b75.android.ekisagasu.ui.utils.previewStation
 
 @Composable
 fun NavigatorStationList(
+    currentLine: Line,
     stations: List<DisplayedNavigatorStationState>,
     modifier: Modifier = Modifier,
 ) {
@@ -111,22 +112,22 @@ fun NavigatorStationList(
                     Spacer(modifier = Modifier.width(8.dp))
                     AutoScalingText(
                         text = buildAnnotatedString {
-                            val sorted = item.lines.sortedBy {
-                                if (it.isCurrentSelected) 0 else 1
+                            val sorted = item.station.lines.sortedBy {
+                                if (it == currentLine) 0 else 1
                             }
                             val iterator = sorted.iterator()
                             while (iterator.hasNext()) {
                                 val line = iterator.next()
                                 withStyle(
                                     style = SpanStyle(
-                                        color = if (line.isCurrentSelected) {
+                                        color = if (line == currentLine) {
                                             MaterialTheme.colorScheme.primary
                                         } else {
                                             Color.Unspecified
                                         },
                                     ),
                                 ) {
-                                    append(line.line.name)
+                                    append(line.name)
                                 }
                                 if (iterator.hasNext()) {
                                     append(" ")
@@ -159,77 +160,30 @@ private fun NavigatorStationListPreview() {
     AppTheme {
         Surface {
             NavigatorStationList(
+                currentLine = previewLine,
                 stations = listOf(
                     DisplayedNavigatorStationState.Current(
-                        station = Station(
-                            id = "1",
-                            code = 1,
-                            name = "東京",
-                            originalName = "東京",
-                            nameKana = "とうきょう",
-                            lines = listOf(1),
-                            lat = 45.5,
-                            lng = 135.0,
-                            prefecture = 13,
-                            closed = false,
-                            voronoi = "",
-                            attr = "",
-                        ),
-                        lines = listOf(
-                            DisplayedNavigatorLineState(
-                                line = previewLine,
-                                isCurrentSelected = true,
-                            ),
-                            DisplayedNavigatorLineState(
-                                line = previewLine,
-                                isCurrentSelected = false,
-                            ),
-                        ),
+                        station = previewStation,
                     ),
                     DisplayedNavigatorStationState.Prediction(
-                        station = Station(
+                        station = previewStation.copy(
                             id = "2",
                             code = 2,
                             name = "品川",
                             originalName = "品川",
                             nameKana = "しながわ",
-                            lines = listOf(1),
-                            lat = 45.5,
-                            lng = 135.0,
-                            prefecture = 13,
-                            closed = false,
-                            voronoi = "",
-                            attr = "",
                         ),
-                        lines = List(10) {
-                            DisplayedNavigatorLineState(
-                                line = previewLine,
-                                isCurrentSelected = false,
-                            )
-                        },
                         distance = 100f,
                     ),
                     DisplayedNavigatorStationState.Prediction(
-                        station = Station(
+                        station = previewStation.copy(
                             id = "3",
                             code = 3,
                             name = "新横浜",
                             originalName = "新横浜",
                             nameKana = "しんよこはま",
-                            lines = listOf(1),
-                            lat = 45.5,
-                            lng = 135.0,
-                            prefecture = 13,
-                            closed = false,
-                            voronoi = "",
-                            attr = "",
+                            lines = listOf(previewLine),
                         ),
-                        lines = List(5) {
-                            DisplayedNavigatorLineState(
-                                line = previewLine,
-                                isCurrentSelected = false,
-                            )
-                        },
                         distance = 200f,
                     ),
                 ),

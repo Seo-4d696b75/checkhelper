@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +17,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StationViewModel @Inject constructor(
-    private val prefectureRepository: PrefectureRepository,
     private val dataRepository: DataRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -32,19 +30,11 @@ class StationViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
     val lines = station.map {
-        if (it == null) {
-            emptyList()
-        } else {
-            dataRepository.getLines(it.lines)
-        }
+        it?.lines ?: emptyList()
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val stationPrefecture = station.map {
-        if (it == null) {
-            ""
-        } else {
-            prefectureRepository.getName(it.prefecture)
-        }
+        it?.prefecture?.name ?: ""
     }.stateIn(viewModelScope, SharingStarted.Lazily, "")
 
     private val _event = MutableSharedFlow<StationFragmentEvent>()

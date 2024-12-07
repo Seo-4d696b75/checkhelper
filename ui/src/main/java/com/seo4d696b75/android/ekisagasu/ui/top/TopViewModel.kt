@@ -43,9 +43,7 @@ class TopViewModel @Inject constructor(
     val nearestStation = searchRepository.result.mapStateIn(viewModelScope, null) { it?.nearest }
     val station = nearestStation.mapStateIn(viewModelScope) { it?.station }
     val nearestStationPrefecture = nearestStation.mapStateIn(viewModelScope) { n ->
-        n?.let {
-            prefectureRepository.getName(it.station.prefecture)
-        } ?: ""
+        n?.station?.prefecture?.name ?: ""
     }
 
     val selectedLine = searchRepository.selectedLine

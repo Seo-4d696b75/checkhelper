@@ -25,21 +25,13 @@ sealed interface DisplayedNavigatorState {
 @Immutable
 sealed interface DisplayedNavigatorStationState {
     val station: Station
-    val lines: List<DisplayedNavigatorLineState>
 
     data class Current(
         override val station: Station,
-        override val lines: List<DisplayedNavigatorLineState>,
     ) : DisplayedNavigatorStationState
 
     data class Prediction(
         override val station: Station,
-        override val lines: List<DisplayedNavigatorLineState>,
         val distance: Float,
     ) : DisplayedNavigatorStationState
 }
-
-data class DisplayedNavigatorLineState(
-    val line: Line,
-    val isCurrentSelected: Boolean,
-)

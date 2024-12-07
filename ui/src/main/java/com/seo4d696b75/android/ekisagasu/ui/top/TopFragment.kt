@@ -79,7 +79,7 @@ class TopFragment : Fragment() {
         viewModel.nearestStation
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .filterNotNull()
-            .onEach { adapter.submitList(it.lines) }
+            .onEach { adapter.submitList(it.station.lines) }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         // 探索が終了したらRadarFragmentに遷移する

@@ -2,7 +2,6 @@ package com.seo4d696b75.android.ekisagasu.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
@@ -17,7 +16,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     locationRepository: LocationRepository,
     searchRepository: StationSearchRepository,
-    private val prefectureRepository: PrefectureRepository,
 ) : ViewModel() {
     val uiState: StateFlow<HomeUiState> = combine(
         locationRepository.currentLocation,
@@ -29,7 +27,6 @@ class HomeViewModel @Inject constructor(
             result == null -> HomeUiState.Initializing
             else -> HomeUiState.Result(
                 station = result.nearest,
-                prefecture = prefectureRepository.getName(result.nearest.station.prefecture),
                 selectedLine = selectedLine,
             )
         }

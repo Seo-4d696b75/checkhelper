@@ -53,7 +53,6 @@ fun HomeResultSection(
             is HomeUiState.Result ->
                 HomeResultGrid(
                     station = state.station,
-                    prefecture = state.prefecture,
                     modifier = Modifier.padding(end = 5.dp),
                 )
         }

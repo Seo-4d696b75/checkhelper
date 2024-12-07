@@ -14,7 +14,6 @@ sealed interface HomeUiState {
     data object Initializing : Running
     data class Result(
         val station: NearStation,
-        val prefecture: String,
         val selectedLine: Line?,
     ) : Running
 }

@@ -74,7 +74,7 @@ fun setLinesName(
     view: TextView,
     n: NearStation?,
 ) {
-    view.text = n?.getLinesName() ?: ""
+    view.text = n?.station?.getLinesName() ?: ""
 }
 
 @BindingAdapter("selectedLineName")

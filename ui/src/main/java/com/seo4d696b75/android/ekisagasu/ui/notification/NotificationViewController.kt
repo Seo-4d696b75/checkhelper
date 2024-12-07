@@ -109,7 +109,7 @@ class NotificationViewController @Inject constructor(
                         .collect { s ->
                             update(
                                 String.format("%s  %s", s.station.name, s.getDetectedTime()),
-                                String.format("%s   %s", s.distance.formatDistance, s.getLinesName()),
+                                String.format("%s   %s", s.distance.formatDistance, s.station.getLinesName()),
                             )
                         }
                 }

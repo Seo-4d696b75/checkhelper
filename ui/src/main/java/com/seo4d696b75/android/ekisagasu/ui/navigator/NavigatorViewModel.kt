@@ -2,7 +2,6 @@ package com.seo4d696b75.android.ekisagasu.ui.navigator
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
@@ -23,7 +22,6 @@ import timber.log.Timber
 @OptIn(ExperimentalCoroutinesApi::class)
 class NavigatorViewModel(
     private val navigatorRepository: NavigatorRepository,
-    private val dataRepository: DataRepository,
     private val searchRepository: StationSearchRepository,
 ) : ViewModel() {
 
@@ -51,14 +49,6 @@ class NavigatorViewModel(
                         add(
                             DisplayedNavigatorStationState.Current(
                                 station = state.current,
-                                lines = dataRepository
-                                    .getLines(state.current.lines)
-                                    .map {
-                                        DisplayedNavigatorLineState(
-                                            line = it,
-                                            isCurrentSelected = it.id == state.line.id,
-                                        )
-                                    },
                             )
                         )
                         // 続いて予測駅を順に追加する
@@ -68,14 +58,6 @@ class NavigatorViewModel(
                                 val prediction = DisplayedNavigatorStationState.Prediction(
                                     station = p.station,
                                     distance = p.distance,
-                                    lines = dataRepository
-                                        .getLines(p.station.lines)
-                                        .map {
-                                            DisplayedNavigatorLineState(
-                                                line = it,
-                                                isCurrentSelected = it.id == state.line.id,
-                                            )
-                                        }
                                 )
                                 add(prediction)
                             }

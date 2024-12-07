@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatusRepository
@@ -66,14 +65,12 @@ object ViewModelModule {
         searchRepository: StationSearchRepository,
         prefectureRepository: PrefectureRepository,
         navigatorRepository: NavigatorRepository,
-        dataRepository: DataRepository,
         popupStatusRepository: PopupStatusRepository,
     ) = viewModelFactory {
         // 各ViewModelごとに指定すること
         initializer {
             NavigatorViewModel(
                 navigatorRepository,
-                dataRepository,
                 searchRepository,
             )
         }

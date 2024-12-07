@@ -116,12 +116,10 @@ class StationSearchRepositoryImpl @Inject constructor(
         val nearest = result.stations[0]
         val time = Date(param.location.timestamp)
         val list = result.stations.map { s ->
-            val lines = dataRepository.getLines(s.lines)
             NearStation(
                 station = s,
                 distance = s.measureDistance(param.location.lat, param.location.lng),
                 time = time,
-                lines = lines,
             )
         }
         return if (previous == null || previous.detected.station != nearest) {

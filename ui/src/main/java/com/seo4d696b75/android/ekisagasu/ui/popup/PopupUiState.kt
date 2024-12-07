@@ -25,6 +25,6 @@ sealed interface PopupStationState {
     data class Result(
         val nearest: NearStation,
         val time: StationDetectedTime,
-        val prefecture: String?,
+        val showPrefecture: Boolean,
     ) : PopupStationState
 }

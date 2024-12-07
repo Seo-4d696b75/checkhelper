@@ -115,11 +115,7 @@ class PopupViewModel(
                     PopupStationState.Result(
                         nearest = nearest,
                         time = time,
-                        prefecture = if (showPrefecture) {
-                            prefectureRepository.getName(nearest.station.prefecture)
-                        } else {
-                            null
-                        },
+                        showPrefecture = showPrefecture,
                     )
                 }
             }

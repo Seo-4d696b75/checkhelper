@@ -55,7 +55,7 @@ class LineSelectionViewModel @Inject constructor(
         .map {
             val set = mutableSetOf<Line>()
             it.nears.forEach { s ->
-                set.addAll(s.lines)
+                set.addAll(s.station.lines)
             }
             set.toList()
         }

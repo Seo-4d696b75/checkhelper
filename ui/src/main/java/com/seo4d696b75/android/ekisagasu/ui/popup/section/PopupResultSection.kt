@@ -39,9 +39,9 @@ fun PopupResultSection(
                     modifier = Modifier.alignByBaseline(),
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                if (state.prefecture != null) {
+                if (state.showPrefecture) {
                     Text(
-                        text = state.prefecture,
+                        text = state.nearest.station.prefecture.name,
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.alignByBaseline(),
                     )
@@ -60,7 +60,7 @@ fun PopupResultSection(
                 }
                 Spacer(modifier = Modifier.width(6.dp))
                 AutoScalingText(
-                    text = state.nearest.getLinesName(),
+                    text = state.nearest.station.getLinesName(),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.alignByBaseline(),
                 )

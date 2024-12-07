@@ -88,7 +88,6 @@ private class HomeSectionPreviewParamProvider : PreviewParameterProvider<HomeUiS
         HomeUiState.Initializing,
         HomeUiState.Result(
             station = previewNearStation,
-            prefecture = "東京都",
             selectedLine = previewLine,
         ),
     )

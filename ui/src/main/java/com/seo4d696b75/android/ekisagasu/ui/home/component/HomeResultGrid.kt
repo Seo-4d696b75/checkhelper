@@ -34,7 +34,6 @@ import com.seo4d696b75.android.ekisagasu.ui.utils.previewNearStation
 @Composable
 fun HomeResultGrid(
     station: NearStation,
-    prefecture: String,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -66,7 +65,7 @@ fun HomeResultGrid(
                     .alignByBaseline(),
             )
             Text(
-                text = prefecture,
+                text = station.station.prefecture.name,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .padding(start = 4.dp)
@@ -86,7 +85,7 @@ fun HomeResultGrid(
                 modifier = Modifier.padding(start = 4.dp),
             ) {
                 items(
-                    items = station.lines,
+                    items = station.station.lines,
                     key = { it.code },
                 ) { line ->
                     Row(
@@ -120,7 +119,6 @@ private fun HomeResultGridPreview() {
         Surface {
             HomeResultGrid(
                 station = previewNearStation,
-                prefecture = "東京都",
                 modifier = Modifier.width(200.dp),
             )
         }

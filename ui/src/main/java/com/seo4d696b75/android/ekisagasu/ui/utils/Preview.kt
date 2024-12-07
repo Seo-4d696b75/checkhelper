@@ -1,6 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.ui.utils
 
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import java.util.Date
@@ -77,18 +78,44 @@ val previewStation = Station(
     name = "東京",
     originalName = "東京",
     nameKana = "とうきょう",
-    lines = listOf(1),
+    lines = previewLines,
     lat = 45.5,
     lng = 135.0,
-    prefecture = 13,
+    prefecture = Prefecture(13, "東京都"),
     closed = false,
     voronoi = "",
-    attr = "",
+)
+
+val previewStation2 = Station(
+    id = "2",
+    code = 2,
+    name = "品川",
+    originalName = "品川",
+    nameKana = "しながわ",
+    lines = previewLines,
+    lat = 45.5,
+    lng = 135.0,
+    prefecture = Prefecture(13, "東京都"),
+    closed = false,
+    voronoi = "",
+)
+
+val previewStation3 = Station(
+    id = "3",
+    code = 3,
+    name = "新横浜",
+    originalName = "新横浜",
+    nameKana = "しんよこはま",
+    lines = previewLines,
+    lat = 45.5,
+    lng = 135.0,
+    prefecture = Prefecture(14, "神奈川県"),
+    closed = false,
+    voronoi = "",
 )
 
 val previewNearStation = NearStation(
     station = previewStation,
     distance = 123f,
     time = Date(),
-    lines = previewLines,
 )
