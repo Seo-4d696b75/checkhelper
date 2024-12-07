@@ -33,7 +33,9 @@ fun RadarListSection(
             items = list,
             key = { _, n -> n.station.code },
         ) { index, n ->
-            Column {
+            Column(
+                modifier = Modifier.animateItem(),
+            ) {
                 Row(
                     modifier = Modifier
                         .clickable { onStationClicked(n.station) }
