@@ -1,5 +1,9 @@
 package com.seo4d696b75.android.ekisagasu.ui.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,8 +44,14 @@ fun MainScreen(
                 .padding(padding)
                 .fillMaxSize(),
         ) {
+            val enter = fadeIn() + slideInHorizontally()
+            val exit = fadeOut() + slideOutHorizontally()
             navigation<NavigationTab.Home>(
                 startDestination = NavigationRoute.Home.Radar,
+                enterTransition = { enter },
+                popEnterTransition = { enter },
+                exitTransition = { exit },
+                popExitTransition = { exit },
             ) {
                 composable<NavigationRoute.Home.Radar> {
                     HomeScreenShell {
@@ -108,6 +118,10 @@ fun MainScreen(
             }
             navigation<NavigationTab.Log>(
                 startDestination = NavigationRoute.Log.Top,
+                enterTransition = { enter },
+                popEnterTransition = { enter },
+                exitTransition = { exit },
+                popExitTransition = { exit },
             ) {
                 composable<NavigationRoute.Log.Top> {
                     Box(
@@ -123,6 +137,10 @@ fun MainScreen(
             }
             navigation<NavigationTab.Setting>(
                 startDestination = NavigationRoute.Setting.Top,
+                enterTransition = { enter },
+                popEnterTransition = { enter },
+                exitTransition = { exit },
+                popExitTransition = { exit },
             ) {
                 composable<NavigationRoute.Setting.Top> {
                     Box(
