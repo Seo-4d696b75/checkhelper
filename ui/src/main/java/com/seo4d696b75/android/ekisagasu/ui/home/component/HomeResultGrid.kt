@@ -2,6 +2,7 @@ package com.seo4d696b75.android.ekisagasu.ui.home.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,11 +43,8 @@ fun HomeResultGrid(
     ) {
         StationName(
             station = station.station,
-            modifier = Modifier.padding(
-                start = 8.dp,
-                bottom = 7.dp,
-            ),
         )
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -54,7 +52,7 @@ fun HomeResultGrid(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             Text(
                 text = station.distance.formatDistance,
@@ -79,10 +77,11 @@ fun HomeResultGrid(
                 painter = painterResource(id = R.drawable.station),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             LazyRow(
                 modifier = Modifier.padding(start = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(
                     items = station.station.lines,

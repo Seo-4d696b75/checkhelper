@@ -43,10 +43,6 @@ fun HomeLoading(
         Box(
             modifier = Modifier
                 .width(120.dp)
-                .padding(
-                    start = 8.dp,
-                    bottom = 7.dp,
-                )
                 .then(shimmer),
         ) {
             Column {
@@ -60,6 +56,7 @@ fun HomeLoading(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -67,7 +64,7 @@ fun HomeLoading(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             Text(
                 text = "",
@@ -86,7 +83,7 @@ fun HomeLoading(
                 painter = painterResource(id = R.drawable.station),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             Text(
                 text = "",

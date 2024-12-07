@@ -30,23 +30,19 @@ fun HomeResultSection(
             HomeUiState.Idle ->
                 Text(
                     text = stringResource(id = R.string.main_message_wait_search),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .padding(horizontal = 8.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(8.dp),
                 )
 
             HomeUiState.Initializing ->
                 HomeLoading(
-                    modifier = Modifier
-                        .padding(end = 5.dp)
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             is HomeUiState.Result ->
                 HomeResultGrid(
                     station = state.station,
-                    modifier = Modifier.padding(end = 5.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 )
         }
     }

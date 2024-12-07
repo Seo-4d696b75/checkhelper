@@ -57,7 +57,7 @@ fun HomeScreenShell(
                 state = state,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             content()
         }
         FloatingActionButton(

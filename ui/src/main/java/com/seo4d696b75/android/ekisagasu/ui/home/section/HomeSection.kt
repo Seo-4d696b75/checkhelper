@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,21 +39,16 @@ fun HomeSection(
     Row(
         modifier = modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            Text(
-                text = stringResource(id = R.string.title_nearest_station),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
-            HomeResultSection(state = state)
-        }
+        HomeResultSection(
+            state = state,
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
+        )
         Column(
             horizontalAlignment = Alignment.End,
         ) {
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(end = 2.dp),
