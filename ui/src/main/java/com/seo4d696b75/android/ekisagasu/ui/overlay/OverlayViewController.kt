@@ -21,6 +21,7 @@ import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatusRepository
 import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenRepository
 import com.seo4d696b75.android.ekisagasu.domain.screen.ScreenStatus
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import dagger.Binds
 import dagger.Module
@@ -35,7 +36,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
@@ -163,8 +164,8 @@ class OverlayViewController @Inject constructor(
                 launch {
                     // 現在の最近傍駅の変化（距離の変化は無視する）
                     searchRepository
-                        .result
-                        .filterNotNull()
+                        .state
+                        .filterIsInstance<StationSearchState.Result>()
                         .map { it.detected }
                         .distinctUntilChanged()
                         .collect {

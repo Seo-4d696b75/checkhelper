@@ -13,7 +13,7 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
-import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchResult
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import dagger.Binds
 import dagger.Module
@@ -58,83 +58,81 @@ class StationSearchRepositoryImpl @Inject constructor(
         _selectedLine.update { null }
     }
 
-    override val result = combine(
-        locationRepository.currentLocation,
-        settingRepository.setting.map { it.searchK },
-    ) { state, k ->
-        when (state) {
-            is LocationState.Result ->
-                SearchParam(state.location, k)
+    private val location = locationRepository
+        .currentLocation
+        .distinctUntilChanged { old, new ->
+            old is LocationState.Result &&
+                new is LocationState.Result &&
+                old.location.lat == new.location.lat &&
+                old.location.lng == new.location.lng
+        }
 
-            else -> {
-                _selectedLine.update { null }
-                null
+    private val k = settingRepository
+        .setting
+        .map { it.searchK }
+        .distinctUntilChanged()
+
+    override val state = combine(
+        location,
+        k,
+    ) { state, k ->
+        if (state !is LocationState.Result) {
+            _selectedLine.update { null }
+        }
+        state to k
+    }
+        .mapLatestBySkip<Pair<LocationState, Int>, StationSearchState>(
+            StationSearchState.Idle(12),
+        ) { param, previous ->
+            val (state, k) = param
+            when (state) {
+                LocationState.Idle -> StationSearchState.Idle(k)
+                is LocationState.Initializing -> StationSearchState.Initializing(k)
+                is LocationState.Result -> updateLocation(state.location, k, previous)
             }
         }
-    }
-        .distinctUntilChanged(::isSearchSkippable)
-        .mapLatestBySkip(null, ::updateLocation)
         .stateIn(
             // convert into hot flow so that same result should be shared in application
             scope,
             SharingStarted.WhileSubscribed(),
-            null,
+            StationSearchState.Idle(12),
         )
 
-    private data class SearchParam(
-        val location: Location,
-        val k: Int,
-    )
-
-    private fun isSearchSkippable(old: SearchParam?, new: SearchParam?): Boolean {
-        if (old == null && new == null) {
-            return true
-        }
-        if (old == null || new == null) {
-            return false
-        }
-        return old.location.lat == new.location.lat
-            && old.location.lng == old.location.lng
-            && old.k == new.k
-    }
-
     private suspend fun updateLocation(
-        param: SearchParam?,
-        previous: StationSearchResult?,
-    ): StationSearchResult? {
-        if (param == null) {
-            return null
-        }
+        location: Location,
+        k: Int,
+        previous: StationSearchState,
+    ): StationSearchState {
         // Must be pure function
         // do not access to class member!!
-        require(param.k > 0)
+        require(k > 0)
         require(dataRepository.dataInitialized)
-        val result = search.search(param.location.lat, param.location.lng, param.k, 0.0, false)
+        val result = search.search(location.lat, location.lng, k, 0.0, false)
         if (result.stations.isEmpty()) {
-            return null
+            return StationSearchState.Initializing(k)
         }
         val nearest = result.stations[0]
-        val time = Date(param.location.timestamp)
+        val time = Date(location.timestamp)
         val list = result.stations.map { s ->
             NearStation(
                 station = s,
-                distance = s.measureDistance(param.location.lat, param.location.lng),
+                distance = s.measureDistance(location.lat, location.lng),
                 time = time,
             )
         }
-        return if (previous == null || previous.detected.station != nearest) {
+        return if (previous !is StationSearchState.Result || previous.detected.station != nearest) {
             Timber.d("${nearest.name} (${nearest.code})")
             log(LogMessage.Station(nearest))
-            StationSearchResult(
-                location = param.location,
-                searchK = param.k,
+            StationSearchState.Result(
+                location = location,
+                searchK = k,
                 detected = list[0],
                 nears = list,
             )
         } else {
             previous.copy(
-                location = param.location,
-                searchK = param.k,
+                location = location,
+                searchK = k,
                 nears = list,
             )
         }

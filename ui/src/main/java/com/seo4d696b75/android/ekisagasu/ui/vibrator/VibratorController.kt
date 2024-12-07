@@ -16,6 +16,7 @@ import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorPrediction
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -60,8 +61,8 @@ class VibratorController @Inject constructor(
                 launch {
                     // 近傍駅の変更（距離の変化は無視）
                     searchRepository
-                        .result
-                        .filterNotNull()
+                        .state
+                        .filterIsInstance<StationSearchState.Result>()
                         .map { it.detected.station }
                         .distinctUntilChanged()
                         .collect(::onStationChanged)

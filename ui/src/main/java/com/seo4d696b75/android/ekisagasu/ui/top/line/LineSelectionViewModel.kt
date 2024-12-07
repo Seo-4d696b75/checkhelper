@@ -8,11 +8,12 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.ui.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,8 +51,8 @@ class LineSelectionViewModel @Inject constructor(
         get() = navigatorRepository.currentLine
 
     val lines = searchRepository
-        .result
-        .filterNotNull()
+        .state
+        .filterIsInstance<StationSearchState.Result>()
         .map {
             val set = mutableSetOf<Line>()
             it.nears.forEach { s ->

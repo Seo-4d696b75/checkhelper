@@ -4,17 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapStateIn
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -27,7 +26,6 @@ class TopViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     searchRepository: StationSearchRepository,
     private val dataRepository: DataRepository,
-    private val prefectureRepository: PrefectureRepository,
     private val appStateRepository: AppStateRepository,
 ) : ViewModel() {
     val isRunning = locationRepository
@@ -40,7 +38,12 @@ class TopViewModel @Inject constructor(
             initialValue = false,
         )
 
-    val nearestStation = searchRepository.result.mapStateIn(viewModelScope, null) { it?.nearest }
+    val nearestStation = searchRepository.state.mapStateIn(viewModelScope, null) {
+        when (it) {
+            is StationSearchState.Result -> it.nearest
+            else -> null
+        }
+    }
     val station = nearestStation.mapStateIn(viewModelScope) { it?.station }
     val nearestStationPrefecture = nearestStation.mapStateIn(viewModelScope) { n ->
         n?.station?.prefecture?.name ?: ""
@@ -48,14 +51,11 @@ class TopViewModel @Inject constructor(
 
     val selectedLine = searchRepository.selectedLine
 
-    val state = combine(
-        isRunning,
-        searchRepository.result.map { it?.nearest },
-    ) { run, station ->
-        if (run) {
-            if (station == null) SearchState.STARTING else SearchState.RUNNING
-        } else {
-            SearchState.STOPPED
+    val state = searchRepository.state.map {
+        when (it) {
+            is StationSearchState.Idle -> SearchState.STOPPED
+            is StationSearchState.Initializing -> SearchState.STARTING
+            is StationSearchState.Result -> SearchState.RUNNING
         }
     }.stateIn(
         viewModelScope,

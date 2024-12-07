@@ -8,6 +8,7 @@ import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,7 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
@@ -55,14 +56,14 @@ class NavigatorRepositoryImpl @Inject constructor(
             flowOf(NavigatorState.Idle)
         } else {
             searchRepository
-                .result
+                .state
                 .onEach {
-                    if (it == null) {
+                    if (it is StationSearchState.Idle) {
                         // 探索が終了したらnavigatorも終了する
                         stop()
                     }
                 }
-                .filterNotNull()
+                .filterIsInstance<StationSearchState.Result>()
                 .mapLatestBySkip {
                     navigator.onLocationUpdate(it.location, it.detected.station)
                 }

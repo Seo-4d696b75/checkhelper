@@ -17,6 +17,7 @@ import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
@@ -24,7 +25,7 @@ import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -103,8 +104,8 @@ class NotificationViewController @Inject constructor(
                 launch {
                     // 最近傍の駅の変化
                     searchRepository
-                        .result
-                        .filterNotNull()
+                        .state
+                        .filterIsInstance<StationSearchState.Result>()
                         .map { it.nearest }
                         .collect { s ->
                             update(

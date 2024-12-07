@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
-import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,15 +21,14 @@ class HomeViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
     val uiState: StateFlow<HomeUiState> = combine(
-        locationRepository.currentLocation,
-        searchRepository.result,
+        searchRepository.state,
         searchRepository.selectedLine,
-    ) { location, result, selectedLine ->
-        when {
-            location is LocationState.Idle -> HomeUiState.Idle
-            result == null -> HomeUiState.Initializing
-            else -> HomeUiState.Result(
-                station = result.nearest,
+    ) { state, selectedLine ->
+        when (state) {
+            is StationSearchState.Idle -> HomeUiState.Idle
+            is StationSearchState.Initializing -> HomeUiState.Initializing
+            is StationSearchState.Result -> HomeUiState.Result(
+                station = state.nearest,
                 selectedLine = selectedLine,
             )
         }

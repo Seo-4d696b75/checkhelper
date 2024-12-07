@@ -8,6 +8,7 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatus
 import com.seo4d696b75.android.ekisagasu.domain.screen.PopupStatusRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
 import com.seo4d696b75.android.ekisagasu.ui.popup.component.StationDetectedTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,8 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -79,16 +79,22 @@ class PopupViewModel(
 
     // ポップアップに表示する状態を生成する
     private val stationState: Flow<PopupStationState> = searchRepository
-        .result
-        .distinctUntilChangedBy { it?.detected?.station }
+        .state
+        .map {
+            when (it) {
+                is StationSearchState.Result -> it.nearest.station
+                else -> null
+            }
+        }
+        .distinctUntilChanged()
         .flatMapLatest { result ->
             if (result == null) {
                 flowOf(PopupStationState.None)
             } else {
                 combine(
                     searchRepository
-                        .result
-                        .filterNotNull()
+                        .state
+                        .filterIsInstance<StationSearchState.Result>()
                         .map {
                             // 駅は同じでも距離が変化する
                             it.nearest
