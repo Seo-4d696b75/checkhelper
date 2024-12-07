@@ -26,11 +26,11 @@ fun StationName(
     ) {
         AutoScalingText(
             text = station.name,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineMedium,
         )
         AutoScalingText(
             text = station.nameKana,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }

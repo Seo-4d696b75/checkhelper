@@ -52,11 +52,11 @@ fun HomeLoading(
             Column {
                 AutoScalingText(
                     text = "",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineMedium,
                 )
                 AutoScalingText(
                     text = "",
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }

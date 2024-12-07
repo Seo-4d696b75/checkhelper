@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -60,15 +61,17 @@ fun HomeSection(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_line_select),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 AutoScalingText(
                     text = when (state) {
-                        is HomeUiState.Result -> state.selectedLine?.name ?: ""
-                        else -> ""
-                    },
+                        is HomeUiState.Result -> state.selectedLine?.name
+                        else -> null
+                    } ?: stringResource(id = R.string.no_selected_line),
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
             SearchIndicator(
