@@ -6,12 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,30 +22,44 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.ui.R
-import com.seo4d696b75.android.ekisagasu.ui.common.StationName
+import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
-import com.seo4d696b75.android.ekisagasu.ui.utils.asComposeColor
-import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
-import com.seo4d696b75.android.ekisagasu.ui.utils.parseColorCode
-import com.seo4d696b75.android.ekisagasu.ui.utils.previewNearStation
+import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun HomeResultGrid(
-    station: NearStation,
+fun HomeLoading(
     modifier: Modifier = Modifier,
 ) {
+    val shimmer = Modifier
+        .shimmer()
+        .background(
+            shape = RoundedCornerShape(4.dp),
+            color = MaterialTheme.colorScheme.surfaceDim,
+        )
     Column(
         modifier = modifier,
     ) {
-        StationName(
-            station = station.station,
-            modifier = Modifier.padding(
-                start = 8.dp,
-                bottom = 7.dp,
-            ),
-        )
+        Box(
+            modifier = Modifier
+                .width(120.dp)
+                .padding(
+                    start = 8.dp,
+                    bottom = 7.dp,
+                )
+                .then(shimmer),
+        ) {
+            Column {
+                AutoScalingText(
+                    text = "",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                AutoScalingText(
+                    text = "",
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -57,18 +70,12 @@ fun HomeResultGrid(
                 modifier = Modifier.size(20.dp),
             )
             Text(
-                text = station.distance.formatDistance,
+                text = "",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .padding(start = 4.dp)
-                    .alignByBaseline(),
-            )
-            Text(
-                text = station.station.prefecture.name,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(start = 4.dp)
-                    .alignByBaseline(),
+                    .width(120.dp)
+                    .then(shimmer),
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -81,44 +88,24 @@ fun HomeResultGrid(
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
                 modifier = Modifier.size(20.dp),
             )
-            LazyRow(
-                modifier = Modifier.padding(start = 4.dp),
-            ) {
-                items(
-                    items = station.station.lines,
-                    key = { it.code },
-                ) { line ->
-                    Row(
-                        modifier = Modifier.padding(2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(14.dp)
-                                .background(
-                                    color = parseColorCode(line.color).asComposeColor(),
-                                    shape = RoundedCornerShape(4.dp),
-                                ),
-                        )
-                        Text(
-                            text = line.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(start = 1.dp),
-                        )
-                    }
-                }
-            }
+            Text(
+                text = "",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .fillMaxWidth()
+                    .then(shimmer),
+            )
         }
     }
 }
 
 @Composable
 @PreviewLightDark
-private fun HomeResultGridPreview() {
+private fun PreviewHomeLoading() {
     AppTheme {
         Surface {
-            HomeResultGrid(
-                station = previewNearStation,
+            HomeLoading(
                 modifier = Modifier.width(200.dp),
             )
         }

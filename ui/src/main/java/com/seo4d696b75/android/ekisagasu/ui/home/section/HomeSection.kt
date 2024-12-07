@@ -71,7 +71,6 @@ fun HomeSection(
                     },
                 )
             }
-            Spacer(modifier = Modifier.height(28.dp))
             SearchIndicator(
                 running = state is HomeUiState.Running,
                 modifier = Modifier
