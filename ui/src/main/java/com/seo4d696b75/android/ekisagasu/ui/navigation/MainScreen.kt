@@ -1,18 +1,25 @@
 package com.seo4d696b75.android.ekisagasu.ui.navigation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.seo4d696b75.android.ekisagasu.ui.home.HomeScreenShell
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
 
 @Composable
@@ -34,17 +41,68 @@ fun MainScreen(
                 .fillMaxSize(),
         ) {
             navigation<NavigationTab.Home>(
-                startDestination = NavigationRoute.Home.Top,
+                startDestination = NavigationRoute.Home.Radar,
             ) {
-                composable<NavigationRoute.Home.Top> {
-                    Box(
-                        modifier = modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
+                composable<NavigationRoute.Home.Radar> {
+                    HomeScreenShell {
+                        Column(
+                            modifier = modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Text(
+                                text = "Home",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Button(
+                                onClick = {
+                                    navController.navigate(NavigationRoute.Home.Station(1000101))
+                                },
+                            ) {
+                                Text(text = "station")
+                            }
+                            Button(
+                                onClick = {
+                                    navController.navigate(NavigationRoute.Home.Line(10001))
+                                },
+                            ) {
+                                Text(text = "line")
+                            }
+                        }
+                    }
+                }
+                composable<NavigationRoute.Home.Station> { backstack ->
+                    val args = backstack.toRoute<NavigationRoute.Home.Station>()
+                    val owner = navController.getBackStackEntry<NavigationRoute.Home.Radar>()
+                    HomeScreenShell(
+                        viewModel = hiltViewModel(viewModelStoreOwner = owner),
                     ) {
-                        Text(
-                            text = "Home",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
+                        Box(
+                            modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Station ${args.code}",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
+                }
+                composable<NavigationRoute.Home.Line> { backstack ->
+                    val args = backstack.toRoute<NavigationRoute.Home.Line>()
+                    val owner = navController.getBackStackEntry<NavigationRoute.Home.Radar>()
+                    HomeScreenShell(
+                        viewModel = hiltViewModel(viewModelStoreOwner = owner),
+                    ) {
+                        Box(
+                            modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Line ${args.code}",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
                     }
                 }
             }
