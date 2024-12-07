@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.ui.home.HomeScreenShell
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
+import com.seo4d696b75.android.ekisagasu.ui.radar.RadarScreen
 
 @Composable
 fun MainScreen(
@@ -55,30 +56,12 @@ fun MainScreen(
             ) {
                 composable<NavigationRoute.Home.Radar> {
                     HomeScreenShell {
-                        Column(
-                            modifier = modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
-                        ) {
-                            Text(
-                                text = "Home",
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                            Button(
-                                onClick = {
-                                    navController.navigate(NavigationRoute.Home.Station(1000101))
-                                },
-                            ) {
-                                Text(text = "station")
-                            }
-                            Button(
-                                onClick = {
-                                    navController.navigate(NavigationRoute.Home.Line(10001))
-                                },
-                            ) {
-                                Text(text = "line")
-                            }
-                        }
+                        RadarScreen(
+                            onStationClicked = {
+                                navController.navigate(NavigationRoute.Home.Station(it.code))
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                        )
                     }
                 }
                 composable<NavigationRoute.Home.Station> { backstack ->

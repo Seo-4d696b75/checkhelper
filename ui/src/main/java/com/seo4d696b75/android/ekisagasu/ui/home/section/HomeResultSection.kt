@@ -30,7 +30,7 @@ fun HomeResultSection(
             HomeUiState.Idle ->
                 Text(
                     text = stringResource(id = R.string.main_message_wait_search),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(top = 5.dp)
                         .padding(horizontal = 8.dp),

@@ -3,8 +3,10 @@ package com.seo4d696b75.android.ekisagasu.ui.home
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,6 +28,22 @@ fun HomeScreenShell(
     content: @Composable () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    HomeScreenShell(
+        state = state,
+        onSearchStateChanged = viewModel::onSearchStateChanged,
+        content = content,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun HomeScreenShell(
+    state: HomeUiState,
+    onSearchStateChanged: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd,
@@ -39,10 +57,11 @@ fun HomeScreenShell(
                 state = state,
                 modifier = Modifier.fillMaxWidth(),
             )
+            Spacer(modifier = Modifier.height(8.dp))
             content()
         }
         FloatingActionButton(
-            onClick = viewModel::onSearchStateChanged,
+            onClick = onSearchStateChanged,
             modifier = Modifier.padding(16.dp),
         ) {
             Crossfade(
