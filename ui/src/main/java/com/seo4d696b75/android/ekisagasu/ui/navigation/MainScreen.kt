@@ -1,26 +1,16 @@
 package com.seo4d696b75.android.ekisagasu.ui.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.ui.home.HomeScreenShell
@@ -45,14 +35,8 @@ fun MainScreen(
                 .padding(padding)
                 .fillMaxSize(),
         ) {
-            val enter = fadeIn() + slideInHorizontally()
-            val exit = fadeOut() + slideOutHorizontally()
             navigation<NavigationTab.Home>(
                 startDestination = NavigationRoute.Home.Radar,
-                enterTransition = { enter },
-                popEnterTransition = { enter },
-                exitTransition = { exit },
-                popExitTransition = { exit },
             ) {
                 composable<NavigationRoute.Home.Radar> {
                     HomeScreenShell {
@@ -101,10 +85,6 @@ fun MainScreen(
             }
             navigation<NavigationTab.Log>(
                 startDestination = NavigationRoute.Log.Top,
-                enterTransition = { enter },
-                popEnterTransition = { enter },
-                exitTransition = { exit },
-                popExitTransition = { exit },
             ) {
                 composable<NavigationRoute.Log.Top> {
                     Box(
@@ -120,10 +100,6 @@ fun MainScreen(
             }
             navigation<NavigationTab.Setting>(
                 startDestination = NavigationRoute.Setting.Top,
-                enterTransition = { enter },
-                popEnterTransition = { enter },
-                exitTransition = { exit },
-                popExitTransition = { exit },
             ) {
                 composable<NavigationRoute.Setting.Top> {
                     Box(
