@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,12 +40,10 @@ fun HomeResultGrid(
     ) {
         StationName(
             station = station.station,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 8.dp,
-                    bottom = 7.dp,
-                ),
+            modifier = Modifier.padding(
+                start = 8.dp,
+                bottom = 7.dp,
+            ),
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
