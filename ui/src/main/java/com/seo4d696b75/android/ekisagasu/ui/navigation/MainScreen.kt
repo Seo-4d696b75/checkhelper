@@ -2,8 +2,12 @@ package com.seo4d696b75.android.ekisagasu.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,7 +39,10 @@ fun MainScreen(
             startDestination = NavigationTab.Home,
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .consumeWindowInsets(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+                ),
         ) {
             navigation<NavigationTab.Home>(
                 startDestination = NavigationRoute.Home.Radar,
