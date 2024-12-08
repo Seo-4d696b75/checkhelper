@@ -1,4 +1,6 @@
 <resources>
+    <string name="app_name">駅サガース</string>
+
     <!-- TODO defined in BuildConfig -->
     <string name="map_url">https://seo-4d696b75.github.io/ekisagasu/#/</string>
 

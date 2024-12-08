@@ -3,13 +3,13 @@ package jp.seo.station.ekisagasu.config
 import android.content.Context
 import android.os.Build
 import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
+import com.seo4d696b75.android.ekisagasu.ui.R
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jp.seo.station.ekisagasu.BuildConfig
-import jp.seo.station.ekisagasu.R
 
 @Suppress("unused")
 @Module

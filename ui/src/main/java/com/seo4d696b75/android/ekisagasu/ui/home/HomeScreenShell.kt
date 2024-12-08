@@ -8,18 +8,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
+import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable
 fun HomeScreenShell(
@@ -37,6 +46,7 @@ fun HomeScreenShell(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenShell(
     state: HomeUiState,
@@ -44,42 +54,72 @@ fun HomeScreenShell(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomEnd,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-        ) {
-            HomeSection(
-                state = state,
-                modifier = Modifier.fillMaxWidth(),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = stringResource(id = R.string.app_name))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            content()
-        }
-        FloatingActionButton(
-            onClick = onSearchStateChanged,
-            modifier = Modifier.padding(16.dp),
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd,
         ) {
-            Crossfade(
-                targetState = state is HomeUiState.Running,
-                label = "fab running",
-            ) { running ->
-                if (running) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_pause),
-                        contentDescription = "stop",
-                    )
-                } else {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_play),
-                        contentDescription = "start",
-                    )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+            ) {
+                HomeSection(
+                    state = state,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                content()
+            }
+            FloatingActionButton(
+                onClick = onSearchStateChanged,
+                modifier = Modifier.padding(16.dp),
+            ) {
+                Crossfade(
+                    targetState = state is HomeUiState.Running,
+                    label = "fab running",
+                ) { running ->
+                    if (running) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_pause),
+                            contentDescription = "stop",
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_play),
+                            contentDescription = "start",
+                        )
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+@PreviewLightDark
+private fun HomeScreenShellPreview() {
+    AppTheme {
+        HomeScreenShell(
+            state = HomeUiState.Idle,
+            onSearchStateChanged = {},
+        ) {
+
         }
     }
 }
