@@ -21,6 +21,9 @@
         <item name="android:textColor">@color/colorText</item>
     </style>
 
+    <style name="Theme.MainActivity" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
 
     <style name="Theme.WakeupActivity" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>

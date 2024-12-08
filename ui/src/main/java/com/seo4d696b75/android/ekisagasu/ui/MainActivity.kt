@@ -14,6 +14,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -54,9 +55,11 @@ class MainActivity : AppCompatActivity() {
     private val permissionViewModel: PermissionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         // TODO activityの再生成が失敗するので暫定的に初期状態から
         super.onCreate(null)
         // setContentView(R.layout.main_activity)
+
         setContent {
             AppTheme {
                 MainScreen()
