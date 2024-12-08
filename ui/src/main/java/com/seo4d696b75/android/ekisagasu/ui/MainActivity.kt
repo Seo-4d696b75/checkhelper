@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         // TODO activityの再生成が失敗するので暫定的に初期状態から
         super.onCreate(null)
         // setContentView(R.layout.main_activity)
+        enableEdgeToEdge()
 
         setContent {
             AppTheme {

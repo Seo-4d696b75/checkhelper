@@ -1,6 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.ui.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ fun MainScreen(
         bottomBar = {
             BottomNavigationBar(navController = navController)
         },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.fillMaxSize(),
     ) { padding ->
         NavHost(
