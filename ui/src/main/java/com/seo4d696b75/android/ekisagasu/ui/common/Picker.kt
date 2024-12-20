@@ -1,5 +1,10 @@
 package com.seo4d696b75.android.ekisagasu.ui.common
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.LocalContentColor
@@ -42,6 +48,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlin.math.absoluteValue
 
 @Composable
@@ -108,6 +116,9 @@ fun <T> M3Picker(
     colors: PickerColors = PickerDefaults.colors(),
     itemSize: DpSize = PickerDefaults.itemSize,
     dividerHeight: Dp = PickerDefaults.dividerHeight,
+    snapAnimationSpec: AnimationSpec<Float> = PickerDefaults.snapAnimationSpec,
+    decayAnimationSpec: DecayAnimationSpec<Float> = PickerDefaults.decayAnimationSpec,
+    snapDistance: PagerSnapDistance = PickerDefaults.snapDistance,
     label: @Composable (T) -> Unit,
 ) {
     val minAlpha = 0.3f
@@ -126,12 +137,17 @@ fun <T> M3Picker(
 
     val fling = PagerDefaults.flingBehavior(
         state = pagerState,
+        snapAnimationSpec = snapAnimationSpec,
+        decayAnimationSpec = decayAnimationSpec,
+        pagerSnapDistance = snapDistance,
         snapPositionalThreshold = 0.5f,
     )
 
     val callback by rememberUpdatedState(onValueChange)
     LaunchedEffect(pagerState, values) {
-        snapshotFlow { pagerState.settledPage }
+        snapshotFlow { pagerState.settledPage to pagerState.isScrollInProgress }
+            .filter { !it.second }
+            .map { it.first }
             .collect {
                 callback(values[it])
             }
@@ -237,9 +253,32 @@ object PickerDefaults {
     @Composable
     fun labelStyle() = LocalTextStyle.current.copy(color = Color.Unspecified)
 
-    val itemSize = DpSize(80.dp, 32.dp)
+    val itemSize = DpSize(80.dp, 48.dp)
 
     val dividerHeight = 2.dp
+
+    val snapAnimationSpec = spring<Float>(stiffness = Spring.StiffnessMediumLow)
+
+    val decayAnimationSpec: DecayAnimationSpec<Float>
+        @Composable
+        get() = rememberSplineBasedDecay()
+
+    /**
+     * Default fling behavior param.
+     *
+     * Returns the suggested target page which is calculated from `velocity` with `decayAnimationSpec`.
+     *
+     * @see [PagerDefaults.flingBehavior]
+     */
+    val snapDistance = object : PagerSnapDistance {
+        override fun calculateTargetPage(
+            startPage: Int,
+            suggestedTargetPage: Int,
+            velocity: Float,
+            pageSize: Int,
+            pageSpacing: Int
+        ) = suggestedTargetPage
+    }
 }
 
 @Composable
