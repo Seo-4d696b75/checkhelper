@@ -89,6 +89,9 @@
     <string name="setting_mes_brightness_dart">暗</string>
     <string name="setting_mes_brightness_bright">明</string>
     <string name="setting_mes_update_data">更新</string>
+    <string name="setting_mes_check_latest_data">確認</string>
+    <string name="setting_mes_checking_latest_data">確認中</string>
+    <string name="setting_mes_checked_latest_data">最新</string>
 
     <!-- log -->
     <string name="title_log_since">表示期間</string>
