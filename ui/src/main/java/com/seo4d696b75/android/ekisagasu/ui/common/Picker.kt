@@ -41,11 +41,16 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import kotlinx.coroutines.flow.filter
@@ -153,11 +158,23 @@ fun <T> M3Picker(
             }
     }
 
+    val connection = remember {
+        // no scroll nor fling is delivered to ancestors even if remained
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource) = Offset.Zero
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource) = available
+            override suspend fun onPreFling(available: Velocity) = Velocity.Zero
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity) = available
+        }
+    }
+
     Box(
-        modifier = modifier.size(
-            width = itemSize.width,
-            height = itemSize.height * 3 + dividerHeight * 2,
-        ),
+        modifier = modifier
+            .nestedScroll(connection)
+            .size(
+                width = itemSize.width,
+                height = itemSize.height * 3 + dividerHeight * 2,
+            ),
     ) {
         VerticalPager(
             state = pagerState,
