@@ -45,7 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.R
-import com.seo4d696b75.android.ekisagasu.ui.common.M3NumberPicker
+import com.seo4d696b75.android.ekisagasu.ui.common.NumberPicker
 import com.seo4d696b75.android.ekisagasu.ui.common.plus
 import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewController
 import com.seo4d696b75.android.ekisagasu.ui.setting.NightScrimTimeout
@@ -77,7 +77,7 @@ fun SettingListSection(
                     title = stringResource(id = R.string.setting_title_freq),
                     description = stringResource(id = R.string.setting_mes_freq),
                 ) {
-                    M3NumberPicker(
+                    NumberPicker(
                         value = state.locationUpdateInterval.value,
                         onValueChange = state.locationUpdateInterval.onChange,
                         range = 1..60,
@@ -103,7 +103,7 @@ fun SettingListSection(
                     title = stringResource(id = R.string.setting_title_radar),
                     description = stringResource(id = R.string.setting_mes_radar),
                 ) {
-                    M3NumberPicker(
+                    NumberPicker(
                         value = state.searchSize.value,
                         onValueChange = state.searchSize.onChange,
                         range = 12..20,
@@ -202,7 +202,7 @@ fun SettingListSection(
                         onCheckedChange = state.isVibrateOnApproachEnabled.onChange,
                         enabled = state.isVibrateOnApproachEnabled.enabled,
                     )
-                    M3NumberPicker(
+                    NumberPicker(
                         value = state.vibrateDistanceOnApproach.value,
                         onValueChange = state.vibrateDistanceOnApproach.onChange,
                         range = 50..500 step 10,

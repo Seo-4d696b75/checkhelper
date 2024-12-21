@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.seo4d696b75.android.ekisagasu.ui.common.M3NumberPicker
+import com.seo4d696b75.android.ekisagasu.ui.common.NumberPicker
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable
@@ -67,7 +67,7 @@ private fun SettingItemPreview() {
                 var value by remember {
                     mutableIntStateOf(1)
                 }
-                M3NumberPicker(
+                NumberPicker(
                     value = value,
                     onValueChange = { value = it },
                     range = 1..10,
