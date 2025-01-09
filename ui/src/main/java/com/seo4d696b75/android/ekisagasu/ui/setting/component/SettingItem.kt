@@ -19,8 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.seo4d696b75.android.ekisagasu.ui.common.NumberPicker
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
+import com.seo4d696b75.compose.material3.picker.NumberPicker
+import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun SettingItem(
@@ -69,8 +70,8 @@ private fun SettingItemPreview() {
                 }
                 NumberPicker(
                     value = value,
+                    range = (0..10).toPersistentList(),
                     onValueChange = { value = it },
-                    range = 1..10,
                     modifier = Modifier.width(70.dp),
                 )
             }

@@ -45,13 +45,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.R
-import com.seo4d696b75.android.ekisagasu.ui.common.NumberPicker
 import com.seo4d696b75.android.ekisagasu.ui.common.plus
 import com.seo4d696b75.android.ekisagasu.ui.overlay.OverlayViewController
 import com.seo4d696b75.android.ekisagasu.ui.setting.NightScrimTimeout
 import com.seo4d696b75.android.ekisagasu.ui.setting.SettingUiState
 import com.seo4d696b75.android.ekisagasu.ui.setting.component.SettingGroup
 import com.seo4d696b75.android.ekisagasu.ui.setting.component.SettingItem
+import com.seo4d696b75.compose.material3.picker.NumberPicker
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.roundToInt
 
 @Composable
@@ -80,7 +81,7 @@ fun SettingListSection(
                     NumberPicker(
                         value = state.locationUpdateInterval.value,
                         onValueChange = state.locationUpdateInterval.onChange,
-                        range = 1..60,
+                        range = (1..60).toPersistentList(),
                         enabled = state.locationUpdateInterval.enabled,
                         modifier = Modifier.width(80.dp),
                     )
@@ -106,7 +107,7 @@ fun SettingListSection(
                     NumberPicker(
                         value = state.searchSize.value,
                         onValueChange = state.searchSize.onChange,
-                        range = 12..20,
+                        range = (12..20).toPersistentList(),
                         enabled = state.searchSize.enabled,
                         modifier = Modifier.width(80.dp),
                     )
@@ -205,7 +206,7 @@ fun SettingListSection(
                     NumberPicker(
                         value = state.vibrateDistanceOnApproach.value,
                         onValueChange = state.vibrateDistanceOnApproach.onChange,
-                        range = 50..500 step 10,
+                        range = (50..500 step 10).toPersistentList(),
                         enabled = state.vibrateDistanceOnApproach.enabled,
                         modifier = Modifier.width(80.dp),
                     )
