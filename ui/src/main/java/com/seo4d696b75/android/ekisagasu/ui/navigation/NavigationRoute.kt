@@ -3,6 +3,8 @@ package com.seo4d696b75.android.ekisagasu.ui.navigation
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
+import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import kotlinx.serialization.Serializable
 
 sealed interface NavigationRoute {
@@ -29,6 +31,25 @@ sealed interface NavigationRoute {
         @Serializable
         data object Top : Setting
     }
+
+    sealed interface DataUpdate : NavigationRoute {
+        @Serializable
+        data class ConfirmUpdateDialog(
+            val type: DataUpdateType,
+            val info: LatestDataVersion,
+        ) : DataUpdate
+
+        @Serializable
+        data class UpdateDialog(
+            val type: DataUpdateType,
+            val info: LatestDataVersion,
+        ) : DataUpdate
+
+        @Serializable
+        data class UpdateSuccessDialog(
+            val info: LatestDataVersion,
+        ) : DataUpdate
+    }
 }
 
 fun NavBackStackEntry.toRoute(): NavigationRoute = when {
@@ -37,11 +58,15 @@ fun NavBackStackEntry.toRoute(): NavigationRoute = when {
     destination.hasRoute<NavigationRoute.Home.Line>() -> toRoute<NavigationRoute.Home.Line>()
     destination.hasRoute<NavigationRoute.Log.Top>() -> NavigationRoute.Log.Top
     destination.hasRoute<NavigationRoute.Setting.Top>() -> NavigationRoute.Setting.Top
+    destination.hasRoute<NavigationRoute.DataUpdate.ConfirmUpdateDialog>() -> toRoute<NavigationRoute.DataUpdate.ConfirmUpdateDialog>()
+    destination.hasRoute<NavigationRoute.DataUpdate.UpdateDialog>() -> toRoute<NavigationRoute.DataUpdate.UpdateDialog>()
+    destination.hasRoute<NavigationRoute.DataUpdate.UpdateSuccessDialog>() -> toRoute<NavigationRoute.DataUpdate.UpdateSuccessDialog>()
     else -> throw IllegalStateException("unexpected route destination: $destination")
 }
 
-fun NavigationRoute.findTab(): NavigationTab = when (this) {
+fun NavigationRoute.toTab(): NavigationTab? = when (this) {
     is NavigationRoute.Home -> NavigationTab.Home
     is NavigationRoute.Log -> NavigationTab.Log
     is NavigationRoute.Setting -> NavigationTab.Setting
+    else -> null
 }

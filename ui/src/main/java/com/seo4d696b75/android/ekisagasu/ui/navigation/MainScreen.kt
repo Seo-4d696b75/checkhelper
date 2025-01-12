@@ -38,6 +38,7 @@ fun MainScreen(
         NavHost(
             navController = navController,
             startDestination = NavigationTab.Home,
+            typeMap = typeMap,
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
