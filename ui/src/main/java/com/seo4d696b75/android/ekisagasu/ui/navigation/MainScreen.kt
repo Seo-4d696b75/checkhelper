@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.seo4d696b75.android.ekisagasu.ui.error.ErrorDialog
 import com.seo4d696b75.android.ekisagasu.ui.home.homeNavigation
 import com.seo4d696b75.android.ekisagasu.ui.log.logNavigation
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
@@ -26,6 +27,8 @@ fun MainScreen(
     val navController = rememberNavController()
 
     DataUpdateNavigationEvent(navController)
+
+    ErrorDialog()
 
     Scaffold(
         bottomBar = {

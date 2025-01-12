@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity() {
                     is AppMessage.Data.CheckLatestVersionFailure -> {
                         Toast.makeText(
                             this@MainActivity,
-                            R.string.message_network_failure,
+                            R.string.message_fail_fetch_latest_version,
                             Toast.LENGTH_LONG,
                         ).show()
                     }

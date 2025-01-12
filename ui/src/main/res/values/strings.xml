@@ -22,9 +22,14 @@
     <string name="dialog_title_retry_update">エラー</string>
     <string name="dialog_message_retry_update">駅データの更新に失敗しました。リトライしますか？</string>
 
+    <!-- common error -->
+    <string name="dialog_error_title_default">エラー</string>
+    <string name="dialog_error_description_default">不明なエラーが発生しました\n%1$s</string>
+    <string name="dialog_error_button_close">閉じる</string>
+
     <!-- data version -->
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
-    <string name="message_network_failure">ネットワークから情報を利用できません</string>
+    <string name="message_fail_fetch_latest_version">駅データの最新バージョンを確認できませんでした</string>
     <string name="message_success_data_update">データの更新が完了しました</string>
     <string name="message_fail_data_update">データの更新に失敗しました</string>
     <string name="message_fail_data_initialize">データの初期化に失敗しました</string>
