@@ -95,7 +95,7 @@ fun DataVersionSection(
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -107,7 +107,7 @@ fun DataVersionSection(
                         Icon(
                             imageVector = Icons.Outlined.CheckCircle,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
