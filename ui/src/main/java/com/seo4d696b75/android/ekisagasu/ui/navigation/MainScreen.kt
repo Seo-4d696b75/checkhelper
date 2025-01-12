@@ -22,6 +22,7 @@ import com.seo4d696b75.android.ekisagasu.ui.home.HomeScreenShell
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
 import com.seo4d696b75.android.ekisagasu.ui.radar.RadarScreen
 import com.seo4d696b75.android.ekisagasu.ui.setting.SettingScreen
+import com.seo4d696b75.android.ekisagasu.ui.update.dataUpdateDialog
 
 @Composable
 fun MainScreen(
@@ -46,6 +47,7 @@ fun MainScreen(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
                 ),
         ) {
+            dataUpdateDialog(navController)
             navigation<NavigationTab.Home>(
                 startDestination = NavigationRoute.Home.Radar,
             ) {
