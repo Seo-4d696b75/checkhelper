@@ -7,10 +7,11 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSetting
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
+import com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateNavigationEvent
+import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,7 @@ class SettingComposeViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val remoteDataRepository: RemoteDataRepository,
     private val logger: LogCollector,
+    private val navigateDataUpdateEvent: NavigateDataUpdateEvent,
 ) : ViewModel(),
     LogCollector by logger {
 
@@ -150,18 +152,17 @@ class SettingComposeViewModel @Inject constructor(
             remoteDataRepository.getLatestDataVersion(false)
         } catch (e: IOException) {
             Timber.w(e)
-            appStateRepository.emitMessage(AppMessage.Data.CheckLatestVersionFailure(e))
+            // TODO エラー表示
+            // appStateRepository.emitMessage(AppMessage.Data.CheckLatestVersionFailure(e))
             log(LogMessage.Data.CheckLatestVersionFailure(e))
             return@launch
         }
         val current = dataRepository.getDataVersion()
         if (current == null || latest.version > current.version) {
-            appStateRepository.emitMessage(
-                AppMessage.Data.ConfirmUpdate(DataUpdateType.Latest, latest),
-            )
+            val nav = DataUpdateNavigationEvent.ConfirmUpdate(DataUpdateType.Latest, latest)
+            navigateDataUpdateEvent(nav)
             log(LogMessage.Data.LatestVersionFound(latest))
         } else {
-            appStateRepository.emitMessage(AppMessage.Data.VersionUpToDate)
             isLatestData.update { true }
         }
     }.apply {
