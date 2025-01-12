@@ -1,14 +1,12 @@
 package com.seo4d696b75.android.ekisagasu.domain.message
 
-import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 
 sealed interface AppMessage {
 
     //　TODO .aar の com.google.android.gms.common.api.ResolvableApiException をimportできない
     data class ResolvableException(val exception: Exception) : AppMessage
-
-    data object FinishApp : AppMessage
 
     data object StartTimer : AppMessage
 

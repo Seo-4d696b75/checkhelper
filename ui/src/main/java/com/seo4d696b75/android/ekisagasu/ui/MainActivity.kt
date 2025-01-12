@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -43,6 +44,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -77,6 +79,15 @@ class MainActivity : AppCompatActivity() {
             }
             .launchIn(lifecycleScope)
 
+        lifecycleScope.launch {
+            viewModel
+                .appFinish
+                .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
+                .collect {
+                    finish()
+                }
+        }
+
         // handle message
         viewModel
             .message
@@ -89,10 +100,6 @@ class MainActivity : AppCompatActivity() {
                             val request = IntentSenderRequest.Builder(it.resolution).build()
                             resolvableApiLauncher.launch(request)
                         }
-                    }
-
-                    is AppMessage.FinishApp -> {
-                        finish()
                     }
 
                     is AppMessage.Data.ConfirmUpdate -> {

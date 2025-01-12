@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Binder
 import android.os.IBinder
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.flowWithLifecycle
@@ -14,8 +15,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.seo4d696b75.android.ekisagasu.ui.broadcast.ScreenBroadcastReceiver
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -62,7 +62,9 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
             if (it.hasExtra(KEY_REQUEST)) {
                 when (it.getStringExtra(KEY_REQUEST)) {
                     REQUEST_EXIT_SERVICE -> {
-                        viewController.requestAppFinish()
+                        lifecycleScope.launch {
+                            viewController.requestAppFinish()
+                        }
                     }
 
                     REQUEST_START_TIMER -> {
@@ -107,15 +109,16 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
         }
         registerReceiver(screenBroadcastReceiver, filter)
 
-        viewController
-            .appFinish
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                unregisterReceiver(screenBroadcastReceiver)
-                viewModelStore.clear()
-                stopSelf()
-            }
-            .launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            viewController
+                .appFinish
+                .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
+                .collect {
+                    unregisterReceiver(screenBroadcastReceiver)
+                    viewModelStore.clear()
+                    stopSelf()
+                }
+        }
     }
 
     @Inject

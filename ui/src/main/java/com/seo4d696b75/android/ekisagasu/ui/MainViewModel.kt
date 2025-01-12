@@ -10,6 +10,7 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
@@ -24,6 +25,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel(),
     LogCollector by logger {
 
+    val appFinish = appStateRepository.appFinish.take(1)
     val message = appStateRepository.message
 
     var isServiceRunning: Boolean
@@ -81,8 +83,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun requestAppFinish() = viewModelScope.launch {
-        appStateRepository.emitMessage(
-            AppMessage.FinishApp,
-        )
+        appStateRepository.requestAppFinish()
     }
 }

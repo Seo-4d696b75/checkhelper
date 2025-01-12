@@ -15,4 +15,8 @@ interface AppStateRepository {
     val nightMode: StateFlow<Boolean>
 
     fun setNightMode(enabled: Boolean)
+
+    val appFinish: SharedFlow<Unit>
+
+    suspend fun requestAppFinish()
 }

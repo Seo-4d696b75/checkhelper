@@ -37,6 +37,14 @@ class AppStateRepositoryImpl @Inject constructor(
     override fun emitMessage(message: AppMessage) {
         scope.launch { _message.emit(message) }
     }
+
+    private val _finishApp = MutableSharedFlow<Unit>()
+
+    override val appFinish = _finishApp.asSharedFlow()
+
+    override suspend fun requestAppFinish() {
+        _finishApp.emit(Unit)
+    }
 }
 
 @Suppress("unused")

@@ -43,13 +43,13 @@ class ServiceViewController @Inject constructor(
 
     private var context: Context? = null
 
-    val appFinish = appStateRepository.message.filterIsInstance<AppMessage.FinishApp>().take(1)
+    val appFinish = appStateRepository.appFinish.take(1)
 
     /**
      * 必要ならActivity側にも通知して終了させる
      */
-    fun requestAppFinish() {
-        appStateRepository.emitMessage(AppMessage.FinishApp)
+    suspend fun requestAppFinish() {
+        appStateRepository.requestAppFinish()
     }
 
     fun onCreate(

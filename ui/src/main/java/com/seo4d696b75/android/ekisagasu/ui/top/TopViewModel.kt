@@ -88,7 +88,7 @@ class TopViewModel @Inject constructor(
 
     fun finishApp() =
         viewModelScope.launch {
-            appStateRepository.emitMessage(AppMessage.FinishApp)
+            appStateRepository.requestAppFinish()
         }
 
     fun selectCurrentLine() =
