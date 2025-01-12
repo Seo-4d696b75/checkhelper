@@ -19,14 +19,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Inject
 import javax.inject.Singleton
 
-sealed interface DataUpdateNavigationEvent : NavigationEvent {
-
-    data class ConfirmUpdate(val type: DataUpdateType, val info: LatestDataVersion) : DataUpdateNavigationEvent
-
-    data class RequestUpdate(val type: DataUpdateType, val info: LatestDataVersion) : DataUpdateNavigationEvent
-
-    data class UpdateSuccess(val info: LatestDataVersion) : DataUpdateNavigationEvent
-}
+data class DataUpdateNavigationEvent(val type: DataUpdateType, val info: LatestDataVersion) : NavigationEvent
 
 @Suppress("unused")
 @Module
@@ -40,8 +33,9 @@ object DataUpdateNavigationEventHolderModule {
 class NavigateDataUpdateEvent @Inject constructor(
     private val holder: NavigationEventHolder<DataUpdateNavigationEvent>,
 ) {
-    operator fun invoke(nav: DataUpdateNavigationEvent) {
-        holder.navigate(nav)
+    operator fun invoke(type: DataUpdateType, info: LatestDataVersion) {
+        val event = DataUpdateNavigationEvent(type, info)
+        holder.navigate(event)
     }
 }
 
@@ -54,13 +48,7 @@ fun DataUpdateNavigationEvent(controller: NavController) {
         entryPoint.holder
     }
     NavigationEvent(holder) {
-        val route = when (it) {
-            is DataUpdateNavigationEvent.ConfirmUpdate ->
-                NavigationRoute.DataUpdate.ConfirmUpdateDialog(it.type, it.info)
-
-            is DataUpdateNavigationEvent.RequestUpdate -> NavigationRoute.DataUpdate.UpdateDialog(it.type, it.info)
-            is DataUpdateNavigationEvent.UpdateSuccess -> NavigationRoute.DataUpdate.UpdateSuccessDialog(it.info)
-        }
+        val route = NavigationRoute.DataUpdate.ConfirmDialog(it.type, it.info)
         controller.navigate(route)
     }
 }

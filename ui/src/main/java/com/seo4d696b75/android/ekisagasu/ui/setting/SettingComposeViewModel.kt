@@ -10,7 +10,6 @@ import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSetting
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
-import com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateNavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -159,8 +158,7 @@ class SettingComposeViewModel @Inject constructor(
         }
         val current = dataRepository.getDataVersion()
         if (current == null || latest.version > current.version) {
-            val nav = DataUpdateNavigationEvent.ConfirmUpdate(DataUpdateType.Latest, latest)
-            navigateDataUpdateEvent(nav)
+            navigateDataUpdateEvent(DataUpdateType.Latest, latest)
             log(LogMessage.Data.LatestVersionFound(latest))
         } else {
             isLatestData.update { true }

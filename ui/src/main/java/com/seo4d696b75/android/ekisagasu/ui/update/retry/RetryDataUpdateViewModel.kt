@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.ui.update.confirm
+package com.seo4d696b75.android.ekisagasu.ui.update.retry
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -14,28 +14,27 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ConfirmDataUpdateViewModel @Inject constructor(
+class RetryDataUpdateViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel(),
-    NavigationEventHolder<ConfirmDataUpdateViewModel.Nav> by navigationEventHolder() {
+    NavigationEventHolder<RetryDataUpdateViewModel.Nav> by navigationEventHolder() {
 
-    val args = savedStateHandle.toRoute<NavigationRoute.DataUpdate.ConfirmDialog>(typeMap)
+    private val args = savedStateHandle.toRoute<NavigationRoute.DataUpdate.RetryDialog>(typeMap)
 
-    fun onResult(confirmed: Boolean) {
-        if (confirmed) {
-            val nav = Nav.ExecuteUpdate(args.type, args.info)
-            navigate(nav)
-        } else {
-            navigate(Nav.CancelUpdate)
-            if (args.type == DataUpdateType.Init) {
-                // データ不在のためアプリ継続不可
-                // TODO アプリ終了
-            }
+    fun retry() {
+        val nav = Nav.Retry(args.type, args.info)
+        navigate(nav)
+    }
+
+    fun cancel() {
+        navigate(Nav.Cancel)
+        if (args.type == DataUpdateType.Init) {
+            // TODO アプリ終了
         }
     }
 
     sealed interface Nav : NavigationEvent {
-        data object CancelUpdate : Nav
-        data class ExecuteUpdate(val type: DataUpdateType, val info: LatestDataVersion) : Nav
+        data class Retry(val type: DataUpdateType, val info: LatestDataVersion) : Nav
+        data object Cancel : Nav
     }
 }

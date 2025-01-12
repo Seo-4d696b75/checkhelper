@@ -34,19 +34,23 @@ sealed interface NavigationRoute {
 
     sealed interface DataUpdate : NavigationRoute {
         @Serializable
-        data class ConfirmUpdateDialog(
+        data class ConfirmDialog(
             val type: DataUpdateType,
             val info: LatestDataVersion,
         ) : DataUpdate
 
         @Serializable
-        data class UpdateDialog(
+        data class ExecuteDialog(
             val type: DataUpdateType,
             val info: LatestDataVersion,
         ) : DataUpdate
 
         @Serializable
-        data class UpdateSuccessDialog(
+        data object SuccessDialog : DataUpdate
+
+        @Serializable
+        data class RetryDialog(
+            val type: DataUpdateType,
             val info: LatestDataVersion,
         ) : DataUpdate
     }
@@ -58,9 +62,10 @@ fun NavBackStackEntry.toRoute(): NavigationRoute = when {
     destination.hasRoute<NavigationRoute.Home.Line>() -> toRoute<NavigationRoute.Home.Line>()
     destination.hasRoute<NavigationRoute.Log.Top>() -> NavigationRoute.Log.Top
     destination.hasRoute<NavigationRoute.Setting.Top>() -> NavigationRoute.Setting.Top
-    destination.hasRoute<NavigationRoute.DataUpdate.ConfirmUpdateDialog>() -> toRoute<NavigationRoute.DataUpdate.ConfirmUpdateDialog>()
-    destination.hasRoute<NavigationRoute.DataUpdate.UpdateDialog>() -> toRoute<NavigationRoute.DataUpdate.UpdateDialog>()
-    destination.hasRoute<NavigationRoute.DataUpdate.UpdateSuccessDialog>() -> toRoute<NavigationRoute.DataUpdate.UpdateSuccessDialog>()
+    destination.hasRoute<NavigationRoute.DataUpdate.ConfirmDialog>() -> toRoute<NavigationRoute.DataUpdate.ConfirmDialog>()
+    destination.hasRoute<NavigationRoute.DataUpdate.ExecuteDialog>() -> toRoute<NavigationRoute.DataUpdate.ExecuteDialog>()
+    destination.hasRoute<NavigationRoute.DataUpdate.SuccessDialog>() -> NavigationRoute.DataUpdate.SuccessDialog
+    destination.hasRoute<NavigationRoute.DataUpdate.RetryDialog>() -> toRoute<NavigationRoute.DataUpdate.RetryDialog>()
     else -> throw IllegalStateException("unexpected route destination: $destination")
 }
 

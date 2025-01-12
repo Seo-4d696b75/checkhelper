@@ -11,9 +11,16 @@
     <string name="dialog_title_latest_data">駅データの更新</string>
     <string name="dialog_button_positive">OK</string>
     <string name="dialog_button_negative">キャンセル</string>
+    <string name="dialog_button_download">ダウンロード</string>
+    <string name="dialog_button_close">閉じる</string>
+    <string name="dialog_button_retry">リトライ</string>
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
     <string name="update_state_download">データをダウンロード&#8230; %1$d%%</string>
     <string name="update_state_save">データを保存しています&#8230;</string>
+    <string name="dialog_title_success_update">完了</string>
+    <string name="dialog_message_success_update">駅データの更新に成功しました</string>
+    <string name="dialog_title_retry_update">エラー</string>
+    <string name="dialog_message_retry_update">駅データの更新に失敗しました。リトライしますか？</string>
 
     <!-- data version -->
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>

@@ -29,7 +29,6 @@ import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 fun ConfirmDataUpdateDialog(
     type: DataUpdateType,
     info: LatestDataVersion,
-    onClose: () -> Unit,
     onResult: (Boolean) -> Unit,
 ) {
     AlertDialog(
@@ -46,20 +45,14 @@ fun ConfirmDataUpdateDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = {
-                    onClose()
-                    onResult(true)
-                },
+                onClick = { onResult(true) },
             ) {
-                Text(text = stringResource(id = R.string.dialog_button_positive))
+                Text(text = stringResource(id = R.string.dialog_button_download))
             }
         },
         dismissButton = {
             TextButton(
-                onClick = {
-                    onClose()
-                    onResult(false)
-                },
+                onClick = { onResult(false) },
             ) {
                 Text(text = stringResource(id = R.string.dialog_button_negative))
             }
@@ -114,7 +107,6 @@ private fun ConfirmDataUpdateDialogPreview() {
         ConfirmDataUpdateDialog(
             type = DataUpdateType.Init,
             info = LatestDataVersion(20250101L, 4_000_000L),
-            onClose = {},
             onResult = {},
         )
     }
