@@ -8,8 +8,6 @@ sealed interface AppMessage {
     //　TODO .aar の com.google.android.gms.common.api.ResolvableApiException をimportできない
     data class ResolvableException(val exception: Exception) : AppMessage
 
-    data object StartTimer : AppMessage
-
     sealed interface Data : AppMessage {
         data class CheckLatestVersionFailure(val error: Throwable) : Data
 
