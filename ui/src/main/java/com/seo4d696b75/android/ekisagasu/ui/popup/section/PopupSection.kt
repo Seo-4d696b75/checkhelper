@@ -3,14 +3,13 @@ package com.seo4d696b75.android.ekisagasu.ui.popup.section
 import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,32 +31,31 @@ fun PopupSection(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .background(
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(6.dp),
-            )
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(6.dp),
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.launch_icon),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 8.dp, end = 10.dp)
-                .size(36.dp),
-        )
-        val station = when (state) {
-            PopupStationState.None -> null
-            is PopupStationState.Result -> state.nearest.station
-        }
-        Crossfade(
-            targetState = station,
-            label = "PopupSection station",
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (state is PopupStationState.Result) {
-                PopupResultSection(state)
+            Image(
+                painter = painterResource(id = R.drawable.launch_icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 10.dp)
+                    .size(36.dp),
+            )
+            val station = when (state) {
+                PopupStationState.None -> null
+                is PopupStationState.Result -> state.nearest.station
+            }
+            Crossfade(
+                targetState = station,
+                label = "PopupSection station",
+            ) {
+                if (state is PopupStationState.Result) {
+                    PopupResultSection(state)
+                }
             }
         }
     }

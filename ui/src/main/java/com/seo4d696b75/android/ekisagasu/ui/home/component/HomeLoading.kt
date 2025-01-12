@@ -35,7 +35,7 @@ fun HomeLoading(
         .shimmer()
         .background(
             shape = RoundedCornerShape(4.dp),
-            color = MaterialTheme.colorScheme.surfaceDim,
+            color = MaterialTheme.colorScheme.surfaceContainerHighest,
         )
     Column(
         modifier = modifier,

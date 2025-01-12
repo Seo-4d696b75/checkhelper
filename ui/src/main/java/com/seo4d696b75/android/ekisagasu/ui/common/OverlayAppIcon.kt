@@ -15,7 +15,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
@@ -46,7 +46,7 @@ fun OverlayAppIcon(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun NavigatorShrinkIconPreview() {
     AppTheme {

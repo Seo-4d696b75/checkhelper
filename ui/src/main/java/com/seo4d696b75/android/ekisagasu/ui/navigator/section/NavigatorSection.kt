@@ -2,7 +2,6 @@ package com.seo4d696b75.android.ekisagasu.ui.navigator.section
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,65 +40,63 @@ fun NavigatorSection(
     onSelectLineClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .background(
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(6.dp),
-            )
-            .clickable(onClick = onToggle),
+    Surface(
+        modifier = modifier.clickable(onClick = onToggle),
+        shape = RoundedCornerShape(6.dp),
     ) {
-        Crossfade(
-            targetState = state is DisplayedNavigatorState.Result,
-            label = "NavigatorSection#state",
-            modifier = Modifier.weight(1f),
-        ) {
-            when (state) {
-                DisplayedNavigatorState.Idle -> {}
-                is DisplayedNavigatorState.Initializing ->
-                    NavigatorInitializingSection(
-                        modifier = Modifier.fillMaxSize(),
-                    )
+        Row {
+            Crossfade(
+                targetState = state is DisplayedNavigatorState.Result,
+                label = "NavigatorSection#state",
+                modifier = Modifier.weight(1f),
+            ) {
+                when (state) {
+                    DisplayedNavigatorState.Idle -> {}
+                    is DisplayedNavigatorState.Initializing ->
+                        NavigatorInitializingSection(
+                            modifier = Modifier.fillMaxSize(),
+                        )
 
-                is DisplayedNavigatorState.Result ->
-                    NavigatorStationList(
-                        currentLine = state.line,
-                        stations = state.stations,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                vertical = 3.dp,
-                                horizontal = 5.dp,
-                            ),
-                    )
+                    is DisplayedNavigatorState.Result ->
+                        NavigatorStationList(
+                            currentLine = state.line,
+                            stations = state.stations,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    vertical = 3.dp,
+                                    horizontal = 5.dp,
+                                ),
+                        )
+                }
             }
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(end = 10.dp)
-                .width(120.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            AutoScalingText(
-                text = state.line?.name ?: "",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Row {
-                NavigationButton(
-                    onClick = onSelectLineClicked,
-                    id = R.drawable.ic_line_selects,
-                    contentDescription = "select line",
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(end = 10.dp)
+                    .width(120.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                AutoScalingText(
+                    text = state.line?.name ?: "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(modifier = Modifier.width(5.dp))
-                NavigationButton(
-                    onClick = onStopClicked,
-                    id = R.drawable.ic_line_cancel,
-                    contentDescription = "stop",
-                )
+                Spacer(modifier = Modifier.height(5.dp))
+                Row {
+                    NavigationButton(
+                        onClick = onSelectLineClicked,
+                        id = R.drawable.ic_line_selects,
+                        contentDescription = "select line",
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    NavigationButton(
+                        onClick = onStopClicked,
+                        id = R.drawable.ic_line_cancel,
+                        contentDescription = "stop",
+                    )
+                }
             }
         }
     }
