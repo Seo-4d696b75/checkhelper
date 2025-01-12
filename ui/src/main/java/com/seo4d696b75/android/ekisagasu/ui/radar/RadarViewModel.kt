@@ -2,8 +2,12 @@ package com.seo4d696b75.android.ekisagasu.ui.radar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
+import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +18,9 @@ import javax.inject.Inject
 @HiltViewModel
 class RadarViewModel @Inject constructor(
     searchRepository: StationSearchRepository,
-) : ViewModel() {
+) : ViewModel(),
+    NavigationEventHolder<RadarViewModel.ShowStation> by navigationEventHolder() {
+
     val uiState: StateFlow<RadarUiState> = searchRepository
         .state
         .map {
@@ -29,4 +35,10 @@ class RadarViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(),
             RadarUiState.None,
         )
+
+    fun onStationClicked(station: Station) {
+        navigate(ShowStation(station))
+    }
+
+    data class ShowStation(val station: Station) : NavigationEvent
 }

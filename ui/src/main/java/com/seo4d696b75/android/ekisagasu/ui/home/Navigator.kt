@@ -10,11 +10,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.toRoute
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.composable
 import com.seo4d696b75.android.ekisagasu.ui.navigation.navigation
 import com.seo4d696b75.android.ekisagasu.ui.radar.RadarScreen
+import com.seo4d696b75.android.ekisagasu.ui.radar.RadarViewModel
 
 fun NavGraphBuilder.homeNavigation(navController: NavController) {
     navigation<NavigationTab.Home>(
@@ -22,10 +24,12 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
     ) {
         composable<NavigationRoute.Home.Radar> {
             HomeScreenShell {
+                val viewModel: RadarViewModel = hiltViewModel()
+                NavigationEvent(viewModel) {
+                    navController.navigate(NavigationRoute.Home.Station(it.station.code))
+                }
                 RadarScreen(
-                    onStationClicked = {
-                        navController.navigate(NavigationRoute.Home.Station(it.code))
-                    },
+                    viewModel = viewModel,
                     modifier = Modifier.fillMaxSize(),
                 )
             }

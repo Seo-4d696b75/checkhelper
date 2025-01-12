@@ -33,7 +33,6 @@ import java.util.Date
 
 @Composable
 fun RadarScreen(
-    onStationClicked: (Station) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RadarViewModel = hiltViewModel(),
 ) {
@@ -41,7 +40,7 @@ fun RadarScreen(
 
     RadarScreen(
         state = state,
-        onStationClicked = onStationClicked,
+        onStationClicked = viewModel::onStationClicked,
         modifier = modifier,
     )
 }
