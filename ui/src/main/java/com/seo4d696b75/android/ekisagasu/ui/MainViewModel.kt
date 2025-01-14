@@ -1,5 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui
 
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
@@ -7,13 +8,13 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
+import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,12 +22,14 @@ class MainViewModel @Inject constructor(
     private val appStateRepository: AppStateRepository,
     private val dataRepository: DataRepository,
     private val remoteDataRepository: RemoteDataRepository,
-    private val logger: LogCollector,
+    private val navigateDataUpdateEvent: NavigateDataUpdateEvent,
+    logger: LogCollector,
+    errorHandler: ErrorHandler,
 ) : ViewModel(),
-    LogCollector by logger {
+    LogCollector by logger,
+    ErrorHandler by errorHandler {
 
     val appFinish = appStateRepository.appFinish.take(1)
-    val message = appStateRepository.message
 
     var isServiceRunning: Boolean
         get() = appStateRepository.isServiceRunning
@@ -47,35 +50,23 @@ class MainViewModel @Inject constructor(
             viewModelScope.launch {
                 val info = dataRepository.getDataVersion()
 
-                val latest = try {
+                val latest = runCatching {
                     remoteDataRepository.getLatestDataVersion(true)
-                } catch (e: IOException) {
-                    Timber.w(e)
+                }.messageOnError { e ->
+                    description = { stringResource(id = R.string.message_fail_fetch_latest_version) }
                     log(LogMessage.Data.CheckLatestVersionFailure(e))
-                    appStateRepository.emitMessage(AppMessage.Data.CheckLatestVersionFailure(e))
                     appStateRepository.hasDataVersionChecked = false
-                    return@launch
-                }
+                }.getOrNull() ?: return@launch
 
                 if (info == null) {
                     Timber.d("no data saved, download required")
                     log(LogMessage.Data.DownloadRequired(latest))
-                    appStateRepository.emitMessage(
-                        AppMessage.Data.ConfirmUpdate(
-                            type = DataUpdateType.Init,
-                            info = latest,
-                        ),
-                    )
+                    navigateDataUpdateEvent(DataUpdateType.Init, latest)
                 } else {
                     log(LogMessage.Data.Found(info))
                     if (info.version < latest.version) {
                         log(LogMessage.Data.LatestVersionFound(latest))
-                        appStateRepository.emitMessage(
-                            AppMessage.Data.ConfirmUpdate(
-                                type = DataUpdateType.Latest,
-                                info = latest,
-                            ),
-                        )
+                        navigateDataUpdateEvent(DataUpdateType.Latest, latest)
                     }
                 }
             }

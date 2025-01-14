@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -21,9 +20,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.api.ResolvableApiException
-import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.ui.log.LogViewModel
 import com.seo4d696b75.android.ekisagasu.ui.navigation.MainScreen
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationale
@@ -36,10 +32,6 @@ import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
-import com.seo4d696b75.android.ekisagasu.ui.update.ConfirmDataUpdateDialogDirections
-import com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateDialogDirections
-import com.seo4d696b75.android.ekisagasu.ui.update.LatestDataVersionArg
-import com.seo4d696b75.android.ekisagasu.ui.utils.navigateWhenDialogClosed
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -87,96 +79,6 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }
         }
-
-        // handle message
-        viewModel
-            .message
-            .flowWithLifecycle(lifecycle)
-            .onEach { message ->
-                when (message) {
-                    is AppMessage.ResolvableException -> {
-                        message.exception.let {
-                            require(it is ResolvableApiException)
-                            val request = IntentSenderRequest.Builder(it.resolution).build()
-                            resolvableApiLauncher.launch(request)
-                        }
-                    }
-
-                    is AppMessage.Data.ConfirmUpdate -> {
-                        val action = ConfirmDataUpdateDialogDirections.showConfirmDateUpdateDialog(
-                            info = LatestDataVersionArg(message.info),
-                            type = message.type,
-                        )
-                        // findNavController(R.id.main_nav_host).navigate(action)
-                    }
-
-                    is AppMessage.Data.CancelUpdate -> {
-                        if (message.type == DataUpdateType.Init) {
-                            // データ不在なので継続不可
-                            viewModel.requestAppFinish()
-                            Toast.makeText(
-                                this@MainActivity,
-                                R.string.message_abort_init_data,
-                                Toast.LENGTH_LONG,
-                            ).show()
-                        }
-                    }
-
-                    is AppMessage.Data.RequestUpdate -> {
-                        val action = DataUpdateDialogDirections.showDateUpdateDialog(
-                            info = LatestDataVersionArg(message.info),
-                            type = message.type,
-                        )
-                        findNavController(R.id.main_nav_host).navigateWhenDialogClosed(
-                            action,
-                            R.id.confirm_date_update_dialog,
-                            lifecycle,
-                        )
-                    }
-
-                    AppMessage.Data.UpdateSuccess -> {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.message_success_data_update,
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    }
-
-                    is AppMessage.Data.UpdateFailure -> {
-                        val resId = if (message.type == DataUpdateType.Init) {
-                            // データの初期化に失敗・これ以上の続行不可能
-                            viewModel.requestAppFinish()
-                            R.string.message_fail_data_initialize
-                        } else {
-                            R.string.message_fail_data_update
-                        }
-                        Toast.makeText(
-                            this@MainActivity,
-                            resId,
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    }
-
-                    is AppMessage.Data.CheckLatestVersionFailure -> {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.message_fail_fetch_latest_version,
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    }
-
-                    AppMessage.Data.VersionUpToDate -> {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.message_version_up_to_date,
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    }
-
-                    else -> {}
-                }
-            }
-            .launchIn(lifecycleScope)
 
         permissionViewModel
             .event

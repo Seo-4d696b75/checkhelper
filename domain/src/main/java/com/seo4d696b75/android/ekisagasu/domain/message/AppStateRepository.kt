@@ -8,10 +8,6 @@ interface AppStateRepository {
     var hasPermissionChecked: Boolean
     var hasDataVersionChecked: Boolean
 
-    val message: SharedFlow<AppMessage>
-
-    fun emitMessage(message: AppMessage)
-
     val nightMode: StateFlow<Boolean>
 
     fun setNightMode(enabled: Boolean)

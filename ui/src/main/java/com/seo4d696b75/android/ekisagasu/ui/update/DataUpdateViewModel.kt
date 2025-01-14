@@ -8,8 +8,6 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateUseCase
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -23,7 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class DataUpdateViewModel @Inject constructor(
     private val updateData: DataUpdateUseCase,
-    private val appStateRepository: AppStateRepository,
     private val savedStateHandle: SavedStateHandle,
     private val collector: LogCollector,
     @ApplicationContext private val context: Context,
@@ -52,15 +49,9 @@ class DataUpdateViewModel @Inject constructor(
                 info = info,
                 dir = File(context.filesDir, "tmp"),
             ).onSuccess {
-                appStateRepository.emitMessage(
-                    AppMessage.Data.UpdateSuccess
-                )
                 log(LogMessage.Data.UpdateSuccess)
             }.onFailure {
                 Timber.w(it)
-                appStateRepository.emitMessage(
-                    AppMessage.Data.UpdateFailure(type, it)
-                )
                 log(LogMessage.Data.UpdateFailure(it))
             }
             _result.emit(result)
