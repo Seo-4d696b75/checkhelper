@@ -10,12 +10,12 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateUseCase
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
 import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.typeMap
-import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DataUpdateViewModel @Inject constructor(
     private val updateData: DataUpdateUseCase,
-    private val navigateDataUpdateEvent: NavigateDataUpdateEvent,
+    private val appStateRepository: AppStateRepository,
     savedStateHandle: SavedStateHandle,
     collector: LogCollector,
     @ApplicationContext private val context: Context,
@@ -62,7 +62,9 @@ class DataUpdateViewModel @Inject constructor(
         updateJob?.cancel()
         navigate(Nav.Cancel)
         if (args.type == DataUpdateType.Init) {
-            // TODO アプリ終了
+            viewModelScope.launch {
+                appStateRepository.requestAppFinish()
+            }
         }
     }
 
