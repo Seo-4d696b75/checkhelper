@@ -4,10 +4,6 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 
 sealed interface AppMessage {
-
-    //　TODO .aar の com.google.android.gms.common.api.ResolvableApiException をimportできない
-    data class ResolvableException(val exception: Exception) : AppMessage
-
     sealed interface Data : AppMessage {
         data class CheckLatestVersionFailure(val error: Throwable) : Data
 

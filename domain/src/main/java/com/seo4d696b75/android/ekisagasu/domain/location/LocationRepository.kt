@@ -1,5 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.domain.location
 
+import com.seo4d696b75.android.ekisagasu.domain.error.GMSResolvableException
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -8,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 interface LocationRepository {
     val currentLocation: Flow<LocationState>
 
+    /**
+     * @throws [GMSResolvableException]
+     */
     suspend fun startWatchCurrentLocation()
 
     suspend fun stopWatchCurrentLocation(): Boolean

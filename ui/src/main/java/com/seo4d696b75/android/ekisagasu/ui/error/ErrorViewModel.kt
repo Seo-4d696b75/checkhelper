@@ -12,11 +12,11 @@ import javax.inject.Inject
 class ErrorViewModel @Inject constructor(
     private val holder: ErrorStateHolder,
 ) : ViewModel() {
-    val message = holder
+    val state = holder
         .errorState
         .map {
             if (it is ErrorState.Queued && !it.consumed) {
-                it.message
+                it
             } else {
                 null
             }

@@ -8,6 +8,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.CancellationException
+import timber.log.Timber
 import javax.inject.Inject
 
 interface ErrorHandler {
@@ -38,13 +39,14 @@ class ErrorHandlerImpl @Inject constructor(
             if (it is CancellationException) {
                 throw it
             } else {
+                Timber.w(it, "caught in Result.messageOnError")
                 val configureScope = object : ErrorMessageConfigureScope {
                     override var title: (@Composable () -> String)? = null
                     override var description: (@Composable () -> String)? = null
                     override var onClosed: (() -> Unit)? = null
                 }
                 with(configureScope) { configuration(it) }
-                val message = ErrorMessage(
+                val message = ErrorUiMessage(
                     title = configureScope.title ?: {
                         stringResource(R.string.dialog_error_title_default)
                     },

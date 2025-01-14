@@ -10,12 +10,12 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.seo4d696b75.android.ekisagasu.domain.error.GMSResolvableException
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionState
@@ -128,9 +128,8 @@ class LocationRepositoryImpl @Inject constructor(
                 requestGPSUpdate(interval)
             }
         } catch (e: ResolvableApiException) {
-            Timber.w(e)
             log(LogMessage.GPS.ResolvableException)
-            appStateRepository.emitMessage(AppMessage.ResolvableException(e))
+            throw GMSResolvableException(e)
         }
     }
 

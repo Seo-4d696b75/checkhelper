@@ -14,7 +14,7 @@ class ErrorStateHolder @Inject constructor() {
     private val state = MutableStateFlow<ErrorState>(ErrorState.Empty)
     val errorState = state.asStateFlow()
 
-    fun enqueue(error: Throwable, message: ErrorMessage) {
+    fun enqueue(error: Throwable, message: ErrorUiMessage) {
         state.update { ErrorState.Queued(error, message) }
     }
 
@@ -34,12 +34,12 @@ sealed interface ErrorState {
     data object Empty : ErrorState
     data class Queued(
         val error: Throwable,
-        val message: ErrorMessage,
+        val message: ErrorUiMessage,
         val consumed: Boolean = false,
     ) : ErrorState
 }
 
-data class ErrorMessage(
+data class ErrorUiMessage(
     val title: (@Composable () -> String),
     val description: (@Composable () -> String),
     val onClosed: (() -> Unit)? = null,
