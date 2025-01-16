@@ -35,7 +35,7 @@ class PermissionViewModel @Inject constructor(
     private val _hasChecked = MutableStateFlow(false)
     val hasChecked = _hasChecked.asStateFlow()
 
-    sealed interface Event {
+    sealed interface Event : NavigationEvent {
         sealed interface MissingRequirement : Event {
             data class LocationPermission(val state: PermissionState.NotGranted) : MissingRequirement
             data class NotificationPermission(val state: PermissionState.NotGranted) : MissingRequirement
@@ -48,15 +48,15 @@ class PermissionViewModel @Inject constructor(
         data class RequestPermission(val rationale: PermissionRationale) : Event
     }
 
-    private val _event = MutableSharedFlow<Event>()
-    val event = _event.asSharedFlow()
-
     private var hasAnyPermissionDenied = false
-    private suspend fun onPermissionDenied() {
+    private fun onPermissionDenied() {
         if (!hasAnyPermissionDenied) {
             // 重複防止
             hasAnyPermissionDenied = true
-            _event.emit(Event.PermissionDenied)
+            navigate(Event.PermissionDenied)
+            viewModelScope.launch {
+                appStateRepository.requestAppFinish()
+            }
         }
     }
 
@@ -81,7 +81,7 @@ class PermissionViewModel @Inject constructor(
                 onPermissionDenied()
             } else {
                 hasLocationPermissionRequested = true
-                _event.emit(Event.MissingRequirement.LocationPermission(location))
+                navigate(Event.MissingRequirement.LocationPermission(location))
             }
             return@launchCatching
         }
@@ -93,7 +93,7 @@ class PermissionViewModel @Inject constructor(
                 onPermissionDenied()
             } else {
                 hasNotificationPermissionRequested = true
-                _event.emit(Event.MissingRequirement.NotificationPermission(notification))
+                navigate(Event.MissingRequirement.NotificationPermission(notification))
             }
             return@launchCatching
         }
@@ -104,7 +104,7 @@ class PermissionViewModel @Inject constructor(
                 onPermissionDenied()
             } else {
                 hasNotificationPermissionRequested = true
-                _event.emit(Event.MissingRequirement.NotificationChannel)
+                navigate(Event.MissingRequirement.NotificationChannel)
             }
             return@launchCatching
         }
@@ -115,7 +115,7 @@ class PermissionViewModel @Inject constructor(
                 onPermissionDenied()
             } else {
                 hasDrawOverlayRequested = true
-                _event.emit(Event.MissingRequirement.DrawOverlay)
+                navigate(Event.MissingRequirement.DrawOverlay)
             }
             return@launchCatching
         }
@@ -128,7 +128,7 @@ class PermissionViewModel @Inject constructor(
                 onPermissionDenied()
             } else {
                 hasGooglePlayServiceRequested = true
-                _event.emit(Event.MissingRequirement.GooglePlayService(code))
+                navigate(Event.MissingRequirement.GooglePlayService(code))
             }
             return@launchCatching
         }
@@ -138,9 +138,7 @@ class PermissionViewModel @Inject constructor(
 
     fun onDeviceLocationSettingResult(result: ActivityResult) {
         if (result.resultCode != Activity.RESULT_OK) {
-            viewModelScope.launch {
-                onPermissionDenied()
-            }
+            onPermissionDenied()
         }
     }
 
@@ -162,11 +160,20 @@ class PermissionViewModel @Inject constructor(
         }
     }
 
-    fun onPermissionRequestCancelled() = viewModelScope.launch {
+    private val _uiState = MutableStateFlow<PermissionRationale?>(null)
+    val uiState = _uiState.asStateFlow()
+
+    fun showRationale(rationale: PermissionRationale) {
+        _uiState.update { rationale }
+    }
+
+    fun onPermissionRequestCancelled() {
+        _uiState.update { null }
         onPermissionDenied()
     }
 
-    fun requestPermission(rationale: PermissionRationale) = viewModelScope.launch {
-        _event.emit(Event.RequestPermission(rationale))
+    fun requestPermission(rationale: PermissionRationale) {
+        _uiState.update { null }
+        navigate(Event.RequestPermission(rationale))
     }
 }

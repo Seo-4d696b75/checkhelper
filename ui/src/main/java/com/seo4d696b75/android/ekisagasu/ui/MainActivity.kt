@@ -1,14 +1,9 @@
 package com.seo4d696b75.android.ekisagasu.ui
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,21 +14,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.google.android.gms.common.GoogleApiAvailability
 import com.seo4d696b75.android.ekisagasu.ui.log.LogViewModel
 import com.seo4d696b75.android.ekisagasu.ui.navigation.MainScreen
-import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationale
-import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationaleArg
-import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionRationaleDialogDirections
-import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionViewModel
-import com.seo4d696b75.android.ekisagasu.ui.permission.canShowSystemRequestDialog
-import com.seo4d696b75.android.ekisagasu.ui.permission.shouldShowRationale
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -47,7 +34,6 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val logViewModel: LogViewModel by viewModels()
-    private val permissionViewModel: PermissionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -58,7 +44,10 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             AppTheme {
-                MainScreen()
+                MainScreen {
+                    startService()
+                    viewModel.checkData()
+                }
             }
         }
 
@@ -79,54 +68,17 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }
         }
-
-        permissionViewModel
-            .event
-            .flowWithLifecycle(lifecycle)
-            .onEach {
-                when (it) {
-                    PermissionViewModel.Event.PermissionDenied -> {
-                        // ユーザーによって必要な権限が拒否されたらアプリを終了
-                        Toast.makeText(
-                            applicationContext,
-                            getString(R.string.message_permission_denied),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                        finish()
-                    }
-
-                    is PermissionViewModel.Event.MissingRequirement -> {
-                        onMissingRequirementFound(it)
-                    }
-
-                    is PermissionViewModel.Event.RequestPermission -> {
-                        requestPermission(it.rationale)
-                    }
-                }
-            }
-            .launchIn(lifecycleScope)
-
-        permissionViewModel
-            .hasChecked
-            .flowWithLifecycle(lifecycle)
-            .filter { it }
-            .onEach {
-                startService()
-                viewModel.checkData()
-            }
-            .launchIn(lifecycleScope)
     }
 
     override fun onResume() {
         super.onResume()
-        permissionViewModel.check()
 
         // handle intent
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
                 it.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
                 val action = LineSelectDialogDirections.showLineSelectDialog(LineSelectType.Navigation)
-                findNavController(R.id.main_nav_host).navigate(action)
+                // findNavController(R.id.main_nav_host).navigate(action)
             }
         }
     }
@@ -135,135 +87,12 @@ class MainActivity : AppCompatActivity() {
         const val INTENT_KEY_SELECT_NAVIGATION = "select_navigation_line"
     }
 
-    private fun onMissingRequirementFound(e: PermissionViewModel.Event.MissingRequirement) {
-        when (e) {
-            is PermissionViewModel.Event.MissingRequirement.LocationPermission -> {
-                val rationale = PermissionRationale.LocationPermission(
-                    showSystemRequestDialog = e.state.canShowSystemRequestDialog(this),
-                )
-                if (e.state.shouldShowRationale) {
-                    // 必要なら権限リクエストを説明する
-                    val arg = PermissionRationaleArg(rationale)
-                    val action = PermissionRationaleDialogDirections.showPermissionRationaleDialog(arg)
-                    findNavController(R.id.main_nav_host).navigate(action)
-                } else {
-                    permissionViewModel.requestPermission(rationale)
-                }
-            }
-
-            is PermissionViewModel.Event.MissingRequirement.NotificationPermission -> {
-                val rationale = PermissionRationale.NotificationPermission(
-                    showSystemRequestDialog = e.state.canShowSystemRequestDialog(this),
-                )
-                if (e.state.shouldShowRationale) {
-                    // 必要なら権限リクエストを説明する
-                    val arg = PermissionRationaleArg(rationale)
-                    val action = PermissionRationaleDialogDirections.showPermissionRationaleDialog(arg)
-                    findNavController(R.id.main_nav_host).navigate(action)
-                } else {
-                    permissionViewModel.requestPermission(rationale)
-                }
-            }
-
-            is PermissionViewModel.Event.MissingRequirement.GooglePlayService -> {
-                // 特に説明は不要
-                GoogleApiAvailability
-                    .getInstance()
-                    .getErrorDialog(this, e.errorCode, 0)
-                    ?.show()
-            }
-
-            PermissionViewModel.Event.MissingRequirement.DrawOverlay -> {
-                // 権限リクエストを説明する
-                val arg = PermissionRationaleArg(PermissionRationale.DrawOverlay)
-                val action = PermissionRationaleDialogDirections.showPermissionRationaleDialog(arg)
-                findNavController(R.id.main_nav_host).navigate(action)
-            }
-
-            PermissionViewModel.Event.MissingRequirement.NotificationChannel -> {
-                // 権限リクエストを説明する
-                val arg = PermissionRationaleArg(PermissionRationale.NotificationChannel)
-                val action = PermissionRationaleDialogDirections.showPermissionRationaleDialog(arg)
-                findNavController(R.id.main_nav_host).navigate(action)
-            }
-        }
-    }
-
-    @SuppressLint("InlinedApi")
-    private fun requestPermission(rationale: PermissionRationale) = when (rationale) {
-        is PermissionRationale.LocationPermission -> {
-            if (rationale.showSystemRequestDialog) {
-                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            } else {
-                // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
-                val intent = Intent(
-                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.parse("package:${applicationContext.packageName}"),
-                )
-                startActivity(intent)
-            }
-        }
-
-        is PermissionRationale.NotificationPermission -> {
-            if (rationale.showSystemRequestDialog) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                // 複数回拒否するとシステムの権限ダイアログを表示できないため設定画面に誘導する
-                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                    putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
-                }
-                startActivity(intent)
-            }
-        }
-
-        PermissionRationale.NotificationChannel -> {
-            // 通知チャネルは設定画面でのみ変更できる
-            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                putExtra(Settings.EXTRA_APP_PACKAGE, applicationContext.packageName)
-            }
-            startActivity(intent)
-        }
-
-        PermissionRationale.DrawOverlay -> {
-            // 設定画面に遷移
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${applicationContext.packageName}"),
-            )
-            overlayPermissionLauncher.launch(intent)
-        }
-    }
-
     private fun startService() {
         if (!viewModel.isServiceRunning) {
             val intent = Intent(this, StationService::class.java)
             startForegroundService(intent)
             viewModel.isServiceRunning = true
         }
-    }
-
-    private val overlayPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
-    ) {
-        // 常に Activity.RESULT_CANCELLED が返される
-    }
-
-    private val resolvableApiLauncher = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult(),
-    ) {
-        permissionViewModel.onDeviceLocationSettingResult(it)
-    }
-
-    private val locationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) {
-        permissionViewModel.onLocationPermissionResult(it)
-    }
-
-    private val notificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) {
-        permissionViewModel.onNotificationPermissionResult(it)
     }
 
     private val requestLogFileUriLauncher = registerForActivityResult(
