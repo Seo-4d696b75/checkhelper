@@ -1,6 +1,5 @@
 package com.seo4d696b75.android.ekisagasu.ui.error
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,17 +13,14 @@ class ErrorStateHolder @Inject constructor() {
     private val state = MutableStateFlow<ErrorState>(ErrorState.Empty)
     val errorState = state.asStateFlow()
 
-    fun enqueue(error: Throwable, message: ErrorUiMessage) {
-        state.update { ErrorState.Queued(error, message) }
+    fun enqueue(error: Throwable) {
+        state.update { ErrorState.Queued(error) }
     }
 
     fun consume() {
         state.update {
-            if (it is ErrorState.Queued && !it.consumed) {
-                it.copy(consumed = true)
-            } else {
-                it
-            }
+            require(it is ErrorState.Queued)
+            it.copy(consumed = true)
         }
     }
 }
@@ -34,13 +30,12 @@ sealed interface ErrorState {
     data object Empty : ErrorState
     data class Queued(
         val error: Throwable,
-        val message: ErrorUiMessage,
         val consumed: Boolean = false,
     ) : ErrorState
-}
 
-data class ErrorUiMessage(
-    val title: (@Composable () -> String),
-    val description: (@Composable () -> String),
-    val onClosed: (() -> Unit)? = null,
-)
+    val errorToBeShown: Throwable?
+        get() = when (this) {
+            Empty -> null
+            is Queued -> if (consumed) null else error
+        }
+}

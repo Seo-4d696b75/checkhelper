@@ -26,7 +26,7 @@
     <string name="dialog_error_title_default">エラー</string>
     <string name="dialog_error_description_default">不明なエラーが発生しました\n%1$s</string>
     <string name="dialog_error_button_close">閉じる</string>
-    <string name="dialog_error_description_gms">位置情報の取得に追加の操作が必要です</string>
+    <string name="dialog_error_description_unavailable_location">位置情報を取得できませんでした</string>
     <string name="dialog_error_button_next">次へ</string>
 
     <!-- data version -->

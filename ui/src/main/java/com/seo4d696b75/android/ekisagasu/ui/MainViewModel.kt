@@ -1,11 +1,11 @@
 package com.seo4d696b75.android.ekisagasu.ui
 
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
@@ -47,16 +47,16 @@ class MainViewModel @Inject constructor(
         if (!appStateRepository.hasDataVersionChecked) {
             appStateRepository.hasDataVersionChecked = true
 
-            viewModelScope.launch {
+            viewModelScope.launchCatching {
                 val info = dataRepository.getDataVersion()
 
                 val latest = runCatching {
                     remoteDataRepository.getLatestDataVersion(true)
-                }.messageOnError { e ->
-                    description = { stringResource(id = R.string.message_fail_fetch_latest_version) }
+                }.onFailure { e ->
                     log(LogMessage.Data.CheckLatestVersionFailure(e))
                     appStateRepository.hasDataVersionChecked = false
-                }.getOrNull() ?: return@launch
+                    throw CheckLatestDataVersionException(e)
+                }.getOrThrow()
 
                 if (info == null) {
                     Timber.d("no data saved, download required")

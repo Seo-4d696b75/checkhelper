@@ -1,63 +1,73 @@
 package com.seo4d696b75.android.ekisagasu.ui.error
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.seo4d696b75.android.ekisagasu.ui.R
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 interface ErrorHandler {
-    /**
-     * 例外を補足したらエラー表示する
-     *
-     * @param configuration 例外を補足したタイミングまで評価は遅延される
-     */
-    fun <T> Result<T>.messageOnError(configuration: ErrorMessageConfigureScope.(error: Throwable) -> Unit): Result<T>
-}
+    fun CoroutineScope.launchCatching(
+        context: CoroutineContext = EmptyCoroutineContext,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> Unit,
+    ): Job
 
-/**
- * エラー表示のUIコンテンツを指定する
- */
-interface ErrorMessageConfigureScope {
-    var title: (@Composable () -> String)?
-    var description: (@Composable () -> String)?
-    var onClosed: (() -> Unit)?
+    fun <T> Flow<T>.stateInCatching(
+        scope: CoroutineScope,
+        started: SharingStarted,
+        initialValue: T,
+    ): StateFlow<T>
+
+    fun enqueueThrowable(error: Throwable)
 }
 
 class ErrorHandlerImpl @Inject constructor(
     private val holder: ErrorStateHolder,
 ) : ErrorHandler {
-    override fun <T> Result<T>.messageOnError(
-        configuration: ErrorMessageConfigureScope.(error: Throwable) -> Unit,
-    ): Result<T> =
-        onFailure {
-            if (it is CancellationException) {
-                throw it
-            } else {
-                Timber.w(it, "caught in Result.messageOnError")
-                val configureScope = object : ErrorMessageConfigureScope {
-                    override var title: (@Composable () -> String)? = null
-                    override var description: (@Composable () -> String)? = null
-                    override var onClosed: (() -> Unit)? = null
-                }
-                with(configureScope) { configuration(it) }
-                val message = ErrorUiMessage(
-                    title = configureScope.title ?: {
-                        stringResource(R.string.dialog_error_title_default)
-                    },
-                    description = configureScope.description ?: {
-                        stringResource(id = R.string.dialog_error_description_default, it.message ?: "")
-                    },
-                    onClosed = configureScope.onClosed,
-                )
-                holder.enqueue(it, message)
-            }
-        }
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        enqueueThrowable(throwable)
+    }
+
+    override fun CoroutineScope.launchCatching(
+        context: CoroutineContext,
+        start: CoroutineStart,
+        block: suspend CoroutineScope.() -> Unit,
+    ): Job = launch(
+        context = context + coroutineExceptionHandler,
+        start = start,
+        block = block,
+    ).apply {
+        this.invokeOnCompletion { }
+    }
+
+    override fun <T> Flow<T>.stateInCatching(
+        scope: CoroutineScope,
+        started: SharingStarted,
+        initialValue: T,
+    ): StateFlow<T> = stateIn(
+        scope = scope + coroutineExceptionHandler,
+        started = started,
+        initialValue = initialValue,
+    )
+
+    override fun enqueueThrowable(error: Throwable) {
+        Timber.w(error, "caught in ErrorHandler")
+        holder.enqueue(error)
+    }
 }
 
 @Suppress("unused")

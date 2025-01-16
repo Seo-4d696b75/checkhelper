@@ -1,17 +1,16 @@
 package com.seo4d696b75.android.ekisagasu.ui.setting
 
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSetting
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
-import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +22,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -150,15 +148,13 @@ class SettingComposeViewModel @Inject constructor(
         appStateRepository.setNightMode(enabled)
     }
 
-    fun checkLatestData() = viewModelScope.launch(Dispatchers.IO) {
+    fun checkLatestData() = viewModelScope.launchCatching(Dispatchers.IO) {
         val latest = runCatching {
             remoteDataRepository.getLatestDataVersion(false)
-        }.messageOnError { e ->
-            Timber.w(e)
+        }.onFailure { e ->
             log(LogMessage.Data.CheckLatestVersionFailure(e))
-            description = { stringResource(id = R.string.message_fail_fetch_latest_version) }
-            onClosed = { Timber.d("closed") }
-        }.getOrNull() ?: return@launch
+            throw CheckLatestDataVersionException(e)
+        }.getOrThrow()
         val current = dataRepository.getDataVersion()
         if (current == null || latest.version > current.version) {
             navigateDataUpdateEvent(DataUpdateType.Latest, latest)

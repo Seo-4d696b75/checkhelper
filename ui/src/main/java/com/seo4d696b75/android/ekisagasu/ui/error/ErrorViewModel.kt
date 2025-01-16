@@ -15,11 +15,7 @@ class ErrorViewModel @Inject constructor(
     val state = holder
         .errorState
         .map {
-            if (it is ErrorState.Queued && !it.consumed) {
-                it
-            } else {
-                null
-            }
+            it.errorToBeShown
         }
         .stateIn(
             viewModelScope,
