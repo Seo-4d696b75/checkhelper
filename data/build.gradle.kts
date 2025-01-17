@@ -70,6 +70,8 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logger)
 
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
