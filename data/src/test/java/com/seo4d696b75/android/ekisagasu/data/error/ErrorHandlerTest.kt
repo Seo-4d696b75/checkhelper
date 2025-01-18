@@ -1,6 +1,9 @@
-package com.seo4d696b75.android.ekisagasu.ui.error
+package com.seo4d696b75.android.ekisagasu.data.error
 
 import com.google.common.truth.Truth.assertThat
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHolder
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
@@ -21,11 +24,11 @@ import org.junit.Test
 class ErrorHandlerTest {
 
     private lateinit var handler: ErrorHandler
-    private lateinit var holder: ErrorStateHolder
+    private lateinit var holder: ErrorHolder
 
     @Before
     fun setup() {
-        holder = ErrorStateHolder()
+        holder = ErrorHolderImpl()
         handler = ErrorHandlerImpl(holder)
     }
 
@@ -34,14 +37,15 @@ class ErrorHandlerTest {
     fun testLaunchCatching() = runTest {
         with(handler) {
             val stateList = mutableListOf<ErrorState>()
-            launch {
-                holder.errorState.toList(stateList)
+            val collectJob = launch {
+                holder.state.toList(stateList)
             }
             launchCatching {
                 delay(100)
                 throw RuntimeException()
             }
             advanceUntilIdle()
+            collectJob.cancelAndJoin()
 
             assertThat(stateList.size).isEqualTo(2)
             assertThat(stateList[0]).isInstanceOf(ErrorState.Empty::class.java)
@@ -78,7 +82,7 @@ class ErrorHandlerTest {
             // wait until error reported
             val awaitNextError: suspend () -> Throwable = {
                 holder
-                    .errorState
+                    .state
                     .map { it.errorToBeShown }
                     .filterNotNull()
                     .first()

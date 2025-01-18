@@ -4,6 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import com.seo4d696b75.android.ekisagasu.data.fakeStations
 import com.seo4d696b75.android.ekisagasu.data.fakeTree
 import com.seo4d696b75.android.ekisagasu.data.kdtree.KdTree
+import com.seo4d696b75.android.ekisagasu.data.station.StationResponse
+import com.seo4d696b75.android.ekisagasu.data.toModel
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import io.mockk.coEvery
@@ -43,7 +45,7 @@ class NearestSearchTest {
         coEvery { repository.getStations(capture(codesSlot)) } answers {
             val codes = codesSlot.captured
             codes.map { code ->
-                stations.find { it.code == code } ?: throw NoSuchElementException()
+                stations.find { it.code == code }?.let(StationResponse::toModel) ?: throw NoSuchElementException()
             }
         }
 

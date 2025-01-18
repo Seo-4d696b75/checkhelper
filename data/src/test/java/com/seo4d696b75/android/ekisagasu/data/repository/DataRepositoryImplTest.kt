@@ -4,10 +4,8 @@ package com.seo4d696b75.android.ekisagasu.data.repository
 
 import com.google.common.truth.Truth.assertThat
 import com.seo4d696b75.android.ekisagasu.data.database.station.DataVersionEntity
-import com.seo4d696b75.android.ekisagasu.data.database.station.LineEntity
 import com.seo4d696b75.android.ekisagasu.data.database.station.RootStationNodeEntity
 import com.seo4d696b75.android.ekisagasu.data.database.station.StationDao
-import com.seo4d696b75.android.ekisagasu.data.database.station.StationEntity
 import com.seo4d696b75.android.ekisagasu.data.database.station.StationNodeEntity
 import com.seo4d696b75.android.ekisagasu.data.fakeData
 import com.seo4d696b75.android.ekisagasu.data.fakeLines
@@ -15,13 +13,17 @@ import com.seo4d696b75.android.ekisagasu.data.fakeStations
 import com.seo4d696b75.android.ekisagasu.data.fakeTree
 import com.seo4d696b75.android.ekisagasu.data.file.unzip
 import com.seo4d696b75.android.ekisagasu.data.station.DataRepositoryImpl
+import com.seo4d696b75.android.ekisagasu.data.toModel
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
+import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +48,7 @@ class DataRepositoryImplTest {
     val tempFolder = TemporaryFolder()
 
     private val dao = mockk<StationDao>()
+    private val prefectureRepository = mockk<PrefectureRepository>()
     private val json = Json { ignoreUnknownKeys = true }
     private lateinit var repository: DataRepository
 
@@ -55,7 +58,12 @@ class DataRepositoryImplTest {
 
     @Before
     fun setup() {
-        repository = DataRepositoryImpl(dao, json)
+        repository = DataRepositoryImpl(dao, json, prefectureRepository)
+
+        val slop = slot<Int>()
+        every { prefectureRepository[capture(slop)] } answers {
+            Prefecture(slop.captured, "name")
+        }
     }
 
     @After
@@ -142,16 +150,20 @@ class DataRepositoryImplTest {
         val stationCodeSlot = slot<Int>()
         coEvery { dao.getStation(capture(stationCodeSlot)) } answers {
             val code = stationCodeSlot.captured
-            stations.find { it.code == code }?.let {
-                StationEntity.fromModel(it)
-            } ?: throw NoSuchElementException()
+            stations.find { it.code == code }?.toEntity() ?: throw NoSuchElementException()
         }
         val lineCodeSlot = slot<Int>()
         coEvery { dao.getLine(capture(lineCodeSlot)) } answers {
             val code = lineCodeSlot.captured
-            lines.find { it.code == code }?.let {
-                LineEntity.fromModel(it)
-            } ?: throw NoSuchElementException()
+            lines.find { it.code == code }?.toEntity() ?: throw NoSuchElementException()
+        }
+        val listCodesSlot = slot<List<Int>>()
+        coEvery { dao.getLines(capture(listCodesSlot)) } answers {
+            listCodesSlot
+                .captured
+                .map { code ->
+                    lines.find { it.code == code }?.toEntity() ?: throw NoSuchElementException()
+                }
         }
         coEvery { dao.getRootStationNode() }.answers { RootStationNodeEntity(tree.root) }
         coEvery { dao.getStationNodes() } answers {
@@ -165,9 +177,9 @@ class DataRepositoryImplTest {
         }
 
         // test
-        val station = stations.random()
+        val station = stations.random().toModel()
         assertThat(repository.getStation(station.code)).isEqualTo(station)
-        val line = lines.random()
+        val line = lines.random().toModel()
         assertThat(repository.getLine(line.code)).isEqualTo(line)
         val history = repository.getDataVersionHistory()
         assertThat(history.size).isEqualTo(2)
@@ -177,6 +189,7 @@ class DataRepositoryImplTest {
         // verify
         coVerifyOrder {
             dao.getStation(station.code)
+            dao.getLines(station.lines.map { it.code })
             dao.getLine(line.code)
             dao.getDataVersionHistory()
             dao.getRootStationNode()
