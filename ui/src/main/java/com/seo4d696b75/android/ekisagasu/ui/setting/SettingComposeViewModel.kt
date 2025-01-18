@@ -6,12 +6,12 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSetting
 import com.seo4d696b75.android.ekisagasu.domain.user.UserSettingRepository
-import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -117,7 +116,7 @@ class SettingComposeViewModel @Inject constructor(
             isNightMode = night,
             data = data,
         )
-    }.stateIn(
+    }.stateInCatching(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
         SettingUiState.Initializing,

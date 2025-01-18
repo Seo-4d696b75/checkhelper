@@ -1,9 +1,12 @@
-package com.seo4d696b75.android.ekisagasu.ui.error
+package com.seo4d696b75.android.ekisagasu.data.error
 
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHolder
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorState
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityRetainedComponent
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -20,26 +23,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-
-interface ErrorHandler {
-    fun CoroutineScope.launchCatching(
-        context: CoroutineContext = EmptyCoroutineContext,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        block: suspend CoroutineScope.() -> Unit,
-    ): Job
-
-    fun <T> Flow<T>.stateInCatching(
-        scope: CoroutineScope,
-        started: SharingStarted,
-        initialValue: T,
-    ): StateFlow<T>
-
-    fun enqueueThrowable(error: Throwable)
-}
 
 class ErrorHandlerImpl @Inject constructor(
-    private val holder: ErrorStateHolder,
+    private val holder: ErrorHolder
 ) : ErrorHandler {
 
     override fun CoroutineScope.launchCatching(
@@ -66,7 +52,7 @@ class ErrorHandlerImpl @Inject constructor(
     ): StateFlow<T> = retry { e ->
         holder.enqueue(e)
         val nextConsumed = holder
-            .errorState
+            .state
             .filterIsInstance<ErrorState.Queued>()
             .filter { it.consumed }
             .first()
@@ -86,7 +72,7 @@ class ErrorHandlerImpl @Inject constructor(
 
 @Suppress("unused")
 @Module
-@InstallIn(ActivityRetainedComponent::class)
+@InstallIn(SingletonComponent::class)
 interface ErrorHandlerModule {
     @Binds
     fun bind(impl: ErrorHandlerImpl): ErrorHandler

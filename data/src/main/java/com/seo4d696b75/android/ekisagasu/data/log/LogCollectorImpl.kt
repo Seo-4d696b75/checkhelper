@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.data.log
 import android.content.Context
 import com.seo4d696b75.android.ekisagasu.data.R
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
@@ -13,7 +14,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.PrintWriter
 import java.io.StringWriter
 import javax.inject.Inject
@@ -22,9 +22,11 @@ class LogCollectorImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     @ExternalScope private val scope: CoroutineScope,
     private val repository: LogRepository,
-) : LogCollector {
+    handler: ErrorHandler,
+) : LogCollector,
+    ErrorHandler by handler {
     override fun log(message: LogMessage) {
-        scope.launch(Dispatchers.Default) {
+        scope.launchCatching(Dispatchers.Default) {
             val str = message.toString(context)
             repository.write(
                 type = message.type,
@@ -70,6 +72,7 @@ private fun LogMessage.toString(context: Context): String =
                 is LogMessage.Data.CheckLatestVersionFailure -> context.getString(
                     R.string.log_message_latest_check_failure
                 )
+
                 is LogMessage.Data.UpdateFailure -> context.getString(R.string.log_message_fail_data_update)
             }
             "$message caused by;\n${error.formatStackTrace()}"

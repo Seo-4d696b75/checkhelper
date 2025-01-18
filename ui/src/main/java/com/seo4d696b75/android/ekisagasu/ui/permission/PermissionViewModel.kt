@@ -7,10 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionState
-import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
 import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder

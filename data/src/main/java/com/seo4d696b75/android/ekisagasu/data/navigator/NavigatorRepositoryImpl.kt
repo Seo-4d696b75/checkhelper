@@ -4,6 +4,7 @@ import com.seo4d696b75.android.ekisagasu.data.polyline.PolylineNavigator
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapLatestBySkip
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorState
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,7 +30,9 @@ class NavigatorRepositoryImpl @Inject constructor(
     private val search: NearestSearch,
     private val searchRepository: StationSearchRepository,
     @ExternalScope private val scope: CoroutineScope,
-) : NavigatorRepository {
+    handler: ErrorHandler,
+) : NavigatorRepository,
+    ErrorHandler by handler {
 
     private val navigator = MutableStateFlow<PolylineNavigator?>(null)
     override val currentLine: Line?
@@ -68,7 +70,7 @@ class NavigatorRepositoryImpl @Inject constructor(
                     navigator.onLocationUpdate(it.location, it.detected.station)
                 }
         }
-    }.stateIn(
+    }.stateInCatching(
         // convert to hot flow so that same result should be shared in application
         scope = scope,
         started = SharingStarted.WhileSubscribed(),

@@ -6,10 +6,10 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
-import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.take

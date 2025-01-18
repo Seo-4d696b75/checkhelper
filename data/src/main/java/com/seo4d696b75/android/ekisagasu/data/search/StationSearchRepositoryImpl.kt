@@ -5,6 +5,7 @@ import com.seo4d696b75.android.ekisagasu.domain.coroutine.ExternalScope
 import com.seo4d696b75.android.ekisagasu.domain.coroutine.mapLatestBySkip
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
 import java.util.Date
@@ -41,8 +41,10 @@ class StationSearchRepositoryImpl @Inject constructor(
     private val search: NearestSearch,
     private val logger: LogCollector,
     @ExternalScope private val scope: CoroutineScope,
+    handler: ErrorHandler,
 ) : StationSearchRepository,
-    LogCollector by logger {
+    LogCollector by logger,
+    ErrorHandler by handler {
 
     private val _selectedLine = MutableStateFlow<Line?>(null)
 
@@ -91,7 +93,7 @@ class StationSearchRepositoryImpl @Inject constructor(
                 is LocationState.Result -> updateLocation(state.location, k, previous)
             }
         }
-        .stateIn(
+        .stateInCatching(
             // convert into hot flow so that same result should be shared in application
             scope,
             SharingStarted.WhileSubscribed(),
