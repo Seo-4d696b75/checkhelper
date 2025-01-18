@@ -18,7 +18,7 @@ internal data class LineResponse(
     val color: String? = null,
     val closed: Boolean,
     @SerialName("station_list")
-    val stationList: Array<StationRegistration>,
+    val stationList: List<StationRegistration>,
     @SerialName("polyline_list")
     @Serializable(with = JsonObjectAsStringSerializer::class)
     val polyline: String? = null,

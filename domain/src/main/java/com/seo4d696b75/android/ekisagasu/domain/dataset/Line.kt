@@ -13,7 +13,7 @@ data class Line(
     val symbol: String? = null,
     val color: String? = null,
     val closed: Boolean,
-    val stationList: Array<StationRegistration>,
+    val stationList: List<StationRegistration>,
     val polyline: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {

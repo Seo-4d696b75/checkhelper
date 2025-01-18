@@ -13,7 +13,7 @@ val previewLine = Line(
     closed = false,
     nameKana = "とうかいどうしんかんせん",
     stationSize = 17,
-    stationList = emptyArray(),
+    stationList = emptyList(),
 )
 
 val previewLines = listOf(
@@ -24,7 +24,7 @@ val previewLines = listOf(
         closed = false,
         nameKana = "とうかいどうしんかんせん",
         stationSize = 17,
-        stationList = emptyArray(),
+        stationList = emptyList(),
         color = "#0000FF",
     ),
     Line(
@@ -34,7 +34,7 @@ val previewLines = listOf(
         closed = false,
         nameKana = "とうほくしんかんせん",
         stationSize = 23,
-        stationList = emptyArray(),
+        stationList = emptyList(),
         color = "#008000",
     ),
     Line(
@@ -44,7 +44,7 @@ val previewLines = listOf(
         closed = false,
         nameKana = "じぇいあーるとうかいどうほんせん",
         stationSize = 21,
-        stationList = emptyArray(),
+        stationList = emptyList(),
         color = "#F68B1E",
         symbol = "JT",
     ),
@@ -55,7 +55,7 @@ val previewLines = listOf(
         closed = false,
         nameKana = "じぇいあーるけいひんとうほくせん",
         stationSize = 36,
-        stationList = emptyArray(),
+        stationList = emptyList(),
         color = "#00B2E5",
         symbol = "JK",
     ),
@@ -66,7 +66,7 @@ val previewLines = listOf(
         closed = false,
         nameKana = "じぇいあーるやまのてせん",
         stationSize = 36,
-        stationList = emptyArray(),
+        stationList = emptyList(),
         color = "#9ACD32",
         symbol = "JY",
     ),

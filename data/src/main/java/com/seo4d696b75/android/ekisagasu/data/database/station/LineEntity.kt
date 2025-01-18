@@ -26,7 +26,7 @@ data class LineEntity(
     @ColumnInfo(name = "closed")
     val closed: Boolean,
     @ColumnInfo(name = "station_list")
-    val stationList: Array<StationRegistration>,
+    val stationList: List<StationRegistration>,
     @ColumnInfo(name = "polyline")
     val polyline: String?,
 )

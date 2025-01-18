@@ -1,9 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.data.database.station
 
 import androidx.room.TypeConverter
-import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationNode
 import com.seo4d696b75.android.ekisagasu.domain.dataset.StationRegistration
-import kotlinx.serialization.decodeFromString
+import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationNode
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -27,13 +26,13 @@ class NodeListConverter {
 
 class RegistrationListConverter {
     @TypeConverter
-    fun convertArray(value: Array<StationRegistration>?): String? = value?.let {
+    fun convertArray(value: List<StationRegistration>?): String? = value?.let {
         Json.encodeToString(it)
     }
 
     @TypeConverter
-    fun convertJson(value: String?): Array<StationRegistration>? = value?.let {
-        Json.decodeFromString<Array<StationRegistration>>(it)
+    fun convertJson(value: String?): List<StationRegistration>? = value?.let {
+        Json.decodeFromString<List<StationRegistration>>(it)
     }
 }
 
