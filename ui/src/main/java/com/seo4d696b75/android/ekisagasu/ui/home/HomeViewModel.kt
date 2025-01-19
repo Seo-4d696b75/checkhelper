@@ -3,10 +3,15 @@ package com.seo4d696b75.android.ekisagasu.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
+import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +27,8 @@ class HomeViewModel @Inject constructor(
     searchRepository: StationSearchRepository,
     handler: ErrorHandler,
 ) : ViewModel(),
-    ErrorHandler by handler {
+    ErrorHandler by handler,
+    NavigationEventHolder<HomeViewModel.Nav> by navigationEventHolder() {
 
     private val visible = MutableStateFlow(true)
 
@@ -63,5 +69,18 @@ class HomeViewModel @Inject constructor(
 
             is HomeUiState.Running -> locationRepository.stopWatchCurrentLocation()
         }
+    }
+
+    fun onStationClicked(station: Station) {
+        navigate(Nav.ShowStation(station))
+    }
+
+    fun onLineClicked(line: Line) {
+        navigate(Nav.ShowLine(line))
+    }
+
+    sealed interface Nav : NavigationEvent {
+        data class ShowStation(val station: Station) : Nav
+        data class ShowLine(val line: Line) : Nav
     }
 }

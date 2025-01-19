@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.home.HomeUiState
 import com.seo4d696b75.android.ekisagasu.ui.home.component.HomeLoading
@@ -19,6 +21,8 @@ import com.seo4d696b75.android.ekisagasu.ui.home.component.HomeResultGrid
 @Composable
 fun HomeResultSection(
     state: HomeUiState.Visible,
+    onStationClicked: (Station) -> Unit,
+    onLineClicked: (Line) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Crossfade(
@@ -42,6 +46,8 @@ fun HomeResultSection(
             is HomeUiState.Result ->
                 HomeResultGrid(
                     station = state.station,
+                    onStationClicked = onStationClicked,
+                    onLineClicked = onLineClicked,
                     modifier = Modifier.fillMaxWidth(),
                 )
         }

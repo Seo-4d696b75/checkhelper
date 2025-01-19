@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
 import com.seo4d696b75.android.ekisagasu.ui.home.HomeUiState
@@ -34,6 +36,8 @@ import com.seo4d696b75.android.ekisagasu.ui.utils.previewNearStation
 @Composable
 fun HomeSection(
     state: HomeUiState.Visible,
+    onStationClicked: (Station) -> Unit,
+    onLineClicked: (Line) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -41,6 +45,8 @@ fun HomeSection(
     ) {
         HomeResultSection(
             state = state,
+            onStationClicked = onStationClicked,
+            onLineClicked = onLineClicked,
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp),
@@ -99,6 +105,8 @@ private fun HomeSectionPreview(
         Surface {
             HomeSection(
                 state = state,
+                onStationClicked = {},
+                onLineClicked = {},
             )
         }
     }

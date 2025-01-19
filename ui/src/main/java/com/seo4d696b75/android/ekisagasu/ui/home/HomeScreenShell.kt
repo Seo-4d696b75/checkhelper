@@ -28,7 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
@@ -47,12 +50,27 @@ fun HomeScreenShell(
             viewModel.onVisibilityChanged(route is NavigationRoute.Home)
         }
     }
+    NavigationEvent(viewModel) {
+        when (it) {
+            is HomeViewModel.Nav.ShowStation -> {
+                val route = NavigationRoute.Home.Station(it.station.code)
+                navController.navigate(route)
+            }
+
+            is HomeViewModel.Nav.ShowLine -> {
+                val route = NavigationRoute.Home.Line(it.line.code)
+                navController.navigate(route)
+            }
+        }
+    }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeScreenShell(
         state = state,
         onSearchStateChanged = viewModel::onSearchStateChanged,
+        onStationClicked = viewModel::onStationClicked,
+        onLineClicked = viewModel::onLineClicked,
         content = content,
         modifier = modifier,
     )
@@ -63,6 +81,8 @@ fun HomeScreenShell(
 fun HomeScreenShell(
     state: HomeUiState,
     onSearchStateChanged: () -> Unit,
+    onStationClicked: (Station) -> Unit,
+    onLineClicked: (Line) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -103,6 +123,8 @@ fun HomeScreenShell(
             ) {
                 HomeSection(
                     state = state,
+                    onStationClicked = onStationClicked,
+                    onLineClicked = onLineClicked,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -140,6 +162,8 @@ private fun HomeScreenShellPreview() {
         HomeScreenShell(
             state = HomeUiState.Idle,
             onSearchStateChanged = {},
+            onStationClicked = {},
+            onLineClicked = {},
         ) {
 
         }

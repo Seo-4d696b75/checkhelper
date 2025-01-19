@@ -2,6 +2,7 @@ package com.seo4d696b75.android.ekisagasu.ui.home.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
+import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.StationName
@@ -36,6 +39,8 @@ import com.seo4d696b75.android.ekisagasu.ui.utils.previewNearStation
 @Composable
 fun HomeResultGrid(
     station: NearStation,
+    onStationClicked: (Station) -> Unit,
+    onLineClicked: (Line) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -43,6 +48,7 @@ fun HomeResultGrid(
     ) {
         StationName(
             station = station.station,
+            modifier = Modifier.clickable { onStationClicked(station.station) },
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -88,7 +94,9 @@ fun HomeResultGrid(
                     key = { it.code },
                 ) { line ->
                     Row(
-                        modifier = Modifier.padding(2.dp),
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clickable { onLineClicked(line) },
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(
@@ -119,6 +127,8 @@ private fun HomeResultGridPreview() {
             HomeResultGrid(
                 station = previewNearStation,
                 modifier = Modifier.width(200.dp),
+                onStationClicked = {},
+                onLineClicked = {},
             )
         }
     }
