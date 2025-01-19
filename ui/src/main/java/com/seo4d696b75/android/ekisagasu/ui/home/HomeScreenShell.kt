@@ -1,6 +1,5 @@
 package com.seo4d696b75.android.ekisagasu.ui.home
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,7 +18,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -32,9 +28,12 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
+import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeActionButtonSection
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
+import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
+import com.seo4d696b75.android.ekisagasu.ui.navigation.toTab
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable
@@ -46,8 +45,10 @@ fun HomeScreenShell(
     val viewModel: HomeViewModel = hiltViewModel()
     LaunchedEffect(viewModel) {
         navController.currentBackStackEntryFlow.collect {
-            val route = it.toRoute()
-            viewModel.onVisibilityChanged(route is NavigationRoute.Home)
+            val tab = it.toRoute().toTab()
+            if (tab != null) {
+                viewModel.onVisibilityChanged(tab == NavigationTab.Home)
+            }
         }
     }
     NavigationEvent(viewModel) {
@@ -69,6 +70,11 @@ fun HomeScreenShell(
     HomeScreenShell(
         state = state,
         onSearchStateChanged = viewModel::onSearchStateChanged,
+        onFinishClicked = viewModel::onFinishClicked,
+        onSelectLineClicked = viewModel::onSelectLineClicked,
+        onLineNavigatorClicked = viewModel::onLineNavigatorClicked,
+        onTimerClicked = viewModel::onTimerClicked,
+        onMapClicked = viewModel::onMapClicked,
         onStationClicked = viewModel::onStationClicked,
         onLineClicked = viewModel::onLineClicked,
         content = content,
@@ -81,6 +87,11 @@ fun HomeScreenShell(
 fun HomeScreenShell(
     state: HomeUiState,
     onSearchStateChanged: () -> Unit,
+    onFinishClicked: () -> Unit,
+    onSelectLineClicked: () -> Unit,
+    onLineNavigatorClicked: () -> Unit,
+    onTimerClicked: () -> Unit,
+    onMapClicked: () -> Unit,
     onStationClicked: (Station) -> Unit,
     onLineClicked: (Line) -> Unit,
     modifier: Modifier = Modifier,
@@ -130,27 +141,16 @@ fun HomeScreenShell(
                 Spacer(modifier = Modifier.height(16.dp))
                 content()
             }
-            FloatingActionButton(
-                onClick = onSearchStateChanged,
-                modifier = Modifier.padding(16.dp),
-            ) {
-                Crossfade(
-                    targetState = state is HomeUiState.Running,
-                    label = "fab running",
-                ) { running ->
-                    if (running) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_pause),
-                            contentDescription = "stop",
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_play),
-                            contentDescription = "start",
-                        )
-                    }
-                }
-            }
+            HomeActionButtonSection(
+                isRunning = state is HomeUiState.Running,
+                onSearchStateChanged = onSearchStateChanged,
+                onFinishClicked = onFinishClicked,
+                onSelectLineClicked = onSelectLineClicked,
+                onLineNavigatorClicked = onLineNavigatorClicked,
+                onTimerClicked = onTimerClicked,
+                onMapClicked = onMapClicked,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }
@@ -162,6 +162,11 @@ private fun HomeScreenShellPreview() {
         HomeScreenShell(
             state = HomeUiState.Idle,
             onSearchStateChanged = {},
+            onFinishClicked = {},
+            onSelectLineClicked = {},
+            onLineNavigatorClicked = {},
+            onTimerClicked = {},
+            onMapClicked = {},
             onStationClicked = {},
             onLineClicked = {},
         ) {

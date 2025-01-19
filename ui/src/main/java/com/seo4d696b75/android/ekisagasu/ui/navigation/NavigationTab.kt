@@ -7,6 +7,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.seo4d696b75.android.ekisagasu.ui.R
 import kotlinx.serialization.Serializable
@@ -33,7 +34,7 @@ sealed interface NavigationTab {
         }
 
         @Composable
-        override fun label() = "ホーム"
+        override fun label() = stringResource(id = R.string.navigation_bar_label_home)
     }
 
     @Serializable
@@ -48,7 +49,7 @@ sealed interface NavigationTab {
         )
 
         @Composable
-        override fun label() = "ログ"
+        override fun label() = stringResource(id = R.string.navigation_bar_label_log)
     }
 
     @Serializable
@@ -61,6 +62,6 @@ sealed interface NavigationTab {
         }
 
         @Composable
-        override fun label() = "設定"
+        override fun label() = stringResource(id = R.string.navigation_bar_label_setting)
     }
 }

@@ -7,6 +7,7 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val dataRepository: DataRepository,
+    private val appStateRepository: AppStateRepository,
     searchRepository: StationSearchRepository,
     handler: ErrorHandler,
 ) : ViewModel(),
@@ -69,6 +71,26 @@ class HomeViewModel @Inject constructor(
 
             is HomeUiState.Running -> locationRepository.stopWatchCurrentLocation()
         }
+    }
+
+    fun onFinishClicked() = viewModelScope.launchCatching {
+        appStateRepository.requestAppFinish()
+    }
+
+    fun onSelectLineClicked() {
+
+    }
+
+    fun onLineNavigatorClicked() {
+
+    }
+
+    fun onTimerClicked() {
+
+    }
+
+    fun onMapClicked() {
+
     }
 
     fun onStationClicked(station: Station) {

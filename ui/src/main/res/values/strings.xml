@@ -4,6 +4,18 @@
     <!-- TODO defined in BuildConfig -->
     <string name="map_url">https://seo-4d696b75.github.io/ekisagasu/#/</string>
 
+    <!-- Bottom Navigation Bar -->
+    <string name="navigation_bar_label_home">ホーム</string>
+    <string name="navigation_bar_label_log">ログ</string>
+    <string name="navigation_bar_label_setting">設定</string>
+
+    <!-- FAB label -->
+    <string name="floating_action_button_label_finish">探索を終了</string>
+    <string name="floating_action_button_label_select_line">路線を選択</string>
+    <string name="floating_action_button_label_start_navigator">路線を案内</string>
+    <string name="floating_action_button_label_start_timer">5分タイマー</string>
+    <string name="floating_action_button_label_show_map">地図を表示</string>
+
     <!-- data update -->
     <string name="dialog_title_init_data">駅データの初期化</string>
     <string name="dialog_message_init_data">このアプリには駅データが必要です.データをダウンロードしてアプリを利用しますか？</string>
