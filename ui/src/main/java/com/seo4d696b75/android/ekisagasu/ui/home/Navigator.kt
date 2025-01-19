@@ -23,49 +23,37 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
         startDestination = NavigationRoute.Home.Radar,
     ) {
         composable<NavigationRoute.Home.Radar> {
-            HomeScreenShell {
-                val viewModel: RadarViewModel = hiltViewModel()
-                NavigationEvent(viewModel) {
-                    navController.navigate(NavigationRoute.Home.Station(it.station.code))
-                }
-                RadarScreen(
-                    viewModel = viewModel,
-                    modifier = Modifier.fillMaxSize(),
-                )
+            val viewModel: RadarViewModel = hiltViewModel()
+            NavigationEvent(viewModel) {
+                navController.navigate(NavigationRoute.Home.Station(it.station.code))
             }
+            RadarScreen(
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
         composable<NavigationRoute.Home.Station> { backstack ->
             val args = backstack.toRoute<NavigationRoute.Home.Station>()
-            val owner = navController.getBackStackEntry<NavigationRoute.Home.Radar>()
-            HomeScreenShell(
-                viewModel = hiltViewModel(viewModelStoreOwner = owner),
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "Station ${args.code}",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
+                Text(
+                    text = "Station ${args.code}",
+                    style = MaterialTheme.typography.titleMedium,
+                )
             }
         }
         composable<NavigationRoute.Home.Line> { backstack ->
             val args = backstack.toRoute<NavigationRoute.Home.Line>()
-            val owner = navController.getBackStackEntry<NavigationRoute.Home.Radar>()
-            HomeScreenShell(
-                viewModel = hiltViewModel(viewModelStoreOwner = owner),
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "Line ${args.code}",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
+                Text(
+                    text = "Line ${args.code}",
+                    style = MaterialTheme.typography.titleMedium,
+                )
             }
         }
     }

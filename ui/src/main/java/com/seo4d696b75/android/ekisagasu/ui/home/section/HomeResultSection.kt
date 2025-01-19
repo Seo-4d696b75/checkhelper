@@ -18,7 +18,7 @@ import com.seo4d696b75.android.ekisagasu.ui.home.component.HomeResultGrid
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 fun HomeResultSection(
-    state: HomeUiState,
+    state: HomeUiState.Visible,
     modifier: Modifier = Modifier,
 ) {
     Crossfade(

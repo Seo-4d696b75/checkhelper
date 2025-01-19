@@ -33,7 +33,7 @@ import com.seo4d696b75.android.ekisagasu.ui.utils.previewNearStation
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 fun HomeSection(
-    state: HomeUiState,
+    state: HomeUiState.Visible,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -78,7 +78,7 @@ fun HomeSection(
     }
 }
 
-private class HomeSectionPreviewParamProvider : PreviewParameterProvider<HomeUiState> {
+private class HomeSectionPreviewParamProvider : PreviewParameterProvider<HomeUiState.Visible> {
     override val values = sequenceOf(
         HomeUiState.Idle,
         HomeUiState.Initializing,
@@ -93,7 +93,7 @@ private class HomeSectionPreviewParamProvider : PreviewParameterProvider<HomeUiS
 @PreviewLightDark
 private fun HomeSectionPreview(
     @PreviewParameter(HomeSectionPreviewParamProvider::class)
-    state: HomeUiState,
+    state: HomeUiState.Visible,
 ) {
     AppTheme {
         Surface {

@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
+import com.seo4d696b75.android.ekisagasu.ui.home.HomeScreenShell
 import com.seo4d696b75.android.ekisagasu.ui.home.homeNavigation
 import com.seo4d696b75.android.ekisagasu.ui.log.logNavigation
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
@@ -49,10 +50,8 @@ fun MainScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.fillMaxSize(),
     ) { padding ->
-        NavHost(
+        HomeScreenShell(
             navController = navController,
-            startDestination = NavigationTab.Home,
-            typeMap = typeMap,
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
@@ -60,10 +59,16 @@ fun MainScreen(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
                 ),
         ) {
-            dataUpdateDialog(navController)
-            homeNavigation(navController)
-            logNavigation(navController)
-            settingNavigation()
+            NavHost(
+                navController = navController,
+                startDestination = NavigationTab.Home,
+                typeMap = typeMap,
+            ) {
+                dataUpdateDialog(navController)
+                homeNavigation(navController)
+                logNavigation(navController)
+                settingNavigation()
+            }
         }
     }
 }

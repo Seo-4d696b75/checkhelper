@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,16 +27,27 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
+import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
+import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable
 fun HomeScreenShell(
+    navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
     content: @Composable () -> Unit,
 ) {
+    val viewModel: HomeViewModel = hiltViewModel()
+    LaunchedEffect(viewModel) {
+        navController.currentBackStackEntryFlow.collect {
+            val route = it.toRoute()
+            viewModel.onVisibilityChanged(route is NavigationRoute.Home)
+        }
+    }
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeScreenShell(
@@ -54,7 +66,17 @@ fun HomeScreenShell(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    if (state !is HomeUiState.Visible) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+        ) {
+            content()
+        }
+        return
+    }
+
     Scaffold(
+        modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
@@ -69,7 +91,7 @@ fun HomeScreenShell(
         },
     ) { innerPadding ->
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
             contentAlignment = Alignment.BottomEnd,
