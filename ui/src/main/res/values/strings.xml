@@ -156,5 +156,6 @@
     <string name="title_detail_station_location">場所：</string>
     <string name="title_line_list">登録路線一覧</string>
     <string name="title_radar_list">周辺駅</string>
+    <string name="message_station_size">%d駅</string>
 
 </resources>

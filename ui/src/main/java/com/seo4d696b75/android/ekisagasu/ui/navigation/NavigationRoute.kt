@@ -5,6 +5,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
+import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import kotlinx.serialization.Serializable
 
 sealed interface NavigationRoute {
@@ -54,6 +55,11 @@ sealed interface NavigationRoute {
             val info: LatestDataVersion,
         ) : DataUpdate
     }
+
+    @Serializable
+    data class SelectLineDialog(
+        val type: LineSelectType,
+    ) : NavigationRoute
 }
 
 fun NavBackStackEntry.toRoute(): NavigationRoute = when {
@@ -66,6 +72,7 @@ fun NavBackStackEntry.toRoute(): NavigationRoute = when {
     destination.hasRoute<NavigationRoute.DataUpdate.ExecuteDialog>() -> toRoute<NavigationRoute.DataUpdate.ExecuteDialog>()
     destination.hasRoute<NavigationRoute.DataUpdate.SuccessDialog>() -> NavigationRoute.DataUpdate.SuccessDialog
     destination.hasRoute<NavigationRoute.DataUpdate.RetryDialog>() -> toRoute<NavigationRoute.DataUpdate.RetryDialog>()
+    destination.hasRoute<NavigationRoute.SelectLineDialog>() -> toRoute<NavigationRoute.SelectLineDialog>()
     else -> throw IllegalStateException("unexpected route destination: $destination")
 }
 
