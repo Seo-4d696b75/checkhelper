@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.LineAdapter
 import com.seo4d696b75.android.ekisagasu.ui.databinding.DialogSelectLineBinding
+import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -47,7 +48,7 @@ class LineSelectDialog : DialogFragment() {
                 }
             }
 
-            LineSelectType.Navigation -> {
+            LineSelectType.Navigator -> {
                 if (viewModel.navigatorLine != null) {
                     builder.setPositiveButton(R.string.dialog_button_unregister) { _, _ ->
                         viewModel.selectNavigationLine(null)

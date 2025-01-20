@@ -33,7 +33,7 @@
         <argument
             android:name="type"
             android:defaultValue="Current"
-            app:argType="com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType" />
+            app:argType="com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType" />
     </dialog>
     <action
         android:id="@+id/show_line_select_dialog"

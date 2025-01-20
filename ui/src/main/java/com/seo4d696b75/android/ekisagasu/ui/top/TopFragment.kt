@@ -20,9 +20,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.LineNameAdapter
 import com.seo4d696b75.android.ekisagasu.ui.databinding.FragmentTopBinding
+import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineFragmentDirections
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections
-import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.top.station.StationFragmentDirections
 import com.seo4d696b75.android.ekisagasu.ui.utils.AnimationHolder
 import dagger.hilt.android.AndroidEntryPoint
@@ -210,7 +210,7 @@ class TopFragment : Fragment() {
                     }
 
                     is TopFragmentEvent.StartNavigation -> {
-                        val action = LineSelectDialogDirections.showLineSelectDialog(LineSelectType.Navigation)
+                        val action = LineSelectDialogDirections.showLineSelectDialog(LineSelectType.Navigator)
                         view.findNavController().navigate(action)
                     }
                 }

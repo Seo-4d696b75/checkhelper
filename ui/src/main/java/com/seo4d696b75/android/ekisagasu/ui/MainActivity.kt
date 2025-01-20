@@ -14,12 +14,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.log.LogViewModel
 import com.seo4d696b75.android.ekisagasu.ui.navigation.MainScreen
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections
-import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         intent?.let {
             if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
                 it.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
-                val action = LineSelectDialogDirections.showLineSelectDialog(LineSelectType.Navigation)
+                val action = LineSelectDialogDirections.showLineSelectDialog(LineSelectType.Navigator)
                 // findNavController(R.id.main_nav_host).navigate(action)
             }
         }

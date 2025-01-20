@@ -10,6 +10,7 @@ import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -41,7 +42,7 @@ class LineSelectionViewModel @Inject constructor(
         get() =
             when (args.type) {
                 LineSelectType.Current -> R.string.dialog_message_select_line
-                LineSelectType.Navigation -> R.string.dialog_message_select_navigation
+                LineSelectType.Navigator -> R.string.dialog_message_select_navigation
             }
 
     val currentLine: Line?
@@ -64,7 +65,7 @@ class LineSelectionViewModel @Inject constructor(
     fun onLineSelected(line: Line) = viewModelScope.launch {
         when (args.type) {
             LineSelectType.Current -> selectCurrentLine(line)
-            LineSelectType.Navigation -> {
+            LineSelectType.Navigator -> {
                 if (line.polyline == null) {
                     _event.emit(Event.Error(R.string.navigation_unsupported))
                 } else {
