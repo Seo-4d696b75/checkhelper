@@ -1,5 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.ui.home
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,7 @@ import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeActionButtonSection
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
+import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
@@ -51,6 +55,8 @@ fun HomeScreenShell(
             }
         }
     }
+
+    val context = LocalContext.current
     NavigationEvent(viewModel) {
         when (it) {
             is HomeViewModel.Nav.ShowStation -> {
@@ -61,6 +67,22 @@ fun HomeScreenShell(
             is HomeViewModel.Nav.ShowLine -> {
                 val route = NavigationRoute.Home.Line(it.line.code)
                 navController.navigate(route)
+            }
+
+            HomeViewModel.Nav.SelectCurrentLine -> {
+                navController.navigate(NavigationRoute.SelectLineDialog(LineSelectType.Current))
+            }
+
+            HomeViewModel.Nav.SelectNavigatorLine -> {
+                navController.navigate(NavigationRoute.SelectLineDialog(LineSelectType.Navigator))
+            }
+
+            HomeViewModel.Nav.ShowMap -> {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(context.getString(R.string.map_url)),
+                )
+                context.startActivity(intent)
             }
         }
     }

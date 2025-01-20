@@ -10,6 +10,7 @@ import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
+import com.seo4d696b75.android.ekisagasu.timer.SetTimerUseCase
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
 import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
@@ -26,6 +27,7 @@ class HomeViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val dataRepository: DataRepository,
     private val appStateRepository: AppStateRepository,
+    private val setTimer: SetTimerUseCase,
     searchRepository: StationSearchRepository,
     handler: ErrorHandler,
 ) : ViewModel(),
@@ -78,19 +80,19 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSelectLineClicked() {
-
+        navigate(Nav.SelectCurrentLine)
     }
 
     fun onLineNavigatorClicked() {
-
+        navigate(Nav.SelectNavigatorLine)
     }
 
-    fun onTimerClicked() {
-
+    fun onTimerClicked() = viewModelScope.launchCatching {
+        setTimer()
     }
 
     fun onMapClicked() {
-
+        navigate(Nav.ShowMap)
     }
 
     fun onStationClicked(station: Station) {
@@ -104,5 +106,8 @@ class HomeViewModel @Inject constructor(
     sealed interface Nav : NavigationEvent {
         data class ShowStation(val station: Station) : Nav
         data class ShowLine(val line: Line) : Nav
+        data object SelectCurrentLine : Nav
+        data object SelectNavigatorLine : Nav
+        data object ShowMap : Nav
     }
 }
