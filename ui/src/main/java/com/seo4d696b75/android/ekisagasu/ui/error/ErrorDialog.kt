@@ -16,6 +16,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.seo4d696b75.android.ekisagasu.domain.error.AppException
 import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
 import com.seo4d696b75.android.ekisagasu.domain.error.GMSResolvableException
+import com.seo4d696b75.android.ekisagasu.domain.error.PolylineNotSupportedException
 import com.seo4d696b75.android.ekisagasu.domain.error.UnavailableLocationException
 import com.seo4d696b75.android.ekisagasu.ui.R
 
@@ -51,6 +52,12 @@ fun ErrorHandler(
             is CheckLatestDataVersionException -> ErrorDialog(
                 title = stringResource(id = R.string.dialog_error_title_default),
                 description = stringResource(id = R.string.message_fail_fetch_latest_version),
+                dismiss = viewModel::dismiss,
+            )
+
+            is PolylineNotSupportedException -> ErrorDialog(
+                title = stringResource(id = R.string.dialog_error_title_default),
+                description = stringResource(id = R.string.navigation_unsupported),
                 dismiss = viewModel::dismiss,
             )
         }
