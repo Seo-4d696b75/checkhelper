@@ -43,11 +43,23 @@ class HomeViewModel @Inject constructor(
     ) { isVisible, state, selectedLine ->
         if (isVisible) {
             when (state) {
-                is StationSearchState.Idle -> HomeUiState.Idle
-                is StationSearchState.Initializing -> HomeUiState.Initializing
+                is StationSearchState.Idle -> HomeUiState.Idle(
+                    timerButton = HomeActionButtonUiState.Enabled(::onTimerClicked),
+                    mapButton = HomeActionButtonUiState.Enabled(::onMapClicked),
+                )
+
+                is StationSearchState.Initializing -> HomeUiState.Initializing(
+                    timerButton = HomeActionButtonUiState.Enabled(::onTimerClicked),
+                    mapButton = HomeActionButtonUiState.Enabled(::onMapClicked),
+                )
+
                 is StationSearchState.Result -> HomeUiState.Result(
                     station = state.nearest,
                     selectedLine = selectedLine,
+                    selectLineButton = HomeActionButtonUiState.Enabled(::onSelectLineClicked),
+                    lineNavigatorButton = HomeActionButtonUiState.Enabled(::onLineNavigatorClicked),
+                    timerButton = HomeActionButtonUiState.Enabled(::onTimerClicked),
+                    mapButton = HomeActionButtonUiState.Enabled(::onMapClicked),
                 )
             }
         } else {
@@ -56,7 +68,7 @@ class HomeViewModel @Inject constructor(
     }.stateInCatching(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        HomeUiState.Idle,
+        HomeUiState.Invisible,
     )
 
     fun onVisibilityChanged(visible: Boolean) {
@@ -67,7 +79,7 @@ class HomeViewModel @Inject constructor(
         when (uiState.value) {
             HomeUiState.Invisible -> {}
 
-            HomeUiState.Idle -> if (dataRepository.dataInitialized) {
+            is HomeUiState.Idle -> if (dataRepository.dataInitialized) {
                 locationRepository.startWatchCurrentLocation()
             }
 
@@ -79,19 +91,19 @@ class HomeViewModel @Inject constructor(
         appStateRepository.requestAppFinish()
     }
 
-    fun onSelectLineClicked() {
+    private fun onSelectLineClicked() {
         navigate(Nav.SelectCurrentLine)
     }
 
-    fun onLineNavigatorClicked() {
+    private fun onLineNavigatorClicked() {
         navigate(Nav.SelectNavigatorLine)
     }
 
-    fun onTimerClicked() = viewModelScope.launchCatching {
+    private fun onTimerClicked() = viewModelScope.launchCatching {
         setTimer()
     }
 
-    fun onMapClicked() {
+    private fun onMapClicked() {
         navigate(Nav.ShowMap)
     }
 

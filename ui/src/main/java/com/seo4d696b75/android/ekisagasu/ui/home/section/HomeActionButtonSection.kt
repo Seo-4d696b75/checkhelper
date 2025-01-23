@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.home.HomeActionButtonUiState
 import com.seo4d696b75.android.ekisagasu.ui.home.component.LabelledFloatingActionButton
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
@@ -43,10 +44,10 @@ fun HomeActionButtonSection(
     isRunning: Boolean,
     onSearchStateChanged: () -> Unit,
     onFinishClicked: () -> Unit,
-    onSelectLineClicked: () -> Unit,
-    onLineNavigatorClicked: () -> Unit,
-    onTimerClicked: () -> Unit,
-    onMapClicked: () -> Unit,
+    selectLineButton: HomeActionButtonUiState,
+    lineNavigatorButton: HomeActionButtonUiState,
+    timerButton: HomeActionButtonUiState.Enabled,
+    mapButton: HomeActionButtonUiState.Enabled,
     modifier: Modifier = Modifier,
 ) {
     var expand by remember { mutableStateOf(false) }
@@ -74,7 +75,7 @@ fun HomeActionButtonSection(
                         label = stringResource(id = R.string.floating_action_button_label_show_map),
                         onClick = {
                             expand = false
-                            onMapClicked()
+                            mapButton.onClick()
                         },
                     ) {
                         Icon(
@@ -87,7 +88,7 @@ fun HomeActionButtonSection(
                         label = stringResource(id = R.string.floating_action_button_label_start_timer),
                         onClick = {
                             expand = false
-                            onTimerClicked()
+                            timerButton.onClick()
                         },
                     ) {
                         Icon(
@@ -96,31 +97,43 @@ fun HomeActionButtonSection(
                             modifier = Modifier.size(24.dp),
                         )
                     }
-                    LabelledFloatingActionButton(
-                        label = stringResource(id = R.string.floating_action_button_label_start_navigator),
-                        onClick = {
-                            expand = false
-                            onLineNavigatorClicked()
-                        },
+                    AnimatedVisibility(
+                        visible = lineNavigatorButton is HomeActionButtonUiState.Enabled,
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.line_position),
-                            contentDescription = "start line navigation",
-                            modifier = Modifier.size(24.dp),
-                        )
+                        LabelledFloatingActionButton(
+                            label = stringResource(id = R.string.floating_action_button_label_start_navigator),
+                            onClick = {
+                                expand = false
+                                if (lineNavigatorButton is HomeActionButtonUiState.Enabled) {
+                                    lineNavigatorButton.onClick()
+                                }
+                            },
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.line_position),
+                                contentDescription = "start line navigation",
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
                     }
-                    LabelledFloatingActionButton(
-                        label = stringResource(id = R.string.floating_action_button_label_select_line),
-                        onClick = {
-                            expand = false
-                            onSelectLineClicked()
-                        },
+                    AnimatedVisibility(
+                        visible = selectLineButton is HomeActionButtonUiState.Enabled,
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_line_selects),
-                            contentDescription = "select line",
-                            modifier = Modifier.size(24.dp),
-                        )
+                        LabelledFloatingActionButton(
+                            label = stringResource(id = R.string.floating_action_button_label_select_line),
+                            onClick = {
+                                expand = false
+                                if (selectLineButton is HomeActionButtonUiState.Enabled) {
+                                    selectLineButton.onClick()
+                                }
+                            },
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_line_selects),
+                                contentDescription = "select line",
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
                     }
                     LabelledFloatingActionButton(
                         label = stringResource(id = R.string.floating_action_button_label_finish),
@@ -198,11 +211,11 @@ private fun HomeActionButtonSectionPreview() {
                 isRunning = true,
                 onSearchStateChanged = { },
                 onFinishClicked = {},
-                onSelectLineClicked = {},
-                onLineNavigatorClicked = {},
-                onTimerClicked = {},
-                onMapClicked = {},
-                modifier = Modifier.height(240.dp),
+                selectLineButton = HomeActionButtonUiState.Enabled {},
+                lineNavigatorButton = HomeActionButtonUiState.Enabled {},
+                timerButton = HomeActionButtonUiState.Enabled {},
+                mapButton = HomeActionButtonUiState.Enabled {},
+                modifier = Modifier.height(320.dp),
             )
         }
     }

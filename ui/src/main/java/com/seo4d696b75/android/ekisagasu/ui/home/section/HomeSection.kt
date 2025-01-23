@@ -26,6 +26,7 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
+import com.seo4d696b75.android.ekisagasu.ui.home.HomeActionButtonUiState
 import com.seo4d696b75.android.ekisagasu.ui.home.HomeUiState
 import com.seo4d696b75.android.ekisagasu.ui.home.component.SearchIndicator
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
@@ -86,11 +87,21 @@ fun HomeSection(
 
 private class HomeSectionPreviewParamProvider : PreviewParameterProvider<HomeUiState.Visible> {
     override val values = sequenceOf(
-        HomeUiState.Idle,
-        HomeUiState.Initializing,
+        HomeUiState.Idle(
+            timerButton = HomeActionButtonUiState.Enabled { },
+            mapButton = HomeActionButtonUiState.Enabled { },
+        ),
+        HomeUiState.Initializing(
+            timerButton = HomeActionButtonUiState.Enabled { },
+            mapButton = HomeActionButtonUiState.Enabled { },
+        ),
         HomeUiState.Result(
             station = previewNearStation,
             selectedLine = previewLine,
+            selectLineButton = HomeActionButtonUiState.Enabled { },
+            lineNavigatorButton = HomeActionButtonUiState.Enabled { },
+            timerButton = HomeActionButtonUiState.Enabled { },
+            mapButton = HomeActionButtonUiState.Enabled { },
         ),
     )
 }

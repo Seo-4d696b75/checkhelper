@@ -31,14 +31,14 @@ fun HomeResultSection(
         modifier = modifier,
     ) {
         when (state) {
-            HomeUiState.Idle ->
+            is HomeUiState.Idle ->
                 Text(
                     text = stringResource(id = R.string.main_message_wait_search),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(8.dp),
                 )
 
-            HomeUiState.Initializing ->
+            is HomeUiState.Initializing ->
                 HomeLoading(
                     modifier = Modifier.fillMaxWidth()
                 )

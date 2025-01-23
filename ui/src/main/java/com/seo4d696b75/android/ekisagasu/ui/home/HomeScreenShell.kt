@@ -93,10 +93,6 @@ fun HomeScreenShell(
         state = state,
         onSearchStateChanged = viewModel::onSearchStateChanged,
         onFinishClicked = viewModel::onFinishClicked,
-        onSelectLineClicked = viewModel::onSelectLineClicked,
-        onLineNavigatorClicked = viewModel::onLineNavigatorClicked,
-        onTimerClicked = viewModel::onTimerClicked,
-        onMapClicked = viewModel::onMapClicked,
         onStationClicked = viewModel::onStationClicked,
         onLineClicked = viewModel::onLineClicked,
         content = content,
@@ -110,10 +106,6 @@ fun HomeScreenShell(
     state: HomeUiState,
     onSearchStateChanged: () -> Unit,
     onFinishClicked: () -> Unit,
-    onSelectLineClicked: () -> Unit,
-    onLineNavigatorClicked: () -> Unit,
-    onTimerClicked: () -> Unit,
-    onMapClicked: () -> Unit,
     onStationClicked: (Station) -> Unit,
     onLineClicked: (Line) -> Unit,
     modifier: Modifier = Modifier,
@@ -167,10 +159,10 @@ fun HomeScreenShell(
                 isRunning = state is HomeUiState.Running,
                 onSearchStateChanged = onSearchStateChanged,
                 onFinishClicked = onFinishClicked,
-                onSelectLineClicked = onSelectLineClicked,
-                onLineNavigatorClicked = onLineNavigatorClicked,
-                onTimerClicked = onTimerClicked,
-                onMapClicked = onMapClicked,
+                selectLineButton = state.selectLineButton,
+                lineNavigatorButton = state.lineNavigatorButton,
+                timerButton = state.timerButton,
+                mapButton = state.mapButton,
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -182,13 +174,12 @@ fun HomeScreenShell(
 private fun HomeScreenShellPreview() {
     AppTheme {
         HomeScreenShell(
-            state = HomeUiState.Idle,
+            state = HomeUiState.Idle(
+                timerButton = HomeActionButtonUiState.Enabled { },
+                mapButton = HomeActionButtonUiState.Enabled { },
+            ),
             onSearchStateChanged = {},
             onFinishClicked = {},
-            onSelectLineClicked = {},
-            onLineNavigatorClicked = {},
-            onTimerClicked = {},
-            onMapClicked = {},
             onStationClicked = {},
             onLineClicked = {},
         ) {
