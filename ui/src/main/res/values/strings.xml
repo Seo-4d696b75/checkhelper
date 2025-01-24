@@ -132,6 +132,11 @@
     <string name="dialog_log_output_config_gpx_description">GPSデータ専用のXML Schemaです</string>
     <string name="file_extension_txt">.txt</string>
     <string name="file_extension_gpx">.gpx</string>
+    <string name="log_filter_until_now">現在</string>
+    <string name="log_filter_name_all">すべて</string>
+    <string name="log_filter_name_system">システム</string>
+    <string name="log_filter_name_geo">位置情報</string>
+    <string name="log_filter_name_station">駅履歴</string>
 
     <!-- other -->
     <string name="no_selected_line">選択なし</string>

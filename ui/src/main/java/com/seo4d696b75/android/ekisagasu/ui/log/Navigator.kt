@@ -1,11 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui.log
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
@@ -18,15 +13,8 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
         startDestination = NavigationRoute.Log.Top,
     ) {
         composable<NavigationRoute.Log.Top> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "Log",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
+            val viewModel: LogComposeViewModel = hiltViewModel()
+            LogScreen(viewModel = viewModel)
         }
     }
 }
