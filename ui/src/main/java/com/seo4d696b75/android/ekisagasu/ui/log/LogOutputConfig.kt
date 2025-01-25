@@ -12,27 +12,49 @@ enum class LogOutputExtension {
 @Serializable
 sealed interface LogOutputConfig {
     val filter: AppLogType.Filter
+    val fileBaseName: String
     val extension: LogOutputExtension
+    val timestamp: Long
+
+    val fineName: String
+        get() = when (extension) {
+            LogOutputExtension.TXT -> "$fileBaseName.txt"
+            LogOutputExtension.GPX -> "$fileBaseName.gpx"
+        }
 
     @SerialName("all")
-    data object All : LogOutputConfig {
+    data class All(
+        override val timestamp: Long,
+        override val fileBaseName: String,
+    ) : LogOutputConfig {
         override val filter = AppLogType.Filter.All
         override val extension = LogOutputExtension.TXT
     }
 
     @SerialName("system")
-    data object System : LogOutputConfig {
+    data class System(
+        override val timestamp: Long,
+        override val fileBaseName: String,
+    ) : LogOutputConfig {
         override val filter = AppLogType.Filter.System
         override val extension = LogOutputExtension.TXT
     }
 
     @SerialName("geo")
-    data class Geo(override val extension: LogOutputExtension) : LogOutputConfig {
+    @Serializable
+    data class Geo(
+        override val timestamp: Long,
+        override val fileBaseName: String,
+        override val extension: LogOutputExtension = LogOutputExtension.TXT,
+    ) : LogOutputConfig {
         override val filter = AppLogType.Filter.Geo
     }
 
     @SerialName("station")
-    data object Station : LogOutputConfig {
+    data class Station(
+        override val timestamp: Long,
+        override val fileBaseName: String,
+    ) : LogOutputConfig {
         override val filter = AppLogType.Filter.Station
         override val extension = LogOutputExtension.TXT
     }

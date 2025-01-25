@@ -6,6 +6,7 @@ import androidx.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
+import com.seo4d696b75.android.ekisagasu.ui.log.LogOutputConfig
 import kotlinx.serialization.Serializable
 
 sealed interface NavigationRoute {
@@ -27,6 +28,11 @@ sealed interface NavigationRoute {
 
         @Serializable
         data object HistoryDialog : Log
+
+        @Serializable
+        data class LogOutputConfigDialog(
+            val config: LogOutputConfig.Geo,
+        ) : Log
     }
 
     sealed interface Setting : NavigationRoute {
@@ -69,6 +75,7 @@ fun NavBackStackEntry.toRoute(): NavigationRoute = when {
     destination.hasRoute<NavigationRoute.Home.Line>() -> toRoute<NavigationRoute.Home.Line>()
     destination.hasRoute<NavigationRoute.Log.Top>() -> NavigationRoute.Log.Top
     destination.hasRoute<NavigationRoute.Log.HistoryDialog>() -> NavigationRoute.Log.HistoryDialog
+    destination.hasRoute<NavigationRoute.Log.LogOutputConfigDialog>() -> toRoute<NavigationRoute.Log.LogOutputConfigDialog>()
     destination.hasRoute<NavigationRoute.Setting.Top>() -> NavigationRoute.Setting.Top
     destination.hasRoute<NavigationRoute.DataUpdate.ConfirmDialog>() -> toRoute<NavigationRoute.DataUpdate.ConfirmDialog>()
     destination.hasRoute<NavigationRoute.DataUpdate.ExecuteDialog>() -> toRoute<NavigationRoute.DataUpdate.ExecuteDialog>()

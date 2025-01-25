@@ -26,7 +26,7 @@ class LogOutputConfDialog : DialogFragment() {
         return AlertDialog.Builder(requireContext()).apply {
             setTitle(R.string.dialog_log_output_config_title)
             setPositiveButton(R.string.dialog_button_positive) { _, _ ->
-                logViewModel.requestLogOutput(viewModel.currentConfig)
+                // logViewModel.requestLogOutput(viewModel.currentConfig)
                 dismiss()
             }
             setNegativeButton(R.string.dialog_button_negative) { _, _ ->

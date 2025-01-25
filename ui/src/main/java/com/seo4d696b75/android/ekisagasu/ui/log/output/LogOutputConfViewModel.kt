@@ -45,7 +45,4 @@ class LogOutputConfViewModel @Inject constructor(
             }
         }
     }
-
-    val currentConfig: LogOutputConfig
-        get() = LogOutputConfig.Geo(_checked.value)
 }

@@ -34,7 +34,7 @@ fun LogScreen(
         state = state,
         onSelectTargetClicked = viewModel::onSelectTargetClicked,
         onFilterChanged = viewModel::onFilterChanged,
-        onSaveClicked = { /*TODO*/ },
+        onSaveClicked = viewModel::onSaveClicked,
     )
 }
 

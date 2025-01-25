@@ -1,5 +1,9 @@
 package com.seo4d696b75.android.ekisagasu.ui.log
 
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -7,10 +11,15 @@ import androidx.navigation.compose.dialog
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.log.history.LogHistoryDialog
 import com.seo4d696b75.android.ekisagasu.ui.log.history.LogHistoryViewModel
+import com.seo4d696b75.android.ekisagasu.ui.log.output.LogOutputConfigComposeViewModel
+import com.seo4d696b75.android.ekisagasu.ui.log.output.LogOutputConfigDialog
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.composable
 import com.seo4d696b75.android.ekisagasu.ui.navigation.navigation
+import com.seo4d696b75.android.ekisagasu.ui.navigation.typeMap
+import com.seo4d696b75.android.ekisagasu.ui.utils.rememberLauncherForActivityResult
+import timber.log.Timber
 
 fun NavGraphBuilder.logNavigation(navController: NavController) {
     navigation<NavigationTab.Log>(
@@ -18,9 +27,35 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
     ) {
         composable<NavigationRoute.Log.Top> {
             val viewModel: LogComposeViewModel = hiltViewModel()
+
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult(),
+            )
+            val context = LocalContext.current
             NavigationEvent(viewModel) {
                 when (it) {
-                    LogComposeViewModel.Nav.SelectLogTarget -> navController.navigate(NavigationRoute.Log.HistoryDialog)
+                    LogComposeViewModel.Nav.SelectLogTarget ->
+                        navController.navigate(NavigationRoute.Log.HistoryDialog)
+
+                    is LogComposeViewModel.Nav.RequestOutputFile -> {
+                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            this.type = "text/*"
+                            putExtra(Intent.EXTRA_TITLE, it.config.fineName)
+                        }
+                        launcher.launch(intent) { result ->
+                            val uri = result.data?.data
+                            if (result.resultCode == Activity.RESULT_OK && uri != null) {
+                                Timber.d("log file resoled: $uri")
+                                viewModel.writeLogFile(it.config, uri, context.contentResolver)
+                            }
+                        }
+                    }
+
+                    is LogComposeViewModel.Nav.ConfigureOutputFile -> {
+                        val route = NavigationRoute.Log.LogOutputConfigDialog(it.config)
+                        navController.navigate(route)
+                    }
                 }
             }
 
@@ -34,6 +69,24 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
             }
 
             LogHistoryDialog(viewModel = viewModel)
+        }
+
+        dialog<NavigationRoute.Log.LogOutputConfigDialog>(typeMap) {
+            val viewModel: LogOutputConfigComposeViewModel = hiltViewModel()
+            val logViewModel: LogComposeViewModel = hiltViewModel(
+                viewModelStoreOwner = navController.getBackStackEntry<NavigationRoute.Log.Top>(),
+            )
+            NavigationEvent(viewModel) {
+                when (it) {
+                    LogOutputConfigComposeViewModel.Nav.Cancel -> navController.popBackStack()
+
+                    is LogOutputConfigComposeViewModel.Nav.WriteLog -> {
+                        navController.popBackStack()
+                        logViewModel.onLogOutputConfigured(it.config)
+                    }
+                }
+            }
+            LogOutputConfigDialog(viewModel = viewModel)
         }
     }
 }

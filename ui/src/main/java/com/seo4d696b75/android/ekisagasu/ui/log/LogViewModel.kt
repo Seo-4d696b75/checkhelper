@@ -59,23 +59,7 @@ class LogViewModel @Inject constructor(
     fun requestWriteLog(
         onConfigRequested: (defaultConfig: LogOutputConfig) -> Unit,
     ) {
-        when (_filter.value) {
-            AppLogType.Filter.All -> {
-                requestLogOutput(LogOutputConfig.All)
-            }
 
-            AppLogType.Filter.System -> {
-                requestLogOutput(LogOutputConfig.System)
-            }
-
-            AppLogType.Filter.Station -> {
-                requestLogOutput(LogOutputConfig.Station)
-            }
-
-            AppLogType.Filter.Geo -> {
-                onConfigRequested(LogOutputConfig.Geo(LogOutputExtension.TXT))
-            }
-        }
     }
 
     private val _outputFileRequested = MutableSharedFlow<Intent>()
@@ -96,10 +80,7 @@ class LogViewModel @Inject constructor(
             config.extension.name.lowercase(),
         )
         fileContent = if (config.extension == LogOutputExtension.GPX) {
-            gpxSerializer(
-                log = list,
-                dataVersion = dataRepository.dataVersion.value?.version ?: throw RuntimeException(),
-            )
+            ""
         } else {
             StringBuilder().apply {
                 append(appConfig.appName)

@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
+import com.seo4d696b75.android.ekisagasu.ui.log.LogOutputConfig
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KType
@@ -15,6 +16,7 @@ val typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = mapOf(
     typeOf<DataUpdateType>() to NavType.EnumType(DataUpdateType::class.java),
     typeOf<LatestDataVersion>() to serializableNavType(LatestDataVersion.serializer(), false),
     typeOf<LineSelectType>() to NavType.EnumType(LineSelectType::class.java),
+    typeOf<LogOutputConfig.Geo>() to serializableNavType(LogOutputConfig.Geo.serializer(), false),
 )
 
 private inline fun <reified T> serializableNavType(serializer: KSerializer<T>, nullable: Boolean) = object :
