@@ -6,6 +6,9 @@ import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
 import com.seo4d696b75.android.ekisagasu.domain.log.filter
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
+import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +22,8 @@ class LogComposeViewModel @Inject constructor(
     private val logRepository: LogRepository,
     handler: ErrorHandler,
 ) : ViewModel(),
-    ErrorHandler by handler {
+    ErrorHandler by handler,
+    NavigationEventHolder<LogComposeViewModel.Nav> by navigationEventHolder() {
 
     private val filter = MutableStateFlow(AppLogType.Filter.All)
 
@@ -41,5 +45,13 @@ class LogComposeViewModel @Inject constructor(
 
     fun onFilterChanged(filter: AppLogType.Filter) {
         this.filter.update { filter }
+    }
+
+    fun onSelectTargetClicked() {
+        navigate(Nav.SelectLogTarget)
+    }
+
+    sealed interface Nav : NavigationEvent {
+        data object SelectLogTarget : Nav
     }
 }

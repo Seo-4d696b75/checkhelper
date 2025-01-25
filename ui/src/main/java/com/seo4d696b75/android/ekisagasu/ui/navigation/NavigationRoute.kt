@@ -9,8 +9,6 @@ import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import kotlinx.serialization.Serializable
 
 sealed interface NavigationRoute {
-    /** BottomNavigationを非表示にする画面 */
-    interface Modal
 
     sealed interface Home : NavigationRoute {
         @Serializable
@@ -26,6 +24,9 @@ sealed interface NavigationRoute {
     sealed interface Log : NavigationRoute {
         @Serializable
         data object Top : Log
+
+        @Serializable
+        data object HistoryDialog : Log
     }
 
     sealed interface Setting : NavigationRoute {
@@ -67,6 +68,7 @@ fun NavBackStackEntry.toRoute(): NavigationRoute = when {
     destination.hasRoute<NavigationRoute.Home.Station>() -> toRoute<NavigationRoute.Home.Station>()
     destination.hasRoute<NavigationRoute.Home.Line>() -> toRoute<NavigationRoute.Home.Line>()
     destination.hasRoute<NavigationRoute.Log.Top>() -> NavigationRoute.Log.Top
+    destination.hasRoute<NavigationRoute.Log.HistoryDialog>() -> NavigationRoute.Log.HistoryDialog
     destination.hasRoute<NavigationRoute.Setting.Top>() -> NavigationRoute.Setting.Top
     destination.hasRoute<NavigationRoute.DataUpdate.ConfirmDialog>() -> toRoute<NavigationRoute.DataUpdate.ConfirmDialog>()
     destination.hasRoute<NavigationRoute.DataUpdate.ExecuteDialog>() -> toRoute<NavigationRoute.DataUpdate.ExecuteDialog>()
