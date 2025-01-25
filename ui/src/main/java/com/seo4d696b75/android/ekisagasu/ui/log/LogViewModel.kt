@@ -15,7 +15,6 @@ import com.seo4d696b75.android.ekisagasu.domain.log.AppLog
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
 import com.seo4d696b75.android.ekisagasu.domain.log.filter
-import com.seo4d696b75.android.ekisagasu.domain.xml.GPXSerializer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
