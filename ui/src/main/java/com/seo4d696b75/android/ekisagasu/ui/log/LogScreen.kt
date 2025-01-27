@@ -1,8 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.ui.log
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -56,9 +56,8 @@ fun LogScreen(
                     )
                 }
             },
-            modifier = modifier
-                .fillMaxSize()
-                .safeDrawingPadding(),
+            modifier = modifier.fillMaxSize(),
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
         ) {
             LogSection(
                 state = state,

@@ -2,10 +2,8 @@ package com.seo4d696b75.android.ekisagasu.ui.navigation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -38,9 +36,7 @@ fun BottomNavigationBar(
         modifier = modifier
             .fillMaxWidth()
             .background(NavigationBarDefaults.containerColor)
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
-            ),
+            .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
         var currentTab by remember { mutableStateOf<NavigationTab?>(null) }
         LaunchedEffect(navController) {
