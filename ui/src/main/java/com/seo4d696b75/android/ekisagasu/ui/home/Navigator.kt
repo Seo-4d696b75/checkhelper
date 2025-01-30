@@ -1,15 +1,19 @@
 package com.seo4d696b75.android.ekisagasu.ui.home
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.toRoute
+import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
@@ -17,6 +21,8 @@ import com.seo4d696b75.android.ekisagasu.ui.navigation.composable
 import com.seo4d696b75.android.ekisagasu.ui.navigation.navigation
 import com.seo4d696b75.android.ekisagasu.ui.radar.RadarScreen
 import com.seo4d696b75.android.ekisagasu.ui.radar.RadarViewModel
+import com.seo4d696b75.android.ekisagasu.ui.station.StationScreen
+import com.seo4d696b75.android.ekisagasu.ui.station.StationViewModel
 
 fun NavGraphBuilder.homeNavigation(navController: NavController) {
     navigation<NavigationTab.Home>(
@@ -32,17 +38,28 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
                 modifier = Modifier.fillMaxSize(),
             )
         }
-        composable<NavigationRoute.Home.Station> { backstack ->
-            val args = backstack.toRoute<NavigationRoute.Home.Station>()
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "Station ${args.code}",
-                    style = MaterialTheme.typography.titleMedium,
-                )
+        composable<NavigationRoute.Home.Station> {
+            val viewModel: StationViewModel = hiltViewModel()
+            val context = LocalContext.current
+            NavigationEvent(viewModel) {
+                when (it) {
+                    StationViewModel.Nav.Close -> navController.popBackStack()
+
+                    is StationViewModel.Nav.ShowMap -> {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(context.getString(R.string.map_url) + "?station=${it.station.code}"),
+                        )
+                        context.startActivity(intent)
+                    }
+
+                    is StationViewModel.Nav.ShowLine -> {
+                        val route = NavigationRoute.Home.Line(it.line.code)
+                        navController.navigate(route)
+                    }
+                }
             }
+            StationScreen(viewModel = viewModel)
         }
         composable<NavigationRoute.Home.Line> { backstack ->
             val args = backstack.toRoute<NavigationRoute.Home.Line>()

@@ -1,10 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.ui.home.component
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,11 +26,10 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.common.LineColorTile
 import com.seo4d696b75.android.ekisagasu.ui.common.StationName
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
-import com.seo4d696b75.android.ekisagasu.ui.utils.asComposeColor
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
-import com.seo4d696b75.android.ekisagasu.ui.utils.parseColorCode
 import com.seo4d696b75.android.ekisagasu.ui.utils.previewNearStation
 
 @Composable
@@ -99,13 +95,9 @@ fun HomeResultGrid(
                             .clickable { onLineClicked(line) },
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(14.dp)
-                                .background(
-                                    color = parseColorCode(line.color).asComposeColor(),
-                                    shape = RoundedCornerShape(4.dp),
-                                ),
+                        LineColorTile(
+                            line = line,
+                            modifier = Modifier.size(14.dp),
                         )
                         Text(
                             text = line.name,

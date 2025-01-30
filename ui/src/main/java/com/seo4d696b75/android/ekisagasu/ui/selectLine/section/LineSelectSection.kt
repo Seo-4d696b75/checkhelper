@@ -1,8 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui.selectLine.section
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,8 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.AutoScalingText
-import com.seo4d696b75.android.ekisagasu.ui.utils.asComposeColor
-import com.seo4d696b75.android.ekisagasu.ui.utils.parseColorCode
+import com.seo4d696b75.android.ekisagasu.ui.common.LineColorTile
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -53,13 +49,9 @@ fun LineSelectSection(
                         .clickable { onLineSelected(line) }
                         .padding(4.dp),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .background(
-                                color = parseColorCode(line.color).asComposeColor(),
-                                shape = RoundedCornerShape(4.dp),
-                            )
+                    LineColorTile(
+                        line = line,
+                        modifier = Modifier.size(20.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     AutoScalingText(
