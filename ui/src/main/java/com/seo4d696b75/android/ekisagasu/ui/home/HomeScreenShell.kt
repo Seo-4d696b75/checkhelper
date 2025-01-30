@@ -34,11 +34,11 @@ import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeActionButtonSection
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
-import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toTab
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable

@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.ui.line.section
+package com.seo4d696b75.android.ekisagasu.ui.selectLine.section
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -10,7 +10,7 @@ import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.ui.R
-import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

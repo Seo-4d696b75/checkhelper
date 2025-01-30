@@ -14,11 +14,11 @@ import androidx.navigation.compose.rememberNavController
 import com.seo4d696b75.android.ekisagasu.ui.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.ui.home.HomeScreenShell
 import com.seo4d696b75.android.ekisagasu.ui.home.homeNavigation
-import com.seo4d696b75.android.ekisagasu.ui.line.lineSelectDialog
 import com.seo4d696b75.android.ekisagasu.ui.log.logNavigation
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionHandler
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionViewModel
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.lineSelectDialog
 import com.seo4d696b75.android.ekisagasu.ui.setting.settingNavigation
 import com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateNavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.update.dataUpdateDialog

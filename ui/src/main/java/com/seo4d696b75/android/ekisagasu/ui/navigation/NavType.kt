@@ -5,8 +5,8 @@ import android.os.Bundle
 import androidx.navigation.NavType
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
-import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.log.LogOutputConfig
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KType

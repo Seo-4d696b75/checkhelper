@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.ui.line
+package com.seo4d696b75.android.ekisagasu.ui.selectLine
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController

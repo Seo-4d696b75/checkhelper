@@ -14,9 +14,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.log.LogViewModel
 import com.seo4d696b75.android.ekisagasu.ui.navigation.MainScreen
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectDialogDirections

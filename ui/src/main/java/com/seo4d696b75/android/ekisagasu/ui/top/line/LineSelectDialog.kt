@@ -12,7 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.common.LineAdapter
 import com.seo4d696b75.android.ekisagasu.ui.databinding.DialogSelectLineBinding
-import com.seo4d696b75.android.ekisagasu.ui.line.LineSelectType
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

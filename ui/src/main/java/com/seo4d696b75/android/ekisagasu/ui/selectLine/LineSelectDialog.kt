@@ -1,4 +1,4 @@
-package com.seo4d696b75.android.ekisagasu.ui.line
+package com.seo4d696b75.android.ekisagasu.ui.selectLine
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -12,7 +12,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.ui.R
-import com.seo4d696b75.android.ekisagasu.ui.line.section.LineSelectSection
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.section.LineSelectSection
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 import com.seo4d696b75.android.ekisagasu.ui.utils.previewLines
 import kotlinx.collections.immutable.toPersistentList
