@@ -44,7 +44,7 @@ fun RadarListSection(
                         .padding(4.dp),
                 ) {
                     Text(
-                        text = "$index",
+                        text = "${index + 1}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center,
