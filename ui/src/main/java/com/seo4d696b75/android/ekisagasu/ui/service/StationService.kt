@@ -1,11 +1,12 @@
 package com.seo4d696b75.android.ekisagasu.ui.service
 
+import android.app.Service
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Binder
 import android.os.IBinder
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,27 +28,7 @@ import javax.inject.Inject
  * This service has to sense GPS location, so must be run as foreground service.
  */
 @AndroidEntryPoint
-class StationService : LifecycleService(), SavedStateRegistryOwner {
-    inner class StationServiceBinder : Binder() {
-        fun bind(): StationService {
-            return this@StationService
-        }
-    }
-
-    override fun onBind(intent: Intent): IBinder {
-        super.onBind(intent)
-        Timber.tag("Service").d("onBind: client requests to bind service")
-        return StationServiceBinder()
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        Timber.tag("Service").d("onUnbind: client unbinds service")
-        return true
-    }
-
-    override fun onRebind(intent: Intent?) {
-        Timber.tag("Service").d("onRebind: client binds service again")
-    }
+class StationService : Service(), LifecycleOwner, SavedStateRegistryOwner {
 
     override fun onStartCommand(
         intent: Intent?,
@@ -83,12 +64,30 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
         return START_STICKY
     }
 
+    override fun onBind(intent: Intent?): IBinder? {
+        dispatcher.onServicePreSuperOnBind()
+        return null
+    }
+
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    override fun onStart(intent: Intent?, startId: Int) {
+        dispatcher.onServicePreSuperOnStart()
+        super.onStart(intent, startId)
+    }
+
+    private val dispatcher = ServiceLifecycleDispatcher(this)
+
+    override val lifecycle: Lifecycle
+        get() = dispatcher.lifecycle
+
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
 
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
     override fun onCreate() {
+        dispatcher.onServicePreSuperOnCreate()
         super.onCreate()
 
         // init view controller
@@ -116,6 +115,11 @@ class StationService : LifecycleService(), SavedStateRegistryOwner {
                 .collect {
                     unregisterReceiver(screenBroadcastReceiver)
                     viewModelStore.clear()
+
+                    // LifecycleService だと stopSelf, onDestroy の間にデータ更新をFlowから購読すると不要な通知が出る場合がある
+                    // stopSelf の段階で Lifecycle.State.DESTROYED に更新する
+                    dispatcher.onServicePreSuperOnDestroy()
+
                     stopSelf()
                 }
         }

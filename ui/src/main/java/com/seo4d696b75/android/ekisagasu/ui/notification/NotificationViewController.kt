@@ -22,11 +22,8 @@ import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -105,50 +102,44 @@ class NotificationViewController @Inject constructor(
                     // 最近傍の駅の変化
                     searchRepository
                         .state
-                        .filterIsInstance<StationSearchState.Result>()
-                        .map { it.nearest }
                         .collect { s ->
-                            update(
-                                String.format("%s  %s", s.station.name, s.getDetectedTime()),
-                                String.format("%s   %s", s.distance.formatDistance, s.station.getLinesName()),
-                            )
-                        }
-                }
-                launch {
-                    // 探索状態の変化
-                    locationRepository
-                        .currentLocation
-                        .map { it is LocationState.Running }
-                        .distinctUntilChanged()
-                        .collect {
-                            if (it) {
-                                update(
+                            when (s) {
+                                is StationSearchState.Idle -> update(
+                                    context.getString(R.string.notification_title_wait),
+                                    context.getString(R.string.notification_message_wait),
+                                )
+
+                                is StationSearchState.Initializing -> update(
                                     context.getString(R.string.notification_title_start),
                                     context.getString(R.string.notification_message_start),
                                 )
-                            } else {
-                                update(
-                                    context.getString(R.string.notification_title_wait),
-                                    context.getString(R.string.notification_message_wait),
+
+                                is StationSearchState.Result -> update(
+                                    String.format("%s  %s", s.nearest.station.name, s.nearest.getDetectedTime()),
+                                    String.format(
+                                        "%s   %s",
+                                        s.nearest.distance.formatDistance,
+                                        s.nearest.station.getLinesName()
+                                    ),
                                 )
                             }
                         }
                 }
-                launch {
-                    // TODO notificationとは関係なくね？
-                    // 探索終了
-                    locationRepository
-                        .currentLocation
-                        .filter { it == LocationState.Idle }
-                        .drop(1)
-                        .collect {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.message_stop_search),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        }
-                }
+            }
+            launch {
+                // TODO notificationとは関係なくね？
+                // 探索終了
+                locationRepository
+                    .currentLocation
+                    .filter { it == LocationState.Idle }
+                    .drop(1)
+                    .collect {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.message_stop_search),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
             }
         }
     }

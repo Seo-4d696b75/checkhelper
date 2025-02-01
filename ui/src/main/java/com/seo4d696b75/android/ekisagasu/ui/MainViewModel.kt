@@ -13,7 +13,6 @@ import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -71,9 +70,5 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun requestAppFinish() = viewModelScope.launch {
-        appStateRepository.requestAppFinish()
     }
 }
