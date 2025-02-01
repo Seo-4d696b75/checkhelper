@@ -19,12 +19,12 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class LogOutputConfigComposeViewModel @Inject constructor(
+class LogOutputConfigViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     errorHandler: ErrorHandler,
 ) : ViewModel(),
     ErrorHandler by errorHandler,
-    NavigationEventHolder<LogOutputConfigComposeViewModel.Nav> by navigationEventHolder() {
+    NavigationEventHolder<LogOutputConfigViewModel.Nav> by navigationEventHolder() {
 
     private val args: NavigationRoute.Log.LogOutputConfigDialog = savedStateHandle.toRoute(typeMap)
 

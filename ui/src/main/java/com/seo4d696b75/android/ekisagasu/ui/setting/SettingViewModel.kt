@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingComposeViewModel @Inject constructor(
+class SettingViewModel @Inject constructor(
     private val settingRepository: UserSettingRepository,
     private val appStateRepository: AppStateRepository,
     private val dataRepository: DataRepository,

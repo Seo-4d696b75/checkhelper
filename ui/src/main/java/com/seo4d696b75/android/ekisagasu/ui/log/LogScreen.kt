@@ -25,7 +25,7 @@ import java.util.Date
 @Composable
 fun LogScreen(
     modifier: Modifier = Modifier,
-    viewModel: LogComposeViewModel = hiltViewModel(),
+    viewModel: LogViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

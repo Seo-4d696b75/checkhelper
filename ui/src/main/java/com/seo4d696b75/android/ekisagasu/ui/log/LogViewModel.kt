@@ -25,7 +25,7 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class LogComposeViewModel @Inject constructor(
+class LogViewModel @Inject constructor(
     private val logRepository: LogRepository,
     private val appConfig: AppConfig,
     private val logSerializer: LogSerializer,
@@ -33,7 +33,7 @@ class LogComposeViewModel @Inject constructor(
     handler: ErrorHandler,
 ) : ViewModel(),
     ErrorHandler by handler,
-    NavigationEventHolder<LogComposeViewModel.Nav> by navigationEventHolder() {
+    NavigationEventHolder<LogViewModel.Nav> by navigationEventHolder() {
 
     private val filter = MutableStateFlow(AppLogType.Filter.All)
 

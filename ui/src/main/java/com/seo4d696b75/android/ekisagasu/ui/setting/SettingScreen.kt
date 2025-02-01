@@ -16,7 +16,7 @@ import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    viewModel: SettingComposeViewModel = hiltViewModel(),
+    viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     SettingScreen(

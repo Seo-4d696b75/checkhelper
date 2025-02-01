@@ -11,8 +11,8 @@ import androidx.navigation.compose.dialog
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.log.history.LogHistoryDialog
 import com.seo4d696b75.android.ekisagasu.ui.log.history.LogHistoryViewModel
-import com.seo4d696b75.android.ekisagasu.ui.log.output.LogOutputConfigComposeViewModel
 import com.seo4d696b75.android.ekisagasu.ui.log.output.LogOutputConfigDialog
+import com.seo4d696b75.android.ekisagasu.ui.log.output.LogOutputConfigViewModel
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.composable
@@ -26,7 +26,7 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
         startDestination = NavigationRoute.Log.Top,
     ) {
         composable<NavigationRoute.Log.Top> {
-            val viewModel: LogComposeViewModel = hiltViewModel()
+            val viewModel: LogViewModel = hiltViewModel()
 
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.StartActivityForResult(),
@@ -34,10 +34,10 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
             val context = LocalContext.current
             NavigationEvent(viewModel) {
                 when (it) {
-                    LogComposeViewModel.Nav.SelectLogTarget ->
+                    LogViewModel.Nav.SelectLogTarget ->
                         navController.navigate(NavigationRoute.Log.HistoryDialog)
 
-                    is LogComposeViewModel.Nav.RequestOutputFile -> {
+                    is LogViewModel.Nav.RequestOutputFile -> {
                         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                             addCategory(Intent.CATEGORY_OPENABLE)
                             this.type = "text/*"
@@ -52,7 +52,7 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
                         }
                     }
 
-                    is LogComposeViewModel.Nav.ConfigureOutputFile -> {
+                    is LogViewModel.Nav.ConfigureOutputFile -> {
                         val route = NavigationRoute.Log.LogOutputConfigDialog(it.config)
                         navController.navigate(route)
                     }
@@ -72,15 +72,15 @@ fun NavGraphBuilder.logNavigation(navController: NavController) {
         }
 
         dialog<NavigationRoute.Log.LogOutputConfigDialog>(typeMap) {
-            val viewModel: LogOutputConfigComposeViewModel = hiltViewModel()
-            val logViewModel: LogComposeViewModel = hiltViewModel(
+            val viewModel: LogOutputConfigViewModel = hiltViewModel()
+            val logViewModel: LogViewModel = hiltViewModel(
                 viewModelStoreOwner = navController.getBackStackEntry<NavigationRoute.Log.Top>(),
             )
             NavigationEvent(viewModel) {
                 when (it) {
-                    LogOutputConfigComposeViewModel.Nav.Cancel -> navController.popBackStack()
+                    LogOutputConfigViewModel.Nav.Cancel -> navController.popBackStack()
 
-                    is LogOutputConfigComposeViewModel.Nav.WriteLog -> {
+                    is LogOutputConfigViewModel.Nav.WriteLog -> {
                         navController.popBackStack()
                         logViewModel.onLogOutputConfigured(it.config)
                     }
