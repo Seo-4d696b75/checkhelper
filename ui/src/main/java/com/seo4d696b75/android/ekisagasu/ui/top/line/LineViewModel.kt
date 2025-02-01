@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
-import com.seo4d696b75.android.ekisagasu.ui.common.StationRegistrationUiState
+import com.seo4d696b75.android.ekisagasu.ui.line.StationRegistrationUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow

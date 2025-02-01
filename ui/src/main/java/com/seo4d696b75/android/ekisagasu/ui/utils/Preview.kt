@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.ui.utils
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
+import com.seo4d696b75.android.ekisagasu.domain.dataset.StationRegistration
 import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import java.util.Date
 
@@ -13,7 +14,11 @@ val previewLine = Line(
     closed = false,
     nameKana = "とうかいどうしんかんせん",
     stationSize = 17,
-    stationList = emptyList(),
+    stationList = listOf(
+        StationRegistration(1),
+        StationRegistration(2),
+        StationRegistration(3),
+    ),
 )
 
 val previewLines = listOf(
@@ -112,6 +117,12 @@ val previewStation3 = Station(
     prefecture = Prefecture(14, "神奈川県"),
     closed = false,
     voronoi = "",
+)
+
+val previewStations = listOf(
+    previewStation,
+    previewStation2,
+    previewStation3,
 )
 
 val previewNearStation = NearStation(
