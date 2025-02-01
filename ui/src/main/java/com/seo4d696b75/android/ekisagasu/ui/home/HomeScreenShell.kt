@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.ui.R
+import com.seo4d696b75.android.ekisagasu.ui.common.StatusBarEffect
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeActionButtonSection
 import com.seo4d696b75.android.ekisagasu.ui.home.section.HomeSection
@@ -112,6 +113,10 @@ fun HomeScreenShell(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    StatusBarEffect(
+        darkIcons = state == HomeUiState.Invisible,
+    )
+
     if (state !is HomeUiState.Visible) {
         Box(
             modifier = modifier.fillMaxSize(),
