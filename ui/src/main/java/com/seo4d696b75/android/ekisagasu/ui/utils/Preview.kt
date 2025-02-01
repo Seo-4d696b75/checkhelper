@@ -1,5 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui.utils
 
+import com.seo4d696b75.android.ekisagasu.domain.dataset.ColorInt
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
@@ -14,6 +15,7 @@ val previewLine = Line(
     closed = false,
     nameKana = "とうかいどうしんかんせん",
     stationSize = 17,
+    color = ColorInt.from("#0000FF"),
     stationList = listOf(
         StationRegistration(1),
         StationRegistration(2),
@@ -30,7 +32,7 @@ val previewLines = listOf(
         nameKana = "とうかいどうしんかんせん",
         stationSize = 17,
         stationList = emptyList(),
-        color = "#0000FF",
+        color = ColorInt.from("#0000FF"),
     ),
     Line(
         id = "a719bd",
@@ -40,7 +42,7 @@ val previewLines = listOf(
         nameKana = "とうほくしんかんせん",
         stationSize = 23,
         stationList = emptyList(),
-        color = "#008000",
+        color = ColorInt.from("#008000"),
     ),
     Line(
         id = "ff8c6a",
@@ -50,7 +52,7 @@ val previewLines = listOf(
         nameKana = "じぇいあーるとうかいどうほんせん",
         stationSize = 21,
         stationList = emptyList(),
-        color = "#F68B1E",
+        color = ColorInt.from("#F68B1E"),
         symbol = "JT",
     ),
     Line(
@@ -61,7 +63,7 @@ val previewLines = listOf(
         nameKana = "じぇいあーるけいひんとうほくせん",
         stationSize = 36,
         stationList = emptyList(),
-        color = "#00B2E5",
+        color = ColorInt.from("#00B2E5"),
         symbol = "JK",
     ),
     Line(
@@ -72,7 +74,7 @@ val previewLines = listOf(
         nameKana = "じぇいあーるやまのてせん",
         stationSize = 36,
         stationList = emptyList(),
-        color = "#9ACD32",
+        color = ColorInt.from("#9ACD32"),
         symbol = "JY",
     ),
 )

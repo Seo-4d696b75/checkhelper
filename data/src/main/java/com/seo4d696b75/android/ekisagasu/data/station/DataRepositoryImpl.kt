@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.data.station
 import com.seo4d696b75.android.ekisagasu.data.database.station.LineEntity
 import com.seo4d696b75.android.ekisagasu.data.database.station.StationDao
 import com.seo4d696b75.android.ekisagasu.data.database.station.StationEntity
+import com.seo4d696b75.android.ekisagasu.domain.dataset.ColorInt
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
@@ -40,7 +41,7 @@ class DataRepositoryImpl @Inject constructor(
         nameKana = nameKana,
         stationSize = stationSize,
         symbol = symbol,
-        color = color,
+        color = ColorInt.from(color),
         closed = closed,
         stationList = stationList,
         polyline = polyline,

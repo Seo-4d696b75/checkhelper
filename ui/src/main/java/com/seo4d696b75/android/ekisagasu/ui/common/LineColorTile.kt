@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.ui.utils.asComposeColor
-import com.seo4d696b75.android.ekisagasu.ui.utils.parseColorCode
 
 @Composable
 fun LineColorTile(
@@ -17,7 +16,7 @@ fun LineColorTile(
 ) {
     Box(
         modifier = modifier.background(
-            color = parseColorCode(line.color).asComposeColor(),
+            color = line.color.asComposeColor(),
             shape = RoundedCornerShape(4.dp),
         )
     )

@@ -2,6 +2,7 @@ package com.seo4d696b75.android.ekisagasu.data
 
 import com.seo4d696b75.android.ekisagasu.data.station.LineResponse
 import com.seo4d696b75.android.ekisagasu.data.station.StationResponse
+import com.seo4d696b75.android.ekisagasu.domain.dataset.ColorInt
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
@@ -78,7 +79,7 @@ internal fun LineResponse.toModel() =
         nameKana = nameKana,
         stationSize = stationSize,
         symbol = symbol,
-        color = color,
+        color = ColorInt.from(color),
         closed = closed,
         stationList = stationList,
         polyline = polyline,

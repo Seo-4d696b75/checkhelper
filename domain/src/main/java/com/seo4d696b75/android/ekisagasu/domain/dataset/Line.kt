@@ -11,7 +11,7 @@ data class Line(
     val nameKana: String,
     val stationSize: Int,
     val symbol: String? = null,
-    val color: String? = null,
+    val color: ColorInt,
     val closed: Boolean,
     val stationList: List<StationRegistration>,
     val polyline: String? = null,
