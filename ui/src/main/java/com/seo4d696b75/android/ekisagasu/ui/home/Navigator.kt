@@ -40,7 +40,8 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
             val context = LocalContext.current
             NavigationEvent(viewModel) {
                 when (it) {
-                    StationViewModel.Nav.Close -> navController.popBackStack()
+                    StationViewModel.Nav.Close ->
+                        navController.popBackStack(NavigationRoute.Home.Radar, false)
 
                     is StationViewModel.Nav.ShowMap -> {
                         val intent = Intent(
@@ -63,7 +64,8 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
             val context = LocalContext.current
             NavigationEvent(viewModel) {
                 when (it) {
-                    LineViewModel.Nav.Close -> navController.popBackStack()
+                    LineViewModel.Nav.Close ->
+                        navController.popBackStack(NavigationRoute.Home.Radar, false)
 
                     is LineViewModel.Nav.ShowMap -> {
                         val intent = Intent(
