@@ -35,8 +35,6 @@ class NavigatorRepositoryImpl @Inject constructor(
     ErrorHandler by handler {
 
     private val navigator = MutableStateFlow<PolylineNavigator?>(null)
-    override val currentLine: Line?
-        get() = navigator.value?.line
 
     override fun start(line: Line) {
         navigator.update {
