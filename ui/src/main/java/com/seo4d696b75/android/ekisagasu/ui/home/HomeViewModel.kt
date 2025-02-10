@@ -14,6 +14,8 @@ import com.seo4d696b75.android.ekisagasu.timer.SetTimerUseCase
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
 import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.NavigateSelectLineEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,6 +30,7 @@ class HomeViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val appStateRepository: AppStateRepository,
     private val setTimer: SetTimerUseCase,
+    private val selectLine: NavigateSelectLineEvent,
     searchRepository: StationSearchRepository,
     handler: ErrorHandler,
 ) : ViewModel(),
@@ -92,11 +95,11 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun onSelectLineClicked() {
-        navigate(Nav.SelectCurrentLine)
+        selectLine(LineSelectType.Current)
     }
 
     private fun onLineNavigatorClicked() {
-        navigate(Nav.SelectNavigatorLine)
+        selectLine(LineSelectType.Navigator)
     }
 
     private fun onTimerClicked() = viewModelScope.launchCatching {
@@ -118,8 +121,6 @@ class HomeViewModel @Inject constructor(
     sealed interface Nav : NavigationEvent {
         data class ShowStation(val station: Station) : Nav
         data class ShowLine(val line: Line) : Nav
-        data object SelectCurrentLine : Nav
-        data object SelectNavigatorLine : Nav
         data object ShowMap : Nav
     }
 }

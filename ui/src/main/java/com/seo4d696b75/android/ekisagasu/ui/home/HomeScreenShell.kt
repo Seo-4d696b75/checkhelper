@@ -39,7 +39,6 @@ import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
 import com.seo4d696b75.android.ekisagasu.ui.navigation.toTab
-import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
 
 @Composable
@@ -69,14 +68,6 @@ fun HomeScreenShell(
             is HomeViewModel.Nav.ShowLine -> {
                 val route = NavigationRoute.Home.Line(it.line.code)
                 navController.navigate(route)
-            }
-
-            HomeViewModel.Nav.SelectCurrentLine -> {
-                navController.navigate(NavigationRoute.SelectLineDialog(LineSelectType.Current))
-            }
-
-            HomeViewModel.Nav.SelectNavigatorLine -> {
-                navController.navigate(NavigationRoute.SelectLineDialog(LineSelectType.Navigator))
             }
 
             HomeViewModel.Nav.ShowMap -> {

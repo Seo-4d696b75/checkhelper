@@ -47,18 +47,12 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }
         }
+        viewModel.onIntent(intent)
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        // handle intent
-        intent?.let {
-            if (it.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
-                it.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
-                // TODO 路線選択ダイアログの表示
-            }
-        }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        viewModel.onIntent(intent)
     }
 
     companion object {

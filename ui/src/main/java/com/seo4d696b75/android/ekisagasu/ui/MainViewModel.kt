@@ -1,5 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
@@ -10,6 +11,9 @@ import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
 import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
+import com.seo4d696b75.android.ekisagasu.ui.MainActivity.Companion.INTENT_KEY_SELECT_NAVIGATION
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.NavigateSelectLineEvent
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.take
@@ -22,6 +26,7 @@ class MainViewModel @Inject constructor(
     private val dataRepository: DataRepository,
     private val remoteDataRepository: RemoteDataRepository,
     private val navigateDataUpdateEvent: NavigateDataUpdateEvent,
+    private val selectLine: NavigateSelectLineEvent,
     logger: LogCollector,
     errorHandler: ErrorHandler,
 ) : ViewModel(),
@@ -69,6 +74,14 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun onIntent(intent: Intent?) {
+        intent ?: return
+        if (intent.getBooleanExtra(INTENT_KEY_SELECT_NAVIGATION, false)) {
+            intent.putExtra(INTENT_KEY_SELECT_NAVIGATION, false)
+            selectLine(LineSelectType.Navigator)
         }
     }
 }

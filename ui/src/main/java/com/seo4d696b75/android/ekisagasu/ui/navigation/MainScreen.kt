@@ -18,6 +18,7 @@ import com.seo4d696b75.android.ekisagasu.ui.log.logNavigation
 import com.seo4d696b75.android.ekisagasu.ui.navigation.component.BottomNavigationBar
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionHandler
 import com.seo4d696b75.android.ekisagasu.ui.permission.PermissionViewModel
+import com.seo4d696b75.android.ekisagasu.ui.selectLine.SelectLineNavigationEvent
 import com.seo4d696b75.android.ekisagasu.ui.selectLine.lineSelectDialog
 import com.seo4d696b75.android.ekisagasu.ui.setting.settingNavigation
 import com.seo4d696b75.android.ekisagasu.ui.update.DataUpdateNavigationEvent
@@ -37,6 +38,7 @@ fun MainScreen(
     )
 
     DataUpdateNavigationEvent(navController)
+    SelectLineNavigationEvent(navController)
 
     ErrorHandler(
         onGMSResolutionResult = permissionViewModel::onDeviceLocationSettingResult,
