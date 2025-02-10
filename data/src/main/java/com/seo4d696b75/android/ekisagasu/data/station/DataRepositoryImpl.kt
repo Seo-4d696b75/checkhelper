@@ -5,7 +5,7 @@ import com.seo4d696b75.android.ekisagasu.data.database.station.StationDao
 import com.seo4d696b75.android.ekisagasu.data.database.station.StationEntity
 import com.seo4d696b75.android.ekisagasu.domain.dataset.ColorInt
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
-import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersionState
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
@@ -16,8 +16,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -84,22 +83,13 @@ class DataRepositoryImpl @Inject constructor(
             )
         }
 
-    // TODO not cache in repository!
-    private val _currentVersion = MutableStateFlow<DataVersion?>(null)
-    private var _dataInitialized: Boolean = false
-
-    override val dataInitialized: Boolean
-        get() = _dataInitialized
-
-    override val dataVersion: StateFlow<DataVersion?> = _currentVersion
-
-    override suspend fun getDataVersion(): DataVersion? =
-        withContext(Dispatchers.IO) {
-            val version = dao.getCurrentDataVersion()?.toModel()
-            _dataInitialized = version != null
-            _currentVersion.value = version
-            version
+    override val dataVersion = dao.getCurrentDataVersion().map {
+        if (it == null) {
+            DataVersionState.None
+        } else {
+            DataVersionState.Initialized(it.toModel())
         }
+    }
 
     override suspend fun getDataVersionHistory() = dao.getDataVersionHistory().map { it.toModel() }
 
@@ -111,8 +101,6 @@ class DataRepositoryImpl @Inject constructor(
         val lines = dir.lines()
         val tree = dir.kdTree()
         val version = dao.updateData(info.version, stations, lines, tree)
-        _dataInitialized = true
-        _currentVersion.value = version
         version
     }
 

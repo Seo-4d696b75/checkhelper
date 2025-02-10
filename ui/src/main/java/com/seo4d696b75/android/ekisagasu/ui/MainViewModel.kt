@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersionState
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
@@ -54,7 +55,7 @@ class MainViewModel @Inject constructor(
             appStateRepository.hasDataVersionChecked = true
 
             viewModelScope.launchCatching {
-                val info = dataRepository.getDataVersion()
+                val current = dataRepository.dataVersion.first()
 
                 val latest = runCatching {
                     remoteDataRepository
@@ -67,15 +68,19 @@ class MainViewModel @Inject constructor(
                     throw CheckLatestDataVersionException(e)
                 }.getOrThrow()
 
-                if (info == null) {
-                    Timber.d("no data saved, download required")
-                    log(LogMessage.Data.DownloadRequired(latest))
-                    navigateDataUpdateEvent(DataUpdateType.Init, latest)
-                } else {
-                    log(LogMessage.Data.Found(info))
-                    if (info.version < latest.version) {
-                        log(LogMessage.Data.LatestVersionFound(latest))
-                        navigateDataUpdateEvent(DataUpdateType.Latest, latest)
+                when (current) {
+                    DataVersionState.None -> {
+                        Timber.d("no data saved, download required")
+                        log(LogMessage.Data.DownloadRequired(latest))
+                        navigateDataUpdateEvent(DataUpdateType.Init, latest)
+                    }
+
+                    is DataVersionState.Initialized -> {
+                        log(LogMessage.Data.Found(current.version))
+                        if (current.version.version < latest.version) {
+                            log(LogMessage.Data.LatestVersionFound(latest))
+                            navigateDataUpdateEvent(DataUpdateType.Latest, latest)
+                        }
                     }
                 }
             }

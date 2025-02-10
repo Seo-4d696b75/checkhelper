@@ -108,7 +108,6 @@ class StationSearchRepositoryImpl @Inject constructor(
         // Must be pure function
         // do not access to class member!!
         require(k > 0)
-        require(dataRepository.dataInitialized)
         val result = search.search(location.lat, location.lng, k, 0.0, false)
         if (result.stations.isEmpty()) {
             return StationSearchState.Initializing(k)

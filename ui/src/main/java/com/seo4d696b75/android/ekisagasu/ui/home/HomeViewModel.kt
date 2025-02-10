@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersionState
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -82,7 +84,7 @@ class HomeViewModel @Inject constructor(
         when (uiState.value) {
             HomeUiState.Invisible -> {}
 
-            is HomeUiState.Idle -> if (dataRepository.dataInitialized) {
+            is HomeUiState.Idle -> if (dataRepository.dataVersion.first() is DataVersionState.Initialized) {
                 locationRepository.startWatchCurrentLocation()
             }
 

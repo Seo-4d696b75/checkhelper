@@ -2,6 +2,7 @@ package com.seo4d696b75.android.ekisagasu.ui.log
 
 import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersionState
 import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_ISO8601_EXTEND
 import com.seo4d696b75.android.ekisagasu.domain.date.format
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLog
@@ -22,8 +23,10 @@ class GPXSerializer @Inject constructor(
         val appName = config.appName
         val appVersionName = config.versionName
         val deviceName = config.deviceName
-        val dataVersion =
-            dataRepository.dataVersion.first()?.version ?: throw IllegalStateException("data version not found")
+        val dataVersion = when (val state = dataRepository.dataVersion.first()) {
+            DataVersionState.None -> throw IllegalStateException("data version not found")
+            is DataVersionState.Initialized -> state.version
+        }
         val points = log.toTrackSegment()
 
         with(xmlSerializer) {

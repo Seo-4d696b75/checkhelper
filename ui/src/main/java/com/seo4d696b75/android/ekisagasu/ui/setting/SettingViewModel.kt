@@ -3,6 +3,7 @@ package com.seo4d696b75.android.ekisagasu.ui.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersionState
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 import com.seo4d696b75.android.ekisagasu.domain.error.CheckLatestDataVersionException
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,11 +46,14 @@ class SettingViewModel @Inject constructor(
         isDataVersionChecking,
         isLatestData,
     ) { version, isChecking, isLatest ->
-        when {
-            version == null -> DataVersionUiState.Undefined
-            isChecking -> DataVersionUiState.Checking(version)
-            isLatest -> DataVersionUiState.LatestChecked(version)
-            else -> DataVersionUiState.Idle(version)
+        if (version is DataVersionState.Initialized) {
+            when {
+                isChecking -> DataVersionUiState.Checking(version.version)
+                isLatest -> DataVersionUiState.LatestChecked(version.version)
+                else -> DataVersionUiState.Idle(version.version)
+            }
+        } else {
+            DataVersionUiState.Undefined
         }
     }
 
@@ -154,8 +159,11 @@ class SettingViewModel @Inject constructor(
             log(LogMessage.Data.CheckLatestVersionFailure(e))
             throw CheckLatestDataVersionException(e)
         }.getOrThrow()
-        val current = dataRepository.getDataVersion()
-        if (current == null || latest.version > current.version) {
+        val shouldUpdate = when (val current = dataRepository.dataVersion.first()) {
+            DataVersionState.None -> true
+            is DataVersionState.Initialized -> latest.version > current.version.version
+        }
+        if (shouldUpdate) {
             navigateDataUpdateEvent(DataUpdateType.Latest, latest)
             log(LogMessage.Data.LatestVersionFound(latest))
         } else {

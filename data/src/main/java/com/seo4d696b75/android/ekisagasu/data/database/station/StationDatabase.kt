@@ -11,6 +11,7 @@ import androidx.room.TypeConverters
 import com.seo4d696b75.android.ekisagasu.data.database.user.TimestampConverter
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationKdTree
+import kotlinx.coroutines.flow.Flow
 
 /**
  * @author Seo-4d696b75
@@ -86,7 +87,7 @@ abstract class StationDao {
     abstract suspend fun getDataVersionHistory(): List<DataVersionEntity>
 
     @Query("SELECT * FROM version_history WHERE id == (SELECT MAX(id) FROM version_history)")
-    abstract suspend fun getCurrentDataVersion(): DataVersionEntity?
+    abstract fun getCurrentDataVersion(): Flow<DataVersionEntity?>
 
     @Insert
     abstract suspend fun setCurrentDataVersion(version: DataVersionEntity)
