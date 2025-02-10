@@ -1,34 +1,26 @@
 package com.seo4d696b75.android.ekisagasu.data.station
 
 import com.seo4d696b75.android.ekisagasu.data.api.StationDataService
+import com.seo4d696b75.android.ekisagasu.data.cache.MemoryCacheStore
+import com.seo4d696b75.android.ekisagasu.data.cache.cacheOf
 import com.seo4d696b75.android.ekisagasu.data.file.unzip
-import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.RemoteDataRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
-import javax.inject.Singleton
 
-class RemoteDataRepositoryImpl @Inject constructor(
+internal class RemoteDataRepositoryImpl @Inject constructor(
+    store: MemoryCacheStore,
     private val api: StationDataService,
 ) : RemoteDataRepository {
-    // cached version
-    private var _lastCheckedVersion: LatestDataVersion? = null
 
-    override suspend fun getLatestDataVersion(cache: Boolean) = withContext(Dispatchers.IO) {
-        val last = _lastCheckedVersion
-        if (last != null && cache) {
-            last
-        } else {
-            val info = api.getLatestInfo()
-            _lastCheckedVersion = info
-            info
-        }
+    override val latestDataVersion = store.cacheOf {
+        api.getLatestInfo()
     }
 
     override suspend fun download(
@@ -61,9 +53,8 @@ class RemoteDataRepositoryImpl @Inject constructor(
 
 @Suppress("unused")
 @Module
-@InstallIn(SingletonComponent::class)
-interface RemoteDataRepositoryModule {
+@InstallIn(ActivityRetainedComponent::class)
+internal interface RemoteDataRepositoryModule {
     @Binds
-    @Singleton
     fun bindRemoteDataRepository(impl: RemoteDataRepositoryImpl): RemoteDataRepository
 }

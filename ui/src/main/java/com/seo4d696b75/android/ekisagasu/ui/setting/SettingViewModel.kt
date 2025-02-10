@@ -149,7 +149,7 @@ class SettingViewModel @Inject constructor(
 
     fun checkLatestData() = viewModelScope.launchCatching(Dispatchers.IO) {
         val latest = runCatching {
-            remoteDataRepository.getLatestDataVersion(false)
+            remoteDataRepository.latestDataVersion.refresh()
         }.onFailure { e ->
             log(LogMessage.Data.CheckLatestVersionFailure(e))
             throw CheckLatestDataVersionException(e)

@@ -16,6 +16,8 @@ import com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 import com.seo4d696b75.android.ekisagasu.ui.selectLine.NavigateSelectLineEvent
 import com.seo4d696b75.android.ekisagasu.ui.update.NavigateDataUpdateEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import timber.log.Timber
 import javax.inject.Inject
@@ -55,7 +57,10 @@ class MainViewModel @Inject constructor(
                 val info = dataRepository.getDataVersion()
 
                 val latest = runCatching {
-                    remoteDataRepository.getLatestDataVersion(true)
+                    remoteDataRepository
+                        .latestDataVersion()
+                        .filterNotNull()
+                        .first()
                 }.onFailure { e ->
                     log(LogMessage.Data.CheckLatestVersionFailure(e))
                     appStateRepository.hasDataVersionChecked = false
