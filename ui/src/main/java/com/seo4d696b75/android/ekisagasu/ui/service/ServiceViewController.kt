@@ -16,7 +16,6 @@ import com.seo4d696b75.android.ekisagasu.ui.popup.PopupViewController
 import com.seo4d696b75.android.ekisagasu.ui.vibrator.VibratorController
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,9 +32,6 @@ class ServiceViewController @Inject constructor(
     private val navigatorViewController: NavigatorViewController,
     private val setTimer: SetTimerUseCase,
 ) {
-
-    private var context: Context? = null
-
     val appFinish = appStateRepository.appFinish.take(1)
 
     /**
@@ -50,8 +46,6 @@ class ServiceViewController @Inject constructor(
         registryOwner: SavedStateRegistryOwner,
         lifecycleOwner: LifecycleOwner,
     ) {
-        this.context = context
-
         notificationViewController.onCreate(context, lifecycleOwner)
         overlayViewController.onCreate(context, lifecycleOwner)
         popupViewController.onCreate(context, registryOwner, lifecycleOwner)
@@ -59,29 +53,18 @@ class ServiceViewController @Inject constructor(
         vibratorController.onCreate(context, lifecycleOwner)
 
         lifecycleOwner.lifecycleScope.launch {
-            launch {
-                bootUseCase()
-            }
-            launch {
-                appFinish.collect {
-                    onDestroy()
-                }
-            }
+            bootUseCase()
         }
     }
 
-    private suspend fun onDestroy() {
-        Timber.d("terminate service")
+    suspend fun onDestroy() {
         locationRepository.stopWatchCurrentLocation()
         appFinishUseCase()
-
         notificationViewController.onDestroy()
         overlayViewController.onDestroy()
         popupViewController.onDestroy()
         navigatorViewController.onDestroy()
         vibratorController.onDestroy()
-
-        context = null
     }
 
     fun getNotification() = notificationViewController.notification

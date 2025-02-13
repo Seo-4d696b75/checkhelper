@@ -115,6 +115,7 @@ class StationService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                 .collect {
                     unregisterReceiver(screenBroadcastReceiver)
                     viewModelStore.clear()
+                    viewController.onDestroy()
 
                     // LifecycleService だと stopSelf, onDestroy の間にデータ更新をFlowから購読すると不要な通知が出る場合がある
                     // stopSelf の段階で Lifecycle.State.DESTROYED に更新する
