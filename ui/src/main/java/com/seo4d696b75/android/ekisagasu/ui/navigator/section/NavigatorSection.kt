@@ -87,7 +87,7 @@ fun NavigatorSection(
                 Row {
                     NavigationButton(
                         onClick = onSelectLineClicked,
-                        id = R.drawable.ic_line_selects,
+                        id = R.drawable.ic_line_select,
                         contentDescription = "select line",
                     )
                     Spacer(modifier = Modifier.width(5.dp))

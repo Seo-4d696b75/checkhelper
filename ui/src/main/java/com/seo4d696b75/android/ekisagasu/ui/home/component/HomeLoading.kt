@@ -80,7 +80,7 @@ fun HomeLoading(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
-                painter = painterResource(id = R.drawable.station),
+                painter = painterResource(id = R.drawable.ic_train),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
                 modifier = Modifier.size(24.dp),

@@ -79,7 +79,7 @@ fun HomeActionButtonSection(
                         },
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_maps),
+                            painter = painterResource(id = R.drawable.ic_map),
                             contentDescription = "show map",
                             modifier = Modifier.size(24.dp),
                         )
@@ -110,7 +110,7 @@ fun HomeActionButtonSection(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.line_position),
+                                painter = painterResource(id = R.drawable.ic_line_position),
                                 contentDescription = "start line navigation",
                                 modifier = Modifier.size(24.dp),
                             )
@@ -129,7 +129,7 @@ fun HomeActionButtonSection(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_line_selects),
+                                painter = painterResource(id = R.drawable.ic_line_select),
                                 contentDescription = "select line",
                                 modifier = Modifier.size(24.dp),
                             )

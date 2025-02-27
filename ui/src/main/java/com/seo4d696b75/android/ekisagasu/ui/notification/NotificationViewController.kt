@@ -66,7 +66,7 @@ class NotificationViewController @Inject constructor(
 
         // set custom view
         builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-        builder.setSmallIcon(R.drawable.notification_icon)
+        builder.setSmallIcon(R.drawable.ic_train)
 
         // action button
         val exit = Intent(context, StationService::class.java)

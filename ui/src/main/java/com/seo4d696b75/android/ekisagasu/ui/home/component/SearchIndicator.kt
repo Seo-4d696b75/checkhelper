@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,8 +27,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.theme.AppTheme
@@ -97,25 +98,20 @@ fun SearchIndicator(
         )
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
             Image(
-                painter = painterResource(id = R.drawable.launch_icon),
+                painter = painterResource(id = R.drawable.ic_app),
                 contentDescription = null,
-                modifier = Modifier
-                    .padding(
-                        start = maxWidth * 0.1f,
-                        end = maxWidth * 0.2f,
-                        top = maxHeight * 0.13f,
-                        bottom = maxHeight * 0.17f,
-                    )
-                    .fillMaxSize(),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                modifier = Modifier.size(maxWidth * 0.6f),
             )
         }
     }
 }
 
 @Composable
-@Preview
+@PreviewLightDark
 private fun SearchIndicatorPreview() {
     AppTheme {
         Surface {

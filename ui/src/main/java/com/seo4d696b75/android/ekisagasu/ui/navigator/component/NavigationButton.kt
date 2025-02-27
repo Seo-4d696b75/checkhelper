@@ -52,7 +52,7 @@ private fun NavigationButtonPreview() {
         Surface {
             NavigationButton(
                 onClick = {},
-                id = R.drawable.ic_line_selects,
+                id = R.drawable.ic_line_select,
                 contentDescription = "",
             )
         }
@@ -66,7 +66,7 @@ private fun NavigationButtonPreview_disabled() {
         Surface {
             NavigationButton(
                 onClick = {},
-                id = R.drawable.ic_line_selects,
+                id = R.drawable.ic_line_select,
                 contentDescription = "",
                 enabled = false,
             )

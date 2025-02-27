@@ -113,14 +113,16 @@ fun LineDetailSection(
             ) {
                 IconButton(onClick = onClose) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
+                        painter = painterResource(id = R.drawable.ic_close),
                         contentDescription = "close line detail",
+                        modifier = Modifier.size(48.dp),
                     )
                 }
                 SquareIconButton(onClick = onMapClicked) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_line_map),
+                        painter = painterResource(id = R.drawable.ic_map),
                         contentDescription = "show line on map",
+                        modifier = Modifier.size(48.dp),
                     )
                 }
             }

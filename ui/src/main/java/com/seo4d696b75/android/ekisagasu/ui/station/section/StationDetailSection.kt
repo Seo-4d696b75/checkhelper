@@ -71,7 +71,7 @@ fun StationDetailSection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.station),
+                        painter = painterResource(id = R.drawable.ic_train),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                     )
@@ -131,14 +131,16 @@ fun StationDetailSection(
             ) {
                 IconButton(onClick = onClose) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
+                        painter = painterResource(id = R.drawable.ic_close),
                         contentDescription = "close station detail",
+                        modifier = Modifier.size(48.dp),
                     )
                 }
                 SquareIconButton(onClick = onMapClicked) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_map),
                         contentDescription = "show station on map",
+                        modifier = Modifier.size(48.dp),
                     )
                 }
             }

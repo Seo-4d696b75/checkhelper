@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -39,7 +40,8 @@ fun OverlayAppIcon(
             },
     ) {
         Image(
-            painter = painterResource(id = R.drawable.launch_icon),
+            painter = painterResource(id = R.drawable.ic_app),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
             contentDescription = null,
             modifier = Modifier.size(36.dp),
         )
