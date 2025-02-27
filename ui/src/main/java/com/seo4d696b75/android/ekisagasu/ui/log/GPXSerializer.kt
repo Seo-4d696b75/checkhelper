@@ -76,7 +76,7 @@ class GPXSerializer @Inject constructor(
                     tag("extensions") {
                         tag("station") {
                             tag("version") {
-                                text(dataVersion.toString())
+                                text(dataVersion.version.toString())
                             }
                         }
                     }
