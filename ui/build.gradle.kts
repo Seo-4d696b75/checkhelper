@@ -56,9 +56,6 @@ dependencies {
     implementation(project(":domain"))
 
     implementation(libs.androidx.core)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.activity)
 
     implementation(libs.google.material)
 
@@ -88,8 +85,6 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime)
-
-    implementation(libs.androidx.recyclerview)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
