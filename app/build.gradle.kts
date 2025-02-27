@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.androidx.navigation.safeargs)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ktlint.gradle)
     alias(libs.plugins.google.services)
@@ -78,17 +78,13 @@ dependencies {
     implementation(libs.androidx.core)
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.timber)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {

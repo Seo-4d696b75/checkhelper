@@ -1,10 +1,13 @@
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+
 plugins {
     alias(libs.plugins.android.libraly)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.androidx.navigation.safeargs)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ktlint.gradle)
 }
@@ -43,8 +46,9 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
+    composeCompiler {
+        featureFlags.add(ComposeFeatureFlag.StrongSkipping)
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
     }
 }
 
@@ -88,7 +92,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.kotlinx.serialization.json)
 
