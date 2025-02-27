@@ -1,6 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.data.api
 
 import com.google.common.truth.Truth.assertThat
+import com.seo4d696b75.android.ekisagasu.data.cache.MemoryCacheStore
 import com.seo4d696b75.android.ekisagasu.data.fakeDataBuffer
 import com.seo4d696b75.android.ekisagasu.data.fakeLatestInfoString
 import com.seo4d696b75.android.ekisagasu.data.station.RemoteDataRepositoryImpl
@@ -78,7 +79,7 @@ class APITest {
         val info = api.getLatestInfo()
         assertThat(info.version.toString()).matches(Regex("^[0-9]{8}$").toPattern())
 
-        val repository = RemoteDataRepositoryImpl(api)
+        val repository = RemoteDataRepositoryImpl(MemoryCacheStore(), api)
         val dir = tempFolder.newFolder()
 
         val callback = mockk<(Long) -> Unit>(relaxed = true)

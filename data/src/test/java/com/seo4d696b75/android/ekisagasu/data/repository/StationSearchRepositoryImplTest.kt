@@ -83,10 +83,6 @@ open class StationSearchRepositoryImplTest(private val k: Int) {
 
     @Before
     fun setup() {
-        // Dispatchers.setMain(defaultDispatcher)
-
-        every { dataRepository.dataInitialized } returns true
-
         val codesSlot = slot<List<Int>>()
         coEvery { dataRepository.getLines(capture(codesSlot)) } answers {
             val codes = codesSlot.captured

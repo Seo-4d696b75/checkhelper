@@ -16,6 +16,7 @@ import com.seo4d696b75.android.ekisagasu.data.station.DataRepositoryImpl
 import com.seo4d696b75.android.ekisagasu.data.toModel
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
 import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersion
+import com.seo4d696b75.android.ekisagasu.domain.dataset.DataVersionState
 import com.seo4d696b75.android.ekisagasu.domain.dataset.LatestDataVersion
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Prefecture
 import com.seo4d696b75.android.ekisagasu.domain.dataset.PrefectureRepository
@@ -28,8 +29,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -79,44 +80,32 @@ class DataRepositoryImplTest {
     @Test
     fun `データが初期化前`() = runTest {
         // before update (no data)
-        coEvery { dao.getCurrentDataVersion() } returns null
-        repository.getDataVersion()
-        assertThat(repository.dataInitialized).isFalse()
+        every { dao.getCurrentDataVersion() } returns flowOf(null)
+        val state = repository.dataVersion.first()
+        assertThat(state).isEqualTo(DataVersionState.None)
 
         // after update
         val version = DataVersionEntity(info.version)
-        coEvery { dao.getCurrentDataVersion() } returns version
-        repository.getDataVersion()
-        assertThat(repository.dataInitialized).isTrue()
+        every { dao.getCurrentDataVersion() } returns flowOf(version)
+        val state1 = repository.dataVersion.first()
+        assertThat(state1).isInstanceOf(DataVersionState.Initialized::class.java)
     }
 
     @Test
     fun `データのアップデート - 失敗`() = runTest {
-        // watch flow
-        val dataVersionList = mutableListOf<DataVersion?>()
-        val job = launch {
-            repository.dataVersion.toList(dataVersionList)
-        }
-
         // update
         val result = runCatching {
             repository.updateData(info, tempFolder.newFolder())
         }
         assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
 
-        // verify data version flow
-        assertThat(dataVersionList.last()).isNull()
-        job.cancel()
+        coVerify(exactly = 0) {
+            dao.updateData(any(), any(), any(), any())
+        }
     }
 
     @Test
     fun `データのアップデート - 成功`() = runTest {
-        // watch flow
-        val dataVersionList = mutableListOf<DataVersion?>()
-        val job = launch {
-            repository.dataVersion.toList(dataVersionList)
-        }
-
         val dir = tempFolder.newFolder()
         val zip = File(dir, "json.zip")
         // copy json.zip
@@ -129,17 +118,14 @@ class DataRepositoryImplTest {
         unzip(zip, dir)
 
         // test
-        coEvery { dao.updateData(any(), any(), any(), any()) } returns DataVersion(info.version, Date())
+        coEvery { dao.updateData(info.version, any(), any(), any()) } returns DataVersion(info.version, Date())
         val result = repository.updateData(info, dir)
         assertThat(result.version).isEqualTo(info.version)
 
         // verify data version flow
-        assertThat(dataVersionList.size).isGreaterThan(1)
-        assertThat(dataVersionList[0]).isNull()
-        assertThat(dataVersionList.last()?.version).isEqualTo(info.version)
-        job.cancel()
-
-        coVerify { dao.updateData(info.version, any(), any(), any()) }
+        coVerify(exactly = 1) {
+            dao.updateData(info.version, any(), any(), any())
+        }
     }
 
     @Test

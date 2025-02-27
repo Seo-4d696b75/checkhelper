@@ -10,6 +10,7 @@ import com.seo4d696b75.android.ekisagasu.data.fakeLatestInfo
 import com.seo4d696b75.android.ekisagasu.data.fakeLines
 import com.seo4d696b75.android.ekisagasu.data.fakeStations
 import com.seo4d696b75.android.ekisagasu.data.fakeTree
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -48,7 +49,7 @@ class StationDatabaseTest {
         // test
 
         // check data version
-        val version = dao.getCurrentDataVersion()
+        val version = dao.getCurrentDataVersion().first()
         Truth.assertThat(version?.version).isEqualTo(info.version)
 
         // get station(s)

@@ -16,6 +16,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -83,13 +84,14 @@ class DataRepositoryImpl @Inject constructor(
             )
         }
 
-    override val dataVersion = dao.getCurrentDataVersion().map {
-        if (it == null) {
-            DataVersionState.None
-        } else {
-            DataVersionState.Initialized(it.toModel())
+    override val dataVersion: Flow<DataVersionState>
+        get() = dao.getCurrentDataVersion().map {
+            if (it == null) {
+                DataVersionState.None
+            } else {
+                DataVersionState.Initialized(it.toModel())
+            }
         }
-    }
 
     override suspend fun getDataVersionHistory() = dao.getDataVersionHistory().map { it.toModel() }
 
