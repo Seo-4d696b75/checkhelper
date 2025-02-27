@@ -60,10 +60,10 @@ fun RadarScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.radar),
+                        painter = painterResource(id = R.drawable.ic_radar),
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(24.dp),
                     )
                     Text(
                         text = "✕${state.size}",

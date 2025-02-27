@@ -26,7 +26,7 @@ fun SettingGroup(
         Image(
             painter = icon,
             contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
             modifier = Modifier
                 .padding(12.dp)
                 .size(48.dp),

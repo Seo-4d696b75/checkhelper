@@ -72,7 +72,7 @@ fun SettingListSection(
     ) {
         item {
             SettingGroup(
-                icon = painterResource(id = R.drawable.interval),
+                icon = painterResource(id = R.drawable.ic_interval),
             ) {
                 SettingItem(
                     title = stringResource(id = R.string.setting_title_freq),
@@ -98,7 +98,7 @@ fun SettingListSection(
         }
         item {
             SettingGroup(
-                icon = painterResource(id = R.drawable.radar),
+                icon = painterResource(id = R.drawable.ic_radar),
             ) {
                 SettingItem(
                     title = stringResource(id = R.string.setting_title_radar),
@@ -124,7 +124,7 @@ fun SettingListSection(
         }
         item {
             SettingGroup(
-                icon = painterResource(id = R.drawable.ic_notify),
+                icon = painterResource(id = R.drawable.ic_popup),
             ) {
                 SettingItem(
                     title = stringResource(id = R.string.setting_title_notification),
@@ -181,7 +181,7 @@ fun SettingListSection(
         }
         item {
             SettingGroup(
-                icon = painterResource(id = R.drawable.ic_vibrate),
+                icon = painterResource(id = R.drawable.ic_vibration),
             ) {
                 SettingItem(
                     title = stringResource(id = R.string.setting_title_vibe),
@@ -223,7 +223,7 @@ fun SettingListSection(
         }
         item {
             SettingGroup(
-                icon = painterResource(id = R.drawable.brightness),
+                icon = painterResource(id = R.drawable.ic_brightness),
             ) {
                 SettingItem(
                     title = stringResource(id = R.string.setting_title_night),
