@@ -74,7 +74,7 @@ class NotificationViewController @Inject constructor(
         val timer = Intent(context, StationService::class.java)
             .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
         builder.addAction(
-            R.drawable.notification_exit,
+            R.drawable.ic_close,
             context.getString(R.string.notification_action_exit),
             PendingIntent.getService(
                 context,
@@ -84,7 +84,7 @@ class NotificationViewController @Inject constructor(
             ),
         )
         builder.addAction(
-            R.drawable.notification_timer,
+            R.drawable.ic_timer,
             context.getString(R.string.notification_action_timer),
             PendingIntent.getService(
                 context,
