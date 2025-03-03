@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.map
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-// FIXME darkモード対応
 @Composable
 fun SearchIndicator(
     running: Boolean,
@@ -90,8 +89,9 @@ fun SearchIndicator(
         contentAlignment = Alignment.Center,
     ) {
         Image(
-            painter = painterResource(id = R.drawable.loop_line),
+            painter = painterResource(id = R.drawable.loop_line_background),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             modifier = Modifier
                 .fillMaxSize()
                 .rotate(degrees),
