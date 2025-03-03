@@ -1,9 +1,8 @@
 package com.seo4d696b75.android.ekisagasu.ui.home.component
 
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,14 +19,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -44,44 +44,50 @@ fun SearchIndicator(
     running: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    var state by remember {
-        mutableStateOf(false to 0)
+    var shouldRunning by remember {
+        mutableStateOf(false)
     }
-    val (shouldRunning, initialStep) = state
 
     LaunchedEffect(running) {
         if (running) {
             // アニメーション開始
-            state = true to initialStep
+            shouldRunning = true
         }
     }
 
-    val degrees = if (shouldRunning) {
-        val transition = rememberInfiniteTransition("SearchIndicator")
-        val step = transition.animateFloat(
-            initialValue = initialStep.toFloat(),
-            targetValue = initialStep + 16f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = 360 * 100,
-                    easing = LinearEasing,
-                )
-            ),
-            label = "degree step"
-        )
-        LaunchedEffect(step, running) {
-            if (!running) {
-                // アニメーション終了は区切りの良いタイミングに合わせる
-                snapshotFlow { step.value }
-                    .map { floor(it).roundToInt() }
-                    .distinctUntilChanged()
-                    .drop(1)
-                    .collect { state = false to it.mod(16) }
+    var degree by remember {
+        mutableFloatStateOf(0f)
+    }
+
+    LaunchedEffect(shouldRunning) {
+        if (shouldRunning) {
+            animate(
+                initialValue = degree,
+                targetValue = degree + 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = 360 * 100,
+                        easing = LinearEasing,
+                    ),
+                ),
+            ) { value, _ ->
+                degree = value
             }
         }
-        360f / 16 * step.value
-    } else {
-        360f / 16 * initialStep
+    }
+
+    // アニメーション終了は区切りの良いタイミングに合わせる
+    LaunchedEffect(shouldRunning, running) {
+        if (shouldRunning && !running) {
+            snapshotFlow { degree }
+                .map { floor(it * 16 / 360).roundToInt() }
+                .distinctUntilChanged()
+                .drop(1)
+                .collect {
+                    shouldRunning = false
+                    degree = 360f / 16 * it.mod(16)
+                }
+        }
     }
 
     Box(
@@ -94,7 +100,9 @@ fun SearchIndicator(
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             modifier = Modifier
                 .fillMaxSize()
-                .rotate(degrees),
+                .graphicsLayer {
+                    rotationZ = -degree
+                },
         )
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize(),
