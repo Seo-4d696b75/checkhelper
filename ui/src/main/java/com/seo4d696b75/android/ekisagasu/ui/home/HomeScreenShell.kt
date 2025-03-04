@@ -2,6 +2,7 @@ package com.seo4d696b75.android.ekisagasu.ui.home
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -105,7 +106,11 @@ fun HomeScreenShell(
     content: @Composable () -> Unit,
 ) {
     StatusBarEffect(
-        darkIcons = state == HomeUiState.Invisible,
+        darkIcons = if (isSystemInDarkTheme()) {
+            state is HomeUiState.Visible
+        } else {
+            state == HomeUiState.Invisible
+        },
     )
 
     if (state !is HomeUiState.Visible) {
