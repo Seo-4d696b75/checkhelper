@@ -1,11 +1,6 @@
 package com.seo4d696b75.android.ekisagasu.ui.vibrator
 
-import android.app.Service
 import android.content.Context
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -36,7 +31,8 @@ class VibratorController @Inject constructor(
         private val VIBRATE_PATTERN_APPROACH = longArrayOf(0, 100, 100, 100, 100, 100)
     }
 
-    private var vibrator: Vibrator? = null
+    private lateinit var vibration: Vibration
+
     private var isVibrate: Boolean = false
     private var isVibrateWhenApproach: Boolean = false
 
@@ -46,15 +42,7 @@ class VibratorController @Inject constructor(
     private var nextApproachStation: Station? = null
 
     fun onCreate(context: Context, owner: LifecycleOwner) {
-        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            context.getSystemService(Service.VIBRATOR_MANAGER_SERVICE)?.let {
-                val manager = it as VibratorManager
-                manager.defaultVibrator
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            context.getSystemService(Service.VIBRATOR_SERVICE) as Vibrator
-        }
+        vibration = Vibration.fromContext(context)
 
         owner.lifecycleScope.launch {
             owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -116,11 +104,9 @@ class VibratorController @Inject constructor(
     }
 
     private fun vibrate(pattern: LongArray) {
-        if (!isVibrate || vibrator?.hasVibrator() != true) return
-        vibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
+        if (!isVibrate) return
+        vibration(pattern)
     }
 
-    fun onDestroy() {
-        vibrator = null
-    }
+    fun onDestroy() {}
 }
