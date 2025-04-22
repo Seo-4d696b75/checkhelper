@@ -1,145 +1,114 @@
 package com.seo4d696b75.android.ekisagasu.ui.log
 
 import android.content.ContentResolver
-import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.seo4d696b75.android.ekisagasu.domain.config.AppConfig
-import com.seo4d696b75.android.ekisagasu.domain.dataset.DataRepository
-import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_DATETIME
 import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_DATETIME_FILE
-import com.seo4d696b75.android.ekisagasu.domain.date.TIME_PATTERN_MILLI_SEC
 import com.seo4d696b75.android.ekisagasu.domain.date.format
-import com.seo4d696b75.android.ekisagasu.domain.log.AppLog
+import com.seo4d696b75.android.ekisagasu.domain.error.ErrorHandler
 import com.seo4d696b75.android.ekisagasu.domain.log.AppLogType
 import com.seo4d696b75.android.ekisagasu.domain.log.LogRepository
 import com.seo4d696b75.android.ekisagasu.domain.log.filter
-import com.seo4d696b75.android.ekisagasu.domain.xml.GPXSerializer
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEvent
+import com.seo4d696b75.android.ekisagasu.ui.event.NavigationEventHolder
+import com.seo4d696b75.android.ekisagasu.ui.event.navigationEventHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import java.io.BufferedWriter
-import java.io.IOException
-import java.io.OutputStreamWriter
+import kotlinx.coroutines.flow.update
 import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class LogViewModel @Inject constructor(
-    logRepository: LogRepository,
+    private val logRepository: LogRepository,
     private val appConfig: AppConfig,
-    private val dataRepository: DataRepository,
+    private val logSerializer: LogSerializer,
     private val gpxSerializer: GPXSerializer,
-) : ViewModel() {
-    val target = logRepository
-        .target
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    handler: ErrorHandler,
+) : ViewModel(),
+    ErrorHandler by handler,
+    NavigationEventHolder<LogViewModel.Nav> by navigationEventHolder() {
 
-    private val _filter = MutableStateFlow(AppLogType.Filter.All)
+    private val filter = MutableStateFlow(AppLogType.Filter.All)
 
-    fun setLogFilter(filter: AppLogType.Filter) {
-        _filter.value = filter
-    }
-
-    val logs: StateFlow<List<AppLog>> = combine(
+    val uiState = combine(
+        filter,
+        logRepository.target,
         logRepository.logs,
-        _filter,
-    ) { logs, filter ->
-        logs.filter(filter)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
-
-    fun requestWriteLog(
-        onConfigRequested: (defaultConfig: LogOutputConfig) -> Unit,
-    ) {
-        when (_filter.value) {
-            AppLogType.Filter.All -> {
-                requestLogOutput(LogOutputConfig.All)
-            }
-
-            AppLogType.Filter.System -> {
-                requestLogOutput(LogOutputConfig.System)
-            }
-
-            AppLogType.Filter.Station -> {
-                requestLogOutput(LogOutputConfig.Station)
-            }
-
-            AppLogType.Filter.Geo -> {
-                onConfigRequested(LogOutputConfig.Geo(LogOutputExtension.TXT))
-            }
-        }
-    }
-
-    private val _outputFileRequested = MutableSharedFlow<Intent>()
-    val outputFileRequested = _outputFileRequested.asSharedFlow()
-
-    fun requestLogOutput(config: LogOutputConfig) = viewModelScope.launch {
-        val time = Date()
-        val type = _filter.value
-        assert(config.filter == type)
-        val list = logs.value
-
-        val fileName = String.format(
-            Locale.US,
-            "%s_%sLog_%s.%s",
-            appConfig.appName,
-            type.name,
-            time.format(TIME_PATTERN_DATETIME_FILE),
-            config.extension.name.lowercase(),
+    ) { filter, target, logs ->
+        LogUiState.Loaded(
+            filter = filter,
+            target = target,
+            logs = logs.filter(filter).toPersistentList(),
         )
-        fileContent = if (config.extension == LogOutputExtension.GPX) {
-            gpxSerializer(
-                log = list,
-                dataVersion = dataRepository.dataVersion.value?.version ?: throw RuntimeException(),
-            )
-        } else {
-            StringBuilder().apply {
-                append(appConfig.appName)
-                append("\nlog type : ")
-                append(type.name)
-                append("\nwritten time : ")
-                append(time.format(TIME_PATTERN_DATETIME))
-                for (log in list) {
-                    append("\n")
-                    append(log.timestamp.format(TIME_PATTERN_MILLI_SEC))
-                    append(" ")
-                    append(log.message)
-                }
-            }.toString()
-        }
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            this.type = "text/*"
-            putExtra(Intent.EXTRA_TITLE, fileName)
-        }
-        _outputFileRequested.emit(intent)
+    }.stateInCatching(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        LogUiState.Initializing,
+    )
+
+    fun onFilterChanged(filter: AppLogType.Filter) {
+        this.filter.update { filter }
     }
 
-    private var fileContent: String? = null
+    fun onSelectTargetClicked() {
+        navigate(Nav.SelectLogTarget)
+    }
 
-    fun onOutputFileResolved(
+    fun onSaveClicked() {
+        val filter = this.filter.value
+        val now = Date()
+        val baseName = "${appConfig.appName}_${filter.name}Log_${now.format(TIME_PATTERN_DATETIME_FILE)}"
+        val config = when (filter) {
+            AppLogType.Filter.All -> LogOutputConfig.All(now.time, baseName)
+            AppLogType.Filter.System -> LogOutputConfig.System(now.time, baseName)
+            AppLogType.Filter.Geo -> LogOutputConfig.Geo(now.time, baseName)
+            AppLogType.Filter.Station -> LogOutputConfig.Station(now.time, baseName)
+        }
+        if (config is LogOutputConfig.Geo) {
+            navigate(Nav.ConfigureOutputFile(config))
+        } else {
+            onLogOutputConfigured(config)
+        }
+    }
+
+    fun onLogOutputConfigured(config: LogOutputConfig) {
+        navigate(Nav.RequestOutputFile(config))
+    }
+
+    fun writeLogFile(
+        config: LogOutputConfig,
         uri: Uri,
         resolver: ContentResolver,
-    ) = viewModelScope.launch(Dispatchers.IO) {
-        val str = fileContent ?: return@launch
-        try {
-            resolver.openOutputStream(uri).use {
-                val writer = BufferedWriter(OutputStreamWriter(it, Charsets.UTF_8))
-                writer.write(str)
-                writer.close()
+    ) = viewModelScope.launchCatching(Dispatchers.IO) {
+        val state = uiState.value as? LogUiState.Loaded ?: throw IllegalStateException()
+        requireNotNull(resolver.openOutputStream(uri)).let { stream ->
+            when (config.extension) {
+                LogOutputExtension.TXT -> {
+                    logSerializer(config, state.logs, stream)
+                }
+
+                LogOutputExtension.GPX -> {
+                    gpxSerializer(state.logs, stream)
+                }
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
-        fileContent = null
+    }
+
+    sealed interface Nav : NavigationEvent {
+        data object SelectLogTarget : Nav
+        data class RequestOutputFile(
+            val config: LogOutputConfig,
+        ) : Nav
+
+        data class ConfigureOutputFile(
+            val config: LogOutputConfig.Geo,
+        ) : Nav
     }
 }

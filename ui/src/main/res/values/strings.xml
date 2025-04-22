@@ -1,6 +1,20 @@
 <resources>
+    <string name="app_name">駅サガース</string>
+
     <!-- TODO defined in BuildConfig -->
     <string name="map_url">https://seo-4d696b75.github.io/ekisagasu/#/</string>
+
+    <!-- Bottom Navigation Bar -->
+    <string name="navigation_bar_label_home">ホーム</string>
+    <string name="navigation_bar_label_log">ログ</string>
+    <string name="navigation_bar_label_setting">設定</string>
+
+    <!-- FAB label -->
+    <string name="floating_action_button_label_finish">探索を終了</string>
+    <string name="floating_action_button_label_select_line">路線を選択</string>
+    <string name="floating_action_button_label_start_navigator">路線を案内</string>
+    <string name="floating_action_button_label_start_timer">5分タイマー</string>
+    <string name="floating_action_button_label_show_map">地図を表示</string>
 
     <!-- data update -->
     <string name="dialog_title_init_data">駅データの初期化</string>
@@ -9,13 +23,27 @@
     <string name="dialog_title_latest_data">駅データの更新</string>
     <string name="dialog_button_positive">OK</string>
     <string name="dialog_button_negative">キャンセル</string>
+    <string name="dialog_button_download">ダウンロード</string>
+    <string name="dialog_button_close">閉じる</string>
+    <string name="dialog_button_retry">リトライ</string>
     <string name="dialog_message_latest_data">最新のデータが見つかりました\nデータをダウンロードしますか？</string>
     <string name="update_state_download">データをダウンロード&#8230; %1$d%%</string>
     <string name="update_state_save">データを保存しています&#8230;</string>
+    <string name="dialog_title_success_update">完了</string>
+    <string name="dialog_message_success_update">駅データの更新に成功しました</string>
+    <string name="dialog_title_retry_update">エラー</string>
+    <string name="dialog_message_retry_update">駅データの更新に失敗しました。リトライしますか？</string>
+
+    <!-- common error -->
+    <string name="dialog_error_title_default">エラー</string>
+    <string name="dialog_error_description_default">不明なエラーが発生しました\n%1$s</string>
+    <string name="dialog_error_button_close">閉じる</string>
+    <string name="dialog_error_description_unavailable_location">位置情報を取得できませんでした</string>
+    <string name="dialog_error_button_next">次へ</string>
 
     <!-- data version -->
     <string name="message_abort_init_data">データが無いためアプリは使用できません</string>
-    <string name="message_network_failure">ネットワークから情報を利用できません</string>
+    <string name="message_fail_fetch_latest_version">駅データの最新バージョンを確認できませんでした</string>
     <string name="message_success_data_update">データの更新が完了しました</string>
     <string name="message_fail_data_update">データの更新に失敗しました</string>
     <string name="message_fail_data_initialize">データの初期化に失敗しました</string>
@@ -80,13 +108,16 @@
     <string name="setting_title_night_switch">夜間モードの自動切替</string>
     <string name="setting_mes_night_select">選択</string>
     <string name="setting_mes_night_switch_always">常に有効化</string>
-    <string name="setting_mes_night_switch">操作がない状態で%1$d後に有効化</string>
+    <string name="setting_mes_night_switch">操作がない状態で%1$d秒後に有効化</string>
     <string name="setting_title_brightness">あかるさ</string>
     <string name="setting_mes_brightness_sample">サンプル</string>
     <string name="setting_mes_brightness">画面の暗さを調整します.</string>
     <string name="setting_mes_brightness_dart">暗</string>
     <string name="setting_mes_brightness_bright">明</string>
     <string name="setting_mes_update_data">更新</string>
+    <string name="setting_mes_check_latest_data">確認</string>
+    <string name="setting_mes_checking_latest_data">確認中</string>
+    <string name="setting_mes_checked_latest_data">最新</string>
 
     <!-- log -->
     <string name="title_log_since">表示期間</string>
@@ -101,6 +132,11 @@
     <string name="dialog_log_output_config_gpx_description">GPSデータ専用のXML Schemaです</string>
     <string name="file_extension_txt">.txt</string>
     <string name="file_extension_gpx">.gpx</string>
+    <string name="log_filter_until_now">現在</string>
+    <string name="log_filter_name_all">すべて</string>
+    <string name="log_filter_name_system">システム</string>
+    <string name="log_filter_name_geo">位置情報</string>
+    <string name="log_filter_name_station">駅履歴</string>
 
     <!-- other -->
     <string name="no_selected_line">選択なし</string>
@@ -108,6 +144,7 @@
     <string name="dialog_message_select_line">現在乗車中の路線を選択します.</string>
     <string name="dialog_message_select_navigation">案内する路線を選択します.</string>
     <string name="dialog_button_cancel">キャンセル</string>
+    <string name="dialog_button_save">保存</string>
     <string name="dialog_button_unregister">解除</string>
     <string name="navigation_unsupported">この路線は対応していません</string>
     <string name="timer_title">5分タイマー</string>
@@ -125,5 +162,6 @@
     <string name="title_detail_station_location">場所：</string>
     <string name="title_line_list">登録路線一覧</string>
     <string name="title_radar_list">周辺駅</string>
+    <string name="message_station_size">%d駅</string>
 
 </resources>

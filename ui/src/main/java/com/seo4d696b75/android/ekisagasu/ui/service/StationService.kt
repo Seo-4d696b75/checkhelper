@@ -1,17 +1,22 @@
 package com.seo4d696b75.android.ekisagasu.ui.service
 
+import android.app.Service
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Binder
 import android.os.IBinder
-import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import com.seo4d696b75.android.ekisagasu.ui.broadcast.ScreenBroadcastReceiver
 import com.seo4d696b75.android.ekisagasu.ui.notification.NotificationViewController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -23,27 +28,7 @@ import javax.inject.Inject
  * This service has to sense GPS location, so must be run as foreground service.
  */
 @AndroidEntryPoint
-class StationService : LifecycleService() {
-    inner class StationServiceBinder : Binder() {
-        fun bind(): StationService {
-            return this@StationService
-        }
-    }
-
-    override fun onBind(intent: Intent): IBinder {
-        super.onBind(intent)
-        Timber.tag("Service").d("onBind: client requests to bind service")
-        return StationServiceBinder()
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        Timber.tag("Service").d("onUnbind: client unbinds service")
-        return true
-    }
-
-    override fun onRebind(intent: Intent?) {
-        Timber.tag("Service").d("onRebind: client binds service again")
-    }
+class StationService : Service(), LifecycleOwner, SavedStateRegistryOwner {
 
     override fun onStartCommand(
         intent: Intent?,
@@ -58,7 +43,9 @@ class StationService : LifecycleService() {
             if (it.hasExtra(KEY_REQUEST)) {
                 when (it.getStringExtra(KEY_REQUEST)) {
                     REQUEST_EXIT_SERVICE -> {
-                        viewController.requestAppFinish()
+                        lifecycleScope.launch {
+                            viewController.requestAppFinish()
+                        }
                     }
 
                     REQUEST_START_TIMER -> {
@@ -77,11 +64,35 @@ class StationService : LifecycleService() {
         return START_STICKY
     }
 
+    override fun onBind(intent: Intent?): IBinder? {
+        dispatcher.onServicePreSuperOnBind()
+        return null
+    }
+
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    override fun onStart(intent: Intent?, startId: Int) {
+        dispatcher.onServicePreSuperOnStart()
+        super.onStart(intent, startId)
+    }
+
+    private val dispatcher = ServiceLifecycleDispatcher(this)
+
+    override val lifecycle: Lifecycle
+        get() = dispatcher.lifecycle
+
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateRegistryController.savedStateRegistry
+
     override fun onCreate() {
+        dispatcher.onServicePreSuperOnCreate()
         super.onCreate()
 
         // init view controller
-        viewController.onCreate(this, this)
+        savedStateRegistryController.performRestore(null)
+        viewController.onCreate(this, this, this)
 
         // start this service as foreground one
         startForeground(
@@ -95,22 +106,35 @@ class StationService : LifecycleService() {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_USER_PRESENT)
         }
-        registerReceiver(viewController, filter)
+        registerReceiver(screenBroadcastReceiver, filter)
 
-        viewController
-            .appFinish
-            .flowWithLifecycle(lifecycle)
-            .take(1)
-            .onEach {
-                unregisterReceiver(viewController)
-                viewController.onDestroy()
-                stopSelf()
-            }
-            .launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            viewController
+                .appFinish
+                .flowWithLifecycle(lifecycle, Lifecycle.State.CREATED)
+                .collect {
+                    unregisterReceiver(screenBroadcastReceiver)
+                    viewModelStore.clear()
+                    viewController.onDestroy()
+
+                    // LifecycleService だと stopSelf, onDestroy の間にデータ更新をFlowから購読すると不要な通知が出る場合がある
+                    // stopSelf の段階で Lifecycle.State.DESTROYED に更新する
+                    dispatcher.onServicePreSuperOnDestroy()
+
+                    stopSelf()
+                }
+        }
     }
 
     @Inject
     lateinit var viewController: ServiceViewController
+
+    @Inject
+    lateinit var screenBroadcastReceiver: ScreenBroadcastReceiver
+
+    @Inject
+    @ServiceViewModel
+    lateinit var viewModelStore: ViewModelStore
 
     companion object {
         const val KEY_REQUEST = "service_request"

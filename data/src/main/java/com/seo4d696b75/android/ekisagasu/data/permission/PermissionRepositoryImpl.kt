@@ -16,10 +16,9 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.location.Priority
 import com.google.android.gms.location.SettingsClient
+import com.seo4d696b75.android.ekisagasu.domain.error.GMSResolvableException
 import com.seo4d696b75.android.ekisagasu.domain.log.LogCollector
 import com.seo4d696b75.android.ekisagasu.domain.log.LogMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppMessage
-import com.seo4d696b75.android.ekisagasu.domain.message.AppStateRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionState
@@ -31,11 +30,11 @@ import dagger.hilt.components.SingletonComponent
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class PermissionRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val appStateRepository: AppStateRepository,
     private val store: PermissionDataStore,
     collector: LogCollector,
 ) : PermissionRepository, LogCollector by collector {
@@ -105,11 +104,13 @@ class PermissionRepositoryImpl @Inject constructor(
         }
 
     override suspend fun checkDeviceLocationSettings(minInterval: Int): Boolean {
-        val request = LocationRequest.create().apply {
-            priority = Priority.PRIORITY_HIGH_ACCURACY
-            interval = minInterval * 1000L
-            fastestInterval = minInterval * 1000L
-        }
+        val request = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            minInterval * 1000L,
+        )
+            .setMinUpdateIntervalMillis(minInterval * 1000L)
+            .setMinUpdateDistanceMeters(0.1f)
+            .build()
         val settingRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(request)
             .build()
@@ -120,14 +121,14 @@ class PermissionRepositoryImpl @Inject constructor(
                     continuation.resume(true)
                 }
                 .addOnFailureListener { e ->
-                    Timber.w(e)
                     if (e is ResolvableApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
                         log(LogMessage.GPS.ResolvableException)
-                        appStateRepository.emitMessage(AppMessage.ResolvableException(e))
+                        continuation.resumeWithException(GMSResolvableException(e))
                     } else {
+                        Timber.w(e)
                         log(LogMessage.GPS.StartFailure(e))
+                        continuation.resume(false)
                     }
-                    continuation.resume(false)
                 }
                 .addOnCanceledListener {
                     continuation.resume(false)

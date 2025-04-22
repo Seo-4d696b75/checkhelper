@@ -1,9 +1,10 @@
 package com.seo4d696b75.android.ekisagasu.domain.dataset
 
+import com.seo4d696b75.android.ekisagasu.domain.cache.MemoryCache
 import java.io.File
 
 interface RemoteDataRepository {
-    suspend fun getLatestDataVersion(cache: Boolean = false): LatestDataVersion
+    val latestDataVersion: MemoryCache<LatestDataVersion>
 
     suspend fun download(
         version: Long,

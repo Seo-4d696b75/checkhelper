@@ -1,28 +1,19 @@
 package com.seo4d696b75.android.ekisagasu.domain.dataset
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-
 /**
  * @author Seo-4d696b75
  * @version 2020/12/17.
  */
-@Serializable
 data class Line(
     val id: String,
     val code: Int,
     val name: String,
-    @SerialName("name_kana")
     val nameKana: String,
-    @SerialName("station_size")
     val stationSize: Int,
     val symbol: String? = null,
-    val color: String? = null,
+    val color: ColorInt,
     val closed: Boolean,
-    @SerialName("station_list")
-    val stationList: Array<StationRegistration>,
-    @SerialName("polyline_list")
-    @Serializable(with = JsonObjectAsStringSerializer::class)
+    val stationList: List<StationRegistration>,
     val polyline: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {

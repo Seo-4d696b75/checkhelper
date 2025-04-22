@@ -1,7 +1,16 @@
 package com.seo4d696b75.android.ekisagasu.domain.xml
 
+import java.io.OutputStream
+
 interface XMLSerializer {
-    operator fun invoke(
+    fun OutputStream.writeXML(
+        encoding: String,
+        standalone: Boolean,
+        rootTagName: String,
+        content: XMLTagScope.() -> Unit,
+    )
+
+    fun buildXMLString(
         encoding: String,
         standalone: Boolean,
         rootTagName: String,

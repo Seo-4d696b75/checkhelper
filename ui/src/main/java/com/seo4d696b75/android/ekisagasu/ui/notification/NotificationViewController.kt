@@ -14,23 +14,25 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.seo4d696b75.android.ekisagasu.domain.location.LocationRepository
+import com.seo4d696b75.android.ekisagasu.domain.location.LocationState
 import com.seo4d696b75.android.ekisagasu.domain.permission.PermissionRepository.Companion.NOTIFICATION_CHANNEL_ID
 import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchRepository
+import com.seo4d696b75.android.ekisagasu.domain.search.StationSearchState
 import com.seo4d696b75.android.ekisagasu.ui.MainActivity
 import com.seo4d696b75.android.ekisagasu.ui.R
 import com.seo4d696b75.android.ekisagasu.ui.service.StationService
 import com.seo4d696b75.android.ekisagasu.ui.utils.formatDistance
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/24.
  */
+@Singleton
 class NotificationViewController @Inject constructor(
     private val searchRepository: StationSearchRepository,
     private val locationRepository: LocationRepository,
@@ -64,7 +66,7 @@ class NotificationViewController @Inject constructor(
 
         // set custom view
         builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-        builder.setSmallIcon(R.drawable.notification_icon)
+        builder.setSmallIcon(R.drawable.ic_train)
 
         // action button
         val exit = Intent(context, StationService::class.java)
@@ -72,7 +74,7 @@ class NotificationViewController @Inject constructor(
         val timer = Intent(context, StationService::class.java)
             .putExtra(StationService.KEY_REQUEST, StationService.REQUEST_START_TIMER)
         builder.addAction(
-            R.drawable.notification_exit,
+            R.drawable.ic_close,
             context.getString(R.string.notification_action_exit),
             PendingIntent.getService(
                 context,
@@ -82,7 +84,7 @@ class NotificationViewController @Inject constructor(
             ),
         )
         builder.addAction(
-            R.drawable.notification_timer,
+            R.drawable.ic_timer,
             context.getString(R.string.notification_action_timer),
             PendingIntent.getService(
                 context,
@@ -99,47 +101,45 @@ class NotificationViewController @Inject constructor(
                 launch {
                     // 最近傍の駅の変化
                     searchRepository
-                        .result
-                        .filterNotNull()
-                        .map { it.nearest }
+                        .state
                         .collect { s ->
-                            update(
-                                String.format("%s  %s", s.station.name, s.getDetectedTime()),
-                                String.format("%s   %s", s.distance.formatDistance, s.getLinesName()),
-                            )
+                            when (s) {
+                                is StationSearchState.Idle -> update(
+                                    context.getString(R.string.notification_title_wait),
+                                    context.getString(R.string.notification_message_wait),
+                                )
+
+                                is StationSearchState.Initializing -> update(
+                                    context.getString(R.string.notification_title_start),
+                                    context.getString(R.string.notification_message_start),
+                                )
+
+                                is StationSearchState.Result -> update(
+                                    String.format("%s  %s", s.nearest.station.name, s.nearest.getDetectedTime()),
+                                    String.format(
+                                        "%s   %s",
+                                        s.nearest.distance.formatDistance,
+                                        s.nearest.station.getLinesName()
+                                    ),
+                                )
+                            }
                         }
                 }
-                launch {
-                    // 探索状態の変化
-                    locationRepository.isRunning.collect {
-                        if (it) {
-                            update(
-                                context.getString(R.string.notification_title_start),
-                                context.getString(R.string.notification_message_start),
-                            )
-                        } else {
-                            update(
-                                context.getString(R.string.notification_title_wait),
-                                context.getString(R.string.notification_message_wait),
-                            )
-                        }
+            }
+            launch {
+                // TODO notificationとは関係なくね？
+                // 探索終了
+                locationRepository
+                    .currentLocation
+                    .filter { it == LocationState.Idle }
+                    .drop(1)
+                    .collect {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.message_stop_search),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     }
-                }
-                launch {
-                    // TODO notificationとは関係なくね？
-                    // 探索終了
-                    locationRepository
-                        .isRunning
-                        .filter { !it }
-                        .drop(1)
-                        .collect {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.message_stop_search),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        }
-                }
             }
         }
     }

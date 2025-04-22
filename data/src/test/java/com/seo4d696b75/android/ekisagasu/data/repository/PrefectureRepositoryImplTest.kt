@@ -26,17 +26,17 @@ class PrefectureRepositoryImplTest {
 
     @Test
     fun `不正なcode`() {
-        val name1 = repository.getName(0)
-        assertThat(name1).isEqualTo("unknown")
-        val name2 = repository.getName(48)
-        assertThat(name2).isEqualTo("unknown")
+        val p1 = repository[0]
+        assertThat(p1.name).isEqualTo("unknown")
+        val p2 = repository[48]
+        assertThat(p2.name).isEqualTo("unknown")
     }
 
     @Test
     fun `正常系`() {
-        val name1 = repository.getName(1)
-        assertThat(name1).isEqualTo("北海道")
-        val name2 = repository.getName(13)
-        assertThat(name2).isEqualTo("東京都")
+        val p1 = repository[1]
+        assertThat(p1.name).isEqualTo("北海道")
+        val p2 = repository[13]
+        assertThat(p2.name).isEqualTo("東京都")
     }
 }

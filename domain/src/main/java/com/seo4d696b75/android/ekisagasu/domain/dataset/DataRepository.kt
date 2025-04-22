@@ -1,7 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.domain.dataset
 
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.StationKdTree
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 /**
@@ -18,10 +18,7 @@ interface DataRepository {
 
     suspend fun getStationKdTree(): StationKdTree
 
-    val dataInitialized: Boolean
-    val dataVersion: StateFlow<DataVersion?>
-
-    suspend fun getDataVersion(): DataVersion?
+    val dataVersion: Flow<DataVersionState>
 
     suspend fun getDataVersionHistory(): List<DataVersion>
 

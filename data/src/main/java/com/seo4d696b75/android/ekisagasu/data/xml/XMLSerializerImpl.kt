@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.xmlpull.v1.XmlSerializer
+import java.io.OutputStream
 import java.io.StringWriter
 
 @Suppress("unused")
@@ -16,23 +17,46 @@ import java.io.StringWriter
 object XMLSerializerModule {
     @Provides
     fun providerXMLSerializer() = object : XMLSerializer {
-        override fun invoke(
+
+        private fun XmlSerializer.write(
             encoding: String,
             standalone: Boolean,
             rootTagName: String,
             content: XMLTagScope.() -> Unit
-        ): String {
-            val writer = StringWriter()
-            val serializer = Xml.newSerializer()
-            serializer.setOutput(writer)
-            serializer.startDocument(encoding, standalone)
-            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true)
-            serializer.startTag("", rootTagName)
-            XMLTagScopeImpl(serializer).content()
-            serializer.endTag("", rootTagName)
-            serializer.endDocument()
-            return writer.toString()
+        ) {
+            startDocument(encoding, standalone)
+            setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true)
+            startTag("", rootTagName)
+            XMLTagScopeImpl(this).content()
+            endTag("", rootTagName)
+            endDocument()
         }
+
+        override fun OutputStream.writeXML(
+            encoding: String,
+            standalone: Boolean,
+            rootTagName: String,
+            content: XMLTagScope.() -> Unit,
+        ) {
+            bufferedWriter().use { writer ->
+                Xml.newSerializer().apply {
+                    setOutput(writer)
+                    write(encoding, standalone, rootTagName, content)
+                }
+            }
+        }
+
+        override fun buildXMLString(
+            encoding: String,
+            standalone: Boolean,
+            rootTagName: String,
+            content: XMLTagScope.() -> Unit,
+        ) = StringWriter().let { writer ->
+            Xml.newSerializer().apply {
+                setOutput(writer)
+                write(encoding, standalone, rootTagName, content)
+            }
+        }.toString()
     }
 }
 

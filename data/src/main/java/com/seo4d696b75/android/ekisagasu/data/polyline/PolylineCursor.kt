@@ -5,6 +5,7 @@ import com.seo4d696b75.android.ekisagasu.data.kdtree.measureDistance
 import com.seo4d696b75.android.ekisagasu.data.kdtree.measureEuclid
 import com.seo4d696b75.android.ekisagasu.domain.kdtree.NearestSearch
 import com.seo4d696b75.android.ekisagasu.domain.location.Location
+import com.seo4d696b75.android.ekisagasu.domain.navigator.NavigatorPrediction
 import jp.seo.diagram.core.Edge
 import timber.log.Timber
 import kotlin.math.max
@@ -205,7 +206,7 @@ class PolylineCursor {
     }
 
     suspend fun predict(
-        result: MutableCollection<StationPrediction>,
+        result: MutableCollection<NavigatorPrediction>,
         maxPrediction: Int,
     ) {
         // ポリライン上の現在位置の近傍駅
@@ -238,7 +239,7 @@ class PolylineCursor {
         current: StationArea,
         pathLength: Float,
         cnt: Int,
-        result: MutableCollection<StationPrediction>,
+        result: MutableCollection<NavigatorPrediction>,
         depth: Int,
     ) {
         // TODO 無限ループ回避策（消極的）
@@ -306,7 +307,7 @@ class PolylineCursor {
                 // 表示用の距離
                 val nextPathLength = pathLength + start.measureDistance(nextStart)
                 // 予測を追加
-                val prediction = StationPrediction(station, nextPathLength)
+                val prediction = NavigatorPrediction(station, nextPathLength)
                 result.add(prediction)
 
                 if (cnt - 1 > 0) {

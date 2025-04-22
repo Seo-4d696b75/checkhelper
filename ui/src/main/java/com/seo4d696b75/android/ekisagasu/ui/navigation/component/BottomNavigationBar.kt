@@ -1,0 +1,81 @@
+package com.seo4d696b75.android.ekisagasu.ui.navigation.component
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.compose.dropUnlessStarted
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import com.seo4d696b75.android.ekisagasu.ui.navigation.NavigationTab
+import com.seo4d696b75.android.ekisagasu.ui.navigation.toRoute
+import com.seo4d696b75.android.ekisagasu.ui.navigation.toTab
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+
+@Composable
+fun BottomNavigationBar(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+) {
+    NavigationBar(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(NavigationBarDefaults.containerColor)
+            .windowInsetsPadding(WindowInsets.navigationBars),
+    ) {
+        var currentTab by remember { mutableStateOf<NavigationTab?>(null) }
+        LaunchedEffect(navController) {
+            navController.currentBackStackEntryFlow
+                .map { it.toRoute().toTab() }
+                .filterNotNull()
+                .collect { currentTab = it }
+        }
+
+        NavigationTab.entries.forEach { tab ->
+            val selected = tab == currentTab
+            NavigationBarItem(
+                selected = selected,
+                icon = {
+                    Icon(
+                        imageVector = tab.icon(selected),
+                        contentDescription = tab.label(),
+                    )
+                },
+                label = {
+                    Text(
+                        text = tab.label(),
+                        fontWeight = if (selected) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Normal
+                        },
+                    )
+                },
+                onClick = dropUnlessStarted {
+                    navController.navigate(tab) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+            )
+        }
+    }
+}

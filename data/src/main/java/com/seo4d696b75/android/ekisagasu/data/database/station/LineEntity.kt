@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
 import com.seo4d696b75.android.ekisagasu.domain.dataset.StationRegistration
 
 @Entity(tableName = "line", indices = [Index(value = ["id", "code"], unique = true)])
@@ -27,15 +26,7 @@ data class LineEntity(
     @ColumnInfo(name = "closed")
     val closed: Boolean,
     @ColumnInfo(name = "station_list")
-    val stationList: Array<StationRegistration>,
+    val stationList: List<StationRegistration>,
     @ColumnInfo(name = "polyline")
     val polyline: String?,
-) {
-    fun toModel() = Line(id, code, name, nameKana, stationSize, symbol, color, closed, stationList, polyline)
-
-    companion object {
-        fun fromModel(l: Line) = l.run {
-            LineEntity(id, code, name, nameKana, stationSize, symbol, color, closed, stationList, polyline)
-        }
-    }
-}
+)

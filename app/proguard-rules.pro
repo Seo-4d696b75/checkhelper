@@ -24,7 +24,7 @@
 # class name of Fragments
 -keep class * extends androidx.fragment.app.Fragment {}
 # enum class of nav args
--keep class com.seo4d696b75.android.ekisagasu.ui.top.line.LineSelectType
+-keep class com.seo4d696b75.android.ekisagasu.ui.selectLine.LineSelectType
 -keep class com.seo4d696b75.android.ekisagasu.domain.dataset.update.DataUpdateType
 # Parcelable of nav args
 -keepnames class * extends android.os.Parcelable

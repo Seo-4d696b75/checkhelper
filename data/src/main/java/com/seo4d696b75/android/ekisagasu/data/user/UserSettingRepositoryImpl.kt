@@ -17,9 +17,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -55,36 +53,26 @@ class UserSettingRepositoryImpl @Inject constructor(
                 nightModeBrightness = this[keyBrightness] ?: 128f,
             )
 
-    private val _setting = MutableStateFlow(UserSetting())
+    override val setting = context
+        .dataStore
+        .data
+        .map { it.userSetting }
 
-    override val setting = _setting
-
-    override suspend fun load(): Unit =
-        withContext(Dispatchers.IO) {
-            val preference = context.dataStore.data.first()
-            _setting.update { preference.userSetting }
+    override suspend fun update(producer: (UserSetting) -> UserSetting): Unit = withContext(Dispatchers.IO) {
+        context.dataStore.edit {
+            val value = producer(it.userSetting)
+            it[keyInterval] = value.locationUpdateInterval
+            it[keyRadar] = value.searchK
+            it[keyNotify] = value.isPushNotification
+            it[keyForceNotify] = value.isPushNotificationForce
+            it[keyKeepNotification] = value.isKeepNotification
+            it[keyNotifyPrefecture] = value.isShowPrefectureNotification
+            it[keyVibrate] = value.isVibrate
+            it[keyVibrateApproach] = value.isVibrateWhenApproach
+            it[keyVibrateMeter] = value.vibrateDistance
+            it[keyNightTimeout] = value.nightModeTimeout
+            it[keyBrightness] = value.nightModeBrightness
         }
-
-    override suspend fun save(): Unit =
-        withContext(Dispatchers.IO) {
-            context.dataStore.edit {
-                val value = _setting.value
-                it[keyInterval] = value.locationUpdateInterval
-                it[keyRadar] = value.searchK
-                it[keyNotify] = value.isPushNotification
-                it[keyForceNotify] = value.isPushNotificationForce
-                it[keyKeepNotification] = value.isKeepNotification
-                it[keyNotifyPrefecture] = value.isShowPrefectureNotification
-                it[keyVibrate] = value.isVibrate
-                it[keyVibrateApproach] = value.isVibrateWhenApproach
-                it[keyVibrateMeter] = value.vibrateDistance
-                it[keyNightTimeout] = value.nightModeTimeout
-                it[keyBrightness] = value.nightModeBrightness
-            }
-        }
-
-    override fun update(producer: (UserSetting) -> UserSetting) {
-        _setting.update(producer)
     }
 
     companion object {

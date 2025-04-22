@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.seo4d696b75.android.ekisagasu.domain.dataset.Station
 
 @Entity(tableName = "station", indices = [Index(value = ["id", "code"], unique = true)])
 data class StationEntity(
@@ -33,12 +32,4 @@ data class StationEntity(
     val voronoi: String,
     @ColumnInfo(name = "attr")
     val attr: String?,
-) {
-    fun toModel() = Station(id, code, lat, lng, name, originalName, nameKana, prefecture, lines, closed, voronoi, attr)
-
-    companion object {
-        fun fromModel(s: Station) = s.run {
-            StationEntity(id, code, lat, lng, name, originalName, nameKana, prefecture, lines, closed, voronoi, attr)
-        }
-    }
-}
+)
