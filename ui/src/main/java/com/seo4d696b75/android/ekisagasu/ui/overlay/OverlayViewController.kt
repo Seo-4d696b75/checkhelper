@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transformLatest
@@ -166,9 +166,14 @@ class OverlayViewController @Inject constructor(
                     // 現在の最近傍駅の変化（距離の変化は無視する）
                     searchRepository
                         .state
-                        .filterIsInstance<StationSearchState.Result>()
-                        .map { it.detected }
+                        .map {
+                            when (it) {
+                                is StationSearchState.Result -> it.detected.station
+                                else -> null
+                            }
+                        }
                         .distinctUntilChanged()
+                        .filterNotNull()
                         .onEach {
                             // 画面状態を確実に最新化する
                             // see https://github.com/Seo-4d696b75/checkhelper/issues/30

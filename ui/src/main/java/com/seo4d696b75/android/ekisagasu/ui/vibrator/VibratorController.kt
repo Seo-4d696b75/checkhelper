@@ -50,9 +50,14 @@ class VibratorController @Inject constructor(
                     // 近傍駅の変更（距離の変化は無視）
                     searchRepository
                         .state
-                        .filterIsInstance<StationSearchState.Result>()
-                        .map { it.detected.station }
+                        .map {
+                            when (it) {
+                                is StationSearchState.Result -> it.detected.station
+                                else -> null
+                            }
+                        }
                         .distinctUntilChanged()
+                        .filterNotNull()
                         .collect(::onStationChanged)
                 }
                 launch {
