@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class LineResponse(
-    val id: String,
+    val id: Int,
     val code: Int,
     val name: String,
     @SerialName("name_kana")

@@ -9,7 +9,7 @@ import com.seo4d696b75.android.ekisagasu.domain.search.NearStation
 import java.util.Date
 
 val previewLine = Line(
-    id = "id",
+    id = 1,
     code = 10001,
     name = "東海道新幹線",
     closed = false,
@@ -25,7 +25,7 @@ val previewLine = Line(
 
 val previewLines = listOf(
     Line(
-        id = "0096b0",
+        id = 1,
         code = 10001,
         name = "東海道新幹線",
         closed = false,
@@ -35,7 +35,7 @@ val previewLines = listOf(
         color = ColorInt.from("#0000FF"),
     ),
     Line(
-        id = "a719bd",
+        id = 2,
         code = 1004,
         name = "東北新幹線",
         closed = false,
@@ -45,7 +45,7 @@ val previewLines = listOf(
         color = ColorInt.from("#008000"),
     ),
     Line(
-        id = "ff8c6a",
+        id = 3,
         code = 11301,
         name = "JR東海道本線(東京～熱海)",
         closed = false,
@@ -56,7 +56,7 @@ val previewLines = listOf(
         symbol = "JT",
     ),
     Line(
-        id = "69d2d0",
+        id = 4,
         code = 11332,
         name = "JR京浜東北線",
         closed = false,
@@ -67,7 +67,7 @@ val previewLines = listOf(
         symbol = "JK",
     ),
     Line(
-        id = "39b88f",
+        id = 5,
         code = 11302,
         name = "JR山手線",
         closed = false,
@@ -80,8 +80,8 @@ val previewLines = listOf(
 )
 
 val previewStation = Station(
-    id = "1",
-    code = 1,
+    id = 1,
+    code = 100101,
     name = "東京",
     originalName = "東京",
     nameKana = "とうきょう",
@@ -94,8 +94,8 @@ val previewStation = Station(
 )
 
 val previewStation2 = Station(
-    id = "2",
-    code = 2,
+    id = 2,
+    code = 100102,
     name = "品川",
     originalName = "品川",
     nameKana = "しながわ",
@@ -108,8 +108,8 @@ val previewStation2 = Station(
 )
 
 val previewStation3 = Station(
-    id = "3",
-    code = 3,
+    id = 3,
+    code = 100103,
     name = "新横浜",
     originalName = "新横浜",
     nameKana = "しんよこはま",

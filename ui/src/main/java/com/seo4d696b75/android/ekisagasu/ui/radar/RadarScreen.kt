@@ -96,7 +96,7 @@ private class RadarScreenPreviewParamProvider : PreviewParameterProvider<RadarUi
             list = List(12) { index ->
                 NearStation(
                     station = previewStation.copy(
-                        id = "id-$index",
+                        id = index,
                         code = index,
                         lines = previewLines.take(index + 1),
                     ),

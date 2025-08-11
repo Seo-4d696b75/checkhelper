@@ -167,7 +167,7 @@ private fun NavigatorStationListPreview() {
                     ),
                     DisplayedNavigatorStationState.Prediction(
                         station = previewStation.copy(
-                            id = "2",
+                            id = 2,
                             code = 2,
                             name = "品川",
                             originalName = "品川",
@@ -177,7 +177,7 @@ private fun NavigatorStationListPreview() {
                     ),
                     DisplayedNavigatorStationState.Prediction(
                         station = previewStation.copy(
-                            id = "3",
+                            id = 3,
                             code = 3,
                             name = "新横浜",
                             originalName = "新横浜",

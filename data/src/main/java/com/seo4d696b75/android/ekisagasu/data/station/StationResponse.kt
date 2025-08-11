@@ -14,7 +14,7 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable
 internal data class StationResponse(
-    val id: String,
+    val id: Int,
     val code: Int,
     val lat: Double,
     val lng: Double,

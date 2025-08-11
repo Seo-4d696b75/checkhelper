@@ -5,7 +5,7 @@ package com.seo4d696b75.android.ekisagasu.domain.dataset
  * @version 2020/12/17.
  */
 data class Station(
-    val id: String,
+    val id: Int,
     val code: Int,
     val lat: Double,
     val lng: Double,

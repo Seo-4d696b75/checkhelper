@@ -9,7 +9,7 @@ import com.seo4d696b75.android.ekisagasu.domain.dataset.StationRegistration
 @Entity(tableName = "line", indices = [Index(value = ["id", "code"], unique = true)])
 data class LineEntity(
     @ColumnInfo(name = "id")
-    val id: String,
+    val id: Int,
     @PrimaryKey
     @ColumnInfo(name = "code")
     val code: Int,

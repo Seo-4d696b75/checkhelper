@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "station", indices = [Index(value = ["id", "code"], unique = true)])
 data class StationEntity(
     @ColumnInfo(name = "id")
-    val id: String,
+    val id: Int,
     @PrimaryKey
     @ColumnInfo(name = "code")
     val code: Int,
