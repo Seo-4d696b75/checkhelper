@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.Locale
 import javax.inject.Inject
 
 class LogCollectorImpl @Inject constructor(
@@ -47,8 +48,8 @@ interface LogCollectorModule {
 
 private fun LogMessage.toString(context: Context): String =
     when (this) {
-        is LogMessage.Location -> String.format("(%.6f,%.6f)", lat, lng)
-        is LogMessage.Station -> String.format("%s(%d)", station.name, station.code)
+        is LogMessage.Location -> String.format(Locale.US, "(%.6f,%.6f)", lat, lng)
+        is LogMessage.Station -> String.format(Locale.US, "%s(%d)", station.name, station.id)
         is LogMessage.GPS.Start -> context.getString(R.string.log_message_gps_start, interval)
         is LogMessage.GPS.IntervalChanged -> context.getString(R.string.log_message_gps_min_interval, before, after)
         LogMessage.GPS.Stop -> context.getString(R.string.log_message_gps_end)

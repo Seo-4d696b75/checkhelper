@@ -93,7 +93,7 @@ class GPXSerializer @Inject constructor(
                                 p.station?.let {
                                     tag("extensions") {
                                         tag("station") {
-                                            attribute("code" to it.code)
+                                            attribute("id" to it.id)
                                             text(it.name)
                                         }
                                     }
@@ -140,8 +140,8 @@ private data class TrackPoint(
     val station: StationExtension? = null,
 ) {
     companion object {
-        val LOCATION_REGEX = Regex("\\((?<lat>[0-9\\.]+),(?<lng>[0-9\\.]+)\\)")
-        val STATION_REGEX = Regex("(?<name>.+)\\((?<code>[0-9]+)\\)")
+        val LOCATION_REGEX = Regex("\\((?<lat>[0-9.]+),(?<lng>[0-9.]+)\\)")
+        val STATION_REGEX = Regex("(?<name>.+)\\((?<id>[0-9]+)\\)")
 
         fun fromLocation(log: AppLog): TrackPoint {
             val m = LOCATION_REGEX.matchEntire(log.message)
@@ -163,11 +163,11 @@ private data class TrackPoint(
             val s =
                 StationExtension(
                     name = m.groups["name"]!!.value,
-                    code = m.groups["code"]!!.value,
+                    id = m.groups["id"]!!.value,
                 )
             return fromLocation(location).copy(station = s)
         }
     }
 }
 
-private data class StationExtension(val name: String, val code: String)
+private data class StationExtension(val name: String, val id: String)
