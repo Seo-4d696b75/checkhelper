@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -168,6 +169,11 @@ class OverlayViewController @Inject constructor(
                         .filterIsInstance<StationSearchState.Result>()
                         .map { it.detected }
                         .distinctUntilChanged()
+                        .onEach {
+                            // 画面状態を確実に最新化する
+                            // see https://github.com/Seo-4d696b75/checkhelper/issues/30
+                            screenRepository.invalidate()
+                        }
                         .collect {
                             if (screenStatus.isContentVisible) {
                                 // 一定時間経過で消す

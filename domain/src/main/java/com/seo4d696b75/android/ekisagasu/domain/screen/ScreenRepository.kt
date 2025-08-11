@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 interface ScreenRepository {
     val status: Flow<ScreenStatus>
     val isScreenLocked: Boolean
+    fun invalidate()
 }
