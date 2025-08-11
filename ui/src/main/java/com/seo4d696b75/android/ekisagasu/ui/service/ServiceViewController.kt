@@ -17,9 +17,7 @@ import com.seo4d696b75.android.ekisagasu.ui.vibrator.VibratorController
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class ServiceViewController @Inject constructor(
     private val locationRepository: LocationRepository,
     private val appStateRepository: AppStateRepository,

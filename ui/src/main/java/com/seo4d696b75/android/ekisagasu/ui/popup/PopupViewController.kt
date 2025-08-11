@@ -24,10 +24,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.ceil
 
-@Singleton
 class PopupViewController @Inject constructor(
     component: ServiceViewModelComponent,
 ) : ServiceViewModelComponent by component {

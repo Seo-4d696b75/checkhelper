@@ -26,13 +26,11 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * @author Seo-4d696b75
  * @version 2020/12/24.
  */
-@Singleton
 class NotificationViewController @Inject constructor(
     private val searchRepository: StationSearchRepository,
     private val locationRepository: LocationRepository,
