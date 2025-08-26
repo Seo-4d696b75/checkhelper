@@ -95,7 +95,7 @@
     <string name="setting_title_force_notify">強制通知モード</string>
     <string name="setting_mes_force_notify">スリープ中でも画面を点灯して表示します. ただしロックスクリーンが有効な場合はユーザによる解除操作が必要です.</string>
     <string name="setting_title_vibe">バイブレータ</string>
-    <string name="setting_mes_vibe">最寄り駅の変更を検知するとバイブレータで知らせます.</string>
+    <string name="setting_mes_vibe">最寄り駅の変更を検知するとバイブレータで知らせます.\n\nOS設定によってはバイブレータが機能しないので注意してください.\n・バイブレーションが無効\n・サイレントモードが有効\n・おやすみモードが有効</string>
     <string name="setting_title_data">駅データ</string>
     <string name="setting_title_notify_stationary">常駐モード</string>
     <string name="setting_mes_notify_stationary">通知を常時画面上部に表示させます. </string>
