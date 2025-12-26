@@ -20,9 +20,11 @@ data class NearestPoint(
     companion object {
         fun from(start: LatLng, end: LatLng, point: LatLng): NearestPoint {
             val v1 =
-                (point.longitude - start.longitude) * (end.longitude - start.longitude) + (point.latitude - start.latitude) * (end.latitude - start.latitude)
+                (point.longitude - start.longitude) * (end.longitude - start.longitude) +
+                    (point.latitude - start.latitude) * (end.latitude - start.latitude)
             val v2 =
-                (point.longitude - end.longitude) * (start.longitude - end.longitude) + (point.latitude - end.latitude) * (start.latitude - end.latitude)
+                (point.longitude - end.longitude) * (start.longitude - end.longitude) +
+                    (point.latitude - end.latitude) * (start.latitude - end.latitude)
             val index = if (v1 >= 0 && v2 >= 0) {
                 val squared = (start.longitude - end.longitude).pow(2.0) + (start.latitude - end.latitude).pow(2.0)
                 (v1 / squared).toFloat()

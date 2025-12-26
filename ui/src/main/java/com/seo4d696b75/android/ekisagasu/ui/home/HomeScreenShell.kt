@@ -191,8 +191,6 @@ private fun HomeScreenShellPreview() {
             onFinishClicked = {},
             onStationClicked = {},
             onLineClicked = {},
-        ) {
-
-        }
+        ) { }
     }
 }

@@ -52,6 +52,7 @@ fun NavigatorSection(
             ) {
                 when (state) {
                     DisplayedNavigatorState.Idle -> {}
+
                     is DisplayedNavigatorState.Initializing ->
                         NavigatorInitializingSection(
                             modifier = Modifier.fillMaxSize(),

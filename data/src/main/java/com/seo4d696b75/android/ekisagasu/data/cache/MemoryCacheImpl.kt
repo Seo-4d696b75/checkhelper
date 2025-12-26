@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-
 internal inline fun <reified T : Any> MemoryCacheStore.cacheOf(
     key: String? = null,
     noinline fetch: suspend () -> T,

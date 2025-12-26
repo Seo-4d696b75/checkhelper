@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 fun SettingGroup(
     icon: Painter,
     modifier: Modifier = Modifier,
-    content: @Composable() (ColumnScope.() -> Unit)
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),

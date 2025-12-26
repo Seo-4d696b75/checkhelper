@@ -40,7 +40,8 @@ class GPXSerializer @Inject constructor(
                     "creator" to appName,
                     "version" to "1.1",
                     "xmlns:xsi" to "http://www.w3.org/2001/XMLSchema-instance",
-                    "xsi:schemaLocation" to "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd",
+                    "xsi:schemaLocation" to
+                        "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd",
                 )
 
                 tag("metadata") {
@@ -112,9 +113,7 @@ private fun List<AppLog>.toTrackSegment(): Iterator<TrackPoint> =
         private val list = this@toTrackSegment.filter(AppLogType.Filter.Geo)
         private var index = 0
 
-        override fun hasNext(): Boolean {
-            return index < list.size
-        }
+        override fun hasNext(): Boolean = index < list.size
 
         override fun next(): TrackPoint {
             val i = index

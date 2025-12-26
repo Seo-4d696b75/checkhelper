@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Collapsing(

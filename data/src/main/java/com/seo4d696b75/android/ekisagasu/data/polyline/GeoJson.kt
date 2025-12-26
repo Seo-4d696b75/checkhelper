@@ -71,26 +71,22 @@ data class StationArea(val station: Station, val points: Array<LatLng>, val encl
         return true
     }
 
-    override fun hashCode(): Int {
-        return station.hashCode()
-    }
+    override fun hashCode(): Int = station.hashCode()
 }
 
 data class PolylineSegment(val points: Array<LatLng>, val start: String, val end: String,) {
     companion object {
-        fun parseSegments(data: String): List<PolylineSegment> {
-            return convertGeoJsonFeatureCollections(data).map {
-                if (it.geometry.geometryType != "LineString") {
-                    throw RuntimeException("not LineString. type:" + it.geometry.geometryType)
-                }
-                val geo = it.geometry as GeoJsonLineString
-                val points = geo.coordinates.toTypedArray()
-                PolylineSegment(
-                    points,
-                    it.getProperty("start"),
-                    it.getProperty("end"),
-                )
+        fun parseSegments(data: String): List<PolylineSegment> = convertGeoJsonFeatureCollections(data).map {
+            if (it.geometry.geometryType != "LineString") {
+                throw RuntimeException("not LineString. type:" + it.geometry.geometryType)
             }
+            val geo = it.geometry as GeoJsonLineString
+            val points = geo.coordinates.toTypedArray()
+            PolylineSegment(
+                points,
+                it.getProperty("start"),
+                it.getProperty("end"),
+            )
         }
     }
 

@@ -179,7 +179,9 @@ class PolylineCursor {
                     if (near.distance < min.nearest.distance) {
                         min =
                             PolylineCursor(
-                                current, next, near,
+                                current,
+                                next,
+                                near,
                                 pathPosition,
                                 min,
                             )

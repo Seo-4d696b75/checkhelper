@@ -42,7 +42,6 @@ fun LogOutputConfigDialog(
     )
 }
 
-
 @Composable
 fun LogOutputConfigDialog(
     extension: LogOutputExtension,
@@ -51,7 +50,6 @@ fun LogOutputConfigDialog(
     onWrite: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onCancel,

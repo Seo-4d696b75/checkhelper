@@ -88,7 +88,6 @@ fun DataVersionSection(
                         Text(
                             text = stringResource(id = R.string.setting_mes_check_latest_data),
                         )
-
                     }
 
                     is DataVersionUiState.Checking -> {

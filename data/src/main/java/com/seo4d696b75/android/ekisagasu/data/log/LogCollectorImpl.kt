@@ -49,13 +49,21 @@ interface LogCollectorModule {
 private fun LogMessage.toString(context: Context): String =
     when (this) {
         is LogMessage.Location -> String.format(Locale.US, "(%.6f,%.6f)", lat, lng)
+
         is LogMessage.Station -> String.format(Locale.US, "%s(%d)", station.name, station.id)
+
         is LogMessage.GPS.Start -> context.getString(R.string.log_message_gps_start, interval)
+
         is LogMessage.GPS.IntervalChanged -> context.getString(R.string.log_message_gps_min_interval, before, after)
+
         LogMessage.GPS.Stop -> context.getString(R.string.log_message_gps_end)
+
         LogMessage.GPS.NoPermission -> context.getString(R.string.log_message_gps_permission_not_granted)
+
         LogMessage.GPS.ResolvableException -> context.getString(R.string.log_message_gps_resolvable_exception)
+
         is LogMessage.Data.Found -> context.getString(R.string.log_message_saved_data_found, version.version)
+
         is LogMessage.Data.DownloadRequired -> context.getString(
             R.string.log_message_need_data_download,
             version.version
@@ -67,9 +75,11 @@ private fun LogMessage.toString(context: Context): String =
         )
 
         LogMessage.Data.UpdateSuccess -> context.getString(R.string.log_message_success_data_update)
+
         is LogMessage.Error -> {
             val message = when (this) {
                 is LogMessage.GPS.StartFailure -> context.getString(R.string.log_message_gps_start_failure)
+
                 is LogMessage.Data.CheckLatestVersionFailure -> context.getString(
                     R.string.log_message_latest_check_failure
                 )

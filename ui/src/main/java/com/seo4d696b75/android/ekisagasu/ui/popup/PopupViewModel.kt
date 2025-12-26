@@ -63,6 +63,7 @@ class PopupViewModel(
         .mapWithPrevious { previous, value ->
             when (value) {
                 is PopupStatus.Visible -> value.isExpanded
+
                 PopupStatus.Invisible -> if (previous is PopupStatus.Visible) {
                     // アニメーションの自然のため直前の状態を保持する
                     previous.isExpanded

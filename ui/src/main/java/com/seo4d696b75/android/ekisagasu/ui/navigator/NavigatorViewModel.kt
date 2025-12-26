@@ -41,7 +41,9 @@ class NavigatorViewModel(
         .mapLatest { state ->
             when (state) {
                 NavigatorState.Idle -> DisplayedNavigatorState.Idle
+
                 is NavigatorState.Initializing -> DisplayedNavigatorState.Initializing(state.line)
+
                 is NavigatorState.Result -> DisplayedNavigatorState.Result(
                     line = state.line,
                     stations = buildList {

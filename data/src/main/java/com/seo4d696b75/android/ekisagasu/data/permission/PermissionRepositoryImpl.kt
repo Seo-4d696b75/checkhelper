@@ -71,22 +71,22 @@ class PermissionRepositoryImpl @Inject constructor(
         store.setLocationPermissionDenied()
     }
 
-    override suspend fun getNotificationPermissionState(): PermissionState {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    override suspend fun getNotificationPermissionState(): PermissionState = if (Build.VERSION.SDK_INT <
+        Build.VERSION_CODES.TIRAMISU
+    ) {
+        PermissionState.Granted
+    } else {
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
             PermissionState.Granted
         } else {
-            val granted = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
-            if (granted) {
-                PermissionState.Granted
-            } else {
-                PermissionState.NotGranted(
-                    permission = Manifest.permission.POST_NOTIFICATIONS,
-                    hasDenied = store.hasNotificationPermissionDenied(),
-                )
-            }
+            PermissionState.NotGranted(
+                permission = Manifest.permission.POST_NOTIFICATIONS,
+                hasDenied = store.hasNotificationPermissionDenied(),
+            )
         }
     }
 
@@ -121,7 +121,9 @@ class PermissionRepositoryImpl @Inject constructor(
                     continuation.resume(true)
                 }
                 .addOnFailureListener { e ->
-                    if (e is ResolvableApiException && e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
+                    if (e is ResolvableApiException &&
+                        e.statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED
+                    ) {
                         log(LogMessage.GPS.ResolvableException)
                         continuation.resumeWithException(GMSResolvableException(e))
                     } else {

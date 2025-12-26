@@ -73,7 +73,6 @@ fun LogFilterSection(
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Start,
             )
-
         }
         Spacer(modifier = Modifier.width(16.dp))
 

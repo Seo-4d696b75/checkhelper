@@ -130,7 +130,6 @@ class OverlayViewController @Inject constructor(
         }
         windowManager.addView(touchScreen, touchLayoutParam)
 
-
         owner.lifecycleScope.launch {
             owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

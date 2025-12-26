@@ -19,16 +19,14 @@ import javax.inject.Singleton
 object HttpClientModule {
     @Singleton
     @Provides
-    fun provideHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().apply {
-            if (BuildConfig.DEBUG) {
-                val interceptor = HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                }
-                addInterceptor(interceptor)
+    fun provideHttpClient(): OkHttpClient = OkHttpClient.Builder().apply {
+        if (BuildConfig.DEBUG) {
+            val interceptor = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
             }
-        }.build()
-    }
+            addInterceptor(interceptor)
+        }
+    }.build()
 }
 
 @Module

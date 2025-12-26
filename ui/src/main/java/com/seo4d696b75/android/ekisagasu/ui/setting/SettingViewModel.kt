@@ -34,9 +34,7 @@ class SettingViewModel @Inject constructor(
     private val navigateDataUpdateEvent: NavigateDataUpdateEvent,
     logger: LogCollector,
     errorHandler: ErrorHandler,
-) : ViewModel(),
-    LogCollector by logger,
-    ErrorHandler by errorHandler {
+) : ViewModel(), LogCollector by logger, ErrorHandler by errorHandler {
 
     private val isDataVersionChecking = MutableStateFlow(false)
     private val isLatestData = MutableStateFlow(false)
@@ -139,13 +137,13 @@ class SettingViewModel @Inject constructor(
         fun searchSize(value: Int) = this { it.copy(searchK = value) }
         fun isPopupEnabled(enabled: Boolean) = this { it.copy(isPushNotification = enabled) }
         fun isPopupForced(forced: Boolean) = this { it.copy(isPushNotificationForce = forced) }
-        fun isPopupKept(keep: Boolean) = this{ it.copy(isKeepNotification = keep) }
-        fun isPopupPrefectureShown(show: Boolean) = this{ it.copy(isShowPrefectureNotification = show) }
-        fun isVibrateEnabled(enabled: Boolean) = this{ it.copy(isVibrate = enabled) }
-        fun isVibrateOnApproachEnabled(enabled: Boolean) = this{ it.copy(isVibrateWhenApproach = enabled) }
-        fun vibrateDistanceOnApproach(meter: Int) = this{ it.copy(vibrateDistance = meter) }
-        fun nightScrimTimeout(timeout: NightScrimTimeout) = this{ it.copy(nightModeTimeout = timeout.seconds) }
-        fun nightScrimBrightness(alpha: Float) = this{ it.copy(nightModeBrightness = alpha) }
+        fun isPopupKept(keep: Boolean) = this { it.copy(isKeepNotification = keep) }
+        fun isPopupPrefectureShown(show: Boolean) = this { it.copy(isShowPrefectureNotification = show) }
+        fun isVibrateEnabled(enabled: Boolean) = this { it.copy(isVibrate = enabled) }
+        fun isVibrateOnApproachEnabled(enabled: Boolean) = this { it.copy(isVibrateWhenApproach = enabled) }
+        fun vibrateDistanceOnApproach(meter: Int) = this { it.copy(vibrateDistance = meter) }
+        fun nightScrimTimeout(timeout: NightScrimTimeout) = this { it.copy(nightModeTimeout = timeout.seconds) }
+        fun nightScrimBrightness(alpha: Float) = this { it.copy(nightModeBrightness = alpha) }
     }
 
     fun updateNightMode(enabled: Boolean) = viewModelScope.launch {

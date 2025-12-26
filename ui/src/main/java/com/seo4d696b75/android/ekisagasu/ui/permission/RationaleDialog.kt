@@ -144,6 +144,7 @@ private fun PermissionRationale.requestDescription(): String = when (this) {
     }
 
     PermissionRationale.NotificationChannel -> stringResource(R.string.dialog_notification_channel_request)
+
     PermissionRationale.DrawOverlay -> stringResource(R.string.dialog_draw_overlay_request)
 }
 
