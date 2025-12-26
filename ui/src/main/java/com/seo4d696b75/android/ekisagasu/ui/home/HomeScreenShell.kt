@@ -1,7 +1,7 @@
 package com.seo4d696b75.android.ekisagasu.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.seo4d696b75.android.ekisagasu.domain.dataset.Line
@@ -72,9 +73,10 @@ fun HomeScreenShell(
             }
 
             HomeViewModel.Nav.ShowMap -> {
+                @SuppressLint("LocalContextGetResourceValueCall")
                 val intent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(context.getString(R.string.map_url)),
+                    context.getString(R.string.map_url).toUri(),
                 )
                 context.startActivity(intent)
             }

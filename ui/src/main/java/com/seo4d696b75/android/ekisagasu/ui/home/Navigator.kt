@@ -1,11 +1,12 @@
 package com.seo4d696b75.android.ekisagasu.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import com.seo4d696b75.android.ekisagasu.ui.R
@@ -44,9 +45,10 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
                         navController.popBackStack(NavigationRoute.Home.Radar, false)
 
                     is StationViewModel.Nav.ShowMap -> {
+                        @SuppressLint("LocalContextGetResourceValueCall")
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse(context.getString(R.string.map_url) + "?station=${it.station.code}"),
+                            (context.getString(R.string.map_url) + "?station=${it.station.code}").toUri(),
                         )
                         context.startActivity(intent)
                     }
@@ -68,9 +70,10 @@ fun NavGraphBuilder.homeNavigation(navController: NavController) {
                         navController.popBackStack(NavigationRoute.Home.Radar, false)
 
                     is LineViewModel.Nav.ShowMap -> {
+                        @SuppressLint("LocalContextGetResourceValueCall")
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse(context.getString(R.string.map_url) + "?line=${it.line.code}"),
+                            (context.getString(R.string.map_url) + "?line=${it.line.code}").toUri(),
                         )
                         context.startActivity(intent)
                     }
