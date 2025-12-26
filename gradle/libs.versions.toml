@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.3.0"
-android-gradle = "8.5.2"
+android-gradle = "8.13.2"
 ktlint-gradle = "12.1.0"
 hilt = "2.55"
 navigation = "2.8.8"
