@@ -87,6 +87,8 @@ dependencies {
 
     implementation(libs.google.play.services.location)
 
+    implementation(libs.okhttp)
+
     implementation(libs.timber)
 
     implementation(platform(libs.firebase.bom))
