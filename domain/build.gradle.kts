@@ -28,7 +28,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)
-    testImplementation(libs.androidx.test.core)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.google.truth)
     testImplementation(libs.mockk)
