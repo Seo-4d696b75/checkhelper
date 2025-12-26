@@ -8,8 +8,8 @@ room = "2.8.4"
 androidx-core = "1.17.0"
 androidx-lifecycle = "2.10.0"
 androidx-test = "1.4.0"
-kotlinx-coroutine = "1.8.1"
-kotlinx-serialization = "1.7.2"
+kotlinx-coroutine = "1.10.2"
+kotlinx-serialization = "1.9.0"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 espresso-core = "3.6.1"
@@ -58,8 +58,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 
 # serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-
-kotlinx-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version = "0.3.8" }
+kotlinx-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version = "0.4.0" }
 
 # android
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
