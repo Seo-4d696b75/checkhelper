@@ -13,7 +13,7 @@ kotlinx-serialization = "1.9.0"
 retrofit = "3.0.0"
 okhttp = "5.3.2"
 espresso-core = "3.6.1"
-firebase = "33.9.0"
+firebase = "34.7.0"
 compose = "2025.12.01"
 
 [plugins]
@@ -45,7 +45,7 @@ androidx-navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", ver
 google-services = { id = "com.google.gms.google-services", version = "4.4.2" }
 
 # firebase
-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.3" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.6" }
 
 [libraries]
 # metadata
@@ -111,8 +111,8 @@ google-play-services-location = { group = "com.google.android.gms", name = "play
 
 # firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 
 # retrofit
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
