@@ -15,7 +15,7 @@ plugins {
 
 android {
     namespace = "com.seo4d696b75.android.ekisagasu.ui"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 27
